@@ -17,12 +17,12 @@ public final class MarkLogicConnection {
 
   private final String id;
   private final Logger LOGGER = LoggerFactory.getLogger(MarkLogicConnection.class);
-  private final DatabaseClient client;
+  private static DatabaseClient client;
   
   public MarkLogicConnection(String hostname, String username, String password, int port) {
-    this.id = id;
+    this.id = "223efe"; //id;
     try {
-        client = DatabaseClientFactory.newClient(hostname, port, new DigestAuthContext(username, password));
+        this.client = DatabaseClientFactory.newClient(hostname, port, new DigestAuthContext(username, password));
     } catch (Exception e) {
         LOGGER.error("MarkLogic connection failed. " + e.getMessage());
     }
@@ -52,8 +52,13 @@ public final class MarkLogicConnection {
     }
   }
   
-  public DataMovementManager newDataMovementManager() {
-    return client.DataMovementManager();
-  };
+  /*public DataMovementManager newDataMovementManager(DatabaseClient myClient) {
+    DataMovementManager dmm = myClient.DataMovementManager();
+    return dmm;
+  }; */
+  
+  public DatabaseClient getClient() {
+    return this.client;
+  }
 
 }

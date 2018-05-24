@@ -31,6 +31,16 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                       .getMessage()
                                       .getPayload()
                                       .getValue());
-    assertThat(payloadValue, is("Using Configuration [configId] with Connection id [aValue:100]"));
+    assertThat(payloadValue, is("Using Configuration [configId] with Connection id [223efe]"));
+  }
+  
+  @Test
+  public void executeImportDocsOperation() throws Exception {
+    String payloadValue = ((String) flowRunner("importDocsFlow")
+                                      .run()
+                                      .getMessage()
+                                      .getPayload()
+                                      .getValue());
+    assertThat(payloadValue, is("Success"));
   }
 }

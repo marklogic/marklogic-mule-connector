@@ -29,34 +29,33 @@ public class MarkLogicOperations {
 
   // Loading files into MarkLogic asynchronously
   @MediaType(value = ANY, strict = false)
-  public void importDocs(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection) {
-      //connection.importDocs();
+  public String importDocs(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection) {
       
-      DocumentMetadataHandle metah = new DocumentMetadataHandle();
-      
-      // Added by Clay for collections and permissions.  Permissions are additive to the rest-reader:read and rest-writer:update.
-      metah.withCollections("mulesoft-dmsdk-test-clay");
-      metah.getPermissions().add("xpl-content-read", DocumentMetadataHandle.Capability.READ);
-      metah.getPermissions().add("xpl-content-write", DocumentMetadataHandle.Capability.UPDATE);
-      
+        DocumentMetadataHandle metah = new DocumentMetadataHandle();
+
+        // Collections and permissions.  Permissions are additive to the rest-reader:read and rest-writer:update.
+        metah.withCollections("mulesoft-dmsdk-test-clay");
+        metah.getPermissions().add("xpl-content-read", DocumentMetadataHandle.Capability.READ);
+        metah.getPermissions().add("xpl-content-write", DocumentMetadataHandle.Capability.UPDATE);
+        
         // create and configure the job
-        //DataMovementManager dmm = client.newDataMovementManager();
-        DataMovementManager dmm = connection.newDataMovementManager();
+        DatabaseClient myClient = connection.getClient();
+        DataMovementManager dmm = myClient.newDataMovementManager();
         WriteBatcher batcher = dmm.newWriteBatcher();
         batcher.withBatchSize(5)
-               .withThreadCount(3)
-               .onBatchSuccess(batch-> {
-                   System.out.println(batch.getTimestamp().getTime() + " documents written: " + batch.getJobWritesSoFar());
-                })
-               .onBatchFailure((batch,throwable) -> {
-                   throwable.printStackTrace();
-                });
+        .withThreadCount(3)
+        .onBatchSuccess(batch-> {
+            System.out.println(batch.getTimestamp().getTime() + " documents written: " + batch.getJobWritesSoFar());
+        })
+        .onBatchFailure((batch,throwable) -> {
+            throwable.printStackTrace();
+        });
         
         // start the job and feed input to the batcher
         dmm.startJob(batcher);
         try {
-            batcher.add("/mulesoft/doc1.txt", new StringHandle("doc1 contents"));
-        } catch (IOException e) {
+            batcher.add("/mulesoft/doc1.txt", metah, new StringHandle("doc1 contents"));
+        } catch (Exception e) {
             e.printStackTrace();
         }
         
@@ -64,6 +63,7 @@ public class MarkLogicOperations {
         // for all batches to complete. This call will block.
         batcher.flushAndWait();
         dmm.stopJob(batcher);
+        return "Success";
   }
   
   /* Example of an operation that uses the configuration and a connection instance to perform some action. */
