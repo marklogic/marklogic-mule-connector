@@ -59,6 +59,267 @@
             {
               "type": {
                 "format": "java",
+                "type": "String"
+              },
+              "hasDynamicType": false,
+              "required": true,
+              "isConfigOverride": false,
+              "expressionSupport": "SUPPORTED",
+              "role": "BEHAVIOUR",
+              "dslConfiguration": {
+                "allowsInlineDefinition": true,
+                "allowsReferences": true,
+                "allowTopLevelDefinition": false
+              },
+              "layoutModel": {
+                "password": false,
+                "text": false,
+                "query": false,
+                "order": 2
+              },
+              "allowedStereotypeModels": [],
+              "name": "threadCount",
+              "description": "",
+              "modelProperties": {}
+            },
+            {
+              "type": {
+                "format": "java",
+                "type": "String"
+              },
+              "hasDynamicType": false,
+              "required": true,
+              "isConfigOverride": false,
+              "expressionSupport": "SUPPORTED",
+              "role": "BEHAVIOUR",
+              "dslConfiguration": {
+                "allowsInlineDefinition": true,
+                "allowsReferences": true,
+                "allowTopLevelDefinition": false
+              },
+              "layoutModel": {
+                "password": false,
+                "text": false,
+                "query": false,
+                "order": 3
+              },
+              "allowedStereotypeModels": [],
+              "name": "batchSize",
+              "description": "",
+              "modelProperties": {}
+            },
+            {
+              "type": {
+                "format": "java",
+                "type": "String"
+              },
+              "hasDynamicType": false,
+              "required": true,
+              "isConfigOverride": false,
+              "expressionSupport": "SUPPORTED",
+              "role": "BEHAVIOUR",
+              "dslConfiguration": {
+                "allowsInlineDefinition": true,
+                "allowsReferences": true,
+                "allowTopLevelDefinition": false
+              },
+              "layoutModel": {
+                "password": false,
+                "text": false,
+                "query": false,
+                "order": 4
+              },
+              "allowedStereotypeModels": [],
+              "name": "outputCollections",
+              "description": "",
+              "modelProperties": {}
+            },
+            {
+              "type": {
+                "format": "java",
+                "type": "String"
+              },
+              "hasDynamicType": false,
+              "required": true,
+              "isConfigOverride": false,
+              "expressionSupport": "SUPPORTED",
+              "role": "BEHAVIOUR",
+              "dslConfiguration": {
+                "allowsInlineDefinition": true,
+                "allowsReferences": true,
+                "allowTopLevelDefinition": false
+              },
+              "layoutModel": {
+                "password": false,
+                "text": false,
+                "query": false,
+                "order": 5
+              },
+              "allowedStereotypeModels": [],
+              "name": "outputPermissions",
+              "description": "",
+              "modelProperties": {}
+            },
+            {
+              "type": {
+                "format": "java",
+                "type": "String"
+              },
+              "hasDynamicType": false,
+              "required": true,
+              "isConfigOverride": false,
+              "expressionSupport": "SUPPORTED",
+              "role": "BEHAVIOUR",
+              "dslConfiguration": {
+                "allowsInlineDefinition": true,
+                "allowsReferences": true,
+                "allowTopLevelDefinition": false
+              },
+              "layoutModel": {
+                "password": false,
+                "text": false,
+                "query": false,
+                "order": 6
+              },
+              "allowedStereotypeModels": [],
+              "name": "outputQuality",
+              "description": "",
+              "modelProperties": {}
+            },
+            {
+              "type": {
+                "format": "java",
+                "type": "String"
+              },
+              "hasDynamicType": false,
+              "required": true,
+              "isConfigOverride": false,
+              "expressionSupport": "SUPPORTED",
+              "role": "BEHAVIOUR",
+              "dslConfiguration": {
+                "allowsInlineDefinition": true,
+                "allowsReferences": true,
+                "allowTopLevelDefinition": false
+              },
+              "layoutModel": {
+                "password": false,
+                "text": false,
+                "query": false,
+                "order": 7
+              },
+              "allowedStereotypeModels": [],
+              "name": "format",
+              "description": "",
+              "modelProperties": {}
+            },
+            {
+              "type": {
+                "format": "java",
+                "type": "String"
+              },
+              "hasDynamicType": false,
+              "required": true,
+              "isConfigOverride": false,
+              "expressionSupport": "SUPPORTED",
+              "role": "BEHAVIOUR",
+              "dslConfiguration": {
+                "allowsInlineDefinition": true,
+                "allowsReferences": true,
+                "allowTopLevelDefinition": false
+              },
+              "layoutModel": {
+                "password": false,
+                "text": false,
+                "query": false,
+                "order": 8
+              },
+              "allowedStereotypeModels": [],
+              "name": "outputUriPrefix",
+              "description": "",
+              "modelProperties": {}
+            },
+            {
+              "type": {
+                "format": "java",
+                "type": "String"
+              },
+              "hasDynamicType": false,
+              "required": true,
+              "isConfigOverride": false,
+              "expressionSupport": "SUPPORTED",
+              "role": "BEHAVIOUR",
+              "dslConfiguration": {
+                "allowsInlineDefinition": true,
+                "allowsReferences": true,
+                "allowTopLevelDefinition": false
+              },
+              "layoutModel": {
+                "password": false,
+                "text": false,
+                "query": false,
+                "order": 9
+              },
+              "allowedStereotypeModels": [],
+              "name": "outputUriSuffix",
+              "description": "",
+              "modelProperties": {}
+            },
+            {
+              "type": {
+                "format": "java",
+                "type": "String"
+              },
+              "hasDynamicType": false,
+              "required": false,
+              "isConfigOverride": false,
+              "expressionSupport": "SUPPORTED",
+              "role": "BEHAVIOUR",
+              "dslConfiguration": {
+                "allowsInlineDefinition": true,
+                "allowsReferences": true,
+                "allowTopLevelDefinition": false
+              },
+              "layoutModel": {
+                "password": false,
+                "text": false,
+                "query": false,
+                "order": 10
+              },
+              "allowedStereotypeModels": [],
+              "name": "generateOutputUriBasename",
+              "description": "",
+              "modelProperties": {}
+            },
+            {
+              "type": {
+                "format": "java",
+                "type": "String"
+              },
+              "hasDynamicType": false,
+              "required": false,
+              "isConfigOverride": false,
+              "expressionSupport": "SUPPORTED",
+              "defaultValue": "StringHandle",
+              "role": "BEHAVIOUR",
+              "dslConfiguration": {
+                "allowsInlineDefinition": true,
+                "allowsReferences": true,
+                "allowTopLevelDefinition": false
+              },
+              "layoutModel": {
+                "password": false,
+                "text": false,
+                "query": false,
+                "order": 11
+              },
+              "allowedStereotypeModels": [],
+              "name": "handleType",
+              "description": "",
+              "modelProperties": {}
+            },
+            {
+              "type": {
+                "format": "java",
                 "type": "Object",
                 "annotations": {
                   "typeId": "org.mule.runtime.extension.api.runtime.ExpirationPolicy",
@@ -228,6 +489,58 @@
                     "type": "String"
                   },
                   "hasDynamicType": false,
+                  "required": true,
+                  "isConfigOverride": false,
+                  "expressionSupport": "SUPPORTED",
+                  "role": "BEHAVIOUR",
+                  "dslConfiguration": {
+                    "allowsInlineDefinition": true,
+                    "allowsReferences": true,
+                    "allowTopLevelDefinition": false
+                  },
+                  "layoutModel": {
+                    "password": false,
+                    "text": false,
+                    "query": false,
+                    "order": 1
+                  },
+                  "allowedStereotypeModels": [],
+                  "name": "docPayload",
+                  "description": "",
+                  "modelProperties": {}
+                },
+                {
+                  "type": {
+                    "format": "java",
+                    "type": "String"
+                  },
+                  "hasDynamicType": false,
+                  "required": true,
+                  "isConfigOverride": false,
+                  "expressionSupport": "SUPPORTED",
+                  "role": "BEHAVIOUR",
+                  "dslConfiguration": {
+                    "allowsInlineDefinition": true,
+                    "allowsReferences": true,
+                    "allowTopLevelDefinition": false
+                  },
+                  "layoutModel": {
+                    "password": false,
+                    "text": false,
+                    "query": false,
+                    "order": 2
+                  },
+                  "allowedStereotypeModels": [],
+                  "name": "basenameUri",
+                  "description": "",
+                  "modelProperties": {}
+                },
+                {
+                  "type": {
+                    "format": "java",
+                    "type": "String"
+                  },
+                  "hasDynamicType": false,
                   "required": false,
                   "isConfigOverride": false,
                   "expressionSupport": "SUPPORTED",
@@ -241,7 +554,7 @@
                     "password": false,
                     "text": false,
                     "query": false,
-                    "order": 1,
+                    "order": 3,
                     "tabName": "Advanced"
                   },
                   "allowedStereotypeModels": [],
@@ -922,6 +1235,36 @@
                   "name": "port",
                   "displayModel": {
                     "displayName": "Port"
+                  },
+                  "description": "",
+                  "modelProperties": {}
+                },
+                {
+                  "type": {
+                    "format": "java",
+                    "type": "String"
+                  },
+                  "hasDynamicType": false,
+                  "required": false,
+                  "isConfigOverride": false,
+                  "expressionSupport": "SUPPORTED",
+                  "defaultValue": "testConfig-223efe",
+                  "role": "BEHAVIOUR",
+                  "dslConfiguration": {
+                    "allowsInlineDefinition": true,
+                    "allowsReferences": true,
+                    "allowTopLevelDefinition": false
+                  },
+                  "layoutModel": {
+                    "password": false,
+                    "text": false,
+                    "query": false,
+                    "order": 5
+                  },
+                  "allowedStereotypeModels": [],
+                  "name": "connectionId",
+                  "displayModel": {
+                    "displayName": "Connection ID"
                   },
                   "description": "",
                   "modelProperties": {}

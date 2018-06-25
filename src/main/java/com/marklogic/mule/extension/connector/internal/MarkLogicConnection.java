@@ -16,20 +16,21 @@ import org.slf4j.LoggerFactory;
 public final class MarkLogicConnection {
 
   private final String id;
-  private final Logger LOGGER = LoggerFactory.getLogger(MarkLogicConnection.class);
+  private final Logger logger = LoggerFactory.getLogger(MarkLogicConnection.class);
   private static DatabaseClient client;
   
-  public MarkLogicConnection(String hostname, String username, String password, int port) {
-    this.id = "223efe"; //id;
+  public MarkLogicConnection(String hostname, String username, String password, int port, String connectionId) {
+    this.id = connectionId;
+    logger.info("MarkLogic connection id = " + this.id);
     try {
         this.client = DatabaseClientFactory.newClient(hostname, port, new DigestAuthContext(username, password));
     } catch (Exception e) {
-        LOGGER.error("MarkLogic connection failed. " + e.getMessage());
+        logger.error("MarkLogic connection failed. " + e.getMessage());
     }
   }
 
   public String getId() {
-    return id;
+    return this.id;
   }
 
   public void invalidate() {
@@ -37,25 +38,20 @@ public final class MarkLogicConnection {
     try {
         client.release();
     } catch (Exception e) {
-        LOGGER.warn("MarkLogic disconnect failed. " + e.getMessage());
+        logger.warn("MarkLogic disconnect failed. " + e.getMessage());
     }
   }
   
   public boolean isConnected(int port) {
     Integer connectedPort = client.getPort();
     Integer configuredPort = new Integer(port);
-    if (connectedPort == configuredPort) {
+    if (connectedPort.equals(configuredPort)) {
         return true;
     } else {
-        LOGGER.warn("Could not determine MarkLogicConnection port");
+        logger.warn("Could not determine MarkLogicConnection port");
         return false;
     }
   }
-  
-  /*public DataMovementManager newDataMovementManager(DatabaseClient myClient) {
-    DataMovementManager dmm = myClient.DataMovementManager();
-    return dmm;
-  }; */
   
   public DatabaseClient getClient() {
     return this.client;

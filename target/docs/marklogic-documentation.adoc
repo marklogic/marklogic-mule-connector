@@ -31,6 +31,16 @@ Default configuration
 | Connection a| <<config_connection, Connection>>
  | The connection types that can be provided to this configuration. | | *x*{nbsp}
 | Config Id a| String |  |  | *x*{nbsp}
+| Thread Count a| String |  |  | *x*{nbsp}
+| Batch Size a| String |  |  | *x*{nbsp}
+| Output Collections a| String |  |  | *x*{nbsp}
+| Output Permissions a| String |  |  | *x*{nbsp}
+| Output Quality a| String |  |  | *x*{nbsp}
+| Format a| String |  |  | *x*{nbsp}
+| Output Uri Prefix a| String |  |  | *x*{nbsp}
+| Output Uri Suffix a| String |  |  | *x*{nbsp}
+| Generate Output Uri Basename a| String |  |  | {nbsp}
+| Handle Type a| String |  |  +++StringHandle+++ | {nbsp}
 | Expiration Policy a| <<ExpirationPolicy>> |  +++Configures the minimum amount of time that a dynamic configuration instance can remain idle before the runtime considers it eligible for expiration. This does not mean that the platform will expire the instance at the exact moment that it becomes eligible. The runtime will actually purge the instances when it sees it fit.+++ |  | {nbsp}
 |======================
 
@@ -47,6 +57,7 @@ Default configuration
 | User name a| String |  |  | *x*{nbsp}
 | Password a| String |  |  | *x*{nbsp}
 | Port a| Number |  |  | *x*{nbsp}
+| Connection ID a| String |  |  +++testConfig-223efe+++ | {nbsp}
 | Reconnection a| <<Reconnection>> |  +++When the application is deployed, a connectivity test is performed on all connectors. If set to true, deployment will fail if the test doesn't pass after exhausting the associated reconnection strategy+++ |  | {nbsp}
 | Pooling Profile a| <<PoolingProfile>> |  +++Characteristics of the connection pool+++ |  | {nbsp}
 |======================
@@ -69,6 +80,8 @@ Default configuration
 |======================
 | Name | Type | Description | Default Value | Required
 | Configuration | String | The name of the configuration to use. | | *x*{nbsp}
+| Doc Payload a| String |  |  | *x*{nbsp}
+| Basename Uri a| String |  |  | *x*{nbsp}
 | Output Mime Type a| String |  +++The mime type of the payload that this operation outputs.+++ |  | {nbsp}
 | Target Variable a| String |  +++The name of a variable on which the operation's output will be placed+++ |  | {nbsp}
 | Target Value a| String |  +++An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable+++ |  +++#[payload]+++ | {nbsp}

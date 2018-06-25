@@ -4,14 +4,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.Map;
 
 import com.marklogic.client.io.*;
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
+import com.marklogic.client.DatabaseClientFactory.DigestAuthContext;
 import com.marklogic.client.datamovement.WriteBatcher;
 import com.marklogic.client.datamovement.DataMovementManager;
-import com.marklogic.client.DatabaseClientFactory.DigestAuthContext;
 
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 
@@ -25,25 +26,59 @@ import org.slf4j.LoggerFactory;
 /* This class is a container for operations, every public method in this class will be taken as an extension operation. */
 public class MarkLogicOperations {
 
-  private final Logger LOGGER = LoggerFactory.getLogger(MarkLogicOperations.class);
+  private final Logger logger = LoggerFactory.getLogger(MarkLogicOperations.class);
 
-  // Loading files into MarkLogic asynchronously
+  // Loading files into MarkLogic asynchronously byte[] docPayload
   @MediaType(value = ANY, strict = false)
-  public String importDocs(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection) {
-      
+  public String importDocs(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection, String docPayload, String basenameUri) {
+        String payload = docPayload;
+        System.out.println(payload);
         DocumentMetadataHandle metah = new DocumentMetadataHandle();
 
-        // Collections and permissions.  Permissions are additive to the rest-reader:read and rest-writer:update.
-        metah.withCollections("mulesoft-dmsdk-test-clay");
-        metah.getPermissions().add("xpl-content-read", DocumentMetadataHandle.Capability.READ);
-        metah.getPermissions().add("xpl-content-write", DocumentMetadataHandle.Capability.UPDATE);
+        // Collections, quality, and permissions.  
+        // Permissions are additive to the rest-reader,read and rest-writer,update.
+        metah.withCollections(configuration.getOutputCollections());
+        metah.setQuality(configuration.getOutputQuality());
+        String[] permissions = configuration.getOutputPermissions();
+        for( int i = 0; i < permissions.length - 1; i++) {
+            String role = permissions[i];
+            String capability = permissions[i + 1];
+            switch(capability.toLowerCase()) {
+                case "read" :
+                    metah.getPermissions().add(role, DocumentMetadataHandle.Capability.READ);
+                    break;
+                case "insert" :
+                    metah.getPermissions().add(role, DocumentMetadataHandle.Capability.INSERT);
+                    break;
+                case "update" :
+                    metah.getPermissions().add(role, DocumentMetadataHandle.Capability.UPDATE);
+                    break;
+                case "execute" :
+                    metah.getPermissions().add(role, DocumentMetadataHandle.Capability.EXECUTE);
+                    break;
+                case "node_update" :
+                    metah.getPermissions().add(role, DocumentMetadataHandle.Capability.NODE_UPDATE);
+                    break;
+                default :
+                    System.out.println("No additive permissions assigned");
+            }
+        }
+        
+        // determine output URI
+        String outURI;
+        if (basenameUri.length() > 0 && configuration.getGenerateOutputUriBasename() == Boolean.FALSE) {
+            outURI = configuration.getOutputPrefix() + basenameUri + configuration.getOutputSuffix();
+        } else {
+            String uuid = UUID.randomUUID().toString();
+            outURI = configuration.getOutputPrefix() + uuid + configuration.getOutputSuffix();
+        }
         
         // create and configure the job
         DatabaseClient myClient = connection.getClient();
         DataMovementManager dmm = myClient.newDataMovementManager();
         WriteBatcher batcher = dmm.newWriteBatcher();
-        batcher.withBatchSize(5)
-        .withThreadCount(3)
+        batcher.withBatchSize(configuration.getBatchSize())
+        .withThreadCount(configuration.getThreadCount())
         .onBatchSuccess(batch-> {
             System.out.println(batch.getTimestamp().getTime() + " documents written: " + batch.getJobWritesSoFar());
         })
@@ -54,7 +89,7 @@ public class MarkLogicOperations {
         // start the job and feed input to the batcher
         dmm.startJob(batcher);
         try {
-            batcher.add("/mulesoft/doc1.txt", metah, new StringHandle("doc1 contents"));
+            batcher.add(outURI, metah, new StringHandle(payload));
         } catch (Exception e) {
             e.printStackTrace();
         }

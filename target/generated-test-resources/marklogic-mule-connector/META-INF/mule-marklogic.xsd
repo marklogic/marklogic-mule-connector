@@ -17,6 +17,16 @@
           </xs:sequence>
           <xs:attribute type="xs:string" use="required" name="name"></xs:attribute>
           <xs:attribute type="mule:expressionString" use="required" name="configId"></xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="threadCount"></xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="batchSize"></xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="outputCollections"></xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="outputPermissions"></xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="outputQuality"></xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="format"></xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="outputUriPrefix"></xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="outputUriSuffix"></xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" name="generateOutputUriBasename"></xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" default="StringHandle" name="handleType"></xs:attribute>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -33,6 +43,7 @@
           <xs:attribute type="mule:expressionString" use="required" name="username"></xs:attribute>
           <xs:attribute type="mule:expressionString" use="required" name="password"></xs:attribute>
           <xs:attribute type="mule:expressionInt" use="required" name="port"></xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" default="testConfig-223efe" name="connectionId"></xs:attribute>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -49,6 +60,8 @@
             <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute type="mule:expressionString" use="required" name="docPayload"></xs:attribute>
+        <xs:attribute type="mule:expressionString" use="required" name="basenameUri"></xs:attribute>
         <xs:attribute type="mule:expressionString" use="optional" name="outputMimeType">
           <xs:annotation>
             <xs:documentation>The mime type of the payload that this operation outputs.</xs:documentation>

@@ -7,6 +7,36 @@
                 <parameter name="configId">
                     <description><![CDATA[]]></description>
                 </parameter>
+                <parameter name="threadCount">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="batchSize">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="outputCollections">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="outputPermissions">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="outputQuality">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="format">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="outputUriPrefix">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="outputUriSuffix">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="generateOutputUriBasename">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="handleType">
+                    <description><![CDATA[]]></description>
+                </parameter>
                 <parameter name="expirationPolicy">
                     <description><![CDATA[Configures the minimum amount of time that a dynamic configuration instance can remain idle before the runtime considers it eligible for expiration. This does not mean that the platform will expire the instance at the exact moment that it becomes eligible. The runtime will actually purge the instances when it sees it fit.]]></description>
                 </parameter>
@@ -29,6 +59,9 @@
                 <parameter name="port">
                     <description><![CDATA[]]></description>
                 </parameter>
+                <parameter name="connectionId">
+                    <description><![CDATA[]]></description>
+                </parameter>
                 <parameter name="reconnection">
                     <description><![CDATA[When the application is deployed, a connectivity test is performed on all connectors. If set to true, deployment will fail if the test doesn't pass after exhausting the associated reconnection strategy]]></description>
                 </parameter>
@@ -46,6 +79,12 @@
         <operation name="importDocs">
             <description><![CDATA[]]></description>
             <parameters>
+                <parameter name="docPayload">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="basenameUri">
+                    <description><![CDATA[]]></description>
+                </parameter>
                 <parameter name="outputMimeType">
                     <description><![CDATA[The mime type of the payload that this operation outputs.]]></description>
                 </parameter>

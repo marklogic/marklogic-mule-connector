@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class (as it's name implies) provides connection instances and the funcionality to disconnect and validate those
+ * This class (as it's name implies) provides connection instances and the functionality to disconnect and validate those
  * connections.
  * <p>
  * All connection related parameters (values required in order to create a connection) must be
@@ -23,9 +23,15 @@ import org.slf4j.LoggerFactory;
  * will be pooled and reused. There are other implementations like {@link CachedConnectionProvider} which lazily creates and
  * caches connections or simply {@link ConnectionProvider} if you want a new connection each time something requires one.
  */
+/*@ExternalLib(name = "MarkLogic Java Client",
+description = "Provides Java-driven Data Movement SDK access to MarkLogic Server over REST",
+nameRegexpMatcher = "(.*)\\.jar",
+type = "dependency",
+coordinates = "com.marklogic:marklogic-client-api:4.0.4",
+optional = "false") */
 public class MarkLogicConnectionProvider implements PoolingConnectionProvider<MarkLogicConnection> {
 
-  private final Logger LOGGER = LoggerFactory.getLogger(MarkLogicConnectionProvider.class);
+  private final Logger logger = LoggerFactory.getLogger(MarkLogicConnectionProvider.class);
 
  /* Parameters that are always required to be configured. */
   @DisplayName("Host name")
@@ -43,6 +49,11 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
   @DisplayName("Port")
   @Parameter
   private int port;
+  
+  @DisplayName("Connection ID")
+  @Parameter
+  @Optional(defaultValue = "testConfig-223efe")
+  private String connectionId;
 
  /* A parameter that is not required to be configured by the user. */
   /*@DisplayName("Friendly Name")
@@ -52,8 +63,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
 
   @Override
   public MarkLogicConnection connect() throws ConnectionException {
-    //return new MarkLogicConnection(requiredParameter + ":" + optionalParameter);
-    return new MarkLogicConnection(hostname, username, password, port);
+    return new MarkLogicConnection(hostname, username, password, port, connectionId);
   }
 
   @Override
@@ -61,7 +71,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
     try {
       connection.invalidate();
     } catch (Exception e) {
-      LOGGER.error("Error while disconnecting [" + connection.getId() + "]: " + e.getMessage(), e);
+      logger.error("Error while disconnecting [" + connection.getId() + "]: " + e.getMessage(), e);
     }
   }
 

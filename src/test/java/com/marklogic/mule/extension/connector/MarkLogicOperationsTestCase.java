@@ -31,7 +31,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                       .getMessage()
                                       .getPayload()
                                       .getValue());
-    assertThat(payloadValue, is("Using Configuration [configId] with Connection id [223efe]"));
+    assertThat(payloadValue, is("Using Configuration [configId] with Connection id [testConfig-223efe]"));
   }
   
   @Test
