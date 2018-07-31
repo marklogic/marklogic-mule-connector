@@ -23,12 +23,7 @@ import org.slf4j.LoggerFactory;
  * will be pooled and reused. There are other implementations like {@link CachedConnectionProvider} which lazily creates and
  * caches connections or simply {@link ConnectionProvider} if you want a new connection each time something requires one.
  */
-/*@ExternalLib(name = "MarkLogic Java Client",
-description = "Provides Java-driven Data Movement SDK access to MarkLogic Server over REST",
-nameRegexpMatcher = "(.*)\\.jar",
-type = "dependency",
-coordinates = "com.marklogic:marklogic-client-api:4.0.4",
-optional = "false") */
+
 public class MarkLogicConnectionProvider implements PoolingConnectionProvider<MarkLogicConnection> {
 
   private final Logger logger = LoggerFactory.getLogger(MarkLogicConnectionProvider.class);

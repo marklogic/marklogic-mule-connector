@@ -1,8 +1,12 @@
 package com.marklogic.mule.extension.connector.internal;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.Map;
@@ -30,9 +34,21 @@ public class MarkLogicOperations {
 
   // Loading files into MarkLogic asynchronously byte[] docPayload
   @MediaType(value = ANY, strict = false)
-  public String importDocs(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection, String docPayload, String basenameUri) {
-        String payload = docPayload;
-        System.out.println(payload);
+  public String importDocs(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection, Object[] docPayloads, String basenameUri) {
+        
+        
+        System.out.println(docPayloads);
+        return "done";
+        
+        /* Grab the input docPayload Object array that Mule Batch sends and convert it to a String array */
+        /*InputStreamHandle handle = new InputStreamHandle(docPayloads);
+        //String payload = docPayload;
+        //String stringArray[] = docPayloads.stream().toArray(String[]::new);
+        //String stringArray[] = docPayloads;
+        //System.out.println(payload);
+        //System.out.println(Arrays.toString(docPayloads));
+        //System.out.println(handle.toString());
+        
         DocumentMetadataHandle metah = new DocumentMetadataHandle();
 
         // Collections, quality, and permissions.  
@@ -89,16 +105,24 @@ public class MarkLogicOperations {
         // start the job and feed input to the batcher
         dmm.startJob(batcher);
         try {
-            batcher.add(outURI, metah, new StringHandle(payload));
+            batcher.add(outURI, metah, handle);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        /*for (int i = 0; i < stringArray.length; i++) {
+            try {
+                //batcher.add(outURI, metah, new StringHandle(payload));
+                batcher.add(outURI, metah, new StringHandle(stringArray[i]));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }*/
         
         // Start any partial batches waiting for more input, then wait
         // for all batches to complete. This call will block.
-        batcher.flushAndWait();
+        /*batcher.flushAndWait();
         dmm.stopJob(batcher);
-        return "Success";
+        return "Success";*/
   }
   
   /* Example of an operation that uses the configuration and a connection instance to perform some action. */

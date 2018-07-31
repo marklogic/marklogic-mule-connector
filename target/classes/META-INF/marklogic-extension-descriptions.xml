@@ -79,7 +79,7 @@
         <operation name="importDocs">
             <description><![CDATA[]]></description>
             <parameters>
-                <parameter name="docPayload">
+                <parameter name="docPayloads">
                     <description><![CDATA[]]></description>
                 </parameter>
                 <parameter name="basenameUri">

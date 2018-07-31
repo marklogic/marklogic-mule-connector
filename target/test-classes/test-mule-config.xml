@@ -1,32 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-    <!--<db:config name="Database_Config" doc:name="Database Config" doc:id="e81f7b60-a562-4e53-afaa-bcf4e7769ed1" >
-        <db:my-sql-connection host="***REMOVED***" port="3306" user="credding" password="10amKYz" database="employees" />
-    </db:config>-->
-    <!--<file:config name="File_Config" doc:name="File Config" doc:id="d8efedbf-cd5c-4b9e-9c69-7e18db871172" >
-        <file:connection workingDir="/Users/credding/tmp" />
-    </file:config>-->
-    <!--<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="77e9f9fa-d2f1-434a-b710-20e48bb007a6">
-        <http:request-connection host="id.loc.gov" port="80" usePersistentConnections="false" />
-    </http:request-config>-->
     <marklogic:config name="config" configId="configId" threadCount="5" batchSize="3" outputUriPrefix="/mulesoft/" generateOutputUriBasename="false" outputUriSuffix=".json" outputCollections="mulesoft-dmsdk-test-clay,test" outputPermissions="xpl-content-read,read,xpl-content-write,update" outputQuality="2" format="json" handleType="StringHandle">
-        <marklogic:connection hostname="localhost" username="credding" password="10amKYz" port="8020"/>
+        <marklogic:connection hostname="localhost" username="admin" password="password" port="8020"/>
     </marklogic:config>
-    <!-- <flow name="sayHiFlow">
-        <marklogic:say-hi person="Mariano Gonzalez"/>
-    </flow> -->
     <flow name="retrieveInfoFlow">
         <marklogic:retrieve-info config-ref="config"/>
     </flow>
     <flow name="importDocsFlow">
-        <!--<http:request method="GET" doc:name="Request" doc:id="9b2323ed-720f-440a-af4a-364788129241" config-ref="HTTP_Request_configuration" url="http://id.loc.gov/vocabulary/geographicAreas/fl.madsrdf.json" target="idpayload"/>
-        <set-payload value="#[payload]" doc:name="Set Payload" doc:id="93a0a5fb-9d53-4d60-be72-22fe7bc2eeab" />
-        <file:write doc:name="Write" doc:id="d5ec089a-79c4-4f96-b471-3f8b9cf48d33" config-ref="File_Config" path="/Users/credding/tmp/mysql.txt">
-            <file:content ><![CDATA[Hello #[payload]]]></file:content>
-        </file:write>-->
-        <!--<marklogic:import-docs config-ref="config" message="#[payload]"/>-->
-        <!--<set-payload value="[0, null, false]" doc:name="Set Payload" doc:id="93a0a5fb-9d53-4d60-be72-22fe7bc2eeab" />-->
-        <set-payload value="[0, null, false]" doc:name="Set Payload" doc:id="93a0a5fb-9d53-4d60-be72-22fe7bc2eeab" />
-        <marklogic:import-docs config-ref="config" docPayload="#[payload]" basenameUri="test"/>
+        <set-variable value='[0, null, false, "blah"]' doc:name="Set Variable" doc:id="b06f730d-5a83-44b2-af80-c989869bb03a" variableName="testWorkaround"/>
+        <set-payload value="#[vars.testWorkaround]" doc:name="Set Payload" doc:id="93a0a5fb-9d53-4d60-be72-22fe7bc2eeab" />
+        <marklogic:import-docs config-ref="config" docPayloads="#[payload]" basenameUri="test"/>
     </flow>
 </mule>
