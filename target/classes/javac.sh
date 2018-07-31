@@ -1,1 +1,1 @@
-/bin/sh -c cd /Users/credding/marklogic-mule-connector && /Library/Java/JavaVirtualMachines/jdk1.8.0_77.jdk/Contents/Home/bin/javac @/Users/credding/marklogic-mule-connector/target/classes/org.codehaus.plexus.compiler.javac.JavacCompiler1874381879318011207arguments -J-Xmx512m
+/bin/sh -c cd /Users/credding/marklogic-mule-connector && /Library/Java/JavaVirtualMachines/jdk1.8.0_77.jdk/Contents/Home/bin/javac @/Users/credding/marklogic-mule-connector/target/classes/org.codehaus.plexus.compiler.javac.JavacCompiler2996684595221587778arguments -J-Xmx512m

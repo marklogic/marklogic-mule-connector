@@ -80,7 +80,7 @@ Default configuration
 |======================
 | Name | Type | Description | Default Value | Required
 | Configuration | String | The name of the configuration to use. | | *x*{nbsp}
-| Doc Payload a| String |  |  | *x*{nbsp}
+| Doc Payloads a| Binary |  |  | *x*{nbsp}
 | Basename Uri a| String |  |  | *x*{nbsp}
 | Output Mime Type a| String |  +++The mime type of the payload that this operation outputs.+++ |  | {nbsp}
 | Target Variable a| String |  +++The name of a variable on which the operation's output will be placed+++ |  | {nbsp}

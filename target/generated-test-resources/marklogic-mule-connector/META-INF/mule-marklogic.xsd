@@ -60,7 +60,7 @@
             <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
-        <xs:attribute type="mule:expressionList" use="required" name="docPayloads"></xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="docPayloads"></xs:attribute>
         <xs:attribute type="mule:expressionString" use="required" name="basenameUri"></xs:attribute>
         <xs:attribute type="mule:expressionString" use="optional" name="outputMimeType">
           <xs:annotation>

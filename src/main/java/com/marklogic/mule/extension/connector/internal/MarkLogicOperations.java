@@ -34,20 +34,16 @@ public class MarkLogicOperations {
 
   // Loading files into MarkLogic asynchronously byte[] docPayload
   @MediaType(value = ANY, strict = false)
-  public String importDocs(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection, Object[] docPayloads, String basenameUri) {
-        
-        
-        System.out.println(docPayloads);
-        return "done";
+  public String importDocs(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection, InputStream docPayloads, String basenameUri) {
         
         /* Grab the input docPayload Object array that Mule Batch sends and convert it to a String array */
-        /*InputStreamHandle handle = new InputStreamHandle(docPayloads);
+        InputStreamHandle handle = new InputStreamHandle(docPayloads);
         //String payload = docPayload;
         //String stringArray[] = docPayloads.stream().toArray(String[]::new);
         //String stringArray[] = docPayloads;
         //System.out.println(payload);
         //System.out.println(Arrays.toString(docPayloads));
-        //System.out.println(handle.toString());
+        System.out.println(handle.toString());
         
         DocumentMetadataHandle metah = new DocumentMetadataHandle();
 
@@ -120,9 +116,9 @@ public class MarkLogicOperations {
         
         // Start any partial batches waiting for more input, then wait
         // for all batches to complete. This call will block.
-        /*batcher.flushAndWait();
+        batcher.flushAndWait();
         dmm.stopJob(batcher);
-        return "Success";*/
+        return "Success";
   }
   
   /* Example of an operation that uses the configuration and a connection instance to perform some action. */
