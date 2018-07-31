@@ -1,0 +1,8 @@
+#Ignore IntelliJ Files
+.idea/*
+*.iml
+
+#Ignore Build Directory
+/target
+/.mule
+/bin
