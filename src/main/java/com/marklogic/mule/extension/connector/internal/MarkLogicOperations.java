@@ -1,5 +1,6 @@
 package com.marklogic.mule.extension.connector.internal;
 
+import java.io.InputStream;
 import java.util.UUID;
 
 import com.marklogic.client.io.*;

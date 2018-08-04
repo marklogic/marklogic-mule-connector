@@ -55,6 +55,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                     .getPayload()
                                     .getValue());
 
+    //TODO: Verify file is correct
     assertThat(payloadValue, is("Success"));
   }
 
@@ -68,6 +69,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                     .getPayload()
                                     .getValue());
 
+    //TODO: Verify file is correct
     assertThat(payloadValue, is("Success"));
   }
   
@@ -80,6 +82,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                     .getPayload()
                                     .getValue());
 
+    //TODO: Verify file is correct
     assertThat(payloadValue, is("Success"));
   }
   
@@ -92,11 +95,10 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                     .getPayload()
                                     .getValue());
 
+    //TODO: Verify file is correct
     assertThat(payloadValue, is("Success"));
   }
-  
-  
-  
+ 
 //  @Test
 //  public void executeExportByPattern() throws Exception
 //  {
@@ -106,6 +108,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
 //            .getPayload()
 //            .getValue());
 //
+//    //TODO: Verify file is correct  
 //    assertThat(payloadValue, is("Success"));
 //  }
   
@@ -118,7 +121,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                     .getPayload()
                                     .getValue());
 
-    assertThat(payloadValue, containsInAnyOrder("[0, null, false]"));
+    assertThat(payloadValue, containsInAnyOrder("[0, null, false \"blah\"]"));
   }
   
   @Test
@@ -130,7 +133,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                     .getPayload()
                                     .getValue());
 
-    assertThat(payloadValue, containsInAnyOrder("[0, null, false]"));
+    assertThat(payloadValue, containsInAnyOrder("[0, null, false \"blah\"]"));
   }
   
 }
