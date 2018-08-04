@@ -20,6 +20,11 @@
             <artifactId>marklogic-client-api</artifactId>
             <version>4.0.4</version>
         </dependency>
+        <dependency>
+            <groupId>com.marklogic</groupId>
+            <artifactId>marklogic-data-movement-components</artifactId>
+            <version>1.0</version>
+        </dependency>
         <!--<dependency>
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-file-connector</artifactId>

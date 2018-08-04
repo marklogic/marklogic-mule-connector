@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-    <marklogic:config name="config" configId="configId" threadCount="5" batchSize="3" outputUriPrefix="/mulesoft/" generateOutputUriBasename="false" outputUriSuffix=".json" outputCollections="mulesoft-dmsdk-test-clay,test" outputPermissions="xpl-content-read,read,xpl-content-write,update" outputQuality="2" format="json" handleType="StringHandle">
-        <marklogic:connection hostname="localhost" username="username" password="password" port="8020"/>
+    <marklogic:config name="config" configId="configId" threadCount="5" batchSize="3" outputUriPrefix="/mulesoft/" generateOutputUriBasename="false" outputUriSuffix=".json" outputCollections="mulesoft-dmsdk-test-clay,test" outputPermissions="rest-reader,read,rest-writer,update" outputQuality="2" format="json" handleType="StringHandle">
+        <marklogic:connection hostname="mbo-marklogic" username="username" password="password" port="8000"/>
     </marklogic:config>
     <flow name="retrieveInfoFlow">
         <marklogic:retrieve-info config-ref="config"/>
@@ -9,5 +9,40 @@
     <flow name="importDocsFlow">
         <set-payload value="[0, null, false]" doc:name="Set Payload" doc:id="93a0a5fb-9d53-4d60-be72-22fe7bc2eeab" />
         <marklogic:import-docs config-ref="config" docPayload="#[payload]" basenameUri="test"/>
+    </flow>
+    <flow name="exportFileByCollectionFlow">
+        <marklogic:export-file config-ref="config" 
+            whereMethod="Collections" where="test" exportFile="./target/test-output/test-collection.json" />
+    </flow>
+    <flow name="exportFileByCollectionWithOptionsFlow">
+        <marklogic:export-file config-ref="config" 
+            whereMethod="Collections" where="test" exportFile="./target/test-output/test-collection-options.json" 
+            fileHeader="{" fileFooter="}" 
+            recordPrefix="output: " />
+    </flow>
+    <flow name="exportFileByUrisFlow">
+        <marklogic:export-file config-ref="config" 
+            whereMethod="Uris" where="/mulesoft/test.json" exportFile="./target/test-output/test-uris.json" />
+    </flow>
+    <flow name="exportFileByUrisWithOptionsFlow">
+        <marklogic:export-file config-ref="config" 
+            whereMethod="Uris" where="/mulesoft/test.json" exportFile="./target/test-output/test-uris-options.json" 
+            fileHeader="---File Header---" fileFooter="---File Header End---" 
+            recordPrefix="---Record Prefix---" recordSuffix="---Record Prefix End---" />
+    </flow>
+    <flow name="exportFileByPatternFlow">
+        <marklogic:export-file config-ref="config" 
+            whereMethod="UriPattern" where="*.json" exportFile="./target/test-output/test-uri-pattern.json" />
+    </flow>
+    <!--<flow name="exportFileByQueryFlow">-->
+        <!--<marklogic:export-file config-ref="config" whereMethod="UrisQuery" where="" />-->
+    <!--</flow>-->
+    <flow name="fetchFileByUrisFlow">
+        <marklogic:fetch-file config-ref="config" 
+            whereMethod="Uris" where="/mulesoft/test.json" />
+    </flow>
+    <flow name="fetchFileByCollectionFlow">
+        <marklogic:fetch-file config-ref="config" 
+            whereMethod="Collections" where="test" />
     </flow>
 </mule>
