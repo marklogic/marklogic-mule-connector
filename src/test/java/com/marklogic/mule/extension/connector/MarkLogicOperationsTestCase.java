@@ -121,7 +121,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                     .getPayload()
                                     .getValue());
 
-    assertThat(payloadValue, containsInAnyOrder("[0, null, false \"blah\"]"));
+    assertThat(payloadValue, containsInAnyOrder("[0, null, false, \"blah\"]"));
   }
   
   @Test
@@ -133,7 +133,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                     .getPayload()
                                     .getValue());
 
-    assertThat(payloadValue, containsInAnyOrder("[0, null, false \"blah\"]"));
+    assertThat(payloadValue, containsInAnyOrder("[0, null, false, \"blah\"]"));
   }
   
 }
