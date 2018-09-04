@@ -8,12 +8,14 @@
     http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
     http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
     http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
-    <db:config name="Database_Config" doc:name="Database Config" doc:id="e81f7b60-a562-4e53-afaa-bcf4e7769ed1" >
-        <db:my-sql-connection host="localhost" port="3306" user="username" password="password" database="employees" />
-    </db:config>
-    <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="787ed86c-be5d-4d1e-b8d5-db768f814509" configId="testConfig-223efe" threadCount="3" batchSize="5" outputCollections="mulesoft-dmsdk-test-clay" outputPermissions="xpl-content-read,read,xpl-content-write,update" outputQuality="1" format="json" outputUriPrefix="/mulesoft/" outputUriSuffix=".json" generateOutputUriBasename="false">
-        <marklogic:connection hostname="localhost" username="username" password="password" port="8020" />
+    <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="787ed86c-be5d-4d1e-b8d5-db768f814509" configId="testConfig-223efe" threadCount="3" batchSize="5" outputCollections="mulesoft-dmsdk-test" outputPermissions="xpl-content-read,read,xpl-content-write,update" outputQuality="1" format="json" outputUriPrefix="/mulesoft/" outputUriSuffix=".json" generateOutputUriBasename="false">
+        <marklogic:connection hostname="***REMOVED***" username="mulesoft" password="***REMOVED***" port="8011" />
     </marklogic:config>
+    <db:config name="Database_Config" doc:name="Database_Config" doc:id="e81f7b60-a562-4e53-afaa-bcf4e7769ed1" >
+        <db:my-sql-connection host="***REMOVED***" port="3306" user="mulesoft" password="***REMOVED***" database="employees" >
+            <db:column-types />
+        </db:my-sql-connection>
+    </db:config>
     <flow name="marklogicconnector20180618Flow1" doc:id="52e50d2e-ea57-4f04-a62a-78777e15b6eb" >
         <scheduler doc:name="Scheduler" doc:id="ebcba6cc-0785-4e0f-bc34-07dac72dd8cf" >
             <scheduling-strategy >

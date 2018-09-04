@@ -11,11 +11,11 @@
     http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
     http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
     http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
-    <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="787ed86c-be5d-4d1e-b8d5-db768f814509" configId="testConfig-223efe" threadCount="3" batchSize="5" outputCollections="mulesoft-dmsdk-test-clay" outputPermissions="xpl-content-read,read,xpl-content-write,update" outputQuality="1" format="json" outputUriPrefix="/mulesoft/" outputUriSuffix=".json" generateOutputUriBasename="false">
-        <marklogic:connection hostname="localhost" username="admin" password="password" port="8020" />
+    <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="787ed86c-be5d-4d1e-b8d5-db768f814509" configId="testConfig-223efe" threadCount="3" batchSize="5" outputCollections="mulesoft-dmsdk-test" outputPermissions="xpl-content-read,read,xpl-content-write,update" outputQuality="1" format="json" outputUriPrefix="/mulesoft/" outputUriSuffix=".json" generateOutputUriBasename="false">
+        <marklogic:connection hostname="***REMOVED***" username="mulesoft" password="***REMOVED***" port="8011" />
     </marklogic:config>
     <db:config name="Database_Config" doc:name="Database_Config" doc:id="e81f7b60-a562-4e53-afaa-bcf4e7769ed1" >
-        <db:my-sql-connection host="localhost" port="3306" user="admin" password="password" database="employees" >
+        <db:my-sql-connection host="***REMOVED***" port="3306" user="mulesoft" password="***REMOVED***" database="employees" >
             <db:column-types />
         </db:my-sql-connection>
     </db:config>
@@ -28,7 +28,7 @@
                 <fixed-frequency frequency="30000"/>
             </scheduling-strategy>
         </scheduler>
-        <db:select doc:name="Select" doc:id="6dbbaf05-2fab-478b-8fe9-206581576415" config-ref="Database_Config" fetchSize="5" maxRows="5">
+        <db:select doc:name="Select" doc:id="6dbbaf05-2fab-478b-8fe9-206581576415" config-ref="Database_Config" fetchSize="5" maxRows="500">
             <ee:repeatable-file-store-iterable />
             <db:sql >select * from employees;</db:sql>
         </db:select>
@@ -55,16 +55,18 @@ output application/json
                         </ee:message>
                     </ee:transform>
                     <batch:aggregator doc:name="Batch Aggregator" doc:id="9428840e-7e21-4eaf-99dc-31e9e05f9d00" streaming="true">
-                        <ee:transform doc:name="Transform Message" doc:id="5741e306-e4dd-48e2-a5cd-8fbf26c97f38" >
-                            <ee:message >
-                                <ee:set-payload ><![CDATA[%dw 2.0
+                        <foreach doc:name="For Each" doc:id="e8009e20-7364-49db-8b88-0901fb663b23" >
+                            <ee:transform doc:name="Transform Message" doc:id="5741e306-e4dd-48e2-a5cd-8fbf26c97f38">
+                                <ee:message>
+                                    <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload.employeeWrap]]></ee:set-payload>
-                            </ee:message>
-                        </ee:transform>
-                        <set-payload value="#[payload]" doc:name="Set Payload" doc:id="70779416-1194-46a2-8b5d-f71a40062e81" encoding="UTF-8" mimeType="text/json"/>
-                        <marklogic:import-docs doc:name="Import docs" doc:id="0a05e5ab-def1-4be4-87da-1c274bd3aadb" config-ref="MarkLogic_Config" docPayloads="#[payload]" basenameUri="john.json"/>
+                                </ee:message>
+                            </ee:transform>
+                            <set-payload value="#[payload]" doc:name="Set Payload" doc:id="70779416-1194-46a2-8b5d-f71a40062e81" encoding="UTF-8" mimeType="text/json" />
+                            <marklogic:import-docs doc:name="Import docs" doc:id="0a05e5ab-def1-4be4-87da-1c274bd3aadb" config-ref="MarkLogic_Config" docPayloads="#[payload]" basenameUri="#[payload.employee.employeeNumber]" />
+                        </foreach>
                     </batch:aggregator>
                 </batch:step>
             </batch:process-records>
