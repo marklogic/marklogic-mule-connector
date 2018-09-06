@@ -52,6 +52,14 @@ public class MarkLogicConfiguration {
   @Optional(defaultValue="StringHandle")
   private String handleType;
   
+  @Parameter
+  @Optional
+  private String serverTransform;
+  
+  @Parameter
+  @Optional
+  private String serverTransformParams;
+  
   public String getConfigId() {
     return configId;
   }
@@ -93,4 +101,13 @@ public class MarkLogicConfiguration {
   public Boolean getGenerateOutputUriBasename() {
     return Boolean.valueOf(generateOutputUriBasename);
   };
+
+  public String getServerTransform() {
+    return serverTransform;
+  }
+  
+  public String[] getServerTransformParams() {
+     String[] transParams = serverTransformParams.split(",");
+     return transParams;
+  }
 }

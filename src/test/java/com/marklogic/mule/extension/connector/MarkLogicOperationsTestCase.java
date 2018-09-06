@@ -26,25 +26,25 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
     assertThat(payloadValue, is("Hello Mariano Gonzalez!!!"));
   }*/
 
-//  @Test
-//  public void executeRetrieveInfoOperation() throws Exception {
-//    String payloadValue = ((String) flowRunner("retrieveInfoFlow")
-//                                      .run()
-//                                      .getMessage()
-//                                      .getPayload()
-//                                      .getValue());
-//    assertThat(payloadValue, is("Using Configuration [configId] with Connection id [testConfig-223efe]"));
-//  }
-//
-//  @Test
-//  public void executeImportDocsOperation() throws Exception {
-//    String payloadValue = ((String) flowRunner("importDocsFlow")
-//                                      .run()
-//                                      .getMessage()
-//                                      .getPayload()
-//                                      .getValue());
-//    assertThat(payloadValue, is("Success"));
-//  }
+  @Test
+  public void executeRetrieveInfoOperation() throws Exception {
+    String payloadValue = ((String) flowRunner("retrieveInfoFlow")
+                                      .run()
+                                      .getMessage()
+                                      .getPayload()
+                                      .getValue());
+    assertThat(payloadValue, is("Using Configuration [configId] with Connection id [testConfig-223efe]"));
+  }
+
+  @Test
+  public void executeImportDocsOperation() throws Exception {
+    String payloadValue = ((String) flowRunner("importDocsFlow")
+                                      .run()
+                                      .getMessage()
+                                      .getPayload()
+                                      .getValue());
+    assertThat(payloadValue, is("Success"));
+  }
 
   @Test
   public void executeExportByCollection() throws Exception

@@ -5,9 +5,11 @@ import java.util.UUID;
 
 import com.marklogic.client.io.*;
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.client.datamovement.WriteBatcher;
+//import com.marklogic.client.datamovement.ApplyTransformListener;
 import com.marklogic.client.datamovement.DataMovementManager;
 import com.marklogic.client.datamovement.ExportListener;
+import com.marklogic.client.datamovement.WriteBatcher;
+import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.ext.datamovement.job.AbstractQueryBatcherJob;
 import com.marklogic.client.ext.datamovement.job.ExportToFileJob;
 import com.marklogic.client.ext.datamovement.job.SimpleQueryBatcherJob;
@@ -52,7 +54,7 @@ public class MarkLogicOperations
         metah.withCollections(configuration.getOutputCollections());
         metah.setQuality(configuration.getOutputQuality());
         String[] permissions = configuration.getOutputPermissions();
-        for( int i = 0; i < permissions.length - 1; i++) {
+        for (int i = 0; i < permissions.length - 1; i++) {
             String role = permissions[i];
             String capability = permissions[i + 1];
             switch(capability.toLowerCase()) {
@@ -85,18 +87,35 @@ public class MarkLogicOperations
             outURI = configuration.getOutputPrefix() + uuid + configuration.getOutputSuffix();
         }
         
+        ServerTransform thistransform = null;
+        if (configuration.getServerTransform().length() > 0) {
+            thistransform = new ServerTransform(configuration.getServerTransform());
+            String[] transformParams = configuration.getServerTransformParams();
+            for (int i = 0; i < transformParams.length - 1; i++) {
+                String paramName = transformParams[i];
+                String paramValue = transformParams[i + 1];
+                thistransform.addParameter(paramName, paramValue);
+            }
+            System.out.println("Transforming input doc with transform: " + thistransform.getName());
+        }
+        
         // create and configure the job
         DatabaseClient myClient = connection.getClient();
         DataMovementManager dmm = myClient.newDataMovementManager();
         WriteBatcher batcher = dmm.newWriteBatcher();
         batcher.withBatchSize(configuration.getBatchSize())
         .withThreadCount(configuration.getThreadCount())
+        .withTransform(thistransform)
         .onBatchSuccess(batch-> {
             System.out.println(batch.getTimestamp().getTime() + " documents written: " + batch.getJobWritesSoFar());
         })
         .onBatchFailure((batch,throwable) -> {
             throwable.printStackTrace();
         });
+        
+        /*if (transformExists) {
+            batcher.withTransform(thistransform);
+        }*/
         
         // start the job and feed input to the batcher
         dmm.startJob(batcher);
