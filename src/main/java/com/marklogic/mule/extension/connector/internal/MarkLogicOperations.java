@@ -54,7 +54,7 @@ public class MarkLogicOperations
         // Permissions are additive to the rest-reader,read and rest-writer,update.
         String[] configCollections = configuration.getOutputCollections();
         if (!configCollections[0].equals("null")) {
-            metah.withCollections(configuration.getOutputCollections());
+            metah.withCollections(configCollections);
         }
         metah.setQuality(configuration.getOutputQuality());
         String[] permissions = configuration.getOutputPermissions();
@@ -90,7 +90,6 @@ public class MarkLogicOperations
             String uuid = UUID.randomUUID().toString();
             outURI = configuration.getOutputPrefix() + uuid + configuration.getOutputSuffix();
         }
-        
         
         // create and configure the job
         DatabaseClient myClient = connection.getClient();
