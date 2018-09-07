@@ -2,7 +2,9 @@ package com.marklogic.mule.extension.connector;
 
 import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.junit.Test;
@@ -16,15 +18,6 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
   protected String getConfigFile() {
     return "test-mule-config.xml";
   }
-
-  /*@Test
-  public void executeSayHiOperation() throws Exception {
-    String payloadValue = ((String) flowRunner("sayHiFlow").run()
-                                      .getMessage()
-                                      .getPayload()
-                                      .getValue());
-    assertThat(payloadValue, is("Hello Mariano Gonzalez!!!"));
-  }*/
 
   @Test
   public void executeRetrieveInfoOperation() throws Exception {
@@ -43,7 +36,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                       .getMessage()
                                       .getPayload()
                                       .getValue());
-    assertThat(payloadValue, is("Success"));
+    assertThat(payloadValue, startsWith("{\"jobOutcome\":"));
   }
 
   @Test

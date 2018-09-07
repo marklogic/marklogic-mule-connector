@@ -2,23 +2,29 @@ package com.marklogic.mule.extension.connector.internal;
 
 import java.io.InputStream;
 import java.util.UUID;
-
-import com.marklogic.client.io.*;
-import com.marklogic.client.DatabaseClient;
-//import com.marklogic.client.datamovement.ApplyTransformListener;
-import com.marklogic.client.datamovement.DataMovementManager;
-import com.marklogic.client.datamovement.ExportListener;
-import com.marklogic.client.datamovement.WriteBatcher;
-import com.marklogic.client.document.ServerTransform;
-import com.marklogic.client.ext.datamovement.job.AbstractQueryBatcherJob;
-import com.marklogic.client.ext.datamovement.job.ExportToFileJob;
-import com.marklogic.client.ext.datamovement.job.SimpleQueryBatcherJob;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import com.marklogic.client.io.*;
+import com.marklogic.client.DatabaseClient;
+import com.marklogic.client.datamovement.DataMovementManager;
+import com.marklogic.client.datamovement.ExportListener;
+import com.marklogic.client.datamovement.JobReport;
+import com.marklogic.client.datamovement.JobTicket;
+import com.marklogic.client.datamovement.WriteBatcher;
+import com.marklogic.client.document.ServerTransform;
+import com.marklogic.client.ext.datamovement.job.AbstractQueryBatcherJob;
+import com.marklogic.client.ext.datamovement.job.ExportToFileJob;
+import com.marklogic.client.ext.datamovement.job.SimpleQueryBatcherJob;
+
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
+import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Config;
@@ -34,24 +40,22 @@ public class MarkLogicOperations
 
     private final Logger logger = LoggerFactory.getLogger(MarkLogicOperations.class);
 
-    // Loading files into MarkLogic asynchronously byte[] docPayload
-  @MediaType(value = ANY, strict = false)
+    // Loading files into MarkLogic asynchronously InputStream docPayload
+  @MediaType(value = APPLICATION_JSON, strict = true)
   public String importDocs(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection, InputStream docPayloads, String basenameUri) {
         
         /* Grab the input docPayload Object array that Mule Batch sends and convert it to a String array */
         InputStreamHandle handle = new InputStreamHandle(docPayloads);
-        //String payload = docPayload;
-        //String stringArray[] = docPayloads.stream().toArray(String[]::new);
-        //String stringArray[] = docPayloads;
-        //System.out.println(payload);
-        //System.out.println(Arrays.toString(docPayloads));
         System.out.println(handle.toString());
         
         DocumentMetadataHandle metah = new DocumentMetadataHandle();
 
         // Collections, quality, and permissions.  
         // Permissions are additive to the rest-reader,read and rest-writer,update.
-        metah.withCollections(configuration.getOutputCollections());
+        String[] configCollections = configuration.getOutputCollections();
+        if (!configCollections[0].equals("null")) {
+            metah.withCollections(configuration.getOutputCollections());
+        }
         metah.setQuality(configuration.getOutputQuality());
         String[] permissions = configuration.getOutputPermissions();
         for (int i = 0; i < permissions.length - 1; i++) {
@@ -87,17 +91,6 @@ public class MarkLogicOperations
             outURI = configuration.getOutputPrefix() + uuid + configuration.getOutputSuffix();
         }
         
-        ServerTransform thistransform = null;
-        if (configuration.getServerTransform().length() > 0) {
-            thistransform = new ServerTransform(configuration.getServerTransform());
-            String[] transformParams = configuration.getServerTransformParams();
-            for (int i = 0; i < transformParams.length - 1; i++) {
-                String paramName = transformParams[i];
-                String paramValue = transformParams[i + 1];
-                thistransform.addParameter(paramName, paramValue);
-            }
-            System.out.println("Transforming input doc with transform: " + thistransform.getName());
-        }
         
         // create and configure the job
         DatabaseClient myClient = connection.getClient();
@@ -105,39 +98,66 @@ public class MarkLogicOperations
         WriteBatcher batcher = dmm.newWriteBatcher();
         batcher.withBatchSize(configuration.getBatchSize())
         .withThreadCount(configuration.getThreadCount())
-        .withTransform(thistransform)
         .onBatchSuccess(batch-> {
-            System.out.println(batch.getTimestamp().getTime() + " documents written: " + batch.getJobWritesSoFar());
+            String successMsg = batch.getTimestamp().getTime() + " documents written: " + batch.getJobWritesSoFar(); 
+            System.out.println(successMsg);
         })
         .onBatchFailure((batch,throwable) -> {
             throwable.printStackTrace();
         });
         
-        /*if (transformExists) {
+        String configTransform = configuration.getServerTransform();
+        if (configTransform.equals("null")) {
+            System.out.println("Ingesting doc payload without a transform");
+        } else {
+            ServerTransform thistransform = new ServerTransform(configTransform);
+            String[] configTransformParams = configuration.getServerTransformParams();
+            if (!configTransformParams[0].equals("null") && configTransformParams.length % 2 == 0) {
+                for (int i = 0; i < configTransformParams.length - 1; i++) {
+                    String paramName = configTransformParams[i];
+                    String paramValue = configTransformParams[i + 1];
+                    thistransform.addParameter(paramName, paramValue);
+                }            
+            }
             batcher.withTransform(thistransform);
-        }*/
+            System.out.println("Transforming input doc payload with transform: " + thistransform.getName());
+        }
         
         // start the job and feed input to the batcher
-        dmm.startJob(batcher);
+        JobTicket jt = dmm.startJob(batcher);
         try {
             batcher.add(outURI, metah, handle);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /*for (int i = 0; i < stringArray.length; i++) {
-            try {
-                //batcher.add(outURI, metah, new StringHandle(payload));
-                batcher.add(outURI, metah, new StringHandle(stringArray[i]));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }*/
         
         // Start any partial batches waiting for more input, then wait
         // for all batches to complete. This call will block.
         batcher.flushAndWait();
+        JobReport jr = dmm.getJobReport(jt);
+        ObjectNode objectNode = createJsonJobReport(jr);
         dmm.stopJob(batcher);
-        return "Success";
+        return objectNode.toString();
+  }
+  
+  private ObjectNode createJsonJobReport(JobReport jr) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode obj = mapper.createObjectNode();
+        long successBatches = jr.getSuccessBatchesCount();
+        long successEvents = jr.getSuccessEventsCount();
+        long failBatches = jr.getFailureBatchesCount();
+        long failEvents = jr.getFailureEventsCount();
+        if (failEvents > 0) {
+            obj.put("jobOutcome", "failed");
+        } else {
+            obj.put("jobOutcome", "successful");
+        }
+        obj.put("successfulBatches", successBatches);
+        obj.put("successfulEvents", successEvents);
+        obj.put("failedBatches", failBatches);
+        obj.put("failedEvents", failEvents);
+        System.out.println(obj.toString());
+        return obj;
   }
 
     /* Example of an operation that uses the configuration and a connection instance to perform some action. */

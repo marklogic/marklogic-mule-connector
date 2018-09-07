@@ -14,50 +14,47 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 public class MarkLogicConfiguration {
 
   @Parameter
+  @Optional(defaultValue="testConfig-223efe")
   private String configId;
 
   @Parameter
+  @Optional(defaultValue="4")
   private String threadCount;
   
   @Parameter
+  @Optional(defaultValue="100")
   private String batchSize;
   
   @Parameter
+  @Optional(defaultValue="null")
   private String outputCollections;
   
   @Parameter
+  @Optional(defaultValue="rest-reader,read,rest-writer,update")
   private String outputPermissions;
   
   @Parameter
+  @Optional(defaultValue="1")
   private String outputQuality;
-
-  @Parameter
-  private String format;
   
   @Parameter
+  @Optional(defaultValue="/mulesoft/")
   private String outputUriPrefix;
   
   @Parameter
+  @Optional(defaultValue=".json")
   private String outputUriSuffix;
-  
-  /*@Parameter
-  @Optional(defaultValue="test-filename")
-  private String outputUriId;*/
 
   @Parameter
-  @Optional
+  @Optional(defaultValue="true")
   private String generateOutputUriBasename;
-
-  @Parameter
-  @Optional(defaultValue="StringHandle")
-  private String handleType;
   
   @Parameter
-  @Optional
+  @Optional(defaultValue="null")
   private String serverTransform;
   
   @Parameter
-  @Optional
+  @Optional(defaultValue="null")
   private String serverTransformParams;
   
   public String getConfigId() {
@@ -92,11 +89,7 @@ public class MarkLogicConfiguration {
   
   public String getOutputSuffix() {
     return outputUriSuffix;
-  } 
-  
-  /*public String getOutputUriId() {
-    return outputUriId;
-  }*/
+  }
   
   public Boolean getGenerateOutputUriBasename() {
     return Boolean.valueOf(generateOutputUriBasename);
