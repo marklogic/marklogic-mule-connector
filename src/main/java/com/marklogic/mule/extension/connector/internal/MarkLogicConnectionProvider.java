@@ -32,6 +32,15 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
   @Parameter
   private String hostname;
   
+  @DisplayName("Port")
+  @Parameter
+  private int port;
+  
+  @DisplayName("Database")
+  @Parameter
+  @Optional(defaultValue = "null")
+  private String database;
+  
   @DisplayName("User name")
   @Parameter
   private String username;
@@ -39,25 +48,30 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
   @DisplayName("Password")
   @Parameter
   private String password;
-
-  @DisplayName("Port")
+  
+  @DisplayName("Authentication Type")
   @Parameter
-  private int port;
+  @Optional(defaultValue = "digest")
+  private String authenticationType;
+  
+  @DisplayName("SSL Context (Not Yet Supported)")
+  @Parameter
+  @Optional(defaultValue = "null")
+  private String sslContext;
+  
+  @DisplayName("Kerberos External Name (where applicable)")
+  @Parameter
+  @Optional(defaultValue = "null")
+  private String kerberosExternalName;
   
   @DisplayName("Connection ID")
   @Parameter
   @Optional(defaultValue = "testConfig-223efe")
   private String connectionId;
 
- /* A parameter that is not required to be configured by the user. */
-  /*@DisplayName("Friendly Name")
-  @Parameter
-  @Optional(defaultValue = "100")
-  private int optionalParameter;*/
-
   @Override
   public MarkLogicConnection connect() throws ConnectionException {
-    return new MarkLogicConnection(hostname, username, password, port, connectionId);
+    return new MarkLogicConnection(hostname, port, database, username, password, authenticationType, sslContext, kerberosExternalName, connectionId);
   }
 
   @Override
