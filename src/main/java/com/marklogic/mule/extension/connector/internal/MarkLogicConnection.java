@@ -67,7 +67,6 @@ public final class MarkLogicConnection {
                 this.client = DatabaseClientFactory.newClient(hostname, port, new DigestAuthContext(username, password));
                 break;
         }
-        //this.client = DatabaseClientFactory.newClient(hostname, port, new DigestAuthContext(username, password));
     } catch (Exception e) {
         logger.error("MarkLogic connection failed. " + e.getMessage());
     }

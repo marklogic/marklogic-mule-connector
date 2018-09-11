@@ -26,14 +26,15 @@ import org.slf4j.LoggerFactory;
 public class MarkLogicConnectionProvider implements PoolingConnectionProvider<MarkLogicConnection> {
 
   private final Logger logger = LoggerFactory.getLogger(MarkLogicConnectionProvider.class);
-
- /* Parameters that are always required to be configured. */
+  
   @DisplayName("Host name")
   @Parameter
+  @Optional(defaultValue = "localhost")
   private String hostname;
   
   @DisplayName("Port")
   @Parameter
+  @Optional(defaultValue = "8010")
   private int port;
   
   @DisplayName("Database")
@@ -43,10 +44,12 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
   
   @DisplayName("User name")
   @Parameter
+  @Optional(defaultValue = "admin")
   private String username;
 
   @DisplayName("Password")
   @Parameter
+  @Optional(defaultValue = "admin")
   private String password;
   
   @DisplayName("Authentication Type")
