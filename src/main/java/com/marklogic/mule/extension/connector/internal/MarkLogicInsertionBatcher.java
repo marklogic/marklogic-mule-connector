@@ -34,9 +34,6 @@ public class MarkLogicInsertionBatcher {
     // The timestamp of the last write to ML-- used to determine when the pipe to ML should be flushed
     private long lastWriteTime;
 
-    // The number of seconds the pipe to ML should wait before being flushed
-    private static final int SECONDS_BEFORE_FLUSH = 2;
-
     /**
      * Private constructor-- enforces singleton pattern
      * @param configuration -- information describing how the insertion process should work
@@ -79,12 +76,14 @@ public class MarkLogicInsertionBatcher {
         }
 
         // Set up the timer to flush the pipe to MarkLogic if it's waiting to long
+        int secondsBeforeFlush = Integer.parseInt(configuration.getSecondsBeforeWriteFlush());
+
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 // Check to see if the pipe has been inactive longer than the wait time
-                if ((System.currentTimeMillis() - lastWriteTime) >= SECONDS_BEFORE_FLUSH * 1000) {
+                if ((System.currentTimeMillis() - lastWriteTime) >= secondsBeforeFlush * 1000) {
                     // if it has, flush the pipe
                     batcher.flushAndWait();
                     // Set the last write time to be something well into the future, so that we don't needlessly,
@@ -92,7 +91,7 @@ public class MarkLogicInsertionBatcher {
                     lastWriteTime = System.currentTimeMillis() + 900000;
                 }
             }
-        }, SECONDS_BEFORE_FLUSH * 1000, SECONDS_BEFORE_FLUSH *1000);
+        }, (secondsBeforeFlush * 1000), secondsBeforeFlush * 1000);
 
         // Set up the metadata to be used for the documents that will be inserted
         // ASSUMPTION: The same metadata will be used for every document to be inserted during the lifetime of this

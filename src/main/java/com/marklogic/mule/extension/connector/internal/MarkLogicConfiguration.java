@@ -56,7 +56,11 @@ public class MarkLogicConfiguration {
   @Parameter
   @Optional(defaultValue="null")
   private String serverTransformParams;
-  
+
+  @Parameter
+  @Optional(defaultValue="2")
+  private String secondsBeforeWriteFlush;
+
   public String getConfigId() {
     return configId;
   }
@@ -102,5 +106,9 @@ public class MarkLogicConfiguration {
   public String[] getServerTransformParams() {
      String[] transParams = serverTransformParams.split(",");
      return transParams;
+  }
+
+  public String getSecondsBeforeWriteFlush() {
+    return secondsBeforeWriteFlush;
   }
 }
