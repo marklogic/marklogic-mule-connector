@@ -1,6 +1,6 @@
 # Mulesoft Connector Extension for MarkLogic #
 
-
+---------------------------------------
 ## About the Connector ##
 ------------------------
 
@@ -10,6 +10,7 @@ Similar to the MarkLogic NiFi Connector, the Mulesoft Connector is predicated on
 
 This Connector demo is built on Mule 4.1 SDK and AnypointStudio 7.1.  
 
+--------------------------------------
 ## Building the Connector ##
 ----------------------
 
@@ -59,8 +60,9 @@ Current operations include:
 * retrieveInfo
   *  Simply echoes back Mule to MarkLogic connection information.
 
-
-## Using the Connector ##
+------------------------------------------
+## Installing the Connector ##
+-------------------------
 
 ### Installing dependencies ###
 
@@ -112,7 +114,11 @@ After the repository is added, use the "Add Maven Dependency" approach as descri
 </dependency>
 ``` 
 
-### Connector Connection Parameters ###
+----------------------------------------------------
+## Configuring the Connector ##
+--------------------------------
+
+### MarkLogic Connection Parameters ###
 
 ||Parameter|Required?|Default Value (if no value provided)|Data Type|Notes and Usage|
 |--- |--- |--- |--- |--- |--- |
@@ -126,7 +132,7 @@ After the repository is added, use the "Add Maven Dependency" approach as descri
 |8|kerberosExternalName|Optional|null|String|If "kerberos" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.|
 |9|connectionId|Required|testConfig-223efe|String|An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic. Also set on the Connector configuration parameters (see below).|
 
-### Connector Configuration Parameters ###
+### Operations Configuration Parameters ###
 
 
 ||Parameter|Required?|Default Value (if no value provided)|Data Type|Notes and Usage|
