@@ -1,7 +1,8 @@
-#Mulesoft Connector Extension for MarkLogic
+# Mulesoft Connector Extension for MarkLogic #
 
-##About the Connector
 
+## About the Connector ##
+------------------------
 
 The intent of this connector is to demonstrate data movement and transformation pipelines via Mulesoft AnypointStudio Flow expression.  AnypointStudio is the Mulesoft Eclipse-based graphical IDE, used to author and run flows.     
 
@@ -9,7 +10,8 @@ Similar to the MarkLogic NiFi Connector, the Mulesoft Connector is predicated on
 
 This Connector demo is built on Mule 4.1 SDK and AnypointStudio 7.1.  
 
-##Building the Connector
+## Building the Connector ##
+----------------------
 
 *N.B.: Building the Connector is probably not necessary unless contributing to the codebase. If not, feel free to skip to "Using the Connector" below.*
 
@@ -40,13 +42,13 @@ Once your classes are defined, build and test with `mvn -X clean install`.
 
 Successful JAR file builds of the Connector, including generated HTML documentation for the Connector, are placed into the *target/* directory.
 
-###Tests
+### Tests ###
 
 Surefire tests defined in MarkLogicOperationsTestCase and test-mule-config.xml will run during the Maven build and install process.  If tests fail, Surfire produces plain text and XML report outputs in the *target/* directory.
 
 There is a simple test of static JSON content for each defined operation.
 
-###Operations
+### Operations ###
 
 Current operations include:
 
@@ -58,9 +60,9 @@ Current operations include:
   *  Simply echoes back Mule to MarkLogic connection information.
 
 
-##Using the Connector
+## Using the Connector ##
 
-###Installing dependencies
+### Installing dependencies ###
 
 In order to use the connector, create a new, empty Mule project in AnyStudio with:
 
@@ -110,7 +112,7 @@ After the repository is added, use the "Add Maven Dependency" approach as descri
 </dependency>
 ``` 
 
-###Connector Connection Parameters
+### Connector Connection Parameters ###
 
 ||Parameter|Required?|Default Value (if no value provided)|Data Type|Notes and Usage|
 |--- |--- |--- |--- |--- |--- |
@@ -124,7 +126,7 @@ After the repository is added, use the "Add Maven Dependency" approach as descri
 |8|kerberosExternalName|Optional|null|String|If "kerberos" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.|
 |9|connectionId|Required|testConfig-223efe|String|An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic. Also set on the Connector configuration parameters (see below).|
 
-###Connector Configuration Parameters
+### Connector Configuration Parameters ###
 
 
 ||Parameter|Required?|Default Value (if no value provided)|Data Type|Notes and Usage|
