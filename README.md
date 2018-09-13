@@ -74,11 +74,11 @@ You're now ready to install the Connector as a Maven dependency for your project
 
 To do this in the editor, use these screenshots as a guide, making sure to add the Connector jar as a local dependency:
 
-<img src="images/mule-add-dependency.png" alt="Add Maven Dependency" width="80%"></img>
+<img src="images/mule-add-dependency.png" alt="Add Maven Dependency"></img>
 
 Use "Install a local dependency", and add the Connector .jar file from the *target/* directory on your filesystem.
 
-<img src="images/add-dependency-local.png" alt="Add local Maven Dependency" width="75%"></img>
+<img src="images/add-dependency-local.png" alt="Add local Maven Dependency"></img>
 
 You can optionally or alternatively add this dependency as an Artifact Definition:
 
@@ -92,7 +92,7 @@ You can optionally or alternatively add this dependency as an Artifact Definitio
 
 Once the dependency is added, it should show up in the Mule Pallet at top right. 
 
-<img src="images/marklogic-palette.png" alt="Add local Maven Dependency" width="75%"></img>
+<img src="images/marklogic-palette.png" alt="Add local Maven Dependency"></img>
 
 Operations listed at right can then be clicked and dragged to the visual flow designer for integration with other components and connectors.
 
