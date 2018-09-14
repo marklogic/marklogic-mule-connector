@@ -1,22 +1,28 @@
 # Mulesoft Connector Extension for MarkLogic #
 
----------------------------------------
+  
+  
 ## About the Connector ##
 ------------------------
 
-The intent of this connector is to demonstrate data movement and transformation pipelines via Mulesoft AnypointStudio Flow expression.  AnypointStudio is the Mulesoft Eclipse-based graphical IDE, used to author and run flows.     
+<a href="http://mulesoft.com">Mulesoft</a> is a enterprise-grade, lightweight Java <a href="https://www.mulesoft.com/resources/esb-integration">Enterprise Service Bus and Application Orchestration platform</a> that encourages an API-first approach to services, workflows, and data integration. In fact, one can even define and serve RAML-based REST APIs within Mulesoft to orchestrate data movement between flow components.
 
-Similar to the MarkLogic NiFi Connector, the Mulesoft Connector is predicated on the use of the MarkLogic Data Movement SDK to communicate to MarkLogic.  
+The project aims to provide the Mulesoft community of users (known as <a href="https://www.mulesoft.com/exchange/">Anypoint Exchange</a>) with a MarkLogic Connector that delivers data movement and transformation pipelines via Mulesoft <a href="https://www.mulesoft.com/platform/studio">AnypointStudio</a> Flow file.  AnypointStudio is Mulesoft's <a href="https://www.eclipse.org/">Eclipse</a>-based graphical IDE, <a href="https://www.mulesoft.com/platform/api/flow-designer-integration-tool">used to design, author, and run flows</a>. 
+
+Despite the graphical design nature of flows in AnypointStudio, under the covers, each flow in Mule is simply an XML file defining the workflow.  If one chooses, flow authoring can be done entirely in XML, even within AnypointStudio.
+
+Similar to the recently-developed MarkLogic NiFi Connector, the Mulesoft Connector is buit atop the MarkLogic Data Movement SDK, used to do all work with MarkLogic.  
 
 This Connector demo is built on Mule 4.1 SDK and AnypointStudio 7.1.  
-
---------------------------------------
+  
+  
+  
 ## Building the Connector ##
 ----------------------
 
 *N.B.: Building the Connector is probably not necessary unless contributing to the codebase. If not, feel free to skip to "Using the Connector" below.*
 
-The genesis of the demo Connector code comes from scaffolding from a Maven archetype:
+The skeleton of the demo Connector code comes from scaffolding from a Maven archetype:
 
 ```
 mvn archetype:generate
@@ -60,7 +66,8 @@ Current operations include:
 * retrieveInfo
   *  Simply echoes back Mule to MarkLogic connection information.
 
-------------------------------------------
+  
+  
 ## Installing the Connector ##
 -------------------------
 
@@ -90,12 +97,6 @@ You can optionally or alternatively add this dependency as an Artifact Definitio
 </dependency>
 ```
 
-Once the dependency is added, it should show up in the Mule Pallet at top right. 
-
-<img src="images/marklogic-palette.png" alt="Add local Maven Dependency"></img>
-
-Operations listed at right can then be clicked and dragged to the visual flow designer for integration with other components and connectors.
-
 *Important Note*: You may need to install additional dependencies and update the list of Maven repositories.  For example, in the MarkLogic Java API and Data Movement SDK libraries, the current okhttp-digest library version is 1.15.  Several developers working on this project have needed to additionally include 1.16 in the Mule project dependencies while using AnypointStudio.  To find it, the JCenter repository needed adding to the pom.xml under the Mule project tree.  
 
 ```
@@ -114,9 +115,19 @@ After the repository is added, use the "Add Maven Dependency" approach as descri
 </dependency>
 ``` 
 
-----------------------------------------------------
-## Configuring the Connector ##
+  
+  
+## Configuring and Using the Connector ##
 --------------------------------
+
+Once the Connector dependency is added, it should show up in the Mule Pallet at top right, as depicted below. 
+  
+  
+<img src="images/marklogic-palette.png" alt="Add local Maven Dependency"></img>
+
+Operations listed at right can then be clicked and dragged to the visual flow designer for integration with other components and connectors.  Once placed on the designer view, click the icon of the operation you selected, and begin configuring it on the tab below.
+
+There are <a href="examples/">example flows</a> included in the project, for each operation, plus a guide on how to build your first empty flow.
 
 ### MarkLogic Connection Parameters ###
 
