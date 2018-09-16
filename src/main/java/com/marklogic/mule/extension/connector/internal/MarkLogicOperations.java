@@ -56,7 +56,9 @@ public class MarkLogicOperations
   }
   @MediaType(value = APPLICATION_JSON, strict = true)
   public String getJobReport(String jobID) {
-      String result = new ObjectMapper().createObjectNode().toString();
+      ObjectNode obj = new ObjectMapper().createObjectNode();
+      obj.put("jobID", jobID); 
+      String result = obj.toString();
       MarkLogicInsertionBatcher insertionBatcher;
       try {
           insertionBatcher = MarkLogicInsertionBatcher.getInstance();

@@ -175,6 +175,7 @@ public class MarkLogicInsertionBatcher {
         obj.put("successfulEvents", successEvents);
         obj.put("failedBatches", failBatches);
         obj.put("failedEvents", failEvents);
+        obj.put("jobID", jobID);
         System.out.println(obj.toString());
         return obj.toString();
     }
