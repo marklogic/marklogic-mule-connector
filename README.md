@@ -11,7 +11,7 @@ The project aims to provide the Mulesoft community of users (known as <a href="h
 
 Despite the graphical design nature of flows in AnypointStudio, under the covers, each flow in Mule is simply an XML file defining the workflow.  If one chooses, flow authoring can be done entirely in XML, even within AnypointStudio.
 
-Similar to the recently-developed MarkLogic NiFi Connector, the Mulesoft Connector is buit atop the MarkLogic Data Movement SDK, used to do all work with MarkLogic.  
+Similar to the recently-developed MarkLogic NiFi Connector, the Mulesoft Connector is buit atop the MarkLogic Data Movement SDK (DMSDK), used to do all work with MarkLogic.  
 
 This Connector demo is built on Mule 4.1 SDK and AnypointStudio 7.1.  
   
@@ -60,11 +60,15 @@ There is a simple test of static JSON content for each defined operation.
 Current operations include:
 
 * importDocs
-  *  Used by Mule flows to ingest JSON, XML, text, or binary content into MarkLogic.
+  *  Used by Mule flows to ingest JSON, XML, text, or binary content into MarkLogic. Returns a DMSDK jobID.
+* getJobReport
+  * Use the output jobID from importDocs to return JSON object that reports the current job ID status.  At the end of the batch, this will return a JSON object based on the contents of a <a href="https://docs.marklogic.com/javadoc/client/com/marklogic/client/datamovement/JobReport.html">DMSDK JobReport</a>.  Prior to the end of the batch, the JSON object report simply echoes the jobID.
 * fetchFile
-  *  Used by Mule flows to export content from MarkLogic, based on document or collection URIs, or serialized queries.
+  *  Used by Mule flows to export content from MarkLogic, based on document or collection URIs, or serialized queries.  Returns file content to be processed downstream by Mule components, such as Mule's File Write operation, to save to the filesystem.
 * retrieveInfo
   *  Simply echoes back Mule to MarkLogic connection information.
+
+For each operation in the project, there are <a href="examples/">example flows</a> with documentation included.  Also included is a guide on how to build your first empty flow.
 
   
   
@@ -115,7 +119,17 @@ After the repository is added, use the "Add Maven Dependency" approach as descri
 </dependency>
 ``` 
 
-  
+In order to run the <a href="examples/importDocs">example importDocs flows</a>, which containg functionality that retrieves data from a MySQL database, you must add a dependency for MySQL:
+
+```
+<dependency>
+   <groupId>mysql</groupId>
+   <artifactId>mysql-connector-java</artifactId>
+   <version>5.1.44</version>
+</dependency>
+```
+
+<img src="images/mule-sql-dependency.png" alt="Add SQL Maven Dependency"></img>
   
 ## Configuring and Using the Connector ##
 --------------------------------
@@ -127,7 +141,6 @@ Once the Connector dependency is added, it should show up in the Mule Pallet at 
 
 Operations listed at right can then be clicked and dragged to the visual flow designer for integration with other components and connectors.  Once placed on the designer view, click the icon of the operation you selected, and begin configuring it on the tab below.
 
-There are <a href="examples/">example flows</a> included in the project, for each operation, plus a guide on how to build your first empty flow.
 
 ### MarkLogic Connection Parameters ###
 
