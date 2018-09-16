@@ -41,6 +41,16 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                       .getValue());
     assertThat(payloadValue, payloadValue.matches(UUID_REGEX));
   }
+  
+  @Test
+  public void executeGetJobReportOperation() throws Exception {
+    String payloadValue = ((String) flowRunner("getJobReportFlow")
+                                      .run()
+                                      .getMessage()
+                                      .getPayload()
+                                      .getValue());
+    assertThat(payloadValue, startsWith("{\"jobID\":"));
+  }
 
   @Test
   public void executeExportByCollection() throws Exception

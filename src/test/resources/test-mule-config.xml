@@ -10,6 +10,9 @@
         <set-payload value='[0, null, false, "blah"]' doc:name="Set Payload" doc:id="93a0a5fb-9d53-4d60-be72-22fe7bc2eeab" />
         <marklogic:import-docs config-ref="config" docPayloads="#[payload]" basenameUri="test"/>
     </flow>
+    <flow name="getJobReportFlow">
+        <marklogic:get-job-report jobID="93a0a5fb-9d53-4d60-be72-22fe7bc2eeab"/>
+    </flow>
     <flow name="exportFileByCollectionFlow">
         <marklogic:export-file config-ref="config" 
             whereMethod="Collections" where="test" exportFile="./target/test-output/test-collection.json" />
