@@ -8,10 +8,8 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.marklogic.client.io.*;
 import com.marklogic.client.datamovement.ExportListener;
-import com.marklogic.client.datamovement.JobReport;
 import com.marklogic.client.ext.datamovement.job.AbstractQueryBatcherJob;
 import com.marklogic.client.ext.datamovement.job.ExportToFileJob;
 import com.marklogic.client.ext.datamovement.job.SimpleQueryBatcherJob;
@@ -53,33 +51,27 @@ public class MarkLogicOperations
         // Assemble the output URI components
         String outURI = String.format(OUTPUT_URI_TEMPLATE, configuration.getOutputPrefix(),basenameUri,configuration.getOutputSuffix());
 
-        // Actually do the insert
-        batcher.doInsert(outURI,docPayloads);
-
-        // TODO:  What if anything should we return here?  Probably doesn't make sense to return something for each individual document
-        return "";
+        // Actually do the insert and return the result
+        return batcher.doInsert(outURI,docPayloads);
   }
-  
-  private ObjectNode createJsonJobReport(JobReport jr) {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode obj = mapper.createObjectNode();
-        long successBatches = jr.getSuccessBatchesCount();
-        long successEvents = jr.getSuccessEventsCount();
-        long failBatches = jr.getFailureBatchesCount();
-        long failEvents = jr.getFailureEventsCount();
-        if (failEvents > 0) {
-            obj.put("jobOutcome", "failed");
-        } else {
-            obj.put("jobOutcome", "successful");
-        }
-        obj.put("successfulBatches", successBatches);
-        obj.put("successfulEvents", successEvents);
-        obj.put("failedBatches", failBatches);
-        obj.put("failedEvents", failEvents);
-        System.out.println(obj.toString());
-        return obj;
-  }
+  @MediaType(value = APPLICATION_JSON, strict = true)
+  public String getJobReport(String jobID) {
+      String result = new ObjectMapper().createObjectNode().toString();
+      MarkLogicInsertionBatcher insertionBatcher;
+      try {
+          insertionBatcher = MarkLogicInsertionBatcher.getInstance();
+          if (insertionBatcher.jobIDMatches(jobID)) {
+              result = insertionBatcher.createJsonJobReport(jobID);
+          }
+      } catch (java.lang.IllegalStateException e) {
+          // MarkLogicInsertionBatcher has not been instantiated, therefore it has no results to return.  Could be that
+          // the jobID refers to a query job
+      }
 
+      // Add support for query result report here!
+      return result;
+
+  }
     /* Example of an operation that uses the configuration and a connection instance to perform some action. */
     @MediaType(value = ANY, strict = false)
     public String retrieveInfo(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection)
@@ -218,5 +210,4 @@ public class MarkLogicOperations
             return "Success";
         }
     }
-
 }
