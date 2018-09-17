@@ -33,6 +33,7 @@ public class MarkLogicInsertionBatcher {
 
     // TODO: How will we know when the resources are ready to be freed up and provide the results report?
     private final JobTicket jobTicket;
+    private final String jobName;
 
     // The object that actually write record to ML
     private WriteBatcher batcher;
@@ -43,14 +44,12 @@ public class MarkLogicInsertionBatcher {
     // The timestamp of the last write to ML-- used to determine when the pipe to ML should be flushed
     private long lastWriteTime;
 
-    private ObjectMapper jsonFactory = new ObjectMapper();
-
     /**
      * Private constructor-- enforces singleton pattern
      * @param configuration -- information describing how the insertion process should work
      * @param connection -- information describing how to connect to MarkLogic
      */
-    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection) {
+    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String jobName) {
 
         // get the object handles needed to talk to MarkLogic
         DatabaseClient myClient = connection.getClient();
@@ -60,8 +59,8 @@ public class MarkLogicInsertionBatcher {
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
                 .onBatchSuccess(batch-> {
-                    String statusMessage = batch.getTimestamp().getTime() + " documents written: " + batch.getJobWritesSoFar();
-                    System.out.println(statusMessage);
+                    // String statusMessage = batch.getTimestamp().getTime() + " documents written: " + batch.getJobWritesSoFar();
+                    // System.out.println(statusMessage);
 
                 })
                 .onBatchFailure((batch,throwable) -> {
@@ -146,22 +145,18 @@ public class MarkLogicInsertionBatcher {
 
         // start the batcher job
         this.jobTicket = dmm.startJob(batcher);
-    }
-
-    boolean jobIDMatches(String jobID) {
-        return jobTicket.getJobId().equals(jobID);
+        this.jobName = jobName;
     }
 
     /**
      * Creates a JSON object containing details about the batcher job
      * @return Job results report
+     * @param jsonFactory
      */
-    String createJsonJobReport(String jobID) {
-        if (!jobIDMatches(jobID)) {
-            throw new java.lang.IllegalArgumentException("Job '" + jobID + "' not found.");
-        }
+    ObjectNode createJsonJobReport(ObjectMapper jsonFactory) {
         JobReport jr = dmm.getJobReport(jobTicket);
         ObjectNode obj = jsonFactory.createObjectNode();
+        obj.put("jobID", jobTicket.getJobId());
         long successBatches = jr.getSuccessBatchesCount();
         long successEvents = jr.getSuccessEventsCount();
         long failBatches = jr.getFailureBatchesCount();
@@ -175,9 +170,8 @@ public class MarkLogicInsertionBatcher {
         obj.put("successfulEvents", successEvents);
         obj.put("failedBatches", failBatches);
         obj.put("failedEvents", failEvents);
-        obj.put("jobID", jobID);
-        System.out.println(obj.toString());
-        return obj.toString();
+        obj.put("jobName", jobName);
+        return obj;
     }
 
     /**
@@ -186,12 +180,12 @@ public class MarkLogicInsertionBatcher {
      * @param connection -- information describing how to connect to MarkLogic
      * @return instance of the batcher
      */
-    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection) {
+    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, String jobName) {
         // String configId = config.getConfigId();
         // MarkLogicInsertionBatcher instance = instances.get(configId);
         // Uncomment above to support multiple connection config scenario
         if (instance == null) {
-            instance = new MarkLogicInsertionBatcher(config,connection);
+            instance = new MarkLogicInsertionBatcher(config,connection, jobName);
             // instances.put(configId,instance);
             // Uncomment above to support multiple connection config scenario
         }
@@ -203,9 +197,6 @@ public class MarkLogicInsertionBatcher {
      * @return instance of the batcher
      */
     static MarkLogicInsertionBatcher getInstance() {
-        if (instance == null) {
-            throw new java.lang.IllegalStateException ("getInstance with parameters must be used to instantiate this object");
-        }
         return instance;
     }
 

@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.marklogic.client.io.*;
 import com.marklogic.client.datamovement.ExportListener;
@@ -32,12 +33,14 @@ public class MarkLogicOperations
     private final Logger logger = LoggerFactory.getLogger(MarkLogicOperations.class);
     private static final String OUTPUT_URI_TEMPLATE = "%s%s%s"; // URI Prefix + basenameUri + URI Suffix
 
+    private ObjectMapper jsonFactory = new ObjectMapper();
+
     // Loading files into MarkLogic asynchronously InputStream docPayload
   @MediaType(value = APPLICATION_JSON, strict = true)
-  public String importDocs(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection, InputStream docPayloads, String basenameUri) {
+  public String importDocs(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection, InputStream docPayloads, String basenameUri, String jobName) {
 
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration,connection);
+        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration,connection,jobName);
 
         // Determine output URI
         // If the config tells us to generate a new UUID, do that
@@ -54,22 +57,39 @@ public class MarkLogicOperations
         // Actually do the insert and return the result
         return batcher.doInsert(outURI,docPayloads);
   }
+  /*
+  Sample JSON created by getJobReport() :
+{
+	"importResults": [
+		{
+			"jobID": "59903224-c3db-46d8-9881-d24952131b4d",
+			"jobOutcome": "successful",
+			"successfulBatches": 2,
+			"successfulEvents": 100,
+			"failedBatches": 0,
+			"failedEvents": 0,
+			"jobName": "test-import"
+		}
+	],
+	"exportResults": []
+}
+   */
   @MediaType(value = APPLICATION_JSON, strict = true)
-  public String getJobReport(String jobID) {
-      ObjectNode obj = new ObjectMapper().createObjectNode();
-      obj.put("jobID", jobID); 
-      String result = obj.toString();
-      MarkLogicInsertionBatcher insertionBatcher;
-      try {
-          insertionBatcher = MarkLogicInsertionBatcher.getInstance();
-          if (insertionBatcher.jobIDMatches(jobID)) {
-              result = insertionBatcher.createJsonJobReport(jobID);
-          }
-      } catch (java.lang.IllegalStateException e) {
-          // MarkLogicInsertionBatcher has not been instantiated, therefore it has no results to return.  Could be that
-          // the jobID refers to a query job
+  public String getJobReport() {
+      ObjectNode rootObj = jsonFactory.createObjectNode();
+      ArrayNode imports = jsonFactory.createArrayNode();
+      rootObj.set("importResults", imports);
+      ArrayNode exports = jsonFactory.createArrayNode();
+      rootObj.set("exportResults", exports);
+      MarkLogicInsertionBatcher insertionBatcher = MarkLogicInsertionBatcher.getInstance();
+      if (insertionBatcher != null) {
+          imports.add(insertionBatcher.createJsonJobReport(jsonFactory));
       }
 
+      // Add support for query jobReport here!
+      String result = rootObj.toString();
+
+      // System.out.println("RESULT: " + result);
       // Add support for query result report here!
       return result;
 

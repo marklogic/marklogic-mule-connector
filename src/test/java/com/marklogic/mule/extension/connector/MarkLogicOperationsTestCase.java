@@ -49,7 +49,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                       .getMessage()
                                       .getPayload()
                                       .getValue());
-    assertThat(payloadValue, startsWith("{\"jobID\":"));
+    assertThat(payloadValue, startsWith("{\"importResults\":[{\"jobID\":\""));
   }
 
   @Test
