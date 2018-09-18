@@ -119,7 +119,7 @@ After the repository is added, use the "Add Maven Dependency" approach as descri
 </dependency>
 ``` 
 
-In order to run the <a href="examples/importDocs">example importDocs flows</a>, which containg functionality that retrieves data from a MySQL database, you must add a dependency for MySQL:
+In order to run the <a href="examples/importDocs">example importDocs flows</a>, which contains functionality that retrieves data from a MySQL database, you must add a dependency for MySQL, as it is used need for use with the Mulesoft Database Connector:
 
 ```
 <dependency>

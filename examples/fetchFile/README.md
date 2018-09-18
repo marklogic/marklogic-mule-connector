@@ -5,7 +5,7 @@ _____________
 
 ### Overview ###
 
-This flow demonstrates the fetchFile operation, which as the following capabilities and constraints:
+This flow demonstrates the fetchFile operation, which has the following capabilities and constraints:
 
 * Used to export content from MarkLogic via Data Movement SDK (DMSDK) and REST.
 * Support for XML, JSON, Text, and Binary.  
@@ -26,7 +26,7 @@ This flow demonstrates the fetchFile operation, which as the following capabilit
 1. Every 1000 seconds, export documents from the mulesoft-dmsdk-test collection in MarkLogic.
 2. For each file, write it to disk, using a pattern like: ```/tmp/{counter}.xml``` or ```/tmp/{counter}.json```.
 
-#### Flow Steps ####
+### Flow Steps ###
 
 Here's what happens in the fetchFile example flow:
 
@@ -42,8 +42,11 @@ Here's what happens in the fetchFile example flow:
     *  Grab the ```#[payload]``` of each file.  This represents the file output from MarkLogic itself.  They payload -- whether XML, JSON, or other -- is standard Mule syntax and in our case is what comes back over the wire back from DMSDK.
     *  Use the built-in core Mulesoft File Write operation to write each file ```#[payload]``` to ```/tmp/{counter}.xml```.  We achieve this with the pattern: ```#[vars.counter ++ '.xml']```
   
+### Flow Designer Depiction ###
 
-#### Flow XML ####
+<img src="../../images/mule-flow-fetchFile.png" alt="fetchFile Batch Flow"></img>
+
+### Flow XML ###
 
 Here is the Flow XML, also available <a href="project-fetchFile-flow.xml">here</a>:
 
