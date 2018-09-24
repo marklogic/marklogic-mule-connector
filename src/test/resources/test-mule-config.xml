@@ -13,39 +13,4 @@
     <flow name="getJobReportFlow">
         <marklogic:get-job-report />
     </flow>
-    <flow name="exportFileByCollectionFlow">
-        <marklogic:export-file config-ref="config" 
-            whereMethod="Collections" where="test" exportFile="./target/test-output/test-collection.json" />
-    </flow>
-    <flow name="exportFileByCollectionWithOptionsFlow">
-        <marklogic:export-file config-ref="config" 
-            whereMethod="Collections" where="test" exportFile="./target/test-output/test-collection-options.json" 
-            fileHeader="{" fileFooter="}" 
-            recordPrefix="output: " />
-    </flow>
-    <flow name="exportFileByUrisFlow">
-        <marklogic:export-file config-ref="config" 
-            whereMethod="Uris" where="/mulesoft/test.json" exportFile="./target/test-output/test-uris.json" />
-    </flow>
-    <flow name="exportFileByUrisWithOptionsFlow">
-        <marklogic:export-file config-ref="config" 
-            whereMethod="Uris" where="/mulesoft/test.json" exportFile="./target/test-output/test-uris-options.json" 
-            fileHeader="---File Header---" fileFooter="---File Header End---" 
-            recordPrefix="---Record Prefix---" recordSuffix="---Record Prefix End---" />
-    </flow>
-    <flow name="exportFileByPatternFlow">
-        <marklogic:export-file config-ref="config" 
-            whereMethod="UriPattern" where="*.json" exportFile="./target/test-output/test-uri-pattern.json" />
-    </flow>
-    <!--<flow name="exportFileByQueryFlow">-->
-        <!--<marklogic:export-file config-ref="config" whereMethod="UrisQuery" where="" />-->
-    <!--</flow>-->
-    <flow name="fetchFileByUrisFlow">
-        <marklogic:fetch-file config-ref="config" 
-            whereMethod="Uris" where="/mulesoft/test.json" />
-    </flow>
-    <flow name="fetchFileByCollectionFlow">
-        <marklogic:fetch-file config-ref="config" 
-            whereMethod="Collections" where="test" />
-    </flow>
 </mule>

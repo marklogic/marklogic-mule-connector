@@ -12,8 +12,8 @@
 #### What's New: ####
 
 * This is the initial release of the Connector, so, everything's new!
-* Added operations for importDocs, getJobReport, fetchFile, exportFile, and retrieveInfo.
-* Provided documentation of configuration and example flows demonstrating the importDocs (which includes getJobReport), and fetchFile operations.
+* Added operations for importDocs, getJobReport, and retrieveInfo.
+* Provided documentation of configuration and example flows demonstrating importDocs and getJobReport operations.
 
 #### Improvements: ####
 
@@ -25,6 +25,6 @@
 
 #### Operations: ####
 
-* Added operations for importDocs, getJobReport, fetchFile, exportFile, and retrieveInfo.
+* Added operations for importDocs, getJobReport, and retrieveInfo.
 
 

@@ -63,8 +63,6 @@ Current operations include:
   *  Used by Mule flows to ingest JSON, XML, text, or binary content into MarkLogic. Returns a DMSDK jobID.
 * getJobReport
   * Use the output jobID from importDocs to return JSON object that reports the current job ID status.  At the end of the batch, this will return a JSON object based on the contents of a <a href="https://docs.marklogic.com/javadoc/client/com/marklogic/client/datamovement/JobReport.html">DMSDK JobReport</a>.  Prior to the end of the batch, the JSON object report simply echoes the jobID.
-* fetchFile
-  *  Used by Mule flows to export content from MarkLogic, based on document or collection URIs, or serialized queries.  Returns file content to be processed downstream by Mule components, such as Mule's File Write operation, to save to the filesystem.
 * retrieveInfo
   *  Simply echoes back Mule to MarkLogic connection information.
 
