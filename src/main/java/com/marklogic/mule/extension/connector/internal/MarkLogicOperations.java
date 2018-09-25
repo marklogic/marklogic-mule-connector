@@ -22,6 +22,8 @@ import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.display.Example;
+import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,25 +39,62 @@ public class MarkLogicOperations
 
     // Loading files into MarkLogic asynchronously InputStream docPayload
   @MediaType(value = APPLICATION_JSON, strict = true)
-  public String importDocs(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection, InputStream docPayloads, String basenameUri, String jobName) {
+  public String importDocs(
+    @Config
+        MarkLogicConfiguration configuration, 
+    @Connection
+        MarkLogicConnection connection, 
+    @Summary("The content of the input files to be used for ingestion into MarkLogic.")
+        InputStream docPayloads, 
+    @Optional(defaultValue="null")
+    @Summary("A comma-separated list of the collections to which persisted documents will belong after successful ingestion.")
+    @Example("mulesoft-test")
+        String outputCollections,
+    @Optional(defaultValue="rest-reader,read,rest-writer,update")
+    @Summary("A comma-separated list of roles and capabilities to which persisted documents will possess after successful ingestion.")
+    @Example("myRole,read,myRole,update")
+        String outputPermissions,
+    @Optional(defaultValue="1")
+    @Summary("A number indicating the quality of the persisted documents")
+    @Example("1")
+        String outputQuality,
+    @Optional(defaultValue="/")
+    @Summary("The URI prefix, used to prepend and concatenate basenameUri.")
+    @Example("/mulesoft/")
+        String outputUriPrefix,
+    @Optional(defaultValue=".json")
+    @Summary("The URI suffix, used to append and concatenate basenameUri.")
+    @Example(".json")
+        String outputUriSuffix,
+    @Optional(defaultValue="true")
+    @Summary("Creates a document basename based on a UUID, to be combined with the outputUriPrefix and outputUriSuffix.")
+    @Example("false")
+        String generateOutputUriBasename,
+    @Optional(defaultValue="null")
+    @Summary("The file basename to be used for persistence in MarkLogic, usually provided by a value from within the payload. Different than the UUID produced from generateOutputUriBasename.")
+    @Example("employee123.json")
+        String basenameUri,
+    @Summary("The job name used by DMSDK to track the job.")
+    @Example("myJobName")
+        String jobName) {
 
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration,connection,jobName);
+        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, outputUriPrefix, outputUriSuffix, generateOutputUriBasename, basenameUri, jobName);
 
         // Determine output URI
         // If the config tells us to generate a new UUID, do that
-        if (configuration.getGenerateOutputUriBasename() == Boolean.TRUE) {
+        if (Boolean.valueOf(generateOutputUriBasename) == Boolean.TRUE) {
             basenameUri = UUID.randomUUID().toString();
         // Also, if the basenameURI is blank for whatever reason, use a new UUID
-        } else if ((basenameUri == null) || (basenameUri.length() < 1)) {
+        } else if ((basenameUri == null) || (basenameUri.equals("null")) || (basenameUri.length() < 1)) {
             basenameUri = UUID.randomUUID().toString();
         }
 
         // Assemble the output URI components
-        String outURI = String.format(OUTPUT_URI_TEMPLATE, configuration.getOutputPrefix(),basenameUri,configuration.getOutputSuffix());
+        String outURI = String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basenameUri, outputUriSuffix);
 
         // Actually do the insert and return the result
-        return batcher.doInsert(outURI,docPayloads);
+        return batcher.doInsert(outURI, docPayloads);
   }
   /*
   Sample JSON created by getJobReport() :

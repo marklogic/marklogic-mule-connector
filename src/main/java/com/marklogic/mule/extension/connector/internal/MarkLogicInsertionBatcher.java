@@ -35,6 +35,11 @@ public class MarkLogicInsertionBatcher {
     private final JobTicket jobTicket;
     private final String jobName;
 
+    // The output collections, permissions, quality
+    private String outputCollections;
+    private String outputPermissions;
+    private String outputQuality;
+    
     // The object that actually write record to ML
     private WriteBatcher batcher;
 
@@ -49,7 +54,7 @@ public class MarkLogicInsertionBatcher {
      * @param configuration -- information describing how the insertion process should work
      * @param connection -- information describing how to connect to MarkLogic
      */
-    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String jobName) {
+    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, String outputQuality, String outputUriPrefix, String outputUriSuffix, String generateOutputUriBasename, String basenameUri, String jobName) {
 
         // get the object handles needed to talk to MarkLogic
         DatabaseClient myClient = connection.getClient();
@@ -87,7 +92,7 @@ public class MarkLogicInsertionBatcher {
         }
 
         // Set up the timer to flush the pipe to MarkLogic if it's waiting to long
-        int secondsBeforeFlush = Integer.parseInt(configuration.getSecondsBeforeWriteFlush());
+        int secondsBeforeFlush = Integer.parseInt(configuration.getSecondsBeforeFlush());
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -108,17 +113,17 @@ public class MarkLogicInsertionBatcher {
         // ASSUMPTION: The same metadata will be used for every document to be inserted during the lifetime of this
         // object
         this.metadataHandle = new DocumentMetadataHandle();
-        String[] configCollections = configuration.getOutputCollections();
+        String[] configCollections = outputCollections.split(",");
 
         // Set up list of collections that new docs should be put into
         if (!configCollections[0].equals("null")) {
             metadataHandle.withCollections(configCollections);
         }
         // Set up quality new docs should have
-        metadataHandle.setQuality(configuration.getOutputQuality());
+        metadataHandle.setQuality(Integer.parseInt(outputQuality));
 
         // Set up list of permissions that new docs should be granted
-        String[] permissions = configuration.getOutputPermissions();
+        String[] permissions = outputPermissions.split(",");
         for (int i = 0; i < permissions.length - 1; i++) {
             String role = permissions[i];
             String capability = permissions[i + 1];
@@ -180,12 +185,12 @@ public class MarkLogicInsertionBatcher {
      * @param connection -- information describing how to connect to MarkLogic
      * @return instance of the batcher
      */
-    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, String jobName) {
+    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, String outputCollections, String outputPermissions, String outputQuality, String outputUriPrefix, String outputUriSuffix, String generateOutputUriBasename, String basenameUri, String jobName) {
         // String configId = config.getConfigId();
         // MarkLogicInsertionBatcher instance = instances.get(configId);
         // Uncomment above to support multiple connection config scenario
         if (instance == null) {
-            instance = new MarkLogicInsertionBatcher(config,connection, jobName);
+            instance = new MarkLogicInsertionBatcher(config, connection, outputCollections, outputPermissions, outputQuality, outputUriPrefix, outputUriSuffix, generateOutputUriBasename, basenameUri, jobName);
             // instances.put(configId,instance);
             // Uncomment above to support multiple connection config scenario
         }

@@ -27,30 +27,6 @@ public class MarkLogicConfiguration {
   
   @Parameter
   @Optional(defaultValue="null")
-  private String outputCollections;
-  
-  @Parameter
-  @Optional(defaultValue="rest-reader,read,rest-writer,update")
-  private String outputPermissions;
-  
-  @Parameter
-  @Optional(defaultValue="1")
-  private String outputQuality;
-  
-  @Parameter
-  @Optional(defaultValue="/mulesoft/")
-  private String outputUriPrefix;
-  
-  @Parameter
-  @Optional(defaultValue=".json")
-  private String outputUriSuffix;
-
-  @Parameter
-  @Optional(defaultValue="true")
-  private String generateOutputUriBasename;
-  
-  @Parameter
-  @Optional(defaultValue="null")
   private String serverTransform;
   
   @Parameter
@@ -59,7 +35,7 @@ public class MarkLogicConfiguration {
 
   @Parameter
   @Optional(defaultValue="2")
-  private String secondsBeforeWriteFlush;
+  private String secondsBeforeFlush;
 
   public String getConfigId() {
     return configId;
@@ -73,32 +49,6 @@ public class MarkLogicConfiguration {
     return Integer.parseInt(batchSize);
   }
   
-  public String[] getOutputCollections() {
-     String[] collectionValues = outputCollections.split(",");
-     return collectionValues;
-  }
-  
-  public String[] getOutputPermissions() {
-     String[] permissions = outputPermissions.split(",");
-     return permissions;
-  }
-  
-  public int getOutputQuality() {
-    return Integer.parseInt(outputQuality);
-  }
-  
-  public String getOutputPrefix() {
-    return outputUriPrefix;
-  }
-  
-  public String getOutputSuffix() {
-    return outputUriSuffix;
-  }
-  
-  public Boolean getGenerateOutputUriBasename() {
-    return Boolean.valueOf(generateOutputUriBasename);
-  };
-
   public String getServerTransform() {
     return serverTransform;
   }
@@ -108,7 +58,7 @@ public class MarkLogicConfiguration {
      return transParams;
   }
 
-  public String getSecondsBeforeWriteFlush() {
-    return secondsBeforeWriteFlush;
+  public String getSecondsBeforeFlush() {
+    return secondsBeforeFlush;
   }
 }
