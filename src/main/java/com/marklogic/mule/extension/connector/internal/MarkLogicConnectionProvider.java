@@ -3,12 +3,14 @@ package com.marklogic.mule.extension.connector.internal;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
+import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Password;
+import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.connection.CachedConnectionProvider;
-import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,48 +32,58 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
   
   @DisplayName("Host name")
   @Parameter
-  @Optional(defaultValue = "localhost")
+  @Summary("The hostname against which operations should run.")
+  @Example("localhost")
   private String hostname;
   
   @DisplayName("Port")
   @Parameter
-  @Optional(defaultValue = "8010")
+  @Summary("The app server port against which operations should run.")
+  @Example("8010")
   private int port;
   
   @DisplayName("Database")
   @Parameter
+  @Summary("The MarkLogic database name (i.e., xdmp:database-name()), against which operations should run. If not supplied or left as null, the database will be determined automatically by the app server port being called.")
   @Optional(defaultValue = "null")
+  @Example("data-hub-STAGING")
   private String database;
   
   @DisplayName("User name")
   @Parameter
-  @Optional(defaultValue = "admin")
+  @Summary("The named user.")
+  @Example("admin")
   private String username;
 
   @DisplayName("Password")
   @Parameter
+  @Summary("The named user's password.")
   @Password
-  @Optional(defaultValue = "admin")
+  @Example("admin")
   private String password;
   
   @DisplayName("Authentication Type")
   @Parameter
-  @Optional(defaultValue = "digest")
+  @Summary("The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic, application-level, kerberos.")
+  @Example("digest")
   private String authenticationType;
   
   @DisplayName("SSL Context (Not Yet Supported)")
   @Parameter
+  @Summary("")
   @Optional(defaultValue = "null")
   private String sslContext;
   
   @DisplayName("Kerberos External Name (where applicable)")
   @Parameter
+  @Summary("If \"kerberos\" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.")
   @Optional(defaultValue = "null")
   private String kerberosExternalName;
   
   @DisplayName("Connection ID")
   @Parameter
-  @Optional(defaultValue = "testConfig-223efe")
+  @Summary("An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic. Also set on the Connector configuration parameters.")
+  @Example("testConfig-223efe")
   private String connectionId;
 
   @Override

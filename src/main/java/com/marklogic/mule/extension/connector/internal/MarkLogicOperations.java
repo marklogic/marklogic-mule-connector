@@ -22,6 +22,7 @@ import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
@@ -44,7 +45,9 @@ public class MarkLogicOperations
         MarkLogicConfiguration configuration, 
     @Connection
         MarkLogicConnection connection, 
+    @DisplayName("Document payload")
     @Summary("The content of the input files to be used for ingestion into MarkLogic.")
+    @Example("#[payload]")
         InputStream docPayloads, 
     @Optional(defaultValue="null")
     @Summary("A comma-separated list of the collections to which persisted documents will belong after successful ingestion.")
@@ -66,20 +69,19 @@ public class MarkLogicOperations
     @Summary("The URI suffix, used to append and concatenate basenameUri.")
     @Example(".json")
         String outputUriSuffix,
+    @DisplayName("Generate output URI basename?")
     @Optional(defaultValue="true")
-    @Summary("Creates a document basename based on a UUID, to be combined with the outputUriPrefix and outputUriSuffix.")
+    @Summary("Creates a document basename based on a UUID, to be combined with the outputUriPrefix and outputUriSuffix. Use this if you can't programmatically assign a basename from an identifier in the document. Otherwise use basenameUri.")
     @Example("false")
         String generateOutputUriBasename,
+    @DisplayName("Output document basename")
     @Optional(defaultValue="null")
-    @Summary("The file basename to be used for persistence in MarkLogic, usually provided by a value from within the payload. Different than the UUID produced from generateOutputUriBasename.")
+    @Summary("The file basename to be used for persistence in MarkLogic, usually derived a value from within the payload. Different than the UUID produced from generateOutputUriBasename.")
     @Example("employee123.json")
-        String basenameUri,
-    @Summary("The job name used by DMSDK to track the job.")
-    @Example("myJobName")
-        String jobName) {
+        String basenameUri) {
 
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, outputUriPrefix, outputUriSuffix, generateOutputUriBasename, basenameUri, jobName);
+        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, outputUriPrefix, outputUriSuffix, generateOutputUriBasename, basenameUri, configuration.getJobName());
 
         // Determine output URI
         // If the config tells us to generate a new UUID, do that

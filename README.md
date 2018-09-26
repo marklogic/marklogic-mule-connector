@@ -61,8 +61,10 @@ Current operations include:
 
 * importDocs
   *  Used by Mule flows to ingest JSON, XML, text, or binary content into MarkLogic. Returns a DMSDK jobID.
+  * See "importDocs Operation Parameters" below for more details.
 * getJobReport
-  * Use the output jobID from importDocs to return JSON object that reports the current job ID status.  At the end of the batch, this will return a JSON object based on the contents of a <a href="https://docs.marklogic.com/javadoc/client/com/marklogic/client/datamovement/JobReport.html">DMSDK JobReport</a>.  Prior to the end of the batch, the JSON object report simply echoes the jobID.
+  * Automatically fetches the current running DMSDK jobID to return a JSON object that reports the current job ID status.  This will return a JSON object based on the contents of a <a href="https://docs.marklogic.com/javadoc/client/com/marklogic/client/datamovement/JobReport.html">DMSDK JobReport</a>.  Prior to the end of the batch, the JSON object report simply echoes the jobID.
+  * * See "getJobReport Operation Parameters" below for more details.
 * retrieveInfo
   *  Simply echoes back Mule to MarkLogic connection information.
 
@@ -140,13 +142,13 @@ Once the Connector dependency is added, it should show up in the Mule Pallet at 
 Operations listed at right can then be clicked and dragged to the visual flow designer for integration with other components and connectors.  Once placed on the designer view, click the icon of the operation you selected, and begin configuring it on the tab below.
 
 
-### MarkLogic Connection Parameters ###
+### Connection Parameters ###
 
 ||Parameter|Required?|Default Value (if no value provided)|Data Type|Notes and Usage|
 |--- |--- |--- |--- |--- |--- |
 |1|hostname|Required|localhost|String|The hostname against which operations should run.|
 |2|port|Required|8010|int|The app server port against which operations should run.|
-|3|database|Optional|null|String|The MarkLogic database name (i.e., xdmp:database-name()), against which operations should run.|
+|3|database|Optional|null|String|The MarkLogic database name (i.e., the string name resulting from a xdmp:database-name() call), against which operations should run. If not supplied or left as null, the database will be determined automatically by the app server port being called.e.g.:Documentsdata-hub-STAGING|
 |4|username|Required|admin|String|The named user.|
 |5|password|Required|admin|String|The named user's password.|
 |6|authenticationType|Required|digest|String|Possible values are:digestbasicapplication-levelkerberos|
@@ -154,20 +156,52 @@ Operations listed at right can then be clicked and dragged to the visual flow de
 |8|kerberosExternalName|Optional|null|String|If "kerberos" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.|
 |9|connectionId|Required|testConfig-223efe|String|An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic. Also set on the Connector configuration parameters (see below).|
 
-### Operations Configuration Parameters ###
-
+### Configuration Parameters ###
 
 ||Parameter|Required?|Default Value (if no value provided)|Data Type|Notes and Usage|
 |--- |--- |--- |--- |--- |--- |
 |1|configId|Required|testConfig-223efe|String|An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic.|
 |2|threadCount|Required|4|String (later cast to Integer)|The thread count passed to DMSDK, representing the number of parallel processing threads.|
 |3|batchSize|Required|100|String (later cast to Integer)|The batch size passed to DMSDK, representing the number of documents processed within a batch.|
-|4|outputCollections|Optional|null|String (later cast to String[] array)|A comma-separated list of collections. Inspired by MLCP usage pattern for expressing the collections where processed documents will be logically grouped.If kept as null, documents will be persisted without any collections.|
-|5|outputPermissions|Optional|rest-reader,read,rest-writer,update|String (later cast to String[] array)|A comma-separated list of alternating roles and capabilities.Inspired by MLCP usage pattern for expressing document permissions.By default, DMSDK persists all documents with rest-reader read, and rest-writer update permissions. If the non-default value (over and beyond these two permissions) is provided, they are considered additive to the rest-reader read, and rest-writer update permissions.|
-|6|outputQuality|Optional|1|String (later cast to Integer)|The quality to use when persisting documents.|
-|7|outputUriPrefix|Optional|/|String|The URI prefix, used to prepend and concatenate the document basename (which is passed in as a parameter on the importDocs method).|
-|8|outputUriSuffix|Optional|.json|String|The URI suffix, used to append and concatenate to the document basename (which is passed in as a parameter on the importDocs method).|
-|9|generateOutputUriBasename|Optional|true|String (later cast to Boolean)|Inspired by MLCP cgenerate_uri. Creates a document basename based on a UUID, to be combined with the outputUriPrefix and outputUriSuffix, if populated.This is an alternative to having to pass in a basename parameter on the importDocs method.|
-|10|serverTransform|Optional|null|String|The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.e.g. (for Data Hub Framework input flows):ml:sjsInputFlow (SJS)ml:inputFlow (XQuery)|
-|11|serverTransformParams|Optional|null|String (later cast to String[] array)|A comma-separated list of alternating transform parameter names and transform parameter values.Inspired by MLCP usage pattern for expressing server transform parameters with command transform_param.e.g. (for Data Hub Framework input flows):entity-name,Employees,flow-name,loadEmployees|
-|12|secondsBeforeWriteFlush|Optional|2|String (later cast to Integer)|The number of seconds before DMSDK automatically flushes the current batch if not yet filled to the specified batchSize configurable.|
+|4|secondsBeforeFlush|Required|2|String (later cast to Integer)|The number of seconds before DMSDK automatically flushes the current batch if not yet filled to the specified batchSize configurable.|
+|5|serverTransform|Optional|null|String|The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.e.g. (for Data Hub Framework input flows):ml:sjsInputFlow (SJS)ml:inputFlow (XQuery)|
+|6|serverTransformParams|Optional|null|String (later cast to String[] array)|A comma-separated list of alternating transform parameter names and transform parameter values.Inspired by MLCP usage pattern for expressing server transform parameters with command -transform_param.e.g. (for Data Hub Framework input flows):entity-name,Employees,flow-name,loadEmployees|
+|7|jobName|Required|myJobName|String|The job name used by DMSDK to track the job.|
+
+### importDocs Operation Parameters ###
+
+* Returns a String of the jobId of the DMSDK batch job. e.g.:
+* ```"59903224-c3db-46d8-9881-d24952131b4d"```
+
+||Input Parameter|Required?|Default Value (if no value provided)|Data Type|Notes and Usage|
+|--- |--- |--- |--- |--- |--- |
+|1|docPayloads|Required|#[payload]|java.io.InputStream|The DataWeave notation indicating the document payload (XML, JSON, Text, Binary)|
+|2|outputCollections|Optional|null|String (later cast to String[] array)|A comma-separated list of collections.Inspired by MLCP usage pattern for expressing the collections where processed documents will be logically grouped.If kept as null, documents will be persisted without any collections.|
+|3|outputPermissions|Optional|rest-reader,read,rest-writer,update|String (later cast to String[] array)|A comma-separated list of alternating roles and capabilities.Inspired by MLCP usage pattern for expressing document permissions.By default, DMSDK persists all documents with rest-reader read, and rest-writer update permissions. If the non-default value (over and beyond these two permissions) is provided, they are considered additive to the rest-reader read, and rest-writer update permissions.|
+|4|outputQuality|Optional|1|String (later cast to Integer)|The quality to use when persisting documents.|
+|5|outputUriPrefix|Optional|/|String|The URI prefix, used to prepend and concatenate the document basename (which is passed in as a parameter on the importDocs method).|
+|6|outputUriSuffix|Optional|.json|String|The URI suffix, used to append and concatenate to the document basename (which is passed in as a parameter on the importDocs method).|
+|7|generateOutputUriBasename|Optional|true|String (later cast to Boolean)|Inspired by MLCP -generate_uri. Creates a document basename based on a UUID, to be combined with the outputUriPrefix and outputUriSuffix, if populated.This is an alternative to having to pass in a basename parameter on the importDocs method.|
+|8|basenameUri|Optional|null|String|The file basename to be used for persistence in MarkLogic, usually derived from a value from within the payload. Different than the UUID produced from generateOutputUriBasename.|
+
+### getJobReport Operation Parameters ###
+
+* Returns a JSON representation of the DMSDK JobReport, e.g.:
+<pre>{
+  "importResults": [
+   {
+    "jobID": "59903224-c3db-46d8-9881-d24952131b4d",
+    "jobOutcome": "successful",
+    "successfulBatches": 2,
+    "successfulEvents": 100,
+    "failedBatches": 0,
+    "failedEvents": 0,
+    "jobName": "test-import"
+   }
+  ],
+  "exportResults": []
+ }</pre>
+ 
+||Input Parameter|Required?|Default Value (if no value provided)|Data Type|Notes and Usage|
+|--- |--- |--- |--- |--- |--- |
+|1|No parameters required|N/A|N/A|N/A|N/A|

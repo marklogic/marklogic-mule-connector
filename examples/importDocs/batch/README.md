@@ -19,8 +19,8 @@ This flow demonstrates the importDocs operation, which has the following capabil
 
 1. Periodically make a call SQL SELECT call to a MySQL relational database to get a set of row data, for eventual ingestion into MarkLogic. 
 2. Using batch, in parallel threads and batches, transform the row data to JSON.
-3. For each row, run it through the MarkLogic importDocs operation, to a DMSDK WriteBatch queue for asynchronous write into MarkLogic.  We're going to get a report of our DMSDK batch job, and log that out to our local filesystem.
-4. Finally, get the binary Mulesoft BatchJobReport, convert it to JSON, and write it to our local filesystem as well.
+3. For each row, run it through the MarkLogic importDocs operation, to a DMSDK WriteBatch queue for asynchronous write into MarkLogic.  
+4. Finally, get the binary Mulesoft BatchJobReport, convert it to JSON, and write it to our local filesystem as well. Also, we're going to get a report of our DMSDK batch job, and write that out to our local filesystem.
 
 ### Flow Dependencies ###
 
@@ -54,9 +54,9 @@ Here's what happens in the importDocs (using batch) example flow:
   * The importDocs operation begins.  This uses DMSDK, with the user-defined settings for batch size and thread count.  
     *  *N.B.: It is advisable to keep the Mule batch block size in step with the MarkLogic DMSDK batch size, but not required.*
     * We set our *Doc payloads* parameter with ```#[payload]```, and our *Basename uri* with ```#[payload.employee.employeeNumber]```, which gives us a good unique identifier for setting the persistent basename URI when we write to MarkLogic.
-  * From importDocs, we get back a DMSDK batch job identifier where the document was queued. We can use this as input (via ```#[payload]```) into operation getJobReport to get a JSON report of the current job status.  We add a transform to do a bit more enhancement of the JSON to prepare it for writing to the file system.  See "DMSDK JobReport Transform" below.
-  * To finish out our For-Each scope, we write each enhanced JobReport JSON out to our filesystem, based on the UUID we added to the data.  Notice the naming of the file, performing string concatenation for our final filename: ```#[payload.uuid ++ '.json']```
-* To finish out the Mulesoft batch job, we'll similarly log out its status report, called BatchJobReport.  The Mulesoft BatchJobReport is binary, so in order to effectively log it in such a way that is readable, we make use of another DataWeave transform.  See "payload" below.  We then write out the ```#[payload]``` to "marklogic_mule_out.json".  
+* In the Mulesoft batch job On Complete phase, we'll similarly log out its status report, called BatchJobReport.  The Mulesoft BatchJobReport is binary, so in order to effectively log it in such a way that is readable, we make use of another DataWeave transform.  See "payload" below.  We then write out the ```#[payload]``` to "marklogic_mule_out.json".      
+* Also in the On Complete phase, we can run the MarkLogic operation getJobReport to get a JSON report of the current job status.  We add a transform to do a bit more enhancement of the JSON to prepare it for writing to the file system.  Finally, we write the enhanced JobReport JSON out to our filesystem, based on the UUID we added to the data.  Notice the naming of the file, performing string concatenation for our final filename: ```#[payload.uuid ++ '.json']```
+ See "DMSDK JobReport Transform" below.
 
 ### Dataweave Transforms ###
 
@@ -87,6 +87,14 @@ output application/json
 payload.employeeWrap
 ```
 
+#### Mulesoft Batch Job On Complete Transform ####
+```
+%dw 2.0
+output application/json
+---
+payload
+```
+
 #### DMSDK JobReport Transform ####
 ```
 %dw 2.0
@@ -94,18 +102,10 @@ output application/json
 ---
 {
 	outcome: payload, 
-	jobID: payload.jobID, 
+	jobID: payload.importResults.jobName, 
 	time: now(), 
 	uuid: uuid()
 }
-```
-
-#### Mulesoft Batch Job On Complete Transform ####
-```
-%dw 2.0
-output application/json
----
-payload
 ```
 
 ### Flow Designer Depiction ###
@@ -131,8 +131,8 @@ Here is the Flow XML, also available <a href="project-mysql-importDocs-batch-flo
     http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
     http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
     http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
-    <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="787ed86c-be5d-4d1e-b8d5-db768f814509" threadCount="3" batchSize="5" outputCollections="mulesoft-dmsdk-test,mulesoft-dmsdk-test-json" generateOutputUriBasename="false">
-        <marklogic:connection hostname="***REMOVED***" username="mulesoft" password="***REMOVED***"/>
+    <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="787ed86c-be5d-4d1e-b8d5-db768f814509" threadCount="3" batchSize="5" secondsBeforeFlush="2" jobName="import" configId="testConfig-223efe">
+        <marklogic:connection hostname="***REMOVED***" username="mulesoft" password="***REMOVED***" port="8010" authenticationType="digest" connectionId="testConfig-223efe"/>
     </marklogic:config>
     <db:config name="Database_Config" doc:name="Database_Config" doc:id="e81f7b60-a562-4e53-afaa-bcf4e7769ed1" >
         <db:my-sql-connection host="***REMOVED***" port="3306" user="mulesoft" password="***REMOVED***" database="employees" >
@@ -142,52 +142,42 @@ Here is the Flow XML, also available <a href="project-mysql-importDocs-batch-flo
     <file:config name="File_Config" doc:name="File Config" doc:id="940e2b10-0c27-49f2-8695-65ea0cdbf474" >
         <file:connection workingDir="/tmp" />
     </file:config>
-<flow name="marklogicconnector20180618Flow1" doc:id="52e50d2e-ea57-4f04-a62a-78777e15b6eb" initialState="started">
+    <flow name="marklogicconnector20180926Flow1" doc:id="52e50d2e-ea57-4f04-a62a-78777e15b6eb" initialState="started">
         <scheduler doc:name="Scheduler" doc:id="00d19361-fcb8-4508-a79c-f5500b582b86" >
             <scheduling-strategy >
                 <fixed-frequency frequency="30000"/>
             </scheduling-strategy>
         </scheduler>
-        <db:select doc:name="Select" doc:id="6dbbaf05-2fab-478b-8fe9-206581576415" config-ref="Database_Config" fetchSize="5" maxRows="500">
+        <db:select doc:name="SQL Select Employees" doc:id="6dbbaf05-2fab-478b-8fe9-206581576415" config-ref="Database_Config" fetchSize="5" maxRows="500">
             <ee:repeatable-file-store-iterable />
-			<db:sql>select * from employees;</db:sql>
+            <db:sql>select * from employees;</db:sql>
         </db:select>
-		<batch:job jobName="marklogicconnector20180618Batch_Job" doc:id="e9b80c82-cde4-4b3c-966f-c53f1d06378a" maxFailedRecords="5">
+        <batch:job jobName="marklogicconnector20180926Batch_Job" doc:id="e9b80c82-cde4-4b3c-966f-c53f1d06378a" maxFailedRecords="5">
             <batch:process-records >
-				<batch:step name="Batch_Step" doc:id="e9f398fd-38fb-4db3-a6e1-7895313119f1" acceptPolicy="ALL">
-					<batch:aggregator doc:name="Batch Aggregator" doc:id="9428840e-7e21-4eaf-99dc-31e9e05f9d00" streaming="true">
-						<foreach doc:name="For Each" doc:id="6fd83719-1cf2-447b-bbe5-7fcafe5513c0" >
-							<ee:transform doc:name="Transform Message" doc:id="c319de30-fbc7-47bc-a1bb-7ed32008df21">
-							<ee:message>
-								<ee:set-payload><![CDATA[%dw 2.0
+                <batch:step name="Batch_Step" doc:id="e9f398fd-38fb-4db3-a6e1-7895313119f1" acceptPolicy="ALL">
+                    <batch:aggregator doc:name="Batch Aggregator" doc:id="9428840e-7e21-4eaf-99dc-31e9e05f9d00" streaming="true">
+                        <foreach doc:name="For Each Employee" doc:id="6fd83719-1cf2-447b-bbe5-7fcafe5513c0" >
+                            <ee:transform doc:name="Transform Each Employee Message" doc:id="c319de30-fbc7-47bc-a1bb-7ed32008df21">
+                                <ee:message>
+                                    <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload.employeeWrap]]></ee:set-payload>
-							</ee:message>
-						</ee:transform>
-							<set-payload value="#[payload]" doc:name="Set Payload" doc:id="70779416-1194-46a2-8b5d-f71a40062e81" encoding="UTF-8" mimeType="application/json" />
-							<marklogic:import-docs doc:name="Import docs" doc:id="0a05e5ab-def1-4be4-87da-1c274bd3aadb" config-ref="MarkLogic_Config" docPayloads="#[payload]" basenameUri="#[payload.employee.employeeNumber]" />
-							<marklogic:get-job-report doc:name="Get job report" doc:id="6030a6d8-2ca4-47ea-b274-00c9716f5441" jobID="#[payload]" />
-							<ee:transform doc:name="Transform Message" doc:id="6f50a56b-e5f9-4a3b-bfea-2b1942166783">
-								<ee:message>
-									<ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-	outcome: payload, 
-	jobID: payload.jobID, 
-	time: now(), 
-	uuid: uuid()
-}]]></ee:set-payload>
-								</ee:message>
-							</ee:transform>
-							<file:write doc:name="Write" doc:id="3fe994e7-f2b6-4182-aa05-824153d0b4ef" config-ref="File_Config" path="#[payload.uuid ++ '.json']">
-							</file:write>
-						</foreach>
-					</batch:aggregator>
-					<ee:transform doc:name="Transform Message" doc:id="c25c94e7-cee4-46f8-b51b-29b3e3f0acb8">
-						<ee:message>
-							<ee:set-payload><![CDATA[%dw 2.0
+                                </ee:message>
+                            </ee:transform>
+                            <set-payload value="#[payload]" doc:name="Set Payload" doc:id="70779416-1194-46a2-8b5d-f71a40062e81" encoding="UTF-8" mimeType="application/json" />
+                            <marklogic:import-docs doc:name="Import doc to MarkLogic" doc:id="0a05e5ab-def1-4be4-87da-1c274bd3aadb" config-ref="MarkLogic_Config" 
+                                docPayloads="#[payload]" 
+                                outputCollections="mulesoft-dmsdk-test,mulesoft-dmsdk-test-json"
+                                outputQuality="2"
+                                outputUriPrefix="/mulesoft/" outputUriSuffix=".json"
+                                basenameUri="#[payload.employee.employeeNumber]" 
+                                generateOutputUriBasename="false"/>
+                        </foreach>
+                    </batch:aggregator>
+                    <ee:transform doc:name="Transform Employee Row to JSON" doc:id="c25c94e7-cee4-46f8-b51b-29b3e3f0acb8">
+                        <ee:message>
+                            <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {employeeWrap: {
@@ -202,21 +192,37 @@ output application/json
 	}	
   }
 }]]></ee:set-payload>
-						</ee:message>
-					</ee:transform>
+                        </ee:message>
+                    </ee:transform>
                 </batch:step>
             </batch:process-records>
-			<batch:on-complete>
-				<ee:transform doc:name="Transform Message" doc:id="8bace003-d287-4490-83f3-c085ed3e2d22" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+            <batch:on-complete>
+                <ee:transform doc:name="Transform Mule BatchJobReport" doc:id="8bace003-d287-4490-83f3-c085ed3e2d22">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload]]></ee:set-payload>
-					</ee:message>
-				</ee:transform>
-				<file:write doc:name="Write" doc:id="164e8cc4-eb02-4e3b-a547-3ac9dfb3311f" config-ref="File_Config" path="marklogic_mule_out.json"/>
-			</batch:on-complete>
+                    </ee:message>
+                </ee:transform>
+                <file:write doc:name="Write Mule BatchJobReport" doc:id="164e8cc4-eb02-4e3b-a547-3ac9dfb3311f" config-ref="File_Config" path="marklogic_mule_out.json" />
+                <marklogic:get-job-report doc:name="Get MarkLogic JobReport" doc:id="6030a6d8-2ca4-47ea-b274-00c9716f5441" />
+                <ee:transform doc:name="Transform MarkLogic JobReport" doc:id="6f50a56b-e5f9-4a3b-bfea-2b1942166783">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	outcome: payload, 
+	jobID: payload.importResults.jobName, 
+	time: now(), 
+	uuid: uuid()
+}]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+                <file:write doc:name="Write MarkLogic JobReport" doc:id="3fe994e7-f2b6-4182-aa05-824153d0b4ef" config-ref="File_Config" path="#[payload.uuid ++ '.json']">
+                </file:write>
+            </batch:on-complete>
         </batch:job>
     </flow>
 </mule>
