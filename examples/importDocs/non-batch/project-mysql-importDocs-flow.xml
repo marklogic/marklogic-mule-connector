@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
-    xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
+    xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+    xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
     http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
     http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-    http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
+    http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
+    http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
     <db:config name="Database_Config" doc:name="Database Config" doc:id="597f55a7-efa1-4c7e-af48-b7cf9da5707c" >
         <db:my-sql-connection host="***REMOVED***" port="3306" user="mulesoft" password="***REMOVED***" database="employees" />
     </db:config>
     <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="31ee9cb1-8eeb-4b2b-8c3e-7f138e2fd0a7" threadCount="3" batchSize="5" secondsBeforeFlush="2" jobName="import" configId="testConfig-223efe">
         <marklogic:connection hostname="***REMOVED***" username="mulesoft" password="***REMOVED***" port="8010" authenticationType="digest" connectionId="testConfig-223efe"/>
     </marklogic:config>
+    <file:config name="File_Config" doc:name="File Config" doc:id="b7e95b75-492c-4f7f-9a2e-6bd13bc1739f" >
+        <file:connection workingDir="/tmp/" />
+    </file:config>
     <flow name="marklogicconnectornonbatchFlow" doc:id="153dfd12-959a-4015-998e-58256ec30a65" >
         <scheduler doc:name="Scheduler" doc:id="3a3d35e9-e090-437a-b7b7-7ed658e29e2a" >
             <scheduling-strategy >
@@ -30,7 +35,7 @@ output text/xml
 {
 	employeeWrap: {
 		employee: using (myindex = vars.counter - 1) {
-			employeeNumber: vars.rootMessage.payload[myindex].emp_no,
+			empNo: vars.rootMessage.payload[myindex].emp_no,
 			hireDate: vars.rootMessage.payload[myindex].hire_date,
 			firstName: vars.rootMessage.payload[myindex].first_name,
 			lastName: vars.rootMessage.payload[myindex].last_name,
@@ -51,6 +56,22 @@ output text/xml
                     basenameUri="null" 
                     generateOutputUriBasename="true"/>
             </foreach>
+            <marklogic:get-job-report doc:name="Get DMSDK JobReport JSON" doc:id="8be11287-bb60-4821-9149-ab265f52aa9a" />
+            <ee:transform doc:name="Transform Message" doc:id="9d887377-0f74-4a42-b966-8892423fabb4" >
+                <ee:message >
+                    <ee:set-payload ><![CDATA[%dw 2.0
+output text/xml
+---
+{outcome: {
+		message: payload, 
+		jobID: payload.importResults.jobName, 
+		time: now(), 
+		uuid: uuid()
+	}
+}]]></ee:set-payload>
+                </ee:message>
+            </ee:transform>
+            <file:write doc:name="Write MarkLogic JobReport" doc:id="0d3ba823-bfaf-4ce5-9c88-9a782b528ef3" config-ref="File_Config" path="#[payload.outcome.uuid ++ '.xml']"/>
         </try>
     </flow>
 </mule>
