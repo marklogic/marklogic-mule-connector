@@ -100,6 +100,8 @@ output text/xml
 }
 ```
 
+Notice the advanced use of assigning variables in-line in the Dataweave transform to create iterator values.  ```vars.counter``` is created from within the for-each block by default in Mulesoft.
+
 #### DMSDK JobReport Transform (to XML) ####
 ```
 %dw 2.0
