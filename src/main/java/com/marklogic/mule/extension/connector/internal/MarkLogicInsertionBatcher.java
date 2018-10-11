@@ -39,11 +39,6 @@ public class MarkLogicInsertionBatcher {
     // TODO: How will we know when the resources are ready to be freed up and provide the results report?
     private final JobTicket jobTicket;
     private final String jobName;
-
-    // The output collections, permissions, quality
-    /*private String outputCollections;
-    private String outputPermissions;
-    private String outputQuality;*/
     
     // The object that actually write record to ML
     private WriteBatcher batcher;
@@ -68,8 +63,8 @@ public class MarkLogicInsertionBatcher {
         // Configure the batcher's behavior
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
-                .onBatchSuccess(batch-> {})
-                .onBatchFailure((batch,throwable) -> {
+                .onBatchSuccess((batch) -> {})
+                .onBatchFailure((batch, throwable) -> {
                     logger.error("Exception thrown by an onBatchSuccess listener", throwable);  // For Sonar...
                     throwable.printStackTrace();
                 });
