@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 public class MarkLogicInsertionBatcher {
 
-    private final Logger logger = LoggerFactory.getLogger(MarkLogicInsertionBatcher.class);
+    private static final Logger logger = LoggerFactory.getLogger(MarkLogicInsertionBatcher.class);
     
     // The single instance of this class
     private static MarkLogicInsertionBatcher instance;
@@ -146,7 +146,7 @@ public class MarkLogicInsertionBatcher {
                     metadataHandle.getPermissions().add(role, DocumentMetadataHandle.Capability.NODE_UPDATE);
                     break;
                 default :
-                    System.out.println("No additive permissions assigned");
+                    logger.info("No additive permissions assigned");
             }
         }
 
