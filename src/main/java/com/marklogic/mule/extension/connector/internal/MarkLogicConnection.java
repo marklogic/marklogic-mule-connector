@@ -16,8 +16,10 @@ import org.slf4j.LoggerFactory;
 public final class MarkLogicConnection {
 
   private final String id;
-  private final Logger logger = LoggerFactory.getLogger(MarkLogicConnection.class);
-  private static DatabaseClient client;
+  private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnection.class);
+  // Purported "code smell" from Sonar for updating static field from dynamic method
+  // private static DatabaseClient client; 
+  private DatabaseClient client;
   
   public MarkLogicConnection(String hostname, int port, String database, String username, String password, String authenticationType, String sslContext, String kerberosExternalName, String connectionId) {
     this.id = connectionId;
@@ -91,7 +93,7 @@ public final class MarkLogicConnection {
   
   public boolean isConnected(int port) {
     Integer connectedPort = client.getPort();
-    Integer configuredPort = new Integer(port);
+    Integer configuredPort = Integer.valueOf(port); // Cleaned up for Sonar; was: new Integer(port);
     if (connectedPort.equals(configuredPort)) {
         return true;
     } else {

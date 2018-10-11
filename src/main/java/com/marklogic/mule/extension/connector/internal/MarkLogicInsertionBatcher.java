@@ -70,6 +70,7 @@ public class MarkLogicInsertionBatcher {
                 .withThreadCount(configuration.getThreadCount())
                 .onBatchSuccess(batch-> {})
                 .onBatchFailure((batch,throwable) -> {
+                    logger.error("Exception thrown by an onBatchSuccess listener", throwable);  // For Sonar...
                     throwable.printStackTrace();
                 });
         // Configure the transform to be used, if any
