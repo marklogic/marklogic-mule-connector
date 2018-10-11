@@ -15,6 +15,9 @@ import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Created by jkrebs on 9/12/2018.
  * Singleton class that manages inserting documents into MarkLogic
@@ -22,6 +25,8 @@ import java.util.TimerTask;
 
 public class MarkLogicInsertionBatcher {
 
+    private final Logger logger = LoggerFactory.getLogger(MarkLogicInsertionBatcher.class);
+    
     // The single instance of this class
     private static MarkLogicInsertionBatcher instance;
 
@@ -36,9 +41,9 @@ public class MarkLogicInsertionBatcher {
     private final String jobName;
 
     // The output collections, permissions, quality
-    private String outputCollections;
+    /*private String outputCollections;
     private String outputPermissions;
-    private String outputQuality;
+    private String outputQuality;*/
     
     // The object that actually write record to ML
     private WriteBatcher batcher;
@@ -63,11 +68,7 @@ public class MarkLogicInsertionBatcher {
         // Configure the batcher's behavior
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
-                .onBatchSuccess(batch-> {
-                    // String statusMessage = batch.getTimestamp().getTime() + " documents written: " + batch.getJobWritesSoFar();
-                    // System.out.println(statusMessage);
-
-                })
+                .onBatchSuccess(batch-> {})
                 .onBatchFailure((batch,throwable) -> {
                     throwable.printStackTrace();
                 });
@@ -76,7 +77,7 @@ public class MarkLogicInsertionBatcher {
         // lifetime of this object
         String configTransform = configuration.getServerTransform();
         if ((configTransform == null) || (configTransform.equals("null"))) {
-            System.out.println("Ingesting doc payload without a transform");
+            logger.info("Ingesting doc payload without a transform");
         } else {
             ServerTransform thistransform = new ServerTransform(configTransform);
             String[] configTransformParams = configuration.getServerTransformParams();
@@ -88,7 +89,7 @@ public class MarkLogicInsertionBatcher {
                 }
             }
             batcher.withTransform(thistransform);
-            System.out.println("Transforming input doc payload with transform: " + thistransform.getName());
+            logger.info("Transforming input doc payload with transform: " + thistransform.getName());
         }
 
         // Set up the timer to flush the pipe to MarkLogic if it's waiting to long
@@ -211,7 +212,7 @@ public class MarkLogicInsertionBatcher {
      * @param documentStream -- the InputStream containing the document to be inserted... comes from mule
      * @return jobTicketID
      */
-    String doInsert(String outURI, InputStream documentStream){
+    String doInsert(String outURI, InputStream documentStream) {
         // Add the InputStream to the DMSDK WriteBatcher object
         batcher.addAs(outURI, metadataHandle, new InputStreamHandle(documentStream));
         // Update the most recent insert's timestamp

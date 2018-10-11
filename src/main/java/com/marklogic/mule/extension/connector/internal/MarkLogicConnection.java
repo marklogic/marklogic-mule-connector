@@ -68,7 +68,9 @@ public final class MarkLogicConnection {
                 break;
         }
     } catch (Exception e) {
-        logger.error("MarkLogic connection failed. " + e.getMessage());
+        // logger.error("MarkLogic connection failed. " + e.getMessage());
+        // Try returning the entire exception to pass Sonor code quality
+        logger.error("MarkLogic connection failed. " + e);
     }
   }
 
@@ -81,7 +83,9 @@ public final class MarkLogicConnection {
     try {
         client.release();
     } catch (Exception e) {
-        logger.warn("MarkLogic disconnect failed. " + e.getMessage());
+        // logger.warn("MarkLogic disconnect failed. " + e.getMessage());
+        // Try returning the entire exception to pass Sonor code quality
+        logger.warn("MarkLogic disconnect failed. " + e);
     }
   }
   
