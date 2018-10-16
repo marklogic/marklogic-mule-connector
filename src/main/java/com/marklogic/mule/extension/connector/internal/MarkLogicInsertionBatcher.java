@@ -66,7 +66,6 @@ public class MarkLogicInsertionBatcher {
                 .onBatchSuccess((batch) -> {})
                 .onBatchFailure((batch, throwable) -> {
                     logger.error("Exception thrown by an onBatchSuccess listener", throwable);  // For Sonar...
-                    //throwable.printStackTrace();
                 });
         // Configure the transform to be used, if any
         // ASSUMPTION: The same transform (or lack thereof) will be used for every document to be inserted during the
