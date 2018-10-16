@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MarkLogicConnectionProvider implements PoolingConnectionProvider<MarkLogicConnection> {
 
-  private final Logger logger = LoggerFactory.getLogger(MarkLogicConnectionProvider.class);
+  private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnectionProvider.class);
   
   @DisplayName("Host name")
   @Parameter

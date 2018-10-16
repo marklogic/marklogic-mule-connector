@@ -16,8 +16,10 @@ import org.slf4j.LoggerFactory;
 public final class MarkLogicConnection {
 
   private final String id;
-  private final Logger logger = LoggerFactory.getLogger(MarkLogicConnection.class);
-  private static DatabaseClient client;
+  private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnection.class);
+  // Purported "code smell" from Sonar for updating static field from dynamic method
+  // private static DatabaseClient client; 
+  private DatabaseClient client;
   
   public MarkLogicConnection(String hostname, int port, String database, String username, String password, String authenticationType, String sslContext, String kerberosExternalName, String connectionId) {
     this.id = connectionId;
@@ -68,7 +70,9 @@ public final class MarkLogicConnection {
                 break;
         }
     } catch (Exception e) {
-        logger.error("MarkLogic connection failed. " + e.getMessage());
+        // logger.error("MarkLogic connection failed. " + e.getMessage());
+        // Try returning the entire exception to pass Sonor code quality
+        logger.error("MarkLogic connection failed. " + e);
     }
   }
 
@@ -81,13 +85,15 @@ public final class MarkLogicConnection {
     try {
         client.release();
     } catch (Exception e) {
-        logger.warn("MarkLogic disconnect failed. " + e.getMessage());
+        // logger.warn("MarkLogic disconnect failed. " + e.getMessage());
+        // Try returning the entire exception to pass Sonor code quality
+        logger.warn("MarkLogic disconnect failed. " + e);
     }
   }
   
   public boolean isConnected(int port) {
     Integer connectedPort = client.getPort();
-    Integer configuredPort = new Integer(port);
+    Integer configuredPort = Integer.valueOf(port); // Cleaned up for Sonar; was: new Integer(port);
     if (connectedPort.equals(configuredPort)) {
         return true;
     } else {

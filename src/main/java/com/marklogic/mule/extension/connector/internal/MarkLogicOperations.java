@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 public class MarkLogicOperations
 {
 
-    private final Logger logger = LoggerFactory.getLogger(MarkLogicOperations.class);
+    private static final Logger logger = LoggerFactory.getLogger(MarkLogicOperations.class);
     private static final String OUTPUT_URI_TEMPLATE = "%s%s%s"; // URI Prefix + basenameUri + URI Suffix
 
     private ObjectMapper jsonFactory = new ObjectMapper();
