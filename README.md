@@ -5,6 +5,8 @@
 ## About the Connector ##
 ------------------------
 
+<a href="http://marklogic.com">MarkLogic</a> is a database designed for NoSQL speed and scale, without sacrificing the enterprise features required to run mission-critical, operational applications. Using a multi-model approach, MarkLogic provides unprecedented flexibility to integrate and store all of your most critical data, and then view that data as documents, as a graph, or as relational data. You can avoid expensive and brittle ETL and better manage the entities and relationships that your business works with.
+
 <a href="http://mulesoft.com">Mulesoft</a> is a enterprise-grade, lightweight Java <a href="https://www.mulesoft.com/resources/esb-integration">Enterprise Service Bus and Application Orchestration platform</a> that encourages an API-first approach to services, workflows, and data integration. In fact, one can even define and serve RAML-based REST APIs within Mulesoft to orchestrate data movement between flow components.
 
 The project aims to provide the Mulesoft community of users (known as <a href="https://www.mulesoft.com/exchange/">Anypoint Exchange</a>) with a MarkLogic Connector that delivers data movement and transformation pipelines via Mulesoft <a href="https://www.mulesoft.com/platform/studio">AnypointStudio</a> Flow file.  AnypointStudio is Mulesoft's <a href="https://www.eclipse.org/">Eclipse</a>-based graphical IDE, <a href="https://www.mulesoft.com/platform/api/flow-designer-integration-tool">used to design, author, and run flows</a>. 
