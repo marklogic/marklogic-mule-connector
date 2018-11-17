@@ -1,3 +1,16 @@
+/**
+ * MarkLogic Connector
+ *
+ * Copyright © 2018 MarkLogic Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ *
+ * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
+ */
 package com.marklogic.mule.extension.connector.internal;
 
 import java.io.InputStream;
@@ -18,6 +31,7 @@ import com.marklogic.client.ext.datamovement.job.SimpleQueryBatcherJob;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 
+import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
@@ -38,8 +52,9 @@ public class MarkLogicOperations
 
     private ObjectMapper jsonFactory = new ObjectMapper();
 
-    // Loading files into MarkLogic asynchronously InputStream docPayload
+  // Loading files into MarkLogic asynchronously InputStream docPayload
   @MediaType(value = APPLICATION_JSON, strict = true)
+  @Throws(MarkLogicExecuteErrorsProvider.class)
   public String importDocs(
     @Config
         MarkLogicConfiguration configuration, 
@@ -115,6 +130,7 @@ public class MarkLogicOperations
 	"exportResults": []
 }
    */
+
   @MediaType(value = APPLICATION_JSON, strict = true)
   public String getJobReport() {
       ObjectNode rootObj = jsonFactory.createObjectNode();

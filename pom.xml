@@ -29,14 +29,18 @@
     <packaging>mule-extension</packaging>
     <name>MarkLogic Extension</name>
     <parent>
-        <groupId>org.mule.extensions</groupId>
-        <artifactId>mule-modules-parent</artifactId>
-        <version>1.0.0</version>
+        <groupId>org.mule.connectors</groupId>
+        <artifactId>mule-certified-parent</artifactId>
+        <version>1.1.0</version>
     </parent>
     <repositories>
         <repository>
             <id>jcenter</id>
             <url>http://jcenter.bintray.com</url>
         </repository>
+	<repository>
+	    <id>mulesoft-releases</id>
+	    <url>http://repository.mulesoft.org/releases/</url>
+	</repository>
     </repositories>
 </project>

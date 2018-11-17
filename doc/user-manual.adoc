@@ -1,0 +1,91 @@
+= MarkLogic Connector
+:imagesdir: ./_images
+
+_MuleSoft Certified_
+
+The MarkLogic Mulesoft Connector aims to provide the Mulesoft community of users (via the Mulesoft Anypoint Exchange) with easy integration to MarkLogic, delivering data movement and transformation pipelines via Mulesoft AnypointStudio flows. The Mulesoft Connector is built atop MarkLogic’s Data Movement SDK (DMSDK), which is a Java API library for applications that need to move data into, out of, or within a MarkLogic cluster.  For those familiar with the existing MarkLogic ecosystem, it provides the core capabilities of MarkLogic Content Pump in the vernacular of the MarkLogic Java Client API.
+
+== Prerequisites
+
+This document assumes that you are familiar with the following Mule concepts: Anypoint Connectors, Anypoint Studio, Mule flows, and Mule Global Elements.  It also assumes familiarity with the following MarkLogic concepts: MarkLogic Java Client API, Data Movement SDK, and REST APIs. 
+
+See the Release Notes for compatibility information listed in the See Also section of this document.
+
+== What's New in this Connector
+
+This is the initial release of the Connector, so, everything's new!
+
+* Added operations for importDocs, getJobReport, and retrieveInfo.
+* Provided documentation of configuration and example flows demonstrating importDocs and getJobReport operations.
+
+== To Connect in Design Center
+
+[List steps to specify a trigger and the connector] - Show screenshots for the trigger setup and for configuring the connector.
+
+=== Add Libraries for this Connector [if connector has Jars or libraries]
+
+[List steps to get libraries if the connector requires jars or libraries]
+
+=== Test the Connector
+
+[List how to test that the connector works via Design Center]
+
+== To Install this Connector in Anypoint Studio 7
+
+. In Anypoint Studio 7, click Add Module and specify the name of the connector.
+. Click Add to add the connector to your project.
+
+[List any other steps necessary to install the connector]
+
+When Studio has an update, a message displays in the lower right corner, which you can click to install the update.
+
+== To Create a Mule Project in Anypoint Studio 7
+
+[screenshot of flow, screenshot of configuration screen(s), table of field descriptions]
+
+=== To Create a Mule Project Using XML
+
+[source,xml,linenums]
+----
+<flow/>
+----
+
+=== To Configure for OAuth 2.0 (If applicable to the connector)
+
+. Click the green plus sign to the right of Connector Configuration.
+. Provide the Client ID and Secret values.
+PROVIDE_DIRECTIONS_ON_HOW_TO_OBTAIN_THE_CLIENT_ID_AND_SECRET
+
+=== To Run and Test a Mule Flow
+
+Explain how to run the application and test the connector.
+
+== Example: CONNECTOR_NAME
+
+This example demonstrates the use of PRODUCT_NAME connector.
+
+To build and run this demo project you need:
+
+* Anypoint Studio with at least Mule 3.5 Runtime.
+* SOFTWARE_DEPENDENCY
+
+=== To Configure this Example
+
+[Explain how to configure this example. Don't repeat screenshots from the configuration section above.]
+
+=== To Test the Example
+
+[Explain how to test that the example works]
+
+=== About the XML Flow
+
+[source,xml,linenums]
+----
+<flow/>
+----
+
+== See Also
+
+* link:release-notes[MarkLogic Connector Release Notes]
+
+
