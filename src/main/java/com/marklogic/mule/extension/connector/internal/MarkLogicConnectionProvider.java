@@ -1,5 +1,5 @@
 /**
- * MarkLogic Connector
+ * MarkLogic Mule Connector
  *
  * Copyright © 2018 MarkLogic Corporation.
  *

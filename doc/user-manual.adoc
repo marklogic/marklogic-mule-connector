@@ -1,5 +1,5 @@
 = MarkLogic Connector
-:imagesdir: ./_images
+:imagesdir: ../images
 
 _MuleSoft Certified_
 
@@ -20,69 +20,182 @@ This is the initial release of the Connector, so, everything's new!
 
 == To Connect in Design Center
 
-[List steps to specify a trigger and the connector] - Show screenshots for the trigger setup and for configuring the connector.
+. The demo application uses the built-in Mulesoft Scheduler module as a trigger to begin the flow sequence.
 
 === Add Libraries for this Connector [if connector has Jars or libraries]
 
-[List steps to get libraries if the connector requires jars or libraries]
+See the section "To Install this Connector in Anypoint Studio 7" below for how to add libraries.
 
 === Test the Connector
 
-[List how to test that the connector works via Design Center]
+See Example section below for how to execute a test of a flow from the demo app.
 
 == To Install this Connector in Anypoint Studio 7
 
-. In Anypoint Studio 7, click Add Module and specify the name of the connector.
-. Click Add to add the connector to your project.
+In order to use the connector, create a new, empty Mule project in AnyStudio with:
 
-[List any other steps necessary to install the connector]
+* File -> New -> Mule Project
 
-When Studio has an update, a message displays in the lower right corner, which you can click to install the update.
+You're now ready to install the Connector as a Maven dependency for your project.  Right- or Ctrl-click on your project name in the Package Explorer.
 
-== To Create a Mule Project in Anypoint Studio 7
+To do this in the editor, use these screenshots as a guide, making sure to add the Connector jar as a local dependency:
 
-[screenshot of flow, screenshot of configuration screen(s), table of field descriptions]
+image::mule-add-dependency.png[Add Maven Dependency]
 
-=== To Create a Mule Project Using XML
+Use "Install a local dependency", and add the Connector .jar file from the *target/* directory on your filesystem.
+
+image::add-dependency-local.png[Add local Maven Dependency]
+
+You can optionally or alternatively add this dependency as an Artifact Definition:
 
 [source,xml,linenums]
 ----
-<flow/>
+<dependency>
+ <groupId>com.marklogic</groupId>
+  <artifactId>marklogic-mule-connector</artifactId>
+  <version>1.0.0</version>
+</dependency>
 ----
 
-=== To Configure for OAuth 2.0 (If applicable to the connector)
+*Important Note*: You may need to install additional dependencies and update the list of Maven repositories.  For example, in the MarkLogic Java API and Data Movement SDK libraries, the current okhttp-digest library version is 1.15.  Several developers working on this project have needed to additionally include 1.16 in the Mule project dependencies while using AnypointStudio.  To find it, the JCenter repository needed adding to the pom.xml under the Mule project tree.  
 
-. Click the green plus sign to the right of Connector Configuration.
-. Provide the Client ID and Secret values.
-PROVIDE_DIRECTIONS_ON_HOW_TO_OBTAIN_THE_CLIENT_ID_AND_SECRET
+[source,xml,linenums]
+----
+<repository>
+  <id>jcenter</id>
+  <url>http://jcenter.bintray.com</url>
+</repository>
+----
+
+== To Create a Mule Project in Anypoint Studio 7
+
+. As described above in the section entitled "To Install this Connector in Anypoint Studio 7", create a new Mule Project and install the MarkLogic Mule Connector dependency.
+
+=== To Create a Mule Project Using XML
+
+. As described above in the section entitled "To Install this Connector in Anypoint Studio 7", create a new Mule Project and install the MarkLogic Mule Connector dependency.
+
+. Next, right- or Ctrl-click the project at left in the Project Explorer view of Anypoint Studio. 
+
+. Select File -> New -> Mule Configuration File.
+
+image::flow-xml-new.png[New Flow XML]
+
+. Provide a name for your Mule flow.  It will automatically populate the name of the Flow XML.
+
+image::flow-xml-naming.png[Flow XML Naming]
+
+. In the main window section, find the link for "Configuration XML". Copy and paste the following into the XML editor, then save (overwriting the existing XML). 
+
+*Note:* You'll need to update your MarkLogic credentials to write the Zip contents to your local MarkLogic.
+
+image::flow-xml-editor.png[Flow XML Editor]
+
+
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+    xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
+    xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:compression="http://www.mulesoft.org/schema/mule/compression" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:xml-module="http://www.mulesoft.org/schema/mule/xml-module" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+    http://www.mulesoft.org/schema/mule/xml-module http://www.mulesoft.org/schema/mule/xml-module/current/mule-xml-module.xsd
+    http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+    http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+    http://www.mulesoft.org/schema/mule/compression http://www.mulesoft.org/schema/mule/compression/current/mule-compression.xsd
+    http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+    http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
+    http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+    http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+    <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="300595dd-bdd6-48d7-9aa6-011ff0f2a239" configId="testConfig-223efe" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="kmlJobName" >
+        <marklogic:connection hostname="localhost" port="8010" username="user" password="user" authenticationType="digest" connectionId="testConfig-223efe" />
+    </marklogic:config>
+    <file:config name="TmpDirFileConfig" doc:name="File Config" doc:id="59a59bab-f0b5-4b9f-80c6-82cf9f91f92e" >
+        <file:connection workingDir="/tmp/" />
+    </file:config>
+    <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="fe02efb9-23c0-42be-a558-16a85bd54954" >
+        <http:request-connection host="***REMOVED***" port="8010" >
+            <http:authentication >
+                <http:digest-authentication username="***REMOVED***" password="***REMOVED***" />
+            </http:authentication>
+        </http:request-connection>
+    </http:request-config>
+    <flow name="marklogic-demo-1.0.0Flow" doc:id="5ad02de3-73ed-47ad-8b22-f6e2058796f0" >
+        <scheduler doc:name="Scheduler" doc:id="78bbac91-46a4-4aeb-8b10-96f036aa5206" >
+            <scheduling-strategy >
+                <fixed-frequency frequency="10000"/>
+            </scheduling-strategy>
+        </scheduler>
+        <http:request method="GET" doc:name="Request Zip" doc:id="d831298f-51b5-42f6-bc39-23dab5e5d5ca" config-ref="HTTP_Request_configuration" path="/v1/documents" target="archive">
+            <http:query-params ><![CDATA[#[output applicaton/java
+---
+{
+	"uri" : "/mulesoft/demo.zip"
+}]]]></http:query-params>
+        </http:request>
+        <compression:extract doc:name="Extract Zip" doc:id="0f49f842-848c-4a14-b210-c7b491e72a0b" target="out">
+            <compression:compressed ><![CDATA[#[vars.archive]]]></compression:compressed>
+            <compression:extractor >
+                <compression:zip-extractor />
+            </compression:extractor>
+        </compression:extract>
+        <ee:transform doc:name="Get Zip JSON Contents" doc:id="ca5d9d8c-14ff-48bf-a8ff-2c309a89d2ff" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.out pluck $]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        <foreach doc:name="For Each File" doc:id="33e8d5ba-b23d-4677-a6ce-d17f5cd01136" collection="#[payload]">
+            <ee:transform doc:name="Unescape JSON String" doc:id="0e989ad1-2abb-41b0-ad06-6930b53cc73d" >
+                <ee:message >
+                    <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+read(payload, "application/json")]]></ee:set-payload>
+                </ee:message>
+            </ee:transform>
+            <marklogic:import-docs doc:name="Import JSON to MarkLogic" doc:id="d54ce4a5-a043-4013-99fe-19153e283afe" config-ref="MarkLogic_Config" docPayloads="#[payload]" outputCollections="/mulesoft/demo/" outputUriPrefix="/mulesoft/demo/" generateOutputUriBasename="false" basenameUri="#[payload.index]"/>
+        </foreach>
+    </flow>
+</mule>
+----
 
 === To Run and Test a Mule Flow
 
 Explain how to run the application and test the connector.
 
-== Example: CONNECTOR_NAME
+== Example: MarkLogic Mule Connector
 
-This example demonstrates the use of PRODUCT_NAME connector.
+This example demonstrates the use of the MarkLogic Mule Connector, doing the following:
 
-To build and run this demo project you need:
+. Fetching a zip file over HTTP GET.
+. Extracting the zip, and sending the contents through to MarkLogic the importDocs operation via the Connector.
 
-* Anypoint Studio with at least Mule 3.5 Runtime.
-* SOFTWARE_DEPENDENCY
+image::demo-flow.png[Demo Flow]
 
 === To Configure this Example
 
-[Explain how to configure this example. Don't repeat screenshots from the configuration section above.]
+The MarkLogic importDocs operation connection configuration is pre-populated.  However, should you need to tweak any settings, select the importDocs icon in the flow, and change any necessary settings.
+
+image::importDocs-config.png[importDocs Configuration]
 
 === To Test the Example
 
-[Explain how to test that the example works]
+. Click File -> Import
+. On the next screen, click "Packaged mule application (.jar)" -> Next.
+. You can now import the demo jar on the next screen.  Locate the demo/ directory from the codebase, and add the demo jar file. Assign the demo a project name.
+. Run the project by right- or Ctrl-clicking the project name at left, the Run As -> Mule Application.
+
+image::import-jar-1.png[Import Packaged Mule Application]
+
+image::import-jar-2.png[Import Mule Project]
+
+image::run-as-mule-application.png[Run Mule Application]
 
 === About the XML Flow
 
-[source,xml,linenums]
-----
-<flow/>
-----
+Please reference the flow XML described above.
 
 == See Also
 
