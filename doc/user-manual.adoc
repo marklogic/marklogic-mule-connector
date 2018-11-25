@@ -20,11 +20,29 @@ This is the initial release of the Connector, so, everything's new!
 
 == To Connect in Design Center
 
-. The demo application uses the built-in Mulesoft Scheduler module as a trigger to begin the flow sequence.
+. Login to Anypoint Design Center.
+. Go to Runtime Manager in order to test the demo application. Select an environment. The default Sandbox environment will suffice.
+. In the Deploy Application screen, provide an application name, and specify the demo jar file to be uploaded for deployment.
+. This will deploy the application onto CloudHub by default. Select Runtime Version 4.1.4, with default worker size and workers.
+. Press the "Deploy Application" button. 
+. Track deployment and application process by clicking the "Logs" button in the Applications screen.
+. The demo application is the same as used and described in the Anypoint Studio 7 sections detailed below. 
 
-=== Add Libraries for this Connector [if connector has Jars or libraries]
+image::designcenter-staging-deploy.png[Deploy Demo App]
 
-See the section "To Install this Connector in Anypoint Studio 7" below for how to add libraries.
+=== Use the Connector in a Flow
+
+. To use the MarkLogic Connector in a flow, go to Design Center, and create a new project (or open an existing one).
+. Edit or create the flow according to details described below in the Anypoint Studio 7 sections.
+. The MarkLogic Connector is searchable and able to be applied to the flow. Apply the operation of interest to add it to the flow.
+
+image::designcenter-flow-1.png[Use MarkLogic Connector in a Flow]
+image::designcenter-flow-2.png[Select MarkLogic Operations]
+
+=== Triggers
+* The demo uses the built-in Mulesoft Scheduler module as a trigger to begin the flow sequence.
+
+
 
 === Test the Connector
 
