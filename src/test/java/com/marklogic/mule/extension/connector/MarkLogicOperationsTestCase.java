@@ -20,7 +20,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
 
-import com.marklogic.mule.extension.connector.internal.MarkLogicInsertionBatcher;
+import com.marklogic.mule.extension.connector.internal.operation.MarkLogicInsertionBatcher;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.junit.Test;
 

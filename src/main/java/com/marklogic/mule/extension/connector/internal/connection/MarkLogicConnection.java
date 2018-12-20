@@ -11,7 +11,7 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-package com.marklogic.mule.extension.connector.internal;
+package com.marklogic.mule.extension.connector.internal.connection;
 
 import java.io.IOException;
 import javax.net.ssl.SSLContext;

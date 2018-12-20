@@ -11,7 +11,7 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-package com.marklogic.mule.extension.connector.internal;
+package com.marklogic.mule.extension.connector.internal.operation;
 
 import java.io.InputStream;
 
@@ -27,6 +27,9 @@ import com.marklogic.client.datamovement.ExportListener;
 import com.marklogic.client.ext.datamovement.job.AbstractQueryBatcherJob;
 import com.marklogic.client.ext.datamovement.job.ExportToFileJob;
 import com.marklogic.client.ext.datamovement.job.SimpleQueryBatcherJob;
+import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
+import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
+import com.marklogic.mule.extension.connector.internal.error.MarkLogicExecuteErrorsProvider;
 
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;

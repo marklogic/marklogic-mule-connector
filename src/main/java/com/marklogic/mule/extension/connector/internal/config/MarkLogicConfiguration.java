@@ -11,7 +11,10 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-package com.marklogic.mule.extension.connector.internal;
+package com.marklogic.mule.extension.connector.internal.config;
+
+import com.marklogic.mule.extension.connector.internal.operation.MarkLogicOperations;
+import com.marklogic.mule.extension.connector.internal.provider.MarkLogicConnectionProvider;
 
 import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
