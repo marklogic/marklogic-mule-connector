@@ -14,7 +14,7 @@
 package com.marklogic.mule.extension.connector.internal.config;
 
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicOperations;
-import com.marklogic.mule.extension.connector.internal.provider.MarkLogicConnectionProvider;
+import com.marklogic.mule.extension.connector.internal.connection.provider.MarkLogicConnectionProvider;
 
 import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
