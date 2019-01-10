@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.marklogic.mule.extension.connector.internal;
+package com.marklogic.mule.extension.connector.internal.exception;
 
+import com.marklogic.mule.extension.connector.internal.extension.MarkLogicExtension;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

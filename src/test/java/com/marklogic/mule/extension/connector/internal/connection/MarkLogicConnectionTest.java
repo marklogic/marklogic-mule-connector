@@ -1,4 +1,4 @@
-package com.marklogic.mule.extension.connector.internal;
+package com.marklogic.mule.extension.connector.internal.connection;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
@@ -157,15 +157,13 @@ public class MarkLogicConnectionTest
      * Exception is: java.lang.IllegalStateException: makeSecurityContext should only be called with BASIC or DIGEST Authentication
     **/
     
-//    @Ignore
-    @Test
+    @Ignore
     public void testApplicationLevelClientWithDbName()
     {
         applicationLevelClientTest("data-hub-STAGING");
     }
     
     @Ignore
-//    @Test
     public void testApplicationLevelClientWithoutDbName()
     {
         applicationLevelClientTest(NULL_DATABASE_NAME);

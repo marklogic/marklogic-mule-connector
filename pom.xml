@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.marklogic</groupId>
+     <groupId>com.marklogic</groupId> 
+    <!--<groupId>***REMOVED***</groupId>-->
     <artifactId>marklogic-mule-connector</artifactId>
     <version>1.0.0</version>
     <build>
@@ -12,26 +13,35 @@
                 <version>3.0.0</version>
                 <extensions>true</extensions> 
             </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.2</version>
+<!--            <plugin>
+                <groupId>com.mulesoft.munit.tools</groupId>
+                <artifactId>munit-maven-plugin</artifactId>
+                <version>2.1.4</version>
                 <executions>
                     <execution>
-                        <id>jacoco-initialize</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>jacoco-report</id>
+                        <id>test</id>
                         <phase>test</phase>
                         <goals>
-                            <goal>report</goal>
+                            <goal>test</goal>
+                            <goal>coverage-report</goal>
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+                <configuration>
+                    <coverage>
+                        <runCoverage>true</runCoverage>
+                        <failBuild>false</failBuild>
+                        <requiredApplicationCoverage>0</requiredApplicationCoverage>
+                        <requiredResourceCoverage>0</requiredResourceCoverage>
+                        <requiredFlowCoverage>0</requiredFlowCoverage>
+                        <formats>
+                            <format>console</format>
+                            <format>html</format>
+                            <format>json</format>
+                        </formats>
+                    </coverage>
+                </configuration>
+            </plugin>-->
         </plugins>
     </build>
     <dependencies>
@@ -60,7 +70,39 @@
         </repository>
 	<repository>
 	    <id>mulesoft-releases</id>
+	    <name>MuleSoft Releases Repository</name>
 	    <url>http://repository.mulesoft.org/releases/</url>
 	</repository>
     </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>mulesoft-release</id>
+            <name>mulesoft release repository</name>
+            <layout>default</layout>
+            <url>http://repository.mulesoft.org/releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+    <!--<distributionManagement>
+      <snapshotRepository>
+        <id>exchange-repository</id>
+        <name>Exchange Repository</name>
+        <url>https://maven.anypoint.mulesoft.com/api/v1/organizations/***REMOVED***/maven</url>
+        <layout>default</layout>
+      </snapshotRepository>
+      <repository>
+        <id>exchange-repository</id>
+        <name>Exchange Repository</name>
+        <url>https://maven.anypoint.mulesoft.com/api/v1/organizations/***REMOVED***/maven</url>
+        <layout>default</layout>
+      </repository>
+    </distributionManagement>-->
+    <scm>
+        <connection>scm:git:git://github.com/marklogic-mule-connector</connection>
+        <developerConnection>scm:svn:https://github.com/wattsferry/marklogic-mule-connector/tree/release/v1.0.0</developerConnection>
+        <tag>release/v1.0.0</tag>
+        <url>https://github.com/wattsferry/marklogic-mule-connector/tree/release/v1.0.0</url>
+    </scm>
 </project>

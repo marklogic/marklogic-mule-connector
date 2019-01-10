@@ -11,7 +11,7 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-package com.marklogic.mule.extension.connector.internal;
+package com.marklogic.mule.extension.connector.internal.exception;
 
 import java.lang.Exception;
 import java.lang.RuntimeException;

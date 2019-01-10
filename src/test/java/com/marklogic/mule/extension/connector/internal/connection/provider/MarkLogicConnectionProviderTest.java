@@ -3,12 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.marklogic.mule.extension.connector.internal;
+package com.marklogic.mule.extension.connector.internal.connection.provider;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
@@ -26,30 +23,6 @@ public class MarkLogicConnectionProviderTest
     private static final int PORT = 8000;
     private static final String LOCALHOST = "localhost";
     private static final String AUTHENTICATION_LEVEL = "digest";
-    
-    public MarkLogicConnectionProviderTest()
-    {
-    }
-    
-    @BeforeClass
-    public static void setUpClass()
-    {
-    }
-    
-    @AfterClass
-    public static void tearDownClass()
-    {
-    }
-    
-    @Before
-    public void setUp()
-    {
-    }
-    
-    @After
-    public void tearDown()
-    {
-    }
 
     /**
      * Test of connect method, of class MarkLogicConnectionProvider.
