@@ -54,9 +54,9 @@ Default configuration
 | Database a| String |  +++The MarkLogic database name (i.e., xdmp:database-name()), against which operations should run. If not supplied or left as null, the database will be determined automatically by the app server port being called.+++ |  +++null+++ | {nbsp}
 | User name a| String |  +++The named user.+++ |  | *x*{nbsp}
 | Password a| String |  +++The named user's password.+++ |  | *x*{nbsp}
-| Authentication Type a| String |  +++The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic, application-level, kerberos.+++ |  | *x*{nbsp}
+| Authentication Type a| String |  +++The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic.+++ |  | *x*{nbsp}
 | SSL Context (Not Yet Supported) a| String |  |  +++null+++ | {nbsp}
-| Kerberos External Name (where applicable) a| String |  +++If "kerberos" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.+++ |  +++null+++ | {nbsp}
+| Kerberos External Name (Not Yet Supported) a| String |  +++If "kerberos" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.+++ |  +++null+++ | {nbsp}
 | Connection ID a| String |  +++An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic. Also set on the Connector configuration parameters.+++ |  | *x*{nbsp}
 | Reconnection a| <<Reconnection>> |  +++When the application is deployed, a connectivity test is performed on all connectors. If set to true, deployment will fail if the test doesn't pass after exhausting the associated reconnection strategy+++ |  | {nbsp}
 | Pooling Profile a| <<PoolingProfile>> |  +++Characteristics of the connection pool+++ |  | {nbsp}

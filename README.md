@@ -150,12 +150,12 @@ Operations listed at right can then be clicked and dragged to the visual flow de
 |--- |--- |--- |--- |--- |--- |
 |1|hostname|Required|localhost|String|The hostname against which operations should run.|
 |2|port|Required|8010|int|The app server port against which operations should run.|
-|3|database|Optional|null|String|The MarkLogic database name (i.e., the string name resulting from a xdmp:database-name() call), against which operations should run. If not supplied or left as null, the database will be determined automatically by the app server port being called.e.g.:Documentsdata-hub-STAGING|
+|3|database|Optional|null|String|The MarkLogic database name (i.e., the string name resulting from a xdmp:database-name() call), against which operations should run. If not supplied or left as null, the database will be determined automatically by the app server port being called.e.g.: Documents, data-hub-STAGING|
 |4|username|Required|admin|String|The named user.|
 |5|password|Required|admin|String|The named user's password.|
-|6|authenticationType|Required|digest|String|Possible values are:digestbasicapplication-levelkerberos|
+|6|authenticationType|Required|digest|String|Possible values are: digest, basic.|
 |7|sslContext|Optional|null|String|Currently unsupported in version 1.0.0.|
-|8|kerberosExternalName|Optional|null|String|If "kerberos" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.|
+|8|kerberosExternalName|Optional|null|String|Currently unsupported in version 1.0.0.|
 |9|connectionId|Required|testConfig-223efe|String|An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic. Also set on the Connector configuration parameters (see below).|
 
 ### Configuration Parameters ###
@@ -166,8 +166,8 @@ Operations listed at right can then be clicked and dragged to the visual flow de
 |2|threadCount|Required|4|String (later cast to Integer)|The thread count passed to DMSDK, representing the number of parallel processing threads.|
 |3|batchSize|Required|100|String (later cast to Integer)|The batch size passed to DMSDK, representing the number of documents processed within a batch.|
 |4|secondsBeforeFlush|Required|2|String (later cast to Integer)|The number of seconds before DMSDK automatically flushes the current batch if not yet filled to the specified batchSize configurable.|
-|5|serverTransform|Optional|null|String|The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.e.g. (for Data Hub Framework input flows):ml:sjsInputFlow (SJS)ml:inputFlow (XQuery)|
-|6|serverTransformParams|Optional|null|String (later cast to String[] array)|A comma-separated list of alternating transform parameter names and transform parameter values.Inspired by MLCP usage pattern for expressing server transform parameters with command -transform_param.e.g. (for Data Hub Framework input flows):entity-name,Employees,flow-name,loadEmployees|
+|5|serverTransform|Optional|null|String|The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.e.g. (for Data Hub Framework input flows): ml:sjsInputFlow (SJS), ml:inputFlow (XQuery)|
+|6|serverTransformParams|Optional|null|String (later cast to String[] array)|A comma-separated list of alternating transform parameter names and transform parameter values.Inspired by MLCP usage pattern for expressing server transform parameters with command -transform_param. e.g. (for Data Hub Framework input flows): entity-name,Employees,flow-name,loadEmployees|
 |7|jobName|Required|myJobName|String|The job name used by DMSDK to track the job.|
 
 ### importDocs Operation Parameters ###

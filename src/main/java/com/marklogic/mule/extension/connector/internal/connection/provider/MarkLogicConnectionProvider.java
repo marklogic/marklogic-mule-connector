@@ -79,7 +79,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
   
   @DisplayName("Authentication Type")
   @Parameter
-  @Summary("The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic, application-level, kerberos.")
+  @Summary("The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic.")
   @Example("digest")
   private String authenticationType;
   
@@ -89,7 +89,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
   @Optional(defaultValue = "null")
   private String sslContext;
   
-  @DisplayName("Kerberos External Name (where applicable)")
+  @DisplayName("Kerberos External Name (Not Yet Supported)")
   @Parameter
   @Summary("If \"kerberos\" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.")
   @Optional(defaultValue = "null")
