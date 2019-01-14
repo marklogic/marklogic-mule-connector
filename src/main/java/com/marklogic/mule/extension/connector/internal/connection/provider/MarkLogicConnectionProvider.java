@@ -103,16 +103,14 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
 
   @Override
   public MarkLogicConnection connect() throws ConnectionException {
-    return new MarkLogicConnection(hostname, port, database, username, password, authenticationType, sslContext, kerberosExternalName, connectionId);
+      MarkLogicConnection conn = new MarkLogicConnection(hostname, port, database, username, password, authenticationType, sslContext, kerberosExternalName, connectionId);
+      conn.connect();
+      return conn;
   }
 
   @Override
   public void disconnect(MarkLogicConnection connection) {
-    try {
       connection.invalidate();
-    } catch (Exception e) {
-      logger.error("Error while disconnecting [" + connection.getId() + "]: " + e.getMessage(), e);
-    }
   }
 
   @Override

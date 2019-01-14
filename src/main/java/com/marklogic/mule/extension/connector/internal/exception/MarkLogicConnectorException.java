@@ -13,13 +13,14 @@
  */
 package com.marklogic.mule.extension.connector.internal.exception;
 
-import java.lang.Exception;
-import java.lang.RuntimeException;
-import java.lang.String;
-import java.lang.Throwable;
 import com.marklogic.client.datamovement.DataMovementException;
 
 public class MarkLogicConnectorException extends DataMovementException {
+    
+    public MarkLogicConnectorException(String errorMessge) {
+        super(errorMessge, null);
+    }
+    
     public MarkLogicConnectorException(String errorMessage, Throwable error) {
         super(errorMessage, error);
     }

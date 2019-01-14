@@ -43,6 +43,7 @@ public class MarkLogicConnectionProviderTest
     public void testDisconnect()
     {
         MarkLogicConnection connection = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
+        connection.connect();
         MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider();
         instance.disconnect(connection);
     }
@@ -54,6 +55,7 @@ public class MarkLogicConnectionProviderTest
     public void testValidate()
     {
         MarkLogicConnection connection = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
+        connection.connect();
         MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider();
         String message = String.format("Connection failed %s", CONNECTION_ID);
         ConnectionValidationResult result = instance.validate(connection);

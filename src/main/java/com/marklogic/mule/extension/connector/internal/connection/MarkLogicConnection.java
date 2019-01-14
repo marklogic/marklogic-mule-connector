@@ -22,20 +22,41 @@ import com.marklogic.client.datamovement.DataMovementManager;
 import com.marklogic.client.DatabaseClientFactory.BasicAuthContext;
 import com.marklogic.client.DatabaseClientFactory.DigestAuthContext;
 import com.marklogic.client.DatabaseClientFactory.KerberosAuthContext;
+import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnectorException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class MarkLogicConnection {
 
-  private final String id;
   private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnection.class);
-  // Purported "code smell" from Sonar for updating static field from dynamic method
-  // private static DatabaseClient client; 
+  
   private DatabaseClient client;
+    private final String hostname;
+    private final int port;
+    private final String database;
+    private final String username;
+    private final String password;
+    private final String authenticationType;
+    private final String sslContext;
+    private final String kerberosExternalName;
+    private final String connectionId;
+  
   
   public MarkLogicConnection(String hostname, int port, String database, String username, String password, String authenticationType, String sslContext, String kerberosExternalName, String connectionId) {
-    this.id = connectionId;
+    this.hostname = hostname;
+    this.port = port;
+    this.database = database;
+    this.username = username;
+    this.password = password;
+    this.authenticationType = (authenticationType == null) ? "": authenticationType;
+    this.sslContext = sslContext;
+    this.kerberosExternalName = kerberosExternalName;
+    this.connectionId = connectionId;
+  }
+
+  public void connect() throws MarkLogicConnectorException
+  {
     /* SSL unsupported in 1.0.0 */
     /*
     SSLContext scontext;
@@ -43,71 +64,66 @@ public final class MarkLogicConnection {
         scontext = SSLContext.getInstance(sslContext).init();
     }
     */
-    logger.info("MarkLogic connection id = " + this.id);
+    if(this.isDefined(sslContext))
+    {
+        throw new MarkLogicConnectorException("SSL is not currently supported.");
+    }
+      
+    logger.info("MarkLogic connection id = " + this.getId());
+    
+    DatabaseClientFactory.SecurityContext security;
+        
     try {
-        switch (authenticationType.toLowerCase()) {
+        switch (authenticationType.toLowerCase().trim()) {
             case "application-level" :
-                if (database.equals("null")) {
-                    this.client = DatabaseClientFactory.newClient(hostname, port);
-                } else {
-                    this.client = DatabaseClientFactory.newClient(hostname, port, database);
-                }
-                break;
+                throw new MarkLogicConnectorException("Application-Level security is not allowed.");
             case "basic" :
-                if (database.equals("null")) {
-                    this.client = DatabaseClientFactory.newClient(hostname, port, new BasicAuthContext(username, password));
-                } else {
-                    this.client = DatabaseClientFactory.newClient(hostname, port, database, new BasicAuthContext(username, password));
-                }
+                security = new BasicAuthContext(this.username, this.password);
                 break;
             case "digest" :
-                if (database.equals("null")) {
-                    this.client = DatabaseClientFactory.newClient(hostname, port, new DigestAuthContext(username, password));
-                } else {
-                    this.client = DatabaseClientFactory.newClient(hostname, port, database, new DigestAuthContext(username, password));
-                }
+                security = new DigestAuthContext(this.username, this.password);
                 break;
             case "kerberos" :
-                if (database.equals("null") && kerberosExternalName.equals("null")) {
-                    this.client = DatabaseClientFactory.newClient(hostname, port, new KerberosAuthContext());
-                } else if (database.equals("null") && !kerberosExternalName.equals("null")) {
-                    this.client = DatabaseClientFactory.newClient(hostname, port, new KerberosAuthContext(kerberosExternalName));
-                } else if (!database.equals("null") && kerberosExternalName.equals("null")) {
-                    this.client = DatabaseClientFactory.newClient(hostname, port, database, new KerberosAuthContext());
-                } else {
-                    this.client = DatabaseClientFactory.newClient(hostname, port, database, new KerberosAuthContext(kerberosExternalName));
-                }
-                break;
-            default :
-                this.client = DatabaseClientFactory.newClient(hostname, port, new DigestAuthContext(username, password));
-                break;
+                throw new MarkLogicConnectorException("Kerberos security is not currently supported.");
+//                if(this.isDefined(this.kerberosExternalName))
+//                {
+//                    security = new KerberosAuthContext(this.kerberosExternalName);
+//                }
+//                else
+//                {
+//                    security = new KerberosAuthContext();
+//                }
+//                break;
+            default : 
+                throw new MarkLogicConnectorException("Authentication Type must be set.");
         }
+        
+        if(this.isDefined(this.database))
+        {
+            this.createClient(this.hostname, this.port, this.database, security);
+        }
+        else
+        {
+            this.createClient(this.hostname, this.port, security);
+        }
+        
     } catch (Exception e) {
-        // logger.error("MarkLogic connection failed. " + e.getMessage());
-        // Try returning the entire exception to pass Sonor code quality
         logger.error("MarkLogic connection failed. " + e);
-    }
-  }
-
-  public String getId() {
-    return this.id;
-  }
-
-  public void invalidate() {
-    // do something to invalidate/disconnect this connection!
-    try {
-        client.release();
-    } catch (Exception e) {
-        // logger.warn("MarkLogic disconnect failed. " + e.getMessage());
-        // Try returning the entire exception to pass Sonor code quality
-        logger.warn("MarkLogic disconnect failed. " + e);
+        throw new MarkLogicConnectorException("MarkLogic connection failed", e);
     }
   }
   
+  public String getId() {
+    return this.connectionId;
+  }
+
+  public void invalidate() {
+    client.release();
+  }
+  
   public boolean isConnected(int port) {
-    Integer connectedPort = client.getPort();
-    Integer configuredPort = Integer.valueOf(port); // Cleaned up for Sonar; was: new Integer(port);
-    if (connectedPort.equals(configuredPort)) {
+    
+    if (this.client != null && this.client.getPort() == port) {
         return true;
     } else {
         logger.warn("Could not determine MarkLogicConnection port");
@@ -119,4 +135,18 @@ public final class MarkLogicConnection {
     return this.client;
   }
 
+    private boolean isDefined(String str)
+    {
+        return str != null && !str.isEmpty() && !"null".equals(str);
+    }
+
+    private void createClient(String hostname, int port, String database, DatabaseClientFactory.SecurityContext security) throws Exception
+    {
+        this.client = DatabaseClientFactory.newClient(hostname, port, database, security);
+    }
+
+    private void createClient(String hostname, int port, DatabaseClientFactory.SecurityContext security) throws Exception
+    {
+        this.client = DatabaseClientFactory.newClient(hostname, port, security);
+    }
 }
