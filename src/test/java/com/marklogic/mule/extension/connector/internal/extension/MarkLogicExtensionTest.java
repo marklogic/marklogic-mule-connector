@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.marklogic.mule.extension.connector.internal.exception;
+package com.marklogic.mule.extension.connector.internal.extension;
 
 import com.marklogic.mule.extension.connector.internal.extension.MarkLogicExtension;
 import org.junit.Test;

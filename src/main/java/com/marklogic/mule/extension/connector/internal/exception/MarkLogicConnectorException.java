@@ -13,15 +13,16 @@
  */
 package com.marklogic.mule.extension.connector.internal.exception;
 
-import com.marklogic.client.datamovement.DataMovementException;
+import com.marklogic.mule.extension.connector.internal.error.MarkLogicConnectorSimpleError;
+import org.mule.runtime.extension.api.exception.ModuleException;
 
-public class MarkLogicConnectorException extends DataMovementException {
+public class MarkLogicConnectorException extends ModuleException {
     
     public MarkLogicConnectorException(String errorMessge) {
-        super(errorMessge, null);
+        super(errorMessge, MarkLogicConnectorSimpleError.DATA_MOVEMENT_ERROR);
     }
     
     public MarkLogicConnectorException(String errorMessage, Throwable error) {
-        super(errorMessage, error);
+        super(errorMessage, MarkLogicConnectorSimpleError.DATA_MOVEMENT_ERROR, error);
     }
 }
