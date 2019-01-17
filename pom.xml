@@ -61,7 +61,7 @@
     <parent>
         <groupId>org.mule.connectors</groupId>
         <artifactId>mule-certified-parent</artifactId>
-        <version>1.1.0</version>
+        <version>1.2.2</version>
     </parent>
     <repositories>
         <repository>
@@ -85,20 +85,6 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-    <!--<distributionManagement>
-      <snapshotRepository>
-        <id>exchange-repository</id>
-        <name>Exchange Repository</name>
-        <url>https://maven.anypoint.mulesoft.com/api/v1/organizations/***REMOVED***/maven</url>
-        <layout>default</layout>
-      </snapshotRepository>
-      <repository>
-        <id>exchange-repository</id>
-        <name>Exchange Repository</name>
-        <url>https://maven.anypoint.mulesoft.com/api/v1/organizations/***REMOVED***/maven</url>
-        <layout>default</layout>
-      </repository>
-    </distributionManagement>-->
     <scm>
         <connection>scm:git:git://github.com/marklogic-mule-connector</connection>
         <developerConnection>scm:svn:https://github.com/wattsferry/marklogic-mule-connector/tree/release/v1.0.0</developerConnection>
