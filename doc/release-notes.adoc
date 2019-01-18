@@ -28,16 +28,6 @@ This is the initial release of the Connector, so, everything's new!
 * Added operations for importDocs, getJobReport, and retrieveInfo.
 * Provided documentation of configuration and example flows demonstrating importDocs and getJobReport operations.
 
-=== Version 1.0.0 - Fixed in This Release
-
-[For example:]
-* N/A
-
-=== Version 1.0.0 - Known Issues
-
-[For example:]
-* N/A
-
 === Version 1.0.0 - Required Libraries
 
 * MarkLogic Java Client API v.4.04
