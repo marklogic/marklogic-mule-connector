@@ -88,7 +88,7 @@
     <scm>
         <connection>scm:git:git://github.com/marklogic-mule-connector</connection>
         <developerConnection>scm:svn:https://github.com/wattsferry/marklogic-mule-connector/tree/release/v1.0.0</developerConnection>
-        <tag>release/v1.0.0</tag>
+        <tag>marklogic-mule-connector-1.0.0</tag>
         <url>https://github.com/wattsferry/marklogic-mule-connector/tree/release/v1.0.0</url>
     </scm>
 </project>
