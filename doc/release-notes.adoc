@@ -1,0 +1,41 @@
+= MarkLogic Connector Release Notes 
+
+January 2019
+
+_MuleSoft Certified_
+
+The MarkLogic Mulesoft Connector aims to provide the Mulesoft community of users (via the Mulesoft Anypoint Exchange) with easy integration to MarkLogic, delivering data movement and transformation pipelines via Mulesoft AnypointStudio flows. The Mulesoft Connector is built atop MarkLogic’s Data Movement SDK (DMSDK), which is a Java API library for applications that need to move data into, out of, or within a MarkLogic cluster.  For those familiar with the existing MarkLogic ecosystem, it provides the core capabilities of MarkLogic Content Pump in the vernacular of the MarkLogic Java Client API.
+
+== Version 1.0.0 - 2019-01-18
+
+=== Version 1.0.0 - Compatibility
+This connector supports these software versions:
+[%header%autowidth.spread]
+|===
+|Software |Version
+|Anypoint Studio |7.1.4 and later
+|Mule |4.1.1 and later
+|JDK |1.8.0_77-b03 and later
+|MarkLogic Java Client API |4.0.4 and later
+|MarkLogic|9.0-6.2 and later
+|===
+
+=== Version 1.0.0 - Features
+This is the initial release of the Connector, so, everything's new!
+
+* Added operations for importDocs, getJobReport, and retrieveInfo.
+* Provided documentation of configuration and example flows demonstrating importDocs and getJobReport operations.
+
+=== Version 1.0.0 - Required Libraries
+
+* MarkLogic Java Client API v.4.04
+* MarkLogic Data Movement Components v.1.0
+
+
+== See Also
+* http://marklogic.com[MarkLogic]
+* https://github.com/marklogic/java-client-api[MarkLogic Java Client API GitHub]
+* https://developer.marklogic.com/products/java[MarkLogic Java Client Downloads]
+* https://www.mulesoft.com/legal/versioning-back-support-policy#anypoint-connectors[Anypoint Connectors Support Policy]
+* https://forums.mulesoft.com[MuleSoft Forum]
+* https://support.mulesoft.com[Contact MuleSoft Support]
