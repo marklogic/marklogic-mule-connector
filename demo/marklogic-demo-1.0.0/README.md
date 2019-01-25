@@ -59,19 +59,20 @@ Create a new Mule Project and install the MarkLogic Mule Connector dependency.
     http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
     http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
     http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
-    <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="300595dd-bdd6-48d7-9aa6-011ff0f2a239" configId="testConfig-223efe" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="kmlJobName" >
-        <marklogic:connection hostname="localhost" port="8010" username="user" password="user" authenticationType="digest" connectionId="testConfig-223efe" />
-    </marklogic:config>
+    <configuration-properties file="automation-credentials.properties"/>
+	<marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="300595dd-bdd6-48d7-9aa6-011ff0f2a239" configId="testConfig-223efe" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="kmlJobName" >
+		<marklogic:connection hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" connectionId="testConfig-223efe" />
+	</marklogic:config>
     <file:config name="TmpDirFileConfig" doc:name="File Config" doc:id="59a59bab-f0b5-4b9f-80c6-82cf9f91f92e" >
         <file:connection workingDir="/tmp/" />
     </file:config>
     <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="fe02efb9-23c0-42be-a558-16a85bd54954" >
-        <http:request-connection host="***REMOVED***" port="8010" >
-            <http:authentication >
-                <http:digest-authentication username="***REMOVED***" password="***REMOVED***" />
-            </http:authentication>
-        </http:request-connection>
-    </http:request-config>
+		<http:request-connection host="${config.hostName}" port="8010" >
+			<http:authentication >
+				<http:digest-authentication username="${config.username}" password="${config.password}" />
+			</http:authentication>
+		</http:request-connection>
+	</http:request-config>
     <flow name="marklogic-demo-1.0.0Flow" doc:id="5ad02de3-73ed-47ad-8b22-f6e2058796f0" >
         <scheduler doc:name="Scheduler" doc:id="78bbac91-46a4-4aeb-8b10-96f036aa5206" >
             <scheduling-strategy >
