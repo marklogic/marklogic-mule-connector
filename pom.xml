@@ -4,7 +4,7 @@
      <groupId>com.marklogic</groupId> 
     <!--<groupId>***REMOVED***</groupId>-->
     <artifactId>marklogic-mule-connector</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
     <build>
         <plugins>
             <plugin>
@@ -65,14 +65,10 @@
     </parent>
     <repositories>
         <repository>
-            <id>jcenter</id>
-            <url>http://jcenter.bintray.com</url>
+            <id>mulesoft-releases</id>
+            <name>MuleSoft Releases Repository</name>
+            <url>http://repository.mulesoft.org/releases/</url>
         </repository>
-	<repository>
-	    <id>mulesoft-releases</id>
-	    <name>MuleSoft Releases Repository</name>
-	    <url>http://repository.mulesoft.org/releases/</url>
-	</repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>

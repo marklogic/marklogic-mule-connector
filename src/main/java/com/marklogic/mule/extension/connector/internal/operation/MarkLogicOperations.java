@@ -37,6 +37,7 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICAT
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Config;
+import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
@@ -66,6 +67,7 @@ public class MarkLogicOperations
     @DisplayName("Document payload")
     @Summary("The content of the input files to be used for ingestion into MarkLogic.")
     @Example("#[payload]")
+    @Content
         InputStream docPayloads, 
     @Optional(defaultValue="null")
     @Summary("A comma-separated list of the collections to which persisted documents will belong after successful ingestion.")
