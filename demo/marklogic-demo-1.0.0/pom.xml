@@ -50,16 +50,6 @@
             <classifier>mule-plugin</classifier>
         </dependency>
         <dependency>
-            <groupId>com.burgstaller</groupId>
-            <artifactId>okhttp-digest</artifactId>
-            <version>1.16</version>
-        </dependency>
-        <dependency>
-            <groupId>com.burgstaller</groupId>
-            <artifactId>okhttp-digest</artifactId>
-            <version>1.15</version>
-        </dependency>
-    	<dependency>
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-json-module</artifactId>
             <version>1.0.1</version>
@@ -103,10 +93,6 @@
             <name>MuleSoft Releases Repository</name>
             <url>https://repository.mulesoft.org/releases/</url>
             <layout>default</layout>
-        </repository>
-        <repository>
-            <id>jcenter</id>
-            <url>http://jcenter.bintray.com</url>
         </repository>
     </repositories>
     <pluginRepositories>
