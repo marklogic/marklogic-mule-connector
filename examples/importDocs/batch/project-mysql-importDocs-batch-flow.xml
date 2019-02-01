@@ -11,11 +11,14 @@
     http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
     http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
     http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    
+    <configuration-properties file="automation-credentials.properties"/>
+    
     <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="787ed86c-be5d-4d1e-b8d5-db768f814509" threadCount="3" batchSize="5" secondsBeforeFlush="2" jobName="import" configId="testConfig-223efe">
-        <marklogic:connection hostname="***REMOVED***" username="mulesoft" password="***REMOVED***" port="8010" authenticationType="digest" connectionId="testConfig-223efe"/>
+        <marklogic:connection hostname="${config.hostName}" username="${config.username}" password="${config.password}" port="8010" authenticationType="digest" connectionId="testConfig-223efe"/>
     </marklogic:config>
     <db:config name="Database_Config" doc:name="Database_Config" doc:id="e81f7b60-a562-4e53-afaa-bcf4e7769ed1" >
-        <db:my-sql-connection host="***REMOVED***" port="3306" user="mulesoft" password="***REMOVED***" database="employees" >
+        <db:my-sql-connection host="${config.rdbmsHostName}" port="3306" user="${config.rdbmsUsername}" password="${config.rdbmsPassword}" database="employees" >
             <db:column-types />
         </db:my-sql-connection>
     </db:config>

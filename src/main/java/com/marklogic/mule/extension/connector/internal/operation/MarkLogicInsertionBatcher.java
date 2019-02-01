@@ -51,7 +51,7 @@ public class MarkLogicInsertionBatcher {
     // Object that describes the metadata for documents being inserted
     private final DocumentMetadataHandle metadataHandle;
 
-    // TODO: How will we know when the resources are ready to be freed up and provide the results report?
+    // How will we know when the resources are ready to be freed up and provide the results report?
     private final JobTicket jobTicket;
     private final String jobName;
     
