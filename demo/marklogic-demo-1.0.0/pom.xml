@@ -4,7 +4,7 @@
 
     <groupId>com.mycompany</groupId>
     <artifactId>marklogic-demo-1.0.0</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>mule-application</packaging>
 
     <name>marklogic-demo-1.0.0</name>
