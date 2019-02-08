@@ -79,6 +79,12 @@ For each operation in the project, there are <a href="examples/">example flows</
 
 ### Installing dependencies ###
 
+#### Using the built-in demo ####
+
+*Important Note*: For the demo application, under directory ```demo/```, you'll need to add the JCenter repository, and add the com.burgstaller.okhttp-digest library dependencies, as mentioned below in "Using the built-in examples".
+
+#### Using the built-in examples ####
+
 In order to use the connector, create a new, empty Mule project in AnyStudio with:
 
 * File &rarr; New &rarr; Mule Project

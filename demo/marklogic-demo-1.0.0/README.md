@@ -9,6 +9,26 @@ This example demonstrates the use of the MarkLogic Mule Connector, doing the fol
 
 ### To Configure this Example ###
 
+#### Adding Dependencies ####
+
+*Important Note*: For the demo application, you'll need to add the JCenter repository, and add the com.burgstaller.okhttp-digest library dependencies, as they are needed for the MarkLogic Java API and Data Movement SDK.
+
+```
+<repository>
+  <id>jcenter</id>
+  <url>http://jcenter.bintray.com</url>
+</repository>
+```
+After the repository is added, use the "Add Maven Dependency" approach as described above add okhttp-1.16 libraries (or edit the pom.xml file):
+
+```
+<dependency>
+  <groupId>com.burgstaller</groupId>
+  <artifactId>okhttp-digest</artifactId>
+  <version>1.16</version>
+</dependency>
+``` 
+
 The MarkLogic importDocs operation connection configuration is pre-populated.  However, should you need to tweak any settings, select the importDocs icon in the flow, and change any necessary settings.
 
 ![importDocs Configuration](../../images/importDocs-config.png)
