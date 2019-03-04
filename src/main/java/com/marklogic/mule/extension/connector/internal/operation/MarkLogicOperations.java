@@ -17,16 +17,19 @@ import java.io.InputStream;
 
 import java.util.*;
 
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.marklogic.client.DatabaseClient;
+import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.*;
-import com.marklogic.client.datamovement.ExportListener;
-import com.marklogic.client.ext.datamovement.job.AbstractQueryBatcherJob;
-import com.marklogic.client.ext.datamovement.job.ExportToFileJob;
-import com.marklogic.client.ext.datamovement.job.SimpleQueryBatcherJob;
+import com.marklogic.client.query.QueryDefinition;
+import com.marklogic.client.query.QueryManager;
+import com.marklogic.client.query.RawStructuredQueryDefinition;
+import com.marklogic.client.query.StructuredQueryDefinition;
+
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import com.marklogic.mule.extension.connector.internal.error.MarkLogicExecuteErrorsProvider;
@@ -34,7 +37,15 @@ import com.marklogic.mule.extension.connector.internal.error.MarkLogicExecuteErr
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 
+import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnectorException;
+import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicSelectMetadataResolver;
+import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetCloser;
+import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetIterator;
+
+import org.apache.commons.jexl3.*;
+import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.extension.api.annotation.error.Throws;
+import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Content;
@@ -44,6 +55,10 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
+import org.mule.runtime.extension.api.annotation.param.display.Text;
+import org.mule.runtime.extension.api.runtime.operation.FlowListener;
+import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
+import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,10 +171,154 @@ public class MarkLogicOperations
       return result;
 
   }
-    /* Example of an operation that uses the configuration and a connection instance to perform some action. */
+
     @MediaType(value = ANY, strict = false)
     public String retrieveInfo(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection)
     {
         return "Using Configuration [" + configuration.getConfigId() + "] with Connection id [" + connection.getId() + "]";
+    }
+
+    @MediaType(value = ANY, strict = false)
+    @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
+    public PagingProvider<MarkLogicConnection, Object> selectDocsByStructuredQuery (
+            @Text String structuredQuery,
+            @Config MarkLogicConfiguration configuration,
+            String optionsName,
+            @DisplayName("Search API Options")
+                    StructuredQueryStrategy structuredQueryStrategy,
+            @DisplayName("Raw structured query format")
+                    RawStructuredQueryFormat fmt,
+            StreamingHelper streamingHelper,
+            FlowListener flowListener)
+            throws MarkLogicConnectorException {
+        return new PagingProvider<MarkLogicConnection, Object>() {
+
+            private final AtomicBoolean initialised = new AtomicBoolean(false);
+            private MarkLogicResultSetCloser resultSetCloser;
+            MarkLogicResultSetIterator iterator;
+            String configTransform = configuration.getServerTransform();
+
+            @Override
+            public List<Object> getPage(MarkLogicConnection connection) {
+                if (initialised.compareAndSet(false, true)) {
+                    resultSetCloser = new MarkLogicResultSetCloser(connection);
+                    flowListener.onError(e -> {
+                        try {
+                            close(connection);
+                        } catch (Exception t) {
+                            if (logger.isWarnEnabled()) {
+                                logger.warn(String.format("Exception was found closing connection for select operation. Error was: %s", t.getMessage()),
+                                        e);
+                            }
+                        }
+                    });
+                    QueryDefinition query;
+                    DatabaseClient client = connection.getClient();
+                    QueryManager qm = client.newQueryManager();
+
+                    switch (structuredQueryStrategy) {
+                        case RawStructuredQueryDefinition:
+                            query = createRawStructuredQuery(qm, structuredQuery, fmt);
+                            break;
+                        case StructuredQueryBuilder:
+                            // Example of incoming structuredQuery string as criteria: sb.document("/mulesoft/10078.json")
+                            query = createStructuredQuery(qm, structuredQuery, optionsName);
+                            break;
+                        default:
+                            logger.error(String.format("Structure Query Strategy %s is not supported", structuredQueryStrategy));
+                            throw new RuntimeException("Invalid query type. Unable to create query to delete documents");
+                    }
+
+                    if ((configTransform == null) || (configTransform.equals("null"))) {
+                        logger.info("Ingesting doc payload without a transform");
+                    } else {
+                        ServerTransform thistransform = new ServerTransform(configTransform);
+                        String[] configTransformParams = configuration.getServerTransformParams();
+                        if (!configTransformParams[0].equals("null") && configTransformParams.length % 2 == 0) {
+                            for (int i = 0; i < configTransformParams.length - 1; i++) {
+                                String paramName = configTransformParams[i];
+                                String paramValue = configTransformParams[i + 1];
+                                thistransform.addParameter(paramName, paramValue);
+                            }
+                        }
+                        query.setResponseTransform(thistransform);
+                    }
+                    iterator = new MarkLogicResultSetIterator(connection,configuration,query);
+                }
+                return iterator.next();
+            }
+
+            @Override
+            public java.util.Optional<Integer> getTotalResults(MarkLogicConnection markLogicConnection) {
+                return java.util.Optional.empty();
+            }
+
+            @Override
+            public void close(MarkLogicConnection connection) throws MuleException {
+                resultSetCloser.closeResultSets();
+            }
+
+            @Override
+            public boolean useStickyConnections() {
+                return true;
+            }
+        };
+    }
+    public enum StructuredQueryStrategy {
+        RawStructuredQueryDefinition,
+        StructuredQueryBuilder
+    }
+    public enum RawStructuredQueryFormat {
+        XML,
+        JSON
+    }
+    private static RawStructuredQueryDefinition createRawStructuredQuery(QueryManager qManager, String structuredQuery, RawStructuredQueryFormat fmt) {
+        if (fmt == RawStructuredQueryFormat.XML) {
+            /*
+                <query xmlns="http://marklogic.com/appservices/search">
+                  <document-query>
+                    <uri>/mulesoft/10071.json</uri>
+                    <uri>/mulesoft/10081.json</uri>
+                  </document-query>
+                </query>
+            */
+            return qManager.newRawStructuredQueryDefinition(new StringHandle().withFormat(Format.XML).with(structuredQuery));
+        } else {
+            /*
+                {
+                	"query": {
+                		"queries": [{
+                			"document-query": {
+                				"uri": ["/mulesoft/10060.json", "/mulesoft/10067.json"]
+                			}
+                		}]
+                	}
+                }
+
+            */
+            return qManager.newRawStructuredQueryDefinition(new StringHandle().withFormat(Format.JSON).with(structuredQuery));
+        }
+    }
+
+    private static StructuredQueryDefinition createStructuredQuery(QueryManager qManager, String structuredQuery, String optionsName) {
+        JexlEngine jexl = new JexlBuilder().create();
+        JexlExpression e = jexl.createExpression(structuredQuery);
+        JexlContext jc = new MapContext();
+        if (optionsName.equals("null")) {
+            jc.set("sb", qManager.newStructuredQueryBuilder());
+        } else {
+            jc.set("sb", qManager.newStructuredQueryBuilder(optionsName));
+        }
+        Object o = e.evaluate(jc);
+        return (StructuredQueryDefinition) o;
+    }
+
+    //TODO: Make toString function for UI
+    private enum WhereMethod
+    {
+        Collections,
+        Uris,
+        UriPattern,
+        UrisQuery
     }
 }

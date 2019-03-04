@@ -1,0 +1,13 @@
+{
+	"emp_no": "0002",
+	"hire_date": "01/03/2018",
+	"name": {
+		"first": "Mary",
+		"last": "Merryweather"
+	},
+	"favorite_colors": ["green",
+	"orange",
+	"purple"],
+	"birth_date": "01/01/1971",
+	"gender": "female"
+}

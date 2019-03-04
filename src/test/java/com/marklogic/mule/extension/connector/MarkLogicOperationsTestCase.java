@@ -14,11 +14,13 @@
 package com.marklogic.mule.extension.connector;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
 
-import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.junit.Test;
+import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
+
 
 public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase {
 
@@ -51,6 +53,15 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
     assertThat(payloadValue, payloadValue.matches(UUID_REGEX));
   }
   
+  @Test
+  public void executeExportDocsOperation() throws Exception {
+    Object payloadValue = (flowRunner("exportDocsFlow")
+            .run()
+            .getMessage()
+            .getPayload()
+            .getValue());
+    assertThat(payloadValue,notNullValue());
+  }
   @Test
   public void executeGetJobReportOperation() throws Exception {
     String payloadValue = ((String) flowRunner("getJobReportFlow")
