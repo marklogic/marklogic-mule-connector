@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.marklogic</groupId> 
     <artifactId>marklogic-mule-connector</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.1-1</version>
     <build>
         <plugins>
             <plugin>
@@ -56,8 +56,27 @@
     <dependencies>
         <dependency>
             <groupId>com.marklogic</groupId>
+            <artifactId>ml-javaclient-util</artifactId>
+            <version>3.10.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.marklogic</groupId>
+                    <artifactId>marklogic-xcc</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jdom</groupId>
+                    <artifactId>jdom2</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>	
+	    <dependency>
+            <groupId>com.marklogic</groupId>
             <artifactId>marklogic-client-api</artifactId>
-            <version>4.0.4</version>
+            <version>4.1.0</version>
         </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>

@@ -13,23 +13,24 @@
  */
 package com.marklogic.mule.extension.connector.internal.connection;
 
-import java.io.IOException;
-import javax.net.ssl.SSLContext;
+import java.util.Arrays;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
-import com.marklogic.client.datamovement.DataMovementManager;
-import com.marklogic.client.DatabaseClientFactory.BasicAuthContext;
-import com.marklogic.client.DatabaseClientFactory.DigestAuthContext;
-import com.marklogic.client.DatabaseClientFactory.KerberosAuthContext;
+import com.marklogic.client.ext.DatabaseClientConfig;
+import com.marklogic.client.ext.DefaultConfiguredDatabaseClientFactory;
+import com.marklogic.client.ext.SecurityContextType;
 import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnectorException;
 
+import org.mule.runtime.api.tls.TlsContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class MarkLogicConnection {
 
   private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnection.class);
+
+  private static final SecurityContextType DEFAULT_AUTHENTICATION_TYPE = SecurityContextType.BASIC;
   
   private DatabaseClient client;
     private final String hostname;
@@ -38,79 +39,37 @@ public final class MarkLogicConnection {
     private final String username;
     private final String password;
     private final String authenticationType;
-    private final String sslContext;
+    private final boolean useSSL;
+    private final TlsContextFactory sslContext;
     private final String kerberosExternalName;
     private final String connectionId;
-  
-  
-  public MarkLogicConnection(String hostname, int port, String database, String username, String password, String authenticationType, String sslContext, String kerberosExternalName, String connectionId) {
+
+  public MarkLogicConnection(String hostname, int port, String database, String username, String password, String authenticationType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId) {
+
+    this.useSSL = (sslContext != null) && (!sslContext.equals("")) && (!sslContext.equals("null"));
+    this.sslContext = sslContext;
     this.hostname = hostname;
     this.port = port;
     this.database = database;
     this.username = username;
     this.password = password;
-    this.authenticationType = (authenticationType == null) ? "": authenticationType;
-    this.sslContext = sslContext;
+    this.authenticationType = authenticationType;
     this.kerberosExternalName = kerberosExternalName;
     this.connectionId = connectionId;
   }
 
   public void connect() throws MarkLogicConnectorException
   {
-    /* SSL unsupported in 1.0.0 */
-    /*
-    SSLContext scontext;
-    if (!sslContext.equals("null")) {
-        scontext = SSLContext.getInstance(sslContext).init();
-    }
-    */
-    if(this.isDefined(sslContext))
-    {
-        throw new MarkLogicConnectorException("SSL is not currently supported.");
-    }
-      
+
     logger.info("MarkLogic connection id = " + this.getId());
-    
-    DatabaseClientFactory.SecurityContext security;
-        
-    try {
-        switch (authenticationType.toLowerCase().trim()) {
-            case "application-level" :
-                throw new MarkLogicConnectorException("Application-Level security is not allowed.");
-            case "basic" :
-                security = new BasicAuthContext(this.username, this.password);
-                break;
-            case "digest" :
-                security = new DigestAuthContext(this.username, this.password);
-                break;
-            case "kerberos" :
-                throw new MarkLogicConnectorException("Kerberos security is not currently supported.");
-//                if(this.isDefined(this.kerberosExternalName))
-//                {
-//                    security = new KerberosAuthContext(this.kerberosExternalName);
-//                }
-//                else
-//                {
-//                    security = new KerberosAuthContext();
-//                }
-//                break;
-            default : 
-                throw new MarkLogicConnectorException("Authentication Type must be set.");
-        }
-        
-        if(this.isDefined(this.database))
-        {
-            this.createClient(this.hostname, this.port, this.database, security);
-        }
-        else
-        {
-            this.createClient(this.hostname, this.port, security);
-        }
-        
-    } catch (Exception e) {
-        logger.error("MarkLogic connection failed. " + e);
-        throw new MarkLogicConnectorException("MarkLogic connection failed", e);
-    }
+      try {
+          this.createClient();
+      } catch (Exception e) {
+          String message = "Error creating MarkLogic connection";
+          logger.error(message,e);
+          throw new MarkLogicConnectorException(message,e);
+      }
+
   }
   
   public String getId() {
@@ -140,13 +99,57 @@ public final class MarkLogicConnection {
         return str != null && !str.isEmpty() && !"null".equals(str);
     }
 
-    private void createClient(String hostname, int port, String database, DatabaseClientFactory.SecurityContext security) throws Exception
+    private void createClient() throws Exception
     {
-        this.client = DatabaseClientFactory.newClient(hostname, port, database, security);
-    }
 
-    private void createClient(String hostname, int port, DatabaseClientFactory.SecurityContext security) throws Exception
-    {
-        this.client = DatabaseClientFactory.newClient(hostname, port, security);
+        DatabaseClientConfig config = new DatabaseClientConfig();
+        SecurityContextType securityContextType;
+
+        config.setHost(hostname);
+        config.setPort(port);
+        if (authenticationType == null || authenticationType.equals("")) {
+            throw new MarkLogicConnectorException("Authentication Type must be set.");
+        } else {
+            String authenticationTypeUpper = authenticationType.toUpperCase();
+
+            boolean exists = Arrays.stream(SecurityContextType.values()).anyMatch((t) -> t.name().equals(authenticationTypeUpper));
+
+            if (!exists) {
+                throw new MarkLogicConnectorException(String.format ("%s security is not allowed.",authenticationType));
+            }
+            if (authenticationTypeUpper.equals(SecurityContextType.KERBEROS.toString())) {
+                throw new MarkLogicConnectorException("Kerberos security is not currently supported.");
+            } else {
+                securityContextType = SecurityContextType.valueOf(authenticationTypeUpper);
+            }
+        }
+
+        config.setSecurityContextType(securityContextType);
+        config.setUsername(username);
+        config.setPassword(password);
+        if ((database != null) && (!database.equals("null")) && !database.equals("")) {
+            config.setDatabase(database);
+        }
+
+        if (useSSL) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Creating connection using SSL connection with SSL Context: '%s'.", sslContext));
+            }
+            config.setSslContext(sslContext.createSslContext());
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Creating connection without using SSL.");
+            }
+        }
+
+        config.setSslHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.ANY);
+
+        // TODO: Figure out what this means:
+        // config.setConnectionType(DatabaseClient.ConnectionType.GATEWAY or DatabaseClient.ConnectionType.DIRECT);
+
+        // TODO: Figure out how to support this:
+        // config.setTrustManager((X509TrustManager) trustManagerFactory.getTrustManagers()[0]);
+
+        client = new DefaultConfiguredDatabaseClientFactory().newDatabaseClient(config);
     }
 }

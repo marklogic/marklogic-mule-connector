@@ -201,7 +201,7 @@ public class MarkLogicConnectionTest
     
     //--------------------- SSL Context Tests --------------------------------//
     
-    @Test(expected = MarkLogicConnectorException.class)
+    @Test
     public void sslContextTest()
     {
         MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, EMPTY_DATABASE_NAME, USER_NAME, USER_PASSWORD, "digest", "sslContext", null, CONNECTION_ID);

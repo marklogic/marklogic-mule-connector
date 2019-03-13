@@ -13,9 +13,16 @@
  */
 package com.marklogic.mule.extension.connector.internal.connection.provider;
 
+import com.marklogic.client.DatabaseClient;
+import com.marklogic.client.DatabaseClientFactory;
+import com.marklogic.client.ext.DatabaseClientConfig;
+import com.marklogic.client.ext.DefaultConfiguredDatabaseClientFactory;
+import com.marklogic.client.ext.SecurityContextType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
 import org.mule.runtime.api.connection.ConnectionException;
+import org.mule.runtime.api.lifecycle.CreateException;
+import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
@@ -29,6 +36,9 @@ import org.mule.runtime.api.connection.CachedConnectionProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * This class (as it's name implies) provides connection instances and the functionality to disconnect and validate those
@@ -82,12 +92,12 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
   @Summary("The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic.")
   @Example("digest")
   private String authenticationType;
-  
-  @DisplayName("SSL Context (Not Yet Supported)")
+
+  @DisplayName("TLS Context")
   @Parameter
-  @Summary("")
   @Optional(defaultValue = "null")
-  private String sslContext;
+  @Summary("The TLS Context to use for encryption of this connection, if encryption is to be used.")
+  private TlsContextFactory tlsContextFactory;
   
   @DisplayName("Kerberos External Name (Not Yet Supported)")
   @Parameter
@@ -103,7 +113,8 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
 
   @Override
   public MarkLogicConnection connect() throws ConnectionException {
-      MarkLogicConnection conn = new MarkLogicConnection(hostname, port, database, username, password, authenticationType, sslContext, kerberosExternalName, connectionId);
+
+    MarkLogicConnection conn = new MarkLogicConnection(hostname, port, database, username, password, authenticationType, tlsContextFactory, kerberosExternalName, connectionId);
       conn.connect();
       return conn;
   }
