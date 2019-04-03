@@ -4,7 +4,7 @@
     <configuration-properties file="automation-credentials.properties"/>
     
     <marklogic:config name="config" configId="configId" threadCount="5" batchSize="3" secondsBeforeFlush="2" jobName="import">
-        <marklogic:connection connectionId="testConfig-223efe" hostname="${config.hostName}" port="8011" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" sslContext="null" kerberosExternalName="null" />
+        <marklogic:connection connectionId="testConfig-223efe" hostname="${config.hostName}" port="8011" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" kerberosExternalName="null" />
     </marklogic:config>
     <flow name="retrieveInfoFlow">
         <marklogic:retrieve-info config-ref="config"/>

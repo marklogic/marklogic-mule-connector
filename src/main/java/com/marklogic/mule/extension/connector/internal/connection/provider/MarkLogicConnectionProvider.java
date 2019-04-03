@@ -95,8 +95,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
 
   @DisplayName("TLS Context")
   @Parameter
-  @Optional(defaultValue = "null")
-  @Summary("The TLS Context to use for encryption of this connection, if encryption is to be used.")
+  @Optional
   private TlsContextFactory tlsContextFactory;
   
   @DisplayName("Kerberos External Name (Not Yet Supported)")
