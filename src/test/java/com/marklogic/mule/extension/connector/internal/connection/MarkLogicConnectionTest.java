@@ -22,6 +22,15 @@ import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnec
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Ignore;
+import org.mule.runtime.api.tls.TlsContextFactory;
+import org.mule.runtime.api.tls.TlsContextKeyStoreConfiguration;
+import org.mule.runtime.api.tls.TlsContextTrustStoreConfiguration;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocketFactory;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  *
@@ -204,7 +213,53 @@ public class MarkLogicConnectionTest
     @Test
     public void sslContextTest()
     {
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, EMPTY_DATABASE_NAME, USER_NAME, USER_PASSWORD, "digest", "sslContext", null, CONNECTION_ID);
+        TlsContextFactory tlsContextFactory = new TlsContextFactory() {
+            @Override
+            public SSLContext createSslContext() throws KeyManagementException, NoSuchAlgorithmException {
+                return null;
+            }
+
+            @Override
+            public SSLSocketFactory createSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
+                return null;
+            }
+
+            @Override
+            public SSLServerSocketFactory createServerSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
+                return null;
+            }
+
+            @Override
+            public String[] getEnabledCipherSuites() {
+                return new String[0];
+            }
+
+            @Override
+            public String[] getEnabledProtocols() {
+                return new String[0];
+            }
+
+            @Override
+            public boolean isKeyStoreConfigured() {
+                return false;
+            }
+
+            @Override
+            public boolean isTrustStoreConfigured() {
+                return false;
+            }
+
+            @Override
+            public TlsContextKeyStoreConfiguration getKeyStoreConfiguration() {
+                return null;
+            }
+
+            @Override
+            public TlsContextTrustStoreConfiguration getTrustStoreConfiguration() {
+                return null;
+            }
+        };
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, EMPTY_DATABASE_NAME, USER_NAME, USER_PASSWORD, "digest", tlsContextFactory, null, CONNECTION_ID);
         instance.connect();
     }
     
