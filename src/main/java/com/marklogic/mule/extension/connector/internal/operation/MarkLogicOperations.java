@@ -113,10 +113,15 @@ public class MarkLogicOperations
     @Optional(defaultValue="null")
     @Summary("The file basename to be used for persistence in MarkLogic, usually derived a value from within the payload. Different than the UUID produced from generateOutputUriBasename.")
     @Example("employee123.json")
-        String basenameUri) {
+        String basenameUri,
+    @DisplayName("Temporal collection")
+    @Optional(defaultValue="null")
+    @Summary("The temporal collection imported documents will be loaded into.")
+    @Example("")
+        String temporalCollection) {
 
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, outputUriPrefix, outputUriSuffix, generateOutputUriBasename, basenameUri, configuration.getJobName());
+        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection);
 
         // Determine output URI
         // If the config tells us to generate a new UUID, do that

@@ -69,7 +69,7 @@ public class MarkLogicInsertionBatcher {
      * @param configuration -- information describing how the insertion process should work
      * @param connection -- information describing how to connect to MarkLogic
      */
-    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, String outputQuality, String outputUriPrefix, String outputUriSuffix, String generateOutputUriBasename, String basenameUri, String jobName) {
+    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, String outputQuality, String jobName, String temporalCollection) {
 
         // get the object handles needed to talk to MarkLogic
         DatabaseClient myClient = connection.getClient();
@@ -85,6 +85,11 @@ public class MarkLogicInsertionBatcher {
         // Configure the transform to be used, if any
         // ASSUMPTION: The same transform (or lack thereof) will be used for every document to be inserted during the
         // lifetime of this object
+
+        if (temporalCollection != null) {
+            batcher.withTemporalCollection(temporalCollection);
+        }
+
         String configTransform = configuration.getServerTransform();
         if ((configTransform == null) || (configTransform.equals("null"))) {
             logger.info("Ingesting doc payload without a transform");
@@ -194,14 +199,15 @@ public class MarkLogicInsertionBatcher {
      * getInstance-- used in lieu of a public constructor... enforces singleton pattern
      * @param config -- information describing how the insertion process should work
      * @param connection -- information describing how to connect to MarkLogic
+     * @param temporalCollection
      * @return instance of the batcher
      */
-    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, String outputCollections, String outputPermissions, String outputQuality, String outputUriPrefix, String outputUriSuffix, String generateOutputUriBasename, String basenameUri, String jobName) {
+    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, String outputCollections, String outputPermissions, String outputQuality, String jobName, String temporalCollection) {
         // String configId = config.getConfigId();
         // MarkLogicInsertionBatcher instance = instances.get(configId);
         // Uncomment above to support multiple connection config scenario
         if (instance == null) {
-            instance = new MarkLogicInsertionBatcher(config, connection, outputCollections, outputPermissions, outputQuality, outputUriPrefix, outputUriSuffix, generateOutputUriBasename, basenameUri, jobName);
+            instance = new MarkLogicInsertionBatcher(config, connection, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection);
             // instances.put(configId,instance);
             // Uncomment above to support multiple connection config scenario
         }
