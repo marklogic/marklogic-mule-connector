@@ -86,7 +86,8 @@ public class MarkLogicInsertionBatcher {
         // ASSUMPTION: The same transform (or lack thereof) will be used for every document to be inserted during the
         // lifetime of this object
 
-        if (temporalCollection != null) {
+        if ((temporalCollection != null) && !temporalCollection.equals("null")) {
+            System.out.println ("TEMPORAL COLLECTION: " + temporalCollection);
             batcher.withTemporalCollection(temporalCollection);
         }
 
