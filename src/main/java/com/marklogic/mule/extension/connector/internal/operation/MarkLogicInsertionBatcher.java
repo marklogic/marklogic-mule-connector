@@ -69,7 +69,7 @@ public class MarkLogicInsertionBatcher {
      * @param configuration -- information describing how the insertion process should work
      * @param connection -- information describing how to connect to MarkLogic
      */
-    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, String outputQuality, String jobName, String temporalCollection) {
+    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection) {
 
         // get the object handles needed to talk to MarkLogic
         DatabaseClient myClient = connection.getClient();
@@ -137,7 +137,7 @@ public class MarkLogicInsertionBatcher {
             metadataHandle.withCollections(configCollections);
         }
         // Set up quality new docs should have
-        metadataHandle.setQuality(Integer.parseInt(outputQuality));
+        metadataHandle.setQuality(outputQuality);
 
         // Set up list of permissions that new docs should be granted
         String[] permissions = outputPermissions.split(",");
@@ -203,7 +203,7 @@ public class MarkLogicInsertionBatcher {
      * @param temporalCollection
      * @return instance of the batcher
      */
-    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, String outputCollections, String outputPermissions, String outputQuality, String jobName, String temporalCollection) {
+    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection) {
         // String configId = config.getConfigId();
         // MarkLogicInsertionBatcher instance = instances.get(configId);
         // Uncomment above to support multiple connection config scenario

@@ -95,7 +95,7 @@ public class MarkLogicOperations
     @Optional(defaultValue="1")
     @Summary("A number indicating the quality of the persisted documents")
     @Example("1")
-        String outputQuality,
+        int outputQuality,
     @Optional(defaultValue="/")
     @Summary("The URI prefix, used to prepend and concatenate basenameUri.")
     @Example("/mulesoft/")
@@ -108,7 +108,7 @@ public class MarkLogicOperations
     @Optional(defaultValue="true")
     @Summary("Creates a document basename based on a UUID, to be combined with the outputUriPrefix and outputUriSuffix. Use this if you can't programmatically assign a basename from an identifier in the document. Otherwise use basenameUri.")
     @Example("false")
-        String generateOutputUriBasename,
+        boolean generateOutputUriBasename,
     @DisplayName("Output document basename")
     @Optional(defaultValue="null")
     @Summary("The file basename to be used for persistence in MarkLogic, usually derived a value from within the payload. Different than the UUID produced from generateOutputUriBasename.")
@@ -190,7 +190,7 @@ public class MarkLogicOperations
             @Config MarkLogicConfiguration configuration,
             String optionsName,
             @DisplayName("Search API Options")
-                    StructuredQueryStrategy structuredQueryStrategy,
+                    MarkLogicQueryStrategy structuredQueryStrategy,
             @DisplayName("Raw structured query format")
                     RawStructuredQueryFormat fmt,
             StreamingHelper streamingHelper,
@@ -269,10 +269,7 @@ public class MarkLogicOperations
             }
         };
     }
-    public enum StructuredQueryStrategy {
-        RawStructuredQueryDefinition,
-        StructuredQueryBuilder
-    }
+
     public enum RawStructuredQueryFormat {
         XML,
         JSON
