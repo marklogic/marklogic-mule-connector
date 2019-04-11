@@ -38,12 +38,12 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
                 <fixed-frequency frequency="30000"/>
             </scheduling-strategy>
         </scheduler>
-        <marklogic:select-docs-by-structured-query queryStrategy="CTSQuery" fmt="XML" doc:name="Select docs by structured query" doc:id="54ed8d3c-861d-4ffb-ac33-66abb8f029c3" config-ref="MarkLogic_Config_Input">
+        <marklogic:query-docs-by-structured-query queryStrategy="CTSQuery" fmt="XML" doc:name="Select docs by structured query" doc:id="54ed8d3c-861d-4ffb-ac33-66abb8f029c3" config-ref="MarkLogic_Config_Input">
 			<reconnect />
 			<marklogic:query-string >  &lt;cts:word-query xmlns:cts=&quot;http://marklogic.com/cts&quot;&gt;
     &lt;cts:text&gt;Hello&lt;/cts:text&gt;
   &lt;/cts:word-query&gt;</marklogic:query-string>
-		</marklogic:select-docs-by-structured-query>
+		</marklogic:query-docs-by-structured-query>
 		<batch:job jobName="marklogicconnector20180618Batch_Job" doc:id="ed173563-8626-4ffa-bc7b-1eefc8824c4e">
             <batch:process-records >
                 <batch:step name="Batch_Step" doc:id="2ecb6d1d-c69a-42a3-8762-e97176fdf475" acceptPolicy="ALL">

@@ -15,7 +15,7 @@
         <marklogic:import-docs config-ref="config" outputCollections="mulesoft-dmsdk-test,test" outputPermissions="rest-reader,read,rest-writer,update" outputQuality="2" outputUriPrefix="/mulesoft/" outputUriSuffix=".json" generateOutputUriBasename="false" basenameUri="test" />
     </flow>
 	<flow name="exportDocsFlow">
-		<marklogic:select-docs queryStrategy="RawStructuredQueryDefinition" fmt="XML" config-ref="config" optionsName="test">
+		<marklogic:query-docs queryStrategy="RawStructuredQueryDefinition" fmt="XML" config-ref="config" optionsName="test">
 		  <marklogic:query-string>
 		    &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
               &lt;document-query&gt;
@@ -23,7 +23,7 @@
               &lt;/document-query&gt;
             &lt;/query&gt;
 		  </marklogic:query-string>
-		</marklogic:select-docs>
+		</marklogic:query-docs>
 	</flow>
     <flow name="getJobReportFlow">
         <marklogic:get-job-report />

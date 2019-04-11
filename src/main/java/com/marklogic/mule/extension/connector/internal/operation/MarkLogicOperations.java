@@ -197,12 +197,12 @@ public class MarkLogicOperations
             StreamingHelper streamingHelper,
             FlowListener flowListener)
             throws MarkLogicConnectorException {
-      return selectDocs(structuredQuery,configuration,optionsName,structuredQueryStrategy,fmt,streamingHelper,flowListener);
+      return queryDocs (structuredQuery,configuration,optionsName,structuredQueryStrategy,fmt,streamingHelper,flowListener);
     }
 
         @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
-    public PagingProvider<MarkLogicConnection, Object> selectDocs (
+    public PagingProvider<MarkLogicConnection, Object> queryDocs (
             @Text String queryString,
             @Config MarkLogicConfiguration configuration,
             @Optional(defaultValue="null")

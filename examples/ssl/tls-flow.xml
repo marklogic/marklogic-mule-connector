@@ -38,7 +38,7 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
                 <fixed-frequency frequency="30000"/>
             </scheduling-strategy>
         </scheduler>
-        <marklogic:select-docs queryStrategy="RawStructuredQueryDefinition" fmt="XML" doc:name="Select docs by structured query" doc:id="81264ebf-7bcb-4020-b77e-250e8640e848" config-ref="MarkLogic_Config_Input" optionsName="test">
+        <marklogic:query-docs queryStrategy="RawStructuredQueryDefinition" fmt="XML" doc:name="Select docs by structured query" doc:id="81264ebf-7bcb-4020-b77e-250e8640e848" config-ref="MarkLogic_Config_Input" optionsName="test">
 			<reconnect />
 			<marklogic:query-string >                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
                   &lt;document-query&gt;
@@ -46,7 +46,7 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
                     &lt;uri&gt;/test/doc2.txt&lt;/uri&gt;                    
                   &lt;/document-query&gt;
                 &lt;/query&gt;</marklogic:query-string>
-		</marklogic:select-docs>
+		</marklogic:query-docs>
 		<batch:job jobName="marklogicconnector20180618Batch_Job" doc:id="14d4b0a8-4382-45f1-a0d1-c5c98a79365e">
             <batch:process-records >
                 <batch:step name="Batch_Step" doc:id="80a5fcb7-47c6-4fae-b746-b46341b85555" acceptPolicy="ALL">

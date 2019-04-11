@@ -30,14 +30,14 @@
                 <fixed-frequency frequency="30000"/>
             </scheduling-strategy>
         </scheduler>
-        <marklogic:select-docs queryStrategy="RawStructuredQueryDefinition" fmt="XML" doc:name="Select docs by structured query" doc:id="6566c640-7b87-4f96-b035-79d01baea905" config-ref="MarkLogic_Config_Input">
+        <marklogic:query-docs queryStrategy="RawStructuredQueryDefinition" fmt="XML" doc:name="Select docs by structured query" doc:id="6566c640-7b87-4f96-b035-79d01baea905" config-ref="MarkLogic_Config_Input">
 			<reconnect />
 			<marklogic:query-string >                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
                   &lt;document-query&gt;
                     &lt;uri&gt;/test/doc1.pdf&lt;/uri&gt;                   
                   &lt;/document-query&gt;
                 &lt;/query&gt;</marklogic:query-string>
-		</marklogic:select-docs>
+		</marklogic:query-docs>
 		<batch:job jobName="marklogicconnector20180618Batch_Job" doc:id="bc50e5a8-d2a1-4dc5-9f1d-22b15f6f5dcd">
             <batch:process-records >
                 <batch:step name="Batch_Step" doc:id="fe877d5c-e3cf-40c5-8fdd-bf0d45430032" acceptPolicy="ALL">
