@@ -38,13 +38,13 @@ public final class MarkLogicConnection {
     private final String database;
     private final String username;
     private final String password;
-    private final String authenticationType;
+    private final AuthenticationType authenticationType;
     private final boolean useSSL;
     private final TlsContextFactory sslContext;
     private final String kerberosExternalName;
     private final String connectionId;
 
-  public MarkLogicConnection(String hostname, int port, String database, String username, String password, String authenticationType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId) {
+  public MarkLogicConnection(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId) {
 
     this.useSSL = (sslContext != null) && (!sslContext.equals("")) && (!sslContext.equals("null"));
     this.sslContext = sslContext;
@@ -110,7 +110,7 @@ public final class MarkLogicConnection {
         if (authenticationType == null || authenticationType.equals("")) {
             throw new MarkLogicConnectorException("Authentication Type must be set.");
         } else {
-            String authenticationTypeUpper = authenticationType.toUpperCase();
+            String authenticationTypeUpper = authenticationType.value.toUpperCase();
 
             boolean exists = Arrays.stream(SecurityContextType.values()).anyMatch((t) -> t.name().equals(authenticationTypeUpper));
 
