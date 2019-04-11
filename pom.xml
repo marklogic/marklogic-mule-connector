@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.marklogic</groupId> 
     <artifactId>marklogic-mule-connector</artifactId>
-    <version>1.0.1-1</version>
+    <version>1.0.1</version>
     <build>
         <plugins>
             <plugin>
@@ -76,7 +76,7 @@
 	    <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>marklogic-client-api</artifactId>
-            <version>4.1.0</version>
+            <version>4.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>

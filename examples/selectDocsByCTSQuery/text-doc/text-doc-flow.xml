@@ -23,34 +23,31 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
  </tls:context>
 
     
-    <marklogic:config name="MarkLogic_Config_output" doc:name="MarkLogic Config" doc:id="46686b0e-be91-4c2f-93ab-ba584b2849f1" threadCount="3" configId="ML Config 1" batchSize="5" secondsBeforeFlush="5" jobName="test">
+    <marklogic:config name="MarkLogic_Config_output" doc:name="MarkLogic Config" doc:id="ea8a6ef8-bdb8-474c-b855-5193008a9393" threadCount="3" configId="ML Config 1" batchSize="5" secondsBeforeFlush="5" jobName="test">
         <marklogic:connection hostname="${config.output-hostName}" username="${config.output-username}" password="${config.output-password}" port="8010" authenticationType="digest" connectionId="testconfig_output"/>
     </marklogic:config>
-    <file:config name="File_Config" doc:name="File Config" doc:id="10d859f8-c1e4-49a9-b3e8-3c9f7b333af1" >
+    <file:config name="File_Config" doc:name="File Config" doc:id="5299cdb8-31dc-4eb9-9a34-3c3fd54376cd" >
         <file:connection workingDir="/temp/mule" />
     </file:config>
-    <marklogic:config name="MarkLogic_Config_Input" doc:name="MarkLogic Config" doc:id="e07f058f-8fa1-42da-a516-e97ba5f0f4b7" configId="testConfig-Input" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName">
+    <marklogic:config name="MarkLogic_Config_Input" doc:name="MarkLogic Config" doc:id="d46fceb4-fb9a-4da3-a162-8173b0611686" configId="testConfig-Input" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName">
 		<marklogic:connection hostname="${config.input-hostName}" port="8003" database="my-app-content" username="${config.input-username}" password="${config.input-password}" authenticationType="digest" connectionId="testConfig-Input" tlsContext="markLogicTestContext"/>
 	</marklogic:config>
-	<flow name="marklogicconnector20180618Flow1" doc:id="126334af-5277-4a41-9810-4797a133d69a" initialState="started">
-        <scheduler doc:name="Scheduler" doc:id="c1c49b77-0358-4eb0-a293-5e192049f080" >
+	<flow name="marklogicconnector20180618Flow1" doc:id="e52231e6-3554-412d-ba66-ce47de556779" initialState="started">
+        <scheduler doc:name="Scheduler" doc:id="06623567-f2ee-4d29-baa8-c5553e29b85d" >
             <scheduling-strategy >
                 <fixed-frequency frequency="30000"/>
             </scheduling-strategy>
         </scheduler>
-        <marklogic:select-docs queryStrategy="RawStructuredQueryDefinition" fmt="XML" doc:name="Select docs by structured query" doc:id="81264ebf-7bcb-4020-b77e-250e8640e848" config-ref="MarkLogic_Config_Input" optionsName="test">
+        <marklogic:select-docs-by-structured-query queryStrategy="CTSQuery" fmt="XML" doc:name="Select docs by structured query" doc:id="54ed8d3c-861d-4ffb-ac33-66abb8f029c3" config-ref="MarkLogic_Config_Input">
 			<reconnect />
-			<marklogic:query-string >                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
-                  &lt;document-query&gt;
-                    &lt;uri&gt;/test/doc1.txt&lt;/uri&gt;
-                    &lt;uri&gt;/test/doc2.txt&lt;/uri&gt;                    
-                  &lt;/document-query&gt;
-                &lt;/query&gt;</marklogic:query-string>
-		</marklogic:select-docs>
-		<batch:job jobName="marklogicconnector20180618Batch_Job" doc:id="14d4b0a8-4382-45f1-a0d1-c5c98a79365e">
+			<marklogic:query-string >  &lt;cts:word-query xmlns:cts=&quot;http://marklogic.com/cts&quot;&gt;
+    &lt;cts:text&gt;Hello&lt;/cts:text&gt;
+  &lt;/cts:word-query&gt;</marklogic:query-string>
+		</marklogic:select-docs-by-structured-query>
+		<batch:job jobName="marklogicconnector20180618Batch_Job" doc:id="ed173563-8626-4ffa-bc7b-1eefc8824c4e">
             <batch:process-records >
-                <batch:step name="Batch_Step" doc:id="80a5fcb7-47c6-4fae-b746-b46341b85555" acceptPolicy="ALL">
-                    <ee:transform doc:name="Transform Message" doc:id="1563de46-39b0-4d54-91e9-bacd51f18fc3">
+                <batch:step name="Batch_Step" doc:id="2ecb6d1d-c69a-42a3-8762-e97176fdf475" acceptPolicy="ALL">
+                    <ee:transform doc:name="Transform Message" doc:id="38966331-0570-4980-9e48-9e28f93d4255">
                         <ee:message>
                             <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -61,9 +58,9 @@ output application/json
 }]]></ee:set-payload>
                         </ee:message>
                     </ee:transform>					
-					<batch:aggregator doc:name="Batch Aggregator" doc:id="eb57b2a3-5c3e-4411-9639-c6be46412f22" streaming="true">
-						<foreach doc:name="For Each" doc:id="6fea9004-a643-4c65-ab5b-2262795eae8c" >
-							<ee:transform doc:name="Transform Message" doc:id="73458b94-2d32-412f-a721-a3c7b0b1ff8f">
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="f7d67efe-efce-4587-9077-8ebbf9c63eb1" streaming="true">
+						<foreach doc:name="For Each" doc:id="6a36f9aa-8077-4ca8-86aa-58a508ece672" >
+							<ee:transform doc:name="Transform Message" doc:id="d06438c0-0fc4-4ad1-8087-a13be6cc4c58">
                                 <ee:message>
                                     <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -71,14 +68,14 @@ output application/json
 payload.documentWrap]]></ee:set-payload>
                                 </ee:message>
                             </ee:transform>
-                            <set-payload value="#[payload]" doc:name="Set Payload" doc:id="e1aa7af0-af05-452a-98e1-251979c9b410" encoding="UTF-8" mimeType="text/json" />							
-							<marklogic:import-docs doc:name="Import docs" doc:id="152d8125-c24a-4ce8-9de4-ef560e79b300" config-ref="MarkLogic_Config_output" outputUriPrefix="/text-doc-import/"/>
+                            <set-payload value="#[payload]" doc:name="Set Payload" doc:id="afee947c-3e3e-4870-a4ff-388ab21c8b37" encoding="UTF-8" mimeType="text/json" />							
+							<marklogic:import-docs doc:name="Import docs" doc:id="a8b9792e-63cf-4c15-a6e9-e3b98c39955a" config-ref="MarkLogic_Config_output" outputUriPrefix="/text-doc-import/"/>
                         </foreach>
                     </batch:aggregator>
                 </batch:step>
             </batch:process-records>
             <batch:on-complete>
-                <file:write doc:name="Write" doc:id="d30f7c11-8aa1-4413-9b80-72b16872de62" config-ref="File_Config" path="marklogic_mule_out.txt"/>
+                <file:write doc:name="Write" doc:id="5028b27b-6d64-4709-88fb-676eeca0dd9e" config-ref="File_Config" path="marklogic_mule_out.txt"/>
             </batch:on-complete>
         </batch:job>
     </flow>
