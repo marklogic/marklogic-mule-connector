@@ -27,6 +27,9 @@ import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfigura
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -179,6 +182,18 @@ public class MarkLogicInsertionBatcher {
         JobReport jr = dmm.getJobReport(jobTicket);
         ObjectNode obj = jsonFactory.createObjectNode();
         obj.put("jobID", jobTicket.getJobId());
+        Calendar jobStartTime = jr.getJobStartTime();
+        if (jobStartTime == null) {
+            jobStartTime = Calendar.getInstance();
+        }
+        Calendar jobEndTime = jr.getJobEndTime();
+        if (jobEndTime == null) {
+            jobEndTime = Calendar.getInstance();
+        }
+        Calendar jobReportTime = jr.getReportTimestamp();
+        if (jobReportTime == null) {
+            jobReportTime = Calendar.getInstance();
+        }
         long successBatches = jr.getSuccessBatchesCount();
         long successEvents = jr.getSuccessEventsCount();
         long failBatches = jr.getFailureBatchesCount();
@@ -193,7 +208,20 @@ public class MarkLogicInsertionBatcher {
         obj.put("failedBatches", failBatches);
         obj.put("failedEvents", failEvents);
         obj.put("jobName", jobName);
+        obj.put("jobStartTime", calendarISO8601(jobStartTime));
+        obj.put("jobEndTime", calendarISO8601(jobEndTime));
+        obj.put("jobReportTime", calendarISO8601(jobReportTime));
         return obj;
+    }
+    
+    /*Formats a <code>Calendar</code> value into a ISO8601-compliant date/time string.*/
+    String calendarISO8601(Calendar calendar) {
+        //Calendar calendar = incal.getInstance();
+        Date date = calendar.getTime();
+        SimpleDateFormat sdf;
+        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        String text = sdf.format(date);
+        return text;
     }
 
     /**
