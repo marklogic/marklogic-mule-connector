@@ -18,6 +18,7 @@ import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.ext.DatabaseClientConfig;
 import com.marklogic.client.ext.DefaultConfiguredDatabaseClientFactory;
 import com.marklogic.client.ext.SecurityContextType;
+import com.marklogic.mule.extension.connector.internal.connection.AuthenticationType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
 import org.mule.runtime.api.connection.ConnectionException;
@@ -90,8 +91,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
   @DisplayName("Authentication Type")
   @Parameter
   @Summary("The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic.")
-  @Example("digest")
-  private String authenticationType;
+  private AuthenticationType authenticationType;
 
   @DisplayName("TLS Context")
   @Parameter

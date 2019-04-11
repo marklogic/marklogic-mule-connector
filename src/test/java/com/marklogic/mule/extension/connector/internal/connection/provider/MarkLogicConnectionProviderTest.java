@@ -18,6 +18,7 @@
  */
 package com.marklogic.mule.extension.connector.internal.connection.provider;
 
+import com.marklogic.mule.extension.connector.internal.connection.AuthenticationType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -36,7 +37,7 @@ public class MarkLogicConnectionProviderTest
     private static final String DATABASE_NAME = "test";
     private static final int PORT = 8000;
     private static final String LOCALHOST = "localhost";
-    private static final String AUTHENTICATION_LEVEL = "digest";
+    private static final AuthenticationType AUTHENTICATION_LEVEL = AuthenticationType.digest;
 
     /**
      * Test of connect method, of class MarkLogicConnectionProvider.
