@@ -185,6 +185,7 @@ public class MarkLogicOperations
 
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
+    @Deprecated
     public PagingProvider<MarkLogicConnection, Object> selectDocsByStructuredQuery (
             @Text String structuredQuery,
             @Config MarkLogicConfiguration configuration,
@@ -192,7 +193,24 @@ public class MarkLogicOperations
             @DisplayName("Search API Options")
                     MarkLogicQueryStrategy structuredQueryStrategy,
             @DisplayName("Raw structured query format")
-                    RawStructuredQueryFormat fmt,
+                    QueryFormat fmt,
+            StreamingHelper streamingHelper,
+            FlowListener flowListener)
+            throws MarkLogicConnectorException {
+      return queryDocs (structuredQuery,configuration,optionsName,structuredQueryStrategy,fmt,streamingHelper,flowListener);
+    }
+
+        @MediaType(value = ANY, strict = false)
+    @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
+    public PagingProvider<MarkLogicConnection, Object> queryDocs (
+            @Text String queryString,
+            @Config MarkLogicConfiguration configuration,
+            @Optional(defaultValue="null")
+            String optionsName,
+            @DisplayName("Search Strategy")
+                    MarkLogicQueryStrategy queryStrategy,
+            @DisplayName("Query format")
+                    QueryFormat fmt,
             StreamingHelper streamingHelper,
             FlowListener flowListener)
             throws MarkLogicConnectorException {
@@ -221,16 +239,19 @@ public class MarkLogicOperations
                     DatabaseClient client = connection.getClient();
                     QueryManager qm = client.newQueryManager();
 
-                    switch (structuredQueryStrategy) {
+                    switch (queryStrategy) {
                         case RawStructuredQueryDefinition:
-                            query = createRawStructuredQuery(qm, structuredQuery, fmt);
+                            query = createRawStructuredQuery(qm, queryString, fmt);
                             break;
                         case StructuredQueryBuilder:
                             // Example of incoming structuredQuery string as criteria: sb.document("/mulesoft/10078.json")
-                            query = createStructuredQuery(qm, structuredQuery, optionsName);
+                            query = createStructuredQuery(qm, queryString, optionsName);
                             break;
+                        case CTSQuery:
+                            query = createCtsQuary(qm,queryString,fmt,optionsName);
+                            break; //query = cre
                         default:
-                            logger.error(String.format("Structure Query Strategy %s is not supported", structuredQueryStrategy));
+                            logger.error(String.format("Structure Query Strategy %s is not supported", queryStrategy));
                             throw new RuntimeException("Invalid query type. Unable to create query to delete documents");
                     }
 
@@ -270,36 +291,33 @@ public class MarkLogicOperations
         };
     }
 
-    public enum RawStructuredQueryFormat {
+    private QueryDefinition createCtsQuary(QueryManager queryManager, String queryString, QueryFormat fmt, String optionsName) {
+      if (optionsName.equals("null")) {
+            return queryManager.newRawCtsQueryDefinitionAs(getMLQueryFormat(fmt),queryString);
+      } else {
+          return queryManager.newRawCtsQueryDefinitionAs(getMLQueryFormat(fmt),queryString,optionsName);
+      }
+    }
+
+
+    public enum QueryFormat {
         XML,
         JSON
     }
-    private static RawStructuredQueryDefinition createRawStructuredQuery(QueryManager qManager, String structuredQuery, RawStructuredQueryFormat fmt) {
-        if (fmt == RawStructuredQueryFormat.XML) {
-            /*
-                <query xmlns="http://marklogic.com/appservices/search">
-                  <document-query>
-                    <uri>/mulesoft/10071.json</uri>
-                    <uri>/mulesoft/10081.json</uri>
-                  </document-query>
-                </query>
-            */
-            return qManager.newRawStructuredQueryDefinition(new StringHandle().withFormat(Format.XML).with(structuredQuery));
-        } else {
-            /*
-                {
-                	"query": {
-                		"queries": [{
-                			"document-query": {
-                				"uri": ["/mulesoft/10060.json", "/mulesoft/10067.json"]
-                			}
-                		}]
-                	}
-                }
 
-            */
-            return qManager.newRawStructuredQueryDefinition(new StringHandle().withFormat(Format.JSON).with(structuredQuery));
-        }
+    private static Format getMLQueryFormat(QueryFormat format) {
+      if (format.equals(QueryFormat.XML)) {
+          return Format.XML;
+      } else  if (format.equals(QueryFormat.JSON)) {
+          return Format.JSON;
+      } else {
+          throw new MarkLogicConnectorException(String.format("Query format : %s not supported.",format));
+      }
+
+    }
+
+    private static RawStructuredQueryDefinition createRawStructuredQuery(QueryManager qManager, String structuredQuery, QueryFormat fmt) {
+        return qManager.newRawStructuredQueryDefinition(new StringHandle().withFormat(getMLQueryFormat(fmt)).with(structuredQuery));
     }
 
     private static StructuredQueryDefinition createStructuredQuery(QueryManager qManager, String structuredQuery, String optionsName) {

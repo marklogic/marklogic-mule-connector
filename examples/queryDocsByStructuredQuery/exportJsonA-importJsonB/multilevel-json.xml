@@ -11,63 +11,74 @@
     http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
     http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
     http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    
     <configuration-properties file="automation-credentials.properties"/>
-    <marklogic:config name="MarkLogic_Config_output" doc:name="MarkLogic Config" doc:id="429ccb96-f26f-4039-84d7-e7c8419fb99f" threadCount="3" configId="ML Config 1" batchSize="5" secondsBeforeFlush="5" jobName="test">
+    
+    <marklogic:config name="MarkLogic_Config_output" doc:name="MarkLogic Config" doc:id="8a3ce774-b074-4e3e-b5f1-7488e5f41db0" threadCount="3" configId="ML Config 1" batchSize="5" secondsBeforeFlush="5" jobName="test">
         <marklogic:connection hostname="${config.output-hostName}" username="${config.output-username}" password="${config.output-password}" port="8010" authenticationType="digest" connectionId="testconfig_output"/>
     </marklogic:config>
-    <file:config name="File_Config" doc:name="File Config" doc:id="1888e459-73a7-460b-9610-da397de0509d" >
+    <file:config name="File_Config" doc:name="File Config" doc:id="a892d5de-5956-4472-b4c0-7dade0f8141f" >
         <file:connection workingDir="/temp/mule" />
     </file:config>
-    <marklogic:config name="MarkLogic_Config_Input" doc:name="MarkLogic Config" doc:id="25ad5bba-054c-4453-b7dd-9ef6f66c746f" configId="testConfig-Input" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName">
+    <marklogic:config name="MarkLogic_Config_Input" doc:name="MarkLogic Config" doc:id="c6caa17a-c780-4263-8073-d3d81f9643cb" configId="testConfig-Input" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName">
 		<marklogic:connection hostname="${config.input-hostName}" port="8003" database="my-app-content" username="${config.input-username}" password="${config.input-password}" authenticationType="digest" connectionId="testConfig-Input" />
 	</marklogic:config>
-	<flow name="marklogicconnector20180618Flow1" doc:id="fa7190da-62e3-4d33-9ac0-8c920790dafe" initialState="started">
-        <scheduler doc:name="Scheduler" doc:id="42e5500d-ac0c-42e9-b0c6-5e7f4088953f" >
+	<flow name="marklogicconnector20180618Flow1" doc:id="b1e18cdb-7387-4c52-9656-bc1e506c594a" initialState="started">
+        <scheduler doc:name="Scheduler" doc:id="63436159-c0ab-4825-8dad-94dae039c8f8" >
             <scheduling-strategy >
                 <fixed-frequency frequency="30000"/>
             </scheduling-strategy>
         </scheduler>
-        <marklogic:select-docs-by-structured-query structuredQueryStrategy="RawStructuredQueryDefinition" fmt="XML" doc:name="Select docs by structured query" doc:id="412243d0-0334-4cad-a70e-abb44d4c6f21" config-ref="MarkLogic_Config_Input" optionsName="test">
+        <marklogic:query-docs queryStrategy="RawStructuredQueryDefinition" fmt="XML" doc:name="Select docs by structured query" doc:id="eedd503f-d34e-4b2a-97dc-cd3703e424c7" config-ref="MarkLogic_Config_Input" optionsName="test">
 			<reconnect />
-			<marklogic:structured-query >                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+			<marklogic:query-string >                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
                   &lt;document-query&gt;
-                    &lt;uri&gt;/test/doc1.txt&lt;/uri&gt;
-                    &lt;uri&gt;/test/doc2.txt&lt;/uri&gt;                    
+                    &lt;uri&gt;/test/doc1.json&lt;/uri&gt;
+                    &lt;uri&gt;/test/doc2.json&lt;/uri&gt;                    
                   &lt;/document-query&gt;
-                &lt;/query&gt;</marklogic:structured-query>
-		</marklogic:select-docs-by-structured-query>
-		<batch:job jobName="marklogicconnector20180618Batch_Job" doc:id="d9c5b9ca-475a-463a-9191-688d90b77359">
+                &lt;/query&gt;</marklogic:query-string>
+		</marklogic:query-docs>
+		<batch:job jobName="marklogicconnector20180618Batch_Job" doc:id="5b56ffcd-38db-40dc-ab2b-283492404d8c">
             <batch:process-records >
-                <batch:step name="Batch_Step" doc:id="f56cb66e-c5b4-4a0f-b91a-60e1a97d04cc" acceptPolicy="ALL">
-                    <ee:transform doc:name="Transform Message" doc:id="b343c03f-e048-4398-a360-624cb5810a99">
+                <batch:step name="Batch_Step" doc:id="36c544ab-f4ac-4495-b0e2-b3e5ed6fb5ee" acceptPolicy="ALL">
+                    <ee:transform doc:name="Transform Message" doc:id="c8eceabf-9ef4-416c-9561-ac6f9a23a5c1">
                         <ee:message>
                             <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
-{documentWrap: {
-	document: payload
+{employeeWrap: {
+	employee: {
+		employeeNumber: payload.emp_no,
+		hireDate: payload.hire_date,
+		firstName: payload.name.first,
+		lastName: payload.name.last,
+		favoriteColor: payload.favorite_colors[0],
+		birthDate: payload.birth_date,
+		gender: payload.gender,
+		extractedDateTime: now()
+	}
   }
 }]]></ee:set-payload>
                         </ee:message>
-                    </ee:transform>					
-					<batch:aggregator doc:name="Batch Aggregator" doc:id="f4ee5ff3-281d-4dc9-96fa-d4647237de0d" streaming="true">
-						<foreach doc:name="For Each" doc:id="5fc1763a-3a20-49a9-8f57-028f2c4608fd" >
-							<ee:transform doc:name="Transform Message" doc:id="b5e782e3-8ac6-41da-9871-d684132a7da7">
+                    </ee:transform>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="685529f4-5f37-4b37-a214-a4bfb9d904c5" streaming="true">
+						<foreach doc:name="For Each" doc:id="7749a75f-1d27-46cb-922b-0a84a84db669" >
+							<ee:transform doc:name="Transform Message" doc:id="cfb9087d-53af-4f75-92b4-1f16b258587d">
                                 <ee:message>
                                     <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
-payload.documentWrap]]></ee:set-payload>
+payload.employeeWrap]]></ee:set-payload>
                                 </ee:message>
                             </ee:transform>
-                            <set-payload value="#[payload]" doc:name="Set Payload" doc:id="e7605683-3c34-4564-aa3f-3d42465ee0eb" encoding="UTF-8" mimeType="text/json" />							
-							<marklogic:import-docs doc:name="Import docs" doc:id="02c6e401-5dcc-4936-ba6c-3f8673a3d74e" config-ref="MarkLogic_Config_output" outputUriPrefix="/text-doc-import/"/>
+                            <set-payload value="#[payload]" doc:name="Set Payload" doc:id="61e17019-120f-422d-b882-33055d5b393f" encoding="UTF-8" mimeType="text/json" />
+							<marklogic:import-docs doc:name="Import docs" doc:id="91df4819-43b3-4ca2-8b80-84fe700e473c" config-ref="MarkLogic_Config_output" basenameUri="#[payload.employee.employeeNumber]" outputUriPrefix="/marklogic-mulesoft-export/"/>
                         </foreach>
                     </batch:aggregator>
                 </batch:step>
             </batch:process-records>
             <batch:on-complete>
-                <file:write doc:name="Write" doc:id="d28e15a0-beff-4ab9-9b96-29668b29aae2" config-ref="File_Config" path="marklogic_mule_out.txt"/>
+                <file:write doc:name="Write" doc:id="e4e5c596-0246-4a73-987a-1000ded1f58d" config-ref="File_Config" path="marklogic_mule_out.txt"/>
             </batch:on-complete>
         </batch:job>
     </flow>
