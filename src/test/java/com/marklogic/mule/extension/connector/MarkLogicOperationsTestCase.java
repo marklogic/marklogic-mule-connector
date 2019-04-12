@@ -16,13 +16,16 @@ package com.marklogic.mule.extension.connector;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
+import org.junit.Test;
+
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
-import org.junit.Test;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 
 public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase {
@@ -56,6 +59,16 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                       .getPayload()
                                       .getValue());
     assertThat(payloadValue, payloadValue.matches(UUID_REGEX));
+  }
+  
+  @Test
+  public void executeQueryTemporalOperation() throws Exception {
+    Object payloadValue = (flowRunner("querytemporalFlow")
+                                      .run()
+                                      .getMessage()
+                                      .getPayload()
+                                      .getValue());
+    assertThat(payloadValue, notNullValue());
   }
   
   @Test
