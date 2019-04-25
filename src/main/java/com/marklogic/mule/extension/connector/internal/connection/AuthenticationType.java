@@ -5,6 +5,7 @@ package com.marklogic.mule.extension.connector.internal.connection;
  */
 public enum AuthenticationType {
     digest("digest"),
+    certificate("certificate"),
     basic("basic");
 
     String value;
