@@ -197,7 +197,7 @@ public class MarkLogicOperations
                     MarkLogicQueryStrategy structuredQueryStrategy,
             @DisplayName("Serialized Query Format")
             @Summary("The format of the serialized query")
-                    QueryFormat fmt,
+                    MarkLogicQueryFormat fmt,
             StreamingHelper streamingHelper,
             FlowListener flowListener)
             throws MarkLogicConnectorException {
@@ -221,7 +221,7 @@ public class MarkLogicOperations
                     MarkLogicQueryStrategy queryStrategy,
             @DisplayName("Serialized Query Format")
             @Summary("The format of the serialized query")
-                    QueryFormat fmt,
+                    MarkLogicQueryFormat fmt,
             StreamingHelper streamingHelper,
             FlowListener flowListener)
             throws MarkLogicConnectorException {
@@ -302,7 +302,7 @@ public class MarkLogicOperations
         };
     }
 
-    private QueryDefinition createCtsQuary(QueryManager queryManager, String queryString, QueryFormat fmt, String optionsName) {
+    private QueryDefinition createCtsQuary(QueryManager queryManager, String queryString, MarkLogicQueryFormat fmt, String optionsName) {
       if (optionsName.equals("null")) {
             return queryManager.newRawCtsQueryDefinitionAs(getMLQueryFormat(fmt),queryString);
       } else {
@@ -310,16 +310,10 @@ public class MarkLogicOperations
       }
     }
 
-
-    public enum QueryFormat {
-        XML,
-        JSON
-    }
-
-    private static Format getMLQueryFormat(QueryFormat format) {
-      if (format.equals(QueryFormat.XML)) {
+    private static Format getMLQueryFormat(MarkLogicQueryFormat format) {
+      if (format.equals(MarkLogicQueryFormat.XML)) {
           return Format.XML;
-      } else  if (format.equals(QueryFormat.JSON)) {
+      } else  if (format.equals(MarkLogicQueryFormat.JSON)) {
           return Format.JSON;
       } else {
           throw new MarkLogicConnectorException(String.format("Query format : %s not supported.",format));
@@ -327,7 +321,7 @@ public class MarkLogicOperations
 
     }
 
-    private static RawStructuredQueryDefinition createRawStructuredQuery(QueryManager qManager, String structuredQuery, QueryFormat fmt) {
+    private static RawStructuredQueryDefinition createRawStructuredQuery(QueryManager qManager, String structuredQuery, MarkLogicQueryFormat fmt) {
         return qManager.newRawStructuredQueryDefinition(new StringHandle().withFormat(getMLQueryFormat(fmt)).with(structuredQuery));
     }
 
