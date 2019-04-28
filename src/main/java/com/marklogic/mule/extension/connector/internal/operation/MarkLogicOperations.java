@@ -189,10 +189,14 @@ public class MarkLogicOperations
     public PagingProvider<MarkLogicConnection, Object> selectDocsByStructuredQuery (
             @Text String structuredQuery,
             @Config MarkLogicConfiguration configuration,
-            String optionsName,
             @DisplayName("Search API Options")
+            @Optional(defaultValue="null")
+            @Summary("The server-side Search API options file used to configure the search")
+                String optionsName,
+            @DisplayName("Search Strategy")
                     MarkLogicQueryStrategy structuredQueryStrategy,
-            @DisplayName("Raw structured query format")
+            @DisplayName("Serialized Query Format")
+            @Summary("The format of the serialized query")
                     QueryFormat fmt,
             StreamingHelper streamingHelper,
             FlowListener flowListener)
@@ -203,13 +207,20 @@ public class MarkLogicOperations
         @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     public PagingProvider<MarkLogicConnection, Object> queryDocs (
-            @Text String queryString,
+            @DisplayName("Serialized Query String")
+            @Summary("The serialized query XML or JSON")
+            @Text
+                String queryString,
             @Config MarkLogicConfiguration configuration,
+            @DisplayName("Search API Options")
             @Optional(defaultValue="null")
-            String optionsName,
+            @Summary("The server-side Search API options file used to configure the search")
+                String optionsName,
             @DisplayName("Search Strategy")
+            @Summary("The Java class used to execute the serialized query")
                     MarkLogicQueryStrategy queryStrategy,
-            @DisplayName("Query format")
+            @DisplayName("Serialized Query Format")
+            @Summary("The format of the serialized query")
                     QueryFormat fmt,
             StreamingHelper streamingHelper,
             FlowListener flowListener)
