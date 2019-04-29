@@ -13,7 +13,14 @@
  */
 package com.marklogic.mule.extension.connector.internal.connection;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.util.Arrays;
+import java.util.Enumeration;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
@@ -25,6 +32,8 @@ import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnec
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.*;
 
 public final class MarkLogicConnection {
 
@@ -135,7 +144,9 @@ public final class MarkLogicConnection {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Creating connection using SSL connection with SSL Context: '%s'.", sslContext));
             }
-            config.setSslContext(sslContext.createSslContext());
+            SSLContext context = sslContext.createSslContext();
+            config.setSslContext(context);
+
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("Creating connection without using SSL.");
@@ -147,9 +158,44 @@ public final class MarkLogicConnection {
         // TODO: Figure out what this means:
         // config.setConnectionType(DatabaseClient.ConnectionType.GATEWAY or DatabaseClient.ConnectionType.DIRECT);
 
-        // TODO: Figure out how to support this:
-        // config.setTrustManager((X509TrustManager) trustManagerFactory.getTrustManagers()[0]);
+        if (sslContext != null && sslContext.isTrustStoreConfigured() && authenticationType.equals(AuthenticationType.certificate)) {
+            String defaultAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(defaultAlgorithm);
+            final KeyStore trustStore = getTrustStore(sslContext.getTrustStoreConfiguration().getType());
+            try (final InputStream is = new FileInputStream(sslContext.getTrustStoreConfiguration().getPath())) {
+                trustStore.load(is, sslContext.getTrustStoreConfiguration().getPassword().toCharArray());
+            }
+            trustManagerFactory.init(trustStore);
+            X509TrustManager tm = (X509TrustManager) trustManagerFactory.getTrustManagers()[0];
+            if (logger.isDebugEnabled()) {
+                Enumeration<String> enumera = trustStore.aliases();
+                while (enumera.hasMoreElements()) {
+                    logger.debug("Got cert with alias: " + enumera.nextElement());
+                }
+            }
+            config.setTrustManager(tm);
+        }
 
         client = new DefaultConfiguredDatabaseClientFactory().newDatabaseClient(config);
     }
+    private static KeyStore getTrustStore(String trustStoreType) throws KeyStoreException {
+        String keyStoreProvider = "SUN";
+        if ("PKCS12".equals(trustStoreType)) {
+            logger.warn(trustStoreType + " truststores are deprecated. JKS is preferred.");
+            keyStoreProvider = "BC";
+        }
+
+
+        if (keyStoreProvider != null && keyStoreProvider.equals("")) {
+            try {
+                return KeyStore.getInstance(trustStoreType, keyStoreProvider);
+            } catch (Exception e) {
+                logger.error("Unable to load " + keyStoreProvider + " " + trustStoreType
+                        + " keystore.  This may cause issues getting trusted CA certificates as well as Certificate Chains for use in TLS.", e);
+            }
+        }
+        return KeyStore.getInstance(trustStoreType);
+
+    }
+
 }
