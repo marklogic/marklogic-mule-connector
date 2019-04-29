@@ -189,11 +189,15 @@ public class MarkLogicOperations
     public PagingProvider<MarkLogicConnection, Object> selectDocsByStructuredQuery (
             @Text String structuredQuery,
             @Config MarkLogicConfiguration configuration,
-            String optionsName,
             @DisplayName("Search API Options")
+            @Optional(defaultValue="null")
+            @Summary("The server-side Search API options file used to configure the search")
+                String optionsName,
+            @DisplayName("Search Strategy")
                     MarkLogicQueryStrategy structuredQueryStrategy,
-            @DisplayName("Raw structured query format")
-                    QueryFormat fmt,
+            @DisplayName("Serialized Query Format")
+            @Summary("The format of the serialized query")
+                    MarkLogicQueryFormat fmt,
             StreamingHelper streamingHelper,
             FlowListener flowListener)
             throws MarkLogicConnectorException {
@@ -203,14 +207,21 @@ public class MarkLogicOperations
         @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     public PagingProvider<MarkLogicConnection, Object> queryDocs (
-            @Text String queryString,
+            @DisplayName("Serialized Query String")
+            @Summary("The serialized query XML or JSON")
+            @Text
+                String queryString,
             @Config MarkLogicConfiguration configuration,
+            @DisplayName("Search API Options")
             @Optional(defaultValue="null")
-            String optionsName,
+            @Summary("The server-side Search API options file used to configure the search")
+                String optionsName,
             @DisplayName("Search Strategy")
+            @Summary("The Java class used to execute the serialized query")
                     MarkLogicQueryStrategy queryStrategy,
-            @DisplayName("Query format")
-                    QueryFormat fmt,
+            @DisplayName("Serialized Query Format")
+            @Summary("The format of the serialized query")
+                    MarkLogicQueryFormat fmt,
             StreamingHelper streamingHelper,
             FlowListener flowListener)
             throws MarkLogicConnectorException {
@@ -291,7 +302,7 @@ public class MarkLogicOperations
         };
     }
 
-    private QueryDefinition createCtsQuary(QueryManager queryManager, String queryString, QueryFormat fmt, String optionsName) {
+    private QueryDefinition createCtsQuary(QueryManager queryManager, String queryString, MarkLogicQueryFormat fmt, String optionsName) {
       if (optionsName.equals("null")) {
             return queryManager.newRawCtsQueryDefinitionAs(getMLQueryFormat(fmt),queryString);
       } else {
@@ -299,16 +310,10 @@ public class MarkLogicOperations
       }
     }
 
-
-    public enum QueryFormat {
-        XML,
-        JSON
-    }
-
-    private static Format getMLQueryFormat(QueryFormat format) {
-      if (format.equals(QueryFormat.XML)) {
+    private static Format getMLQueryFormat(MarkLogicQueryFormat format) {
+      if (format.equals(MarkLogicQueryFormat.XML)) {
           return Format.XML;
-      } else  if (format.equals(QueryFormat.JSON)) {
+      } else  if (format.equals(MarkLogicQueryFormat.JSON)) {
           return Format.JSON;
       } else {
           throw new MarkLogicConnectorException(String.format("Query format : %s not supported.",format));
@@ -316,7 +321,7 @@ public class MarkLogicOperations
 
     }
 
-    private static RawStructuredQueryDefinition createRawStructuredQuery(QueryManager qManager, String structuredQuery, QueryFormat fmt) {
+    private static RawStructuredQueryDefinition createRawStructuredQuery(QueryManager qManager, String structuredQuery, MarkLogicQueryFormat fmt) {
         return qManager.newRawStructuredQueryDefinition(new StringHandle().withFormat(getMLQueryFormat(fmt)).with(structuredQuery));
     }
 
