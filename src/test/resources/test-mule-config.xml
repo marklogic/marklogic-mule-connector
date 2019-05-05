@@ -40,4 +40,20 @@
     <flow name="getJobReportFlow">
         <marklogic:get-job-report />
     </flow>
+    <flow name="deleteDocsStructuredQueryFlow">
+        <marklogic:delete-docs doc:name="Delete docs" config-ref="config" queryStrategy="RawStructuredQueryDefinition" fmt="JSON">
+            <marklogic:query-string>{
+                    &quot;query&quot;: {
+                        &quot;queries&quot;: [{
+                            &quot;document-query&quot;: {
+                                &quot;uri&quot;: [
+                                    &quot;/mulesoft/test.json&quot;
+                                ]
+                            }
+                        }]
+                    }
+                }
+            </marklogic:query-string>
+        </marklogic:delete-docs>
+    </flow>
 </mule>
