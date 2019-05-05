@@ -92,4 +92,13 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
     assertThat(payloadValue, containsString("\"jobEndTime\":\"" + CURRENT_DATE + "T"));
     assertThat(payloadValue, containsString("\"jobReportTime\":\"" + CURRENT_DATE + "T"));
   }  
+  @Test
+  public void executeDeleteDocsStructuredQueryFlow() throws Exception {
+    String payloadValue = ((String) flowRunner("deleteDocsStructuredQueryFlow")
+                                      .run()
+                                      .getMessage()
+                                      .getPayload()
+                                      .getValue());
+    assertThat(payloadValue, containsString("1 document(s) deleted"));
+  }  
 }

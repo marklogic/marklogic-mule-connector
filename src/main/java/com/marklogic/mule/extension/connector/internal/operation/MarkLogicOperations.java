@@ -23,10 +23,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.marklogic.client.DatabaseClient;
+import com.marklogic.client.datamovement.DataMovementManager;
+import com.marklogic.client.datamovement.DeleteListener;
+import com.marklogic.client.datamovement.QueryBatcher;
 import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.*;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
+import com.marklogic.client.query.RawCtsQueryDefinition;
 import com.marklogic.client.query.RawStructuredQueryDefinition;
 import com.marklogic.client.query.StructuredQueryDefinition;
 
@@ -149,7 +153,10 @@ public class MarkLogicOperations
 			"successfulEvents": 100,
 			"failedBatches": 0,
 			"failedEvents": 0,
-			"jobName": "test-import"
+			"jobName": "test-import",
+			"jobStartTime": "2019-04-18T12:00:00Z",
+			"jobEndTime": "2019-04-18T12:00:01Z",
+			"jobReportTime": "2019-04-18T12:00:02Z"
 		}
 	],
 	"exportResults": []
@@ -182,6 +189,69 @@ public class MarkLogicOperations
     {
         return "Using Configuration [" + configuration.getConfigId() + "] with Connection id [" + connection.getId() + "]";
     }
+    
+    @MediaType(value = APPLICATION_JSON, strict = true)
+    @Throws(MarkLogicExecuteErrorsProvider.class)
+    public String deleteDocs(
+        @Config
+            MarkLogicConfiguration configuration,
+        @Connection
+            MarkLogicConnection connection,
+        @DisplayName("Serialized Query String")
+        @Summary("The serialized query XML or JSON")
+        @Text
+            String queryString,
+        @DisplayName("Search API Options")
+        @Optional(defaultValue="null")
+        @Summary("The server-side Search API options file used to configure the search")
+            String optionsName, 
+        @DisplayName("Search Strategy")
+        @Summary("The Java class used to execute the serialized query")
+            MarkLogicQueryStrategy queryStrategy, 
+        @DisplayName("Serialized Query Format")
+        @Summary("The format of the serialized query")
+            MarkLogicQueryFormat fmt
+        )  {
+            DatabaseClient client = connection.getClient();
+            QueryManager qm = client.newQueryManager();
+            DataMovementManager dmm = client.newDataMovementManager();
+            QueryBatcher batcher;
+            QueryDefinition query;
+            switch (queryStrategy) {
+                case RawStructuredQueryDefinition:
+                    query = createRawStructuredQuery(qm, queryString, fmt);
+                    batcher = dmm.newQueryBatcher((RawStructuredQueryDefinition) query);
+                    break;
+                case StructuredQueryBuilder:
+                    // Example of incoming structuredQuery string as criteria: sb.document("/mulesoft/10078.json") 
+                    query = createStructuredQuery(qm, queryString, optionsName);
+                    batcher = dmm.newQueryBatcher((StructuredQueryDefinition) query);
+                    break;
+                case CTSQuery:
+                    query = createCtsQuery(qm, queryString, fmt, optionsName);
+                    batcher = dmm.newQueryBatcher((RawCtsQueryDefinition) query);
+                    break;
+                default:
+                    logger.error(String.format("Query Strategy %s is not supported", queryStrategy));
+                    throw new RuntimeException("Invalid query type. Unable to create query to delete documents");
+            }            
+            SearchHandle resultsHandle = qm.search(query, new SearchHandle());
+            batcher.withBatchSize(configuration.getBatchSize())
+                .withThreadCount(configuration.getThreadCount())
+                .withConsistentSnapshot()
+                .onUrisReady(new DeleteListener())
+                .onQueryFailure((throwable) -> {
+                    logger.error("Exception thrown by an onBatchSuccess listener", throwable);  // For Sonar...
+                });
+            dmm.startJob(batcher);
+            batcher.awaitCompletion(); 
+            dmm.stopJob(batcher);
+            ObjectNode rootObj = jsonFactory.createObjectNode();
+            ArrayNode imports = jsonFactory.createArrayNode();
+            rootObj.put("deletionResult", String.format("%d document(s) deleted", resultsHandle.getTotalResults()));
+            rootObj.put("deletionCount", resultsHandle.getTotalResults());
+            return rootObj.toString();
+    }
 
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
@@ -194,17 +264,17 @@ public class MarkLogicOperations
             @Summary("The server-side Search API options file used to configure the search")
                 String optionsName,
             @DisplayName("Search Strategy")
-                    MarkLogicQueryStrategy structuredQueryStrategy,
+                MarkLogicQueryStrategy structuredQueryStrategy,
             @DisplayName("Serialized Query Format")
             @Summary("The format of the serialized query")
-                    MarkLogicQueryFormat fmt,
+                MarkLogicQueryFormat fmt,
             StreamingHelper streamingHelper,
-            FlowListener flowListener)
-            throws MarkLogicConnectorException {
-      return queryDocs (structuredQuery,configuration,optionsName,structuredQueryStrategy,fmt,streamingHelper,flowListener);
+            FlowListener flowListener
+        ) throws MarkLogicConnectorException {
+                return queryDocs (structuredQuery,configuration,optionsName,structuredQueryStrategy,fmt,streamingHelper,flowListener);
     }
 
-        @MediaType(value = ANY, strict = false)
+    @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     public PagingProvider<MarkLogicConnection, Object> queryDocs (
             @DisplayName("Serialized Query String")
@@ -259,10 +329,10 @@ public class MarkLogicOperations
                             query = createStructuredQuery(qm, queryString, optionsName);
                             break;
                         case CTSQuery:
-                            query = createCtsQuary(qm,queryString,fmt,optionsName);
-                            break; //query = cre
+                            query = createCtsQuery(qm, queryString, fmt, optionsName);
+                            break;
                         default:
-                            logger.error(String.format("Structure Query Strategy %s is not supported", queryStrategy));
+                            logger.error(String.format("Query Strategy %s is not supported", queryStrategy));
                             throw new RuntimeException("Invalid query type. Unable to create query to delete documents");
                     }
 
@@ -302,7 +372,7 @@ public class MarkLogicOperations
         };
     }
 
-    private QueryDefinition createCtsQuary(QueryManager queryManager, String queryString, MarkLogicQueryFormat fmt, String optionsName) {
+    private QueryDefinition createCtsQuery(QueryManager queryManager, String queryString, MarkLogicQueryFormat fmt, String optionsName) {
       if (optionsName.equals("null")) {
             return queryManager.newRawCtsQueryDefinitionAs(getMLQueryFormat(fmt),queryString);
       } else {
