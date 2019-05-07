@@ -99,6 +99,6 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                       .getMessage()
                                       .getPayload()
                                       .getValue());
-    assertThat(payloadValue, containsString("1 document(s) deleted"));
+    assertThat(payloadValue, containsString(" document(s) deleted"));
   }  
 }
