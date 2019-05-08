@@ -1,10 +1,55 @@
 = MarkLogic Connector Release Notes 
 
-January 2019
+May 2019
 
 _MuleSoft Certified_
 
-The MarkLogic Mulesoft Connector aims to provide the Mulesoft community of users (via the Mulesoft Anypoint Exchange) with easy integration to MarkLogic, delivering data movement and transformation pipelines via Mulesoft AnypointStudio flows. The Mulesoft Connector is built atop MarkLogic’s Data Movement SDK (DMSDK), which is a Java API library for applications that need to move data into, out of, or within a MarkLogic cluster.  For those familiar with the existing MarkLogic ecosystem, it provides the core capabilities of MarkLogic Content Pump in the vernacular of the MarkLogic Java Client API.
+The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users (via the MuleSoft Anypoint Exchange) with easy integration to MarkLogic, delivering data movement and transformation pipelines via MuleSoft AnypointStudio flows. The MuleSoft Connector is built atop MarkLogic’s Data Movement SDK (DMSDK), which is a Java API library for applications that need to move data into, out of, or within a MarkLogic cluster.  For those familiar with the existing MarkLogic ecosystem, it provides the core capabilities of MarkLogic Content Pump in the vernacular of the MarkLogic Java Client API.
+
+== Version 1.1.0 - 2019-05-15
+
+=== Version 1.1.0 - Compatibility
+[%header%autowidth.spread]
+|===
+|Software |Version
+|Anypoint Studio |7.1.4 and later
+|Mule |4.2.0 and later
+|JDK |1.8.x
+|MarkLogic Java Client API |4.2.0 and later
+|MarkLogic|9.0-6.2 and later
+|===
+
+=== Version 1.1.0 - Features
+This release of the Connector includes the following:
+
+* Added new operation: queryDocs. This allows for the specification of a query via Structured Queries or CTS queries, in order to provide support for egress of data out of MarkLogic for further downstream processing in MuleSoft. _This operation deprecates operation selectDocsByStructuredQuery_.
+* Added new operation: deleteDocs. This allows for the specification of a query via Structured Queries or CTS queries, in order to delete documents on MarkLogic Server, using DMSDK DeleteListener.
+* Added support for 2-way SSL connectivity, and MarkLogic certificate authentication.
+* Added support for specifying temporal collections on importDocs operation.
+* Added dateTime stamps to getJobReport, specifying jobStartTime, jobEndTime, and jobReportTime.
+* Updated documentation, moving some non-required Markdown documents out of source control, and into GitHub wiki pages.
+* Updated Java types and applied increased usage of Enumerations on connection and configuration parameters, plus operations, to provide better UI inputs for Anypoint Studio and Anypoint Design Center.
+* Improved handling of transformation parameters and values, which previously could have treated values as parameters.
+* Provided documentation of configuration and example flows demonstrating importDocs and getJobReport operations.
+
+=== Version 1.1.0 - Required Libraries
+
+* MarkLogic Java Client API v.4.2.0
+* MarkLogic Data Movement Components v.1.0
+
+=== Version 1.1.0 - Improvements
+
+* Improved handling of transformation parameters and values, which previously could have treated values as parameters.
+* Updated documentation, moving some non-required Markdown documents out of source control, and into GitHub wiki pages.
+* Updated Java types and applied increased usage of Enumerations on connection and configuration parameters, plus operations, to provide better UI inputs for Anypoint Studio and Anypoint Design Center.
+
+=== Version 1.1.0 - Bugs Fixed
+
+* Improved handling of transformation parameters and values, which previously could have treated values as parameters.
+
+=== Version 1.1.0 - Operations
+
+* Added operations for queryDocs (which deprecates operation selectDocsByStructuredQuery) and deleteDocs.
 
 == Version 1.0.0 - 2019-01-18
 
@@ -15,7 +60,7 @@ This connector supports these software versions:
 |Software |Version
 |Anypoint Studio |7.1.4 and later
 |Mule |4.1.1 and later
-|JDK |1.8.0_77-b03 and later
+|JDK |1.8.x
 |MarkLogic Java Client API |4.0.4 and later
 |MarkLogic|9.0-6.2 and later
 |===
@@ -28,9 +73,20 @@ This is the initial release of the Connector, so, everything's new!
 
 === Version 1.0.0 - Required Libraries
 
-* MarkLogic Java Client API v.4.04
+* MarkLogic Java Client API v.4.0.4
 * MarkLogic Data Movement Components v.1.0
 
+=== Version 1.0.0 - Improvements
+
+* None, other than..."This is the initial release of the Connector, so, everything's new!"
+
+=== Version 1.0.0 - Bugs Fixed
+
+* None, other than..."This is the initial release of the Connector, so, everything's new!"
+
+=== Version 1.0.0 - Operations
+
+* Added operations for importDocs, getJobReport, and retrieveInfo.
 
 == See Also
 * http://marklogic.com[MarkLogic]

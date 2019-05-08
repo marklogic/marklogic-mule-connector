@@ -257,13 +257,17 @@ public class MarkLogicOperations
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     @Deprecated
     public PagingProvider<MarkLogicConnection, Object> selectDocsByStructuredQuery (
-            @Text String structuredQuery,
+            @DisplayName("Serialized Query String")
+            @Summary("The serialized query XML or JSON")
+            @Text
+                String structuredQuery,
             @Config MarkLogicConfiguration configuration,
             @DisplayName("Search API Options")
             @Optional(defaultValue="null")
             @Summary("The server-side Search API options file used to configure the search")
                 String optionsName,
             @DisplayName("Search Strategy")
+            @Summary("The Java class used to execute the serialized query")
                 MarkLogicQueryStrategy structuredQueryStrategy,
             @DisplayName("Serialized Query Format")
             @Summary("The format of the serialized query")
