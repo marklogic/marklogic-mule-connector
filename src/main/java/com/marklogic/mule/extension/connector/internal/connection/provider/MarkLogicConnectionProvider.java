@@ -90,7 +90,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
   
   @DisplayName("Authentication Type")
   @Parameter
-  @Summary("The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic.")
+  @Summary("The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic, certificate.")
   private AuthenticationType authenticationType;
 
   @DisplayName("TLS Context")
