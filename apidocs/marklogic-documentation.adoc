@@ -94,6 +94,7 @@ Default configuration
 ** RawStructuredQueryDefinition
 ** StructuredQueryBuilder
 ** CTSQuery |  +++The Java class used to execute the serialized query+++ |  | *x*{nbsp}
+| Use Consistent Snapshot a| Boolean |  +++Whether to use a consistent point-in-time snapshot for operations+++ |  +++false+++ | {nbsp}
 | Serialized Query Format a| Enumeration, one of:
 
 ** XML
