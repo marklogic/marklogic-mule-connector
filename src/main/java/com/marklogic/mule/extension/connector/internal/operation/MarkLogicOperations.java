@@ -208,6 +208,9 @@ public class MarkLogicOperations
         @DisplayName("Search Strategy")
         @Summary("The Java class used to execute the serialized query")
             MarkLogicQueryStrategy queryStrategy, 
+        @DisplayName("Use Consistent Snapshot")
+        @Summary("Whether to use a consistent point-in-time snapshot for operations")
+            boolean useConsistentSnapshot,
         @DisplayName("Serialized Query Format")
         @Summary("The format of the serialized query")
             MarkLogicQueryFormat fmt
@@ -236,9 +239,11 @@ public class MarkLogicOperations
                     throw new RuntimeException("Invalid query type. Unable to create query to delete documents");
             }            
             SearchHandle resultsHandle = qm.search(query, new SearchHandle());
+            if (Boolean.valueOf(useConsistentSnapshot) == Boolean.TRUE) {
+                batcher.withConsistentSnapshot();
+            }
             batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
-                .withConsistentSnapshot()
                 .onUrisReady(new DeleteListener())
                 .onQueryFailure((throwable) -> {
                     logger.error("Exception thrown by an onBatchSuccess listener", throwable);  // For Sonar...
@@ -275,7 +280,7 @@ public class MarkLogicOperations
             StreamingHelper streamingHelper,
             FlowListener flowListener
         ) throws MarkLogicConnectorException {
-                return queryDocs (structuredQuery,configuration,optionsName,structuredQueryStrategy,fmt,streamingHelper,flowListener);
+                return queryDocs(structuredQuery, configuration, optionsName, structuredQueryStrategy, fmt, streamingHelper, flowListener);
     }
 
     @MediaType(value = ANY, strict = false)
@@ -337,11 +342,11 @@ public class MarkLogicOperations
                             break;
                         default:
                             logger.error(String.format("Query Strategy %s is not supported", queryStrategy));
-                            throw new RuntimeException("Invalid query type. Unable to create query to delete documents");
+                            throw new RuntimeException("Invalid query type. Unable to create query to retrieve documents");
                     }
 
                     if ((configTransform == null) || (configTransform.equals("null"))) {
-                        logger.info("Ingesting doc payload without a transform");
+                        logger.info("Retrieving doc payload without a transform");
                     } else {
                         ServerTransform thistransform = new ServerTransform(configTransform);
                         String[] configTransformParams = configuration.getServerTransformParams();
@@ -354,7 +359,7 @@ public class MarkLogicOperations
                         }
                         query.setResponseTransform(thistransform);
                     }
-                    iterator = new MarkLogicResultSetIterator(connection,configuration,query);
+                    iterator = new MarkLogicResultSetIterator(connection, configuration, query);
                 }
                 return iterator.next();
             }

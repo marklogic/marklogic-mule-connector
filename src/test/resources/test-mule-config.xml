@@ -1,60 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-    
+
     <configuration-properties file="automation-credentials.properties"/>
-    
+
     <marklogic:config name="config" configId="configId" threadCount="5" batchSize="3" secondsBeforeFlush="2" jobName="import">
-        <marklogic:connection connectionId="testConfig-223efe" hostname="${config.hostName}" port="8011" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" kerberosExternalName="null" />
+        <marklogic:connection connectionId="testConfig-223efe" hostname="${config.hostName}" port="8011" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" kerberosExternalName="null"/>
     </marklogic:config>
     <flow name="retrieveInfoFlow">
         <marklogic:retrieve-info config-ref="config"/>
     </flow>
     <flow name="importDocsFlow">
-        <set-payload value='[0, null, false, "blah", "20"]' doc:name="Set Payload" doc:id="93a0a5fb-9d53-4d60-be72-22fe7bc2eeab" />
-        <marklogic:import-docs config-ref="config" outputCollections="mulesoft-dmsdk-test,test" outputPermissions="rest-reader,read,rest-writer,update" outputQuality="2" outputUriPrefix="/mulesoft/" outputUriSuffix=".json" generateOutputUriBasename="false" basenameUri="test" />
+        <set-payload value="[0, null, false, &quot;blah&quot;, &quot;20&quot;]" doc:name="Set Payload" doc:id="93a0a5fb-9d53-4d60-be72-22fe7bc2eeab"/>
+        <marklogic:import-docs config-ref="config" outputCollections="mulesoft-dmsdk-test,test" outputPermissions="rest-reader,read,rest-writer,update" outputQuality="2" outputUriPrefix="/mulesoft/" outputUriSuffix=".json" generateOutputUriBasename="false" basenameUri="test"/>
     </flow>
     <flow name="querytemporalFlow" doc:id="614a4749-c4f5-442e-a9ab-35d9427e0cfd">
         <marklogic:query-docs doc:name="Query docs" doc:id="bcd0f65d-6fbd-4b23-b37a-226c1268aabf" config-ref="config" queryStrategy="CTSQuery" fmt="XML">
-            <marklogic:query-string>&lt;cts:and-query xmlns:cts=&quot;http://marklogic.com/cts&quot;&gt;
-                &lt;cts:collection-query&gt;
-                &lt;cts:uri&gt;temporal-input&lt;/cts:uri&gt;
-                &lt;/cts:collection-query&gt;
-                &lt;cts:document-query&gt;
-                &lt;cts:uri&gt;/temporal-test/test.json&lt;/cts:uri&gt;
-                &lt;/cts:document-query&gt;
-                &lt;/cts:and-query&gt;</marklogic:query-string>
+            <marklogic:query-string>&lt;cts:and-query xmlns:cts=&quot;http://marklogic.com/cts&quot;&gt; &lt;cts:collection-query&gt; &lt;cts:uri&gt;temporal-input&lt;/cts:uri&gt; &lt;/cts:collection-query&gt; &lt;cts:document-query&gt; &lt;cts:uri&gt;/temporal-test/test.json&lt;/cts:uri&gt; &lt;/cts:document-query&gt; &lt;/cts:and-query&gt;</marklogic:query-string>
         </marklogic:query-docs>
     </flow>
     <flow name="exportDocsFlow">
-    	<marklogic:query-docs queryStrategy="RawStructuredQueryDefinition" fmt="XML" config-ref="config" optionsName="test">
-    	  <marklogic:query-string>
-    	    &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
-                  &lt;document-query&gt;
-                    &lt;uri&gt;/mulesoft/test.json&lt;/uri&gt;
-                  &lt;/document-query&gt;
-                &lt;/query&gt;
-    	  </marklogic:query-string>
-    	</marklogic:query-docs>
+        <marklogic:query-docs queryStrategy="RawStructuredQueryDefinition" fmt="XML" config-ref="config" optionsName="test">
+            <marklogic:query-string> &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt; &lt;document-query&gt; &lt;uri&gt;/mulesoft/test.json&lt;/uri&gt; &lt;/document-query&gt; &lt;/query&gt; </marklogic:query-string>
+        </marklogic:query-docs>
     </flow>
     <flow name="getJobReportFlow">
-        <marklogic:get-job-report />
+        <marklogic:get-job-report/>
     </flow>
     <flow name="deleteDocsStructuredQueryFlow">
-        <set-payload value='["Delete JSON file!"]' doc:name="Set Payload" doc:id="83a0a5fb-9d53-4d60-be72-22fe7bc2eeac" />
-        <marklogic:import-docs config-ref="config" outputCollections="mulesoft-dmsdk-test,test" outputPermissions="rest-reader,read,rest-writer,update" outputQuality="2" outputUriPrefix="/mulesoft/" outputUriSuffix=".json" generateOutputUriBasename="false" basenameUri="deleteTestStructuredQuery" />
-        <marklogic:delete-docs doc:name="Delete docs" config-ref="config" queryStrategy="RawStructuredQueryDefinition" fmt="JSON">
-            <marklogic:query-string>{
-                    &quot;query&quot;: {
-                        &quot;queries&quot;: [{
-                            &quot;document-query&quot;: {
-                                &quot;uri&quot;: [
-                                    &quot;/mulesoft/deleteTestStructuredQuery.json&quot;
-                                ]
-                            }
-                        }]
-                    }
-                }
-            </marklogic:query-string>
+        <set-payload value="[&quot;Delete JSON file!&quot;]" doc:name="Set Payload" doc:id="83a0a5fb-9d53-4d60-be72-22fe7bc2eeac"/>
+        <marklogic:import-docs config-ref="config" outputCollections="mulesoft-dmsdk-test,test" outputPermissions="rest-reader,read,rest-writer,update" outputQuality="2" outputUriPrefix="/mulesoft/" outputUriSuffix=".json" generateOutputUriBasename="false" basenameUri="deleteTestStructuredQuery"/>
+        <marklogic:delete-docs doc:name="Delete docs" config-ref="config" queryStrategy="RawStructuredQueryDefinition" useConsistentSnapshot="true" fmt="JSON">
+            <marklogic:query-string>{ &quot;query&quot;: { &quot;queries&quot;: [{ &quot;document-query&quot;: { &quot;uri&quot;: [ &quot;/mulesoft/deleteTestStructuredQuery.json&quot; ] } }] } } </marklogic:query-string>
         </marklogic:delete-docs>
     </flow>
 </mule>
