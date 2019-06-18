@@ -87,7 +87,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase 
                                       .getMessage()
                                       .getPayload()
                                       .getValue());
-    assertThat(payloadValue, startsWith("{\"importResults\":[{\"jobID\":\""));
+    assertThat(payloadValue, containsString("\"importResults\":[{\"jobID\":\""));
     assertThat(payloadValue, containsString("\"jobStartTime\":\"" + CURRENT_DATE + "T"));
     assertThat(payloadValue, containsString("\"jobEndTime\":\"" + CURRENT_DATE + "T"));
     assertThat(payloadValue, containsString("\"jobReportTime\":\"" + CURRENT_DATE + "T"));

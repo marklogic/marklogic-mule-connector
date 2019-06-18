@@ -159,13 +159,14 @@ public class MarkLogicOperations
   @MediaType(value = APPLICATION_JSON, strict = true)
   public String getJobReport() {
       ObjectNode rootObj = jsonFactory.createObjectNode();
-      ArrayNode imports = jsonFactory.createArrayNode();
-      rootObj.set("importResults", imports);
+
       ArrayNode exports = jsonFactory.createArrayNode();
       rootObj.set("exportResults", exports);
       MarkLogicInsertionBatcher insertionBatcher = MarkLogicInsertionBatcher.getInstance();
       if (insertionBatcher != null) {
+          ArrayNode imports = jsonFactory.createArrayNode();
           imports.add(insertionBatcher.createJsonJobReport(jsonFactory));
+          rootObj.set("importResults", imports);
       }
 
       // Add support for query jobReport here!
@@ -239,10 +240,7 @@ public class MarkLogicOperations
                         try {
                             close(connection);
                         } catch (Exception t) {
-                            if (logger.isWarnEnabled()) {
-                                logger.warn(String.format("Exception was found closing connection for select operation. Error was: %s", t.getMessage()),
-                                        e);
-                            }
+                            logger.warn(String.format("Exception was found closing connection for select operation. Error was: %s", t.getMessage()), e);
                         }
                     });
                     
