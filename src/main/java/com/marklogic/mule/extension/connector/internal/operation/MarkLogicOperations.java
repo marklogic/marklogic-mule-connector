@@ -125,7 +125,7 @@ public class MarkLogicOperations
 
         // Determine output URI
         // If the config tells us to generate a new UUID, do that
-        if (Boolean.valueOf(generateOutputUriBasename) == Boolean.TRUE) {
+        if (generateOutputUriBasename) {
             basenameUri = UUID.randomUUID().toString();
         // Also, if the basenameURI is blank for whatever reason, use a new UUID
         } else if ((basenameUri == null) || (basenameUri.equals("null")) || (basenameUri.length() < 1)) {
@@ -230,8 +230,7 @@ public class MarkLogicOperations
             private final AtomicBoolean initialised = new AtomicBoolean(false);
             private MarkLogicResultSetCloser resultSetCloser;
             MarkLogicResultSetIterator iterator;
-            String configTransform = configuration.getServerTransform();
-
+        
             @Override
             public List<Object> getPage(MarkLogicConnection connection) {
                 if (initialised.compareAndSet(false, true)) {
@@ -246,42 +245,34 @@ public class MarkLogicOperations
                             }
                         }
                     });
+                    
                     QueryDefinition query;
                     DatabaseClient client = connection.getClient();
                     QueryManager qm = client.newQueryManager();
 
+                    String options = isDefined(optionsName) ? optionsName : null;
+                    
                     switch (queryStrategy) {
-                        case RawStructuredQueryDefinition:
-                            query = createRawStructuredQuery(qm, queryString, fmt);
-                            break;
                         case StructuredQueryBuilder:
                             // Example of incoming structuredQuery string as criteria: sb.document("/mulesoft/10078.json")
-                            query = createStructuredQuery(qm, queryString, optionsName);
+                            query = createStructuredQuery(qm, queryString, options);
                             break;
                         case CTSQuery:
-                            query = createCtsQuary(qm,queryString,fmt,optionsName);
-                            break; //query = cre
-                        default:
-                            logger.error(String.format("Structure Query Strategy %s is not supported", queryStrategy));
-                            throw new RuntimeException("Invalid query type. Unable to create query to delete documents");
+                            query = createCtsQuary(qm,queryString,fmt,options);
+                            break;
+                        default: //RawStructuredQueryDefinition:
+                            query = createRawStructuredQuery(qm, queryString, fmt);
                     }
 
-                    if ((configTransform == null) || (configTransform.equals("null"))) {
-                        logger.info("Ingesting doc payload without a transform");
+                    if (configuration.hasServerTransform()) {
+                        query.setResponseTransform(configuration.createServerTransform());
                     } else {
-                        ServerTransform thistransform = new ServerTransform(configTransform);
-                        String[] configTransformParams = configuration.getServerTransformParams();
-                        if (!configTransformParams[0].equals("null") && configTransformParams.length % 2 == 0) {
-                            for (int i = 0; i < configTransformParams.length - 1; i++) {
-                                String paramName = configTransformParams[i];
-                                String paramValue = configTransformParams[i + 1];
-                                thistransform.addParameter(paramName, paramValue);
-                            }
-                        }
-                        query.setResponseTransform(thistransform);
+                        logger.info("Ingesting doc payload without a transform");
                     }
+                    
                     iterator = new MarkLogicResultSetIterator(connection,configuration,query);
                 }
+                
                 return iterator.next();
             }
 
@@ -303,22 +294,17 @@ public class MarkLogicOperations
     }
 
     private QueryDefinition createCtsQuary(QueryManager queryManager, String queryString, MarkLogicQueryFormat fmt, String optionsName) {
-      if (optionsName.equals("null")) {
-            return queryManager.newRawCtsQueryDefinitionAs(getMLQueryFormat(fmt),queryString);
-      } else {
           return queryManager.newRawCtsQueryDefinitionAs(getMLQueryFormat(fmt),queryString,optionsName);
-      }
     }
 
     private static Format getMLQueryFormat(MarkLogicQueryFormat format) {
-      if (format.equals(MarkLogicQueryFormat.XML)) {
-          return Format.XML;
-      } else  if (format.equals(MarkLogicQueryFormat.JSON)) {
-          return Format.JSON;
-      } else {
-          throw new MarkLogicConnectorException(String.format("Query format : %s not supported.",format));
-      }
-
+        switch (format)
+        {
+            case JSON:
+                return Format.JSON;
+            default:
+                return Format.XML;
+        }
     }
 
     private static RawStructuredQueryDefinition createRawStructuredQuery(QueryManager qManager, String structuredQuery, MarkLogicQueryFormat fmt) {
@@ -329,7 +315,7 @@ public class MarkLogicOperations
         JexlEngine jexl = new JexlBuilder().create();
         JexlExpression e = jexl.createExpression(structuredQuery);
         JexlContext jc = new MapContext();
-        if (optionsName.equals("null")) {
+        if (optionsName == null) {
             jc.set("sb", qManager.newStructuredQueryBuilder());
         } else {
             jc.set("sb", qManager.newStructuredQueryBuilder(optionsName));
@@ -338,12 +324,16 @@ public class MarkLogicOperations
         return (StructuredQueryDefinition) o;
     }
 
-    //TODO: Make toString function for UI
-    private enum WhereMethod
+    private boolean isDefined(String str)
     {
-        Collections,
-        Uris,
-        UriPattern,
-        UrisQuery
+        return str != null && !str.trim().isEmpty() && !"null".equals(str.trim());
     }
+    //TODO: Make toString function for UI
+//    private enum WhereMethod
+//    {
+//        Collections,
+//        Uris,
+//        UriPattern,
+//        UrisQuery
+//    }
 }

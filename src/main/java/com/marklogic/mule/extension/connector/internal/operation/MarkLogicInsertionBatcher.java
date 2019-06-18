@@ -89,30 +89,21 @@ public class MarkLogicInsertionBatcher {
         // ASSUMPTION: The same transform (or lack thereof) will be used for every document to be inserted during the
         // lifetime of this object
 
-        if ((temporalCollection != null) && !temporalCollection.equals("null")) {
+        if ((temporalCollection != null) && !"null".equalsIgnoreCase(temporalCollection)) {
             System.out.println ("TEMPORAL COLLECTION: " + temporalCollection);
             batcher.withTemporalCollection(temporalCollection);
         }
 
-        String configTransform = configuration.getServerTransform();
-        if ((configTransform == null) || (configTransform.equals("null"))) {
+        if(configuration.hasServerTransform()){
+            batcher.withTransform(configuration.createServerTransform());
+            logger.info("Transforming input doc payload with transform: " + configuration.getServerTransform());
+        }
+        else {
             logger.info("Ingesting doc payload without a transform");
-        } else {
-            ServerTransform thistransform = new ServerTransform(configTransform);
-            String[] configTransformParams = configuration.getServerTransformParams();
-            if (!configTransformParams[0].equals("null") && configTransformParams.length % 2 == 0) {
-                for (int i = 0; i < configTransformParams.length - 1; i++) {
-                    String paramName = configTransformParams[i];
-                    String paramValue = configTransformParams[i + 1];
-                    thistransform.addParameter(paramName, paramValue);
-                }
-            }
-            batcher.withTransform(thistransform);
-            logger.info("Transforming input doc payload with transform: " + thistransform.getName());
         }
 
         // Set up the timer to flush the pipe to MarkLogic if it's waiting to long
-        int secondsBeforeFlush = Integer.parseInt(configuration.getSecondsBeforeFlush());
+        int secondsBeforeFlush = configuration.getSecondsBeforeFlush();
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {

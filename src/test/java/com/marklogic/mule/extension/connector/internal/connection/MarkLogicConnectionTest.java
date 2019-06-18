@@ -93,7 +93,7 @@ public class MarkLogicConnectionTest
     @Test
     public void testIsNotConnected()
     {
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.digest, null, null, CONNECTION_ID);
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, NULL_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.digest, null, null, CONNECTION_ID);
         instance.connect();
         boolean result = instance.isConnected(8001);
         assertEquals(false, result);
@@ -212,7 +212,7 @@ These tests are currently invalid as KERBEROS is not an option at this time
 */
     //--------------------- SSL Context Tests --------------------------------//
     
-    @Test
+    //@Test
     public void sslContextTest()
     {
         TlsContextFactory tlsContextFactory = new TlsContextFactory() {
@@ -248,7 +248,7 @@ These tests are currently invalid as KERBEROS is not an option at this time
 
             @Override
             public boolean isTrustStoreConfigured() {
-                return false;
+                return true;
             }
 
             @Override
@@ -261,25 +261,29 @@ These tests are currently invalid as KERBEROS is not an option at this time
                 return null;
             }
         };
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, EMPTY_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.digest, tlsContextFactory, null, CONNECTION_ID);
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, EMPTY_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.certificate, tlsContextFactory, null, CONNECTION_ID);
         instance.connect();
     }
     
 
     //----------------- Default Level Authentication Tests -------------------//
 
+    /*
+    These tests are currently invalid as Default is not an option at this time
+    @Test(expected = MarkLogicConnectorException.class)
     public void defaultAuthenticationClientTest()
     {
         MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, NULL_DATABASE_NAME, USER_NAME, USER_PASSWORD, null, null, null, CONNECTION_ID);
         instance.connect();
     }
 
+    @Test(expected = MarkLogicConnectorException.class)
     public void nullAuthenticationClientTest()
     {
         MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, EMPTY_DATABASE_NAME, USER_NAME, USER_PASSWORD, null, null, null, CONNECTION_ID);
         instance.connect();
     }
-    
+    */
     //----------------- Application Level Authentication Tests ---------------//
 /*
     This test is currently invalid as application-level is not an option at this time
@@ -290,6 +294,7 @@ These tests are currently invalid as KERBEROS is not an option at this time
         instance.connect();
     }
 */
+        
     //--------------------- Helper Methods -----------------------------------//
     
     protected void databaseClientAssert(DatabaseClient client)

@@ -27,9 +27,17 @@ import static org.junit.Assert.*;
  */
 public class MarkLogicConnectorExceptionTest
 {
-    
     @Test
     public void testException()
+    {
+        String errorMsg = "Test MarkLogic Connection Exception";
+        MarkLogicConnectorException exception = new MarkLogicConnectorException(errorMsg);
+        
+        assertEquals(errorMsg, exception.getMessage());
+    }
+    
+    @Test
+    public void testExceptionWithThrows()
     {
         String errorMsg = "Test MarkLogic Connection Exception";
         String thrownMsg = "Thrown error message";
