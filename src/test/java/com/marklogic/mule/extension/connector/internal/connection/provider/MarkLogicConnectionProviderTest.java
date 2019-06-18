@@ -24,7 +24,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
-import org.mule.runtime.api.tls.TlsContextFactory;
 
 /**
  *
@@ -62,35 +61,35 @@ public class MarkLogicConnectionProviderTest
         MarkLogicConnection connection = instance.connect();
         instance.disconnect(connection);
     }
-    
+
     /**
      * Tests of validate method, of class MarkLogicConnectionProvider.
      */
     @Test
     public void testValidatePass()
     {
-       MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
-        
+        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
+
         MarkLogicConnection connection = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
         connection.connect();
-        
+
         ConnectionValidationResult result = instance.validate(connection);
-        
+
         assertTrue(result.isValid());
-        
+
     }
-            
+
     @Test
     public void testValidateFail()
     {
         MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider();
-        
+
         MarkLogicConnection connection = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
         ConnectionValidationResult result = instance.validate(connection);
-        
+
         String message = String.format("Connection failed %s", CONNECTION_ID);
         assertEquals(message, result.getMessage());
-        assertTrue(result.getException() instanceof Exception);    
+        assertTrue(result.getException() instanceof Exception);
     }
-    
+
 }
