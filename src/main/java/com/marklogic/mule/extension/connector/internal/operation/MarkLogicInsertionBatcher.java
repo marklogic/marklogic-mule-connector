@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright © 2019 MarkLogic Corporation.
+ * Copyright ï¿½ 2019 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -26,9 +26,12 @@ import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfigura
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Date;
+
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -43,6 +46,8 @@ public class MarkLogicInsertionBatcher
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MarkLogicInsertionBatcher.class);
+
+    private static final DateTimeFormatter ISO8601_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
     // The single instance of this class
     private static MarkLogicInsertionBatcher instance;
@@ -188,21 +193,9 @@ public class MarkLogicInsertionBatcher
         JobReport jr = dmm.getJobReport(jobTicket);
         ObjectNode obj = jsonFactory.createObjectNode();
         obj.put("jobID", jobTicket.getJobId());
-        Calendar jobStartTime = jr.getJobStartTime();
-        if (jobStartTime == null)
-        {
-            jobStartTime = Calendar.getInstance();
-        }
-        Calendar jobEndTime = jr.getJobEndTime();
-        if (jobEndTime == null)
-        {
-            jobEndTime = Calendar.getInstance();
-        }
-        Calendar jobReportTime = jr.getReportTimestamp();
-        if (jobReportTime == null)
-        {
-            jobReportTime = Calendar.getInstance();
-        }
+        ZonedDateTime jobStartTime = toZonedDateTime(jr.getJobStartTime());
+        ZonedDateTime jobEndTime = toZonedDateTime(jr.getJobEndTime());
+        ZonedDateTime jobReportTime = toZonedDateTime(jr.getReportTimestamp());
         long successBatches = jr.getSuccessBatchesCount();
         long successEvents = jr.getSuccessEventsCount();
         long failBatches = jr.getFailureBatchesCount();
@@ -220,21 +213,10 @@ public class MarkLogicInsertionBatcher
         obj.put("failedBatches", failBatches);
         obj.put("failedEvents", failEvents);
         obj.put("jobName", jobName);
-        obj.put("jobStartTime", calendarISO8601(jobStartTime));
-        obj.put("jobEndTime", calendarISO8601(jobEndTime));
-        obj.put("jobReportTime", calendarISO8601(jobReportTime));
+        obj.put("jobStartTime", jobStartTime.format(ISO8601_DATE_TIME_FORMATTER));
+        obj.put("jobEndTime", jobEndTime.format(ISO8601_DATE_TIME_FORMATTER));
+        obj.put("jobReportTime", jobReportTime.format(ISO8601_DATE_TIME_FORMATTER));
         return obj;
-    }
-
-    /*Formats a <code>Calendar</code> value into a ISO8601-compliant date/time string.*/
-    String calendarISO8601(Calendar calendar)
-    {
-        //Calendar calendar = incal.getInstance();
-        Date date = calendar.getTime();
-        SimpleDateFormat sdf;
-        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-        String text = sdf.format(date);
-        return text;
     }
 
     /**
@@ -290,5 +272,14 @@ public class MarkLogicInsertionBatcher
         batcher.awaitCompletion();
         // Return the job ticket ID so it can be used to retrieve the document in the future
         return jobTicket.getJobId();
+    }
+
+    private ZonedDateTime toZonedDateTime(Calendar calendar) {
+        if (calendar == null) {
+            return ZonedDateTime.now();
+        }
+        TimeZone tz = calendar.getTimeZone();
+        ZoneId zid = tz == null ? ZoneId.systemDefault() : tz.toZoneId();
+        return ZonedDateTime.ofInstant(calendar.toInstant(), zid);
     }
 }
