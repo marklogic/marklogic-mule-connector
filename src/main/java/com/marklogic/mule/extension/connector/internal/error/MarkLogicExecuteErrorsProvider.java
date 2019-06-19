@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright © 2019 MarkLogic Corporation.
+ * Copyright ï¿½ 2019 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -25,7 +25,7 @@ public class MarkLogicExecuteErrorsProvider implements ErrorTypeProvider
     public Set<ErrorTypeDefinition> getErrorTypes()
     {
         HashSet<ErrorTypeDefinition> errors = new HashSet<>();
-        errors.add(MarkLogicConnectorSimpleError.DATA_MOVEMENT_ERROR);
+        errors.add(MarkLogicConnectorSimpleErrorType.DATA_MOVEMENT_ERROR);
         return errors;
     }
 }

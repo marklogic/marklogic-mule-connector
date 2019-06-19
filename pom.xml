@@ -94,7 +94,7 @@
     <parent>
         <groupId>org.mule.connectors</groupId>
         <artifactId>mule-certified-parent</artifactId>
-        <version>1.2.2</version>
+        <version>1.2.4</version>
     </parent>
     <repositories>
         <repository>
