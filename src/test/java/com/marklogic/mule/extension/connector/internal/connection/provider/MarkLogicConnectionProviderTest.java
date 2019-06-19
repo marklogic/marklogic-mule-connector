@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright Â© 2019 MarkLogic Corporation.
+ * Copyright © 2019 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -31,6 +31,7 @@ import org.mule.runtime.api.connection.ConnectionValidationResult;
  */
 public class MarkLogicConnectionProviderTest
 {
+
     private static final String CONNECTION_ID = "test-connection-id";
     private static final String USER_PASSWORD = "test-password";
     private static final String USER_NAME = "test-user";

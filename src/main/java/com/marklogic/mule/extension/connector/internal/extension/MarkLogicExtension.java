@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright Â© 2019 MarkLogic Corporation.
+ * Copyright © 2019 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -24,14 +24,16 @@ import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
 import org.mule.runtime.extension.api.annotation.license.RequiresEnterpriseLicense;
 
 /**
- * This is the main class of an extension, is the entry point from which configurations, connection providers, operations
- * and sources are going to be declared.
+ * This is the main class of an extension, is the entry point from which
+ * configurations, connection providers, operations and sources are going to be
+ * declared.
  */
 @Xml(prefix = "marklogic")
 @Extension(name = "MarkLogic", category = CERTIFIED, vendor = "MarkLogic")
 @ErrorTypes(MarkLogicConnectorSimpleError.class)
 @RequiresEnterpriseLicense(allowEvaluationLicense = true)
 @Configurations(MarkLogicConfiguration.class)
-public class MarkLogicExtension {
+public class MarkLogicExtension
+{
 
 }

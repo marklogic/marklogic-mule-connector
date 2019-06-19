@@ -1,3 +1,16 @@
+/**
+ * MarkLogic Mule Connector
+ *
+ * Copyright © 2019 MarkLogic Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ *
+ * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
+ */
 package com.marklogic.mule.extension.connector.internal.config;
 
 import com.marklogic.client.document.ServerTransform;
@@ -13,14 +26,15 @@ import static org.junit.Assert.*;
  */
 public class MarkLogicConfigurationTest
 {
+
     MarkLogicConfiguration instance;
-    
+
     @Before
     public void setUp() throws Exception
     {
         instance = new MarkLogicConfiguration();
     }
-    
+
     /**
      * Test of getConfigId method, of class MarkLogicConfiguration.
      */
@@ -114,7 +128,7 @@ public class MarkLogicConfigurationTest
         assertNull(instance.getServerTransform());
         assertFalse(instance.hasServerTransform());
     }
-    
+
     @Test
     public void testHasServerTransformEmptyString()
     {
@@ -123,7 +137,7 @@ public class MarkLogicConfigurationTest
         assertEquals(expected, instance.getServerTransform());
         assertFalse(instance.hasServerTransform());
     }
-    
+
     @Test
     public void testHasServerTransformBlankString()
     {
@@ -132,7 +146,7 @@ public class MarkLogicConfigurationTest
         assertEquals(expected, instance.getServerTransform());
         assertFalse(instance.hasServerTransform());
     }
-    
+
     @Test
     public void testHasServerTransformNullString()
     {
@@ -141,7 +155,7 @@ public class MarkLogicConfigurationTest
         assertEquals(expected, instance.getServerTransform());
         assertFalse(instance.hasServerTransform());
     }
-    
+
     @Test
     public void testHasServerTransformNullCapString()
     {
@@ -150,7 +164,7 @@ public class MarkLogicConfigurationTest
         assertEquals(expected, instance.getServerTransform());
         assertFalse(instance.hasServerTransform());
     }
-    
+
     @Test
     public void testHasServerTransform()
     {
@@ -168,15 +182,15 @@ public class MarkLogicConfigurationTest
     {
         instance.createServerTransform();
     }
-    
+
     @Test(expected = MarkLogicConnectorException.class)
     public void testCreateServerTransformWithoutParams()
     {
         instance.setServerTransform("TestTransform");
-        
+
         instance.createServerTransform();
     }
-    
+
     @Test(expected = MarkLogicConnectorException.class)
     public void testCreateServerTransformWithEmptyParams()
     {
@@ -184,7 +198,7 @@ public class MarkLogicConfigurationTest
         instance.setServerTransformParams("   ");
         instance.createServerTransform();
     }
-    
+
     @Test(expected = MarkLogicConnectorException.class)
     public void testCreateServerTransformWithNullParams()
     {
@@ -192,26 +206,25 @@ public class MarkLogicConfigurationTest
         instance.setServerTransformParams("null");
         instance.createServerTransform();
     }
-    
-    
+
     @Test(expected = MarkLogicConnectorException.class)
     public void testCreateServerTransformUnequalPairs()
     {
         instance.setServerTransform("TestTransform");
         instance.setServerTransformParams("entity-name,MyEntity,flow-name");
-        
+
         instance.createServerTransform();
     }
-    
+
     @Test(expected = MarkLogicConnectorException.class)
     public void testCreateServerTransformUnequalPairs2()
     {
         instance.setServerTransform("TestTransform");
         instance.setServerTransformParams("entity-name,MyEntity,flow-name, ");
-        
+
         instance.createServerTransform();
     }
-    
+
     @Test
     public void testCreateServerTransform()
     {
@@ -223,23 +236,23 @@ public class MarkLogicConfigurationTest
     {
         createServerTransformTester("TestTransform", "entity-name, MyEntity, flow-name, loadMyEntity ");
     }
-    
+
     private void createServerTransformTester(String name, String params)
     {
         instance.setServerTransform(name);
         instance.setServerTransformParams(params);
-        
+
         ServerTransform transform = instance.createServerTransform();
         assertEquals(name, transform.getName());
-        
+
         transformParamTester(transform, "entity-name", "MyEntity");
         transformParamTester(transform, "flow-name", "loadMyEntity");
     }
-    
+
     private void transformParamTester(ServerTransform transform, String key, String value)
     {
         assertTrue(transform.containsKey(key));
-        
+
         List<String> list = transform.get(key);
         assertEquals(1, list.size());
         assertEquals(value, list.get(0));
