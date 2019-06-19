@@ -156,7 +156,7 @@ public class MarkLogicResultSetIterator implements Iterator
      * @param node XML Node
      * @return an object; type depends on what type of node is being processed
      */
-    private static Object createMapFromXML(Node node)
+    private Object createMapFromXML(Node node)
     {
         Map<String, Object> map = new HashMap<>();
         NodeList nodeList = node.getChildNodes();

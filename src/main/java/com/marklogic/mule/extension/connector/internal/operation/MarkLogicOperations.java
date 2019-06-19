@@ -386,12 +386,12 @@ public class MarkLogicOperations
         }
     }
 
-    private static RawStructuredQueryDefinition createRawStructuredQuery(QueryManager qManager, String structuredQuery, MarkLogicQueryFormat fmt)
+    private RawStructuredQueryDefinition createRawStructuredQuery(QueryManager qManager, String structuredQuery, MarkLogicQueryFormat fmt)
     {
         return qManager.newRawStructuredQueryDefinition(new StringHandle().withFormat(getMLQueryFormat(fmt)).with(structuredQuery));
     }
 
-    private static StructuredQueryDefinition createStructuredQuery(QueryManager qManager, String structuredQuery, String optionsName)
+    private StructuredQueryDefinition createStructuredQuery(QueryManager qManager, String structuredQuery, String optionsName)
     {
         JexlEngine jexl = new JexlBuilder().create();
         JexlExpression e = jexl.createExpression(structuredQuery);
