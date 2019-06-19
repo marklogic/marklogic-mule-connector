@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * Created by jkrebs on 9/12/2018. Singleton class that manages inserting
  * documents into MarkLogic
  */
-public class MarkLogicInsertionBatcher
+public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidationListener
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MarkLogicInsertionBatcher.class);
@@ -55,10 +55,10 @@ public class MarkLogicInsertionBatcher
     // If support for multiple connection configs within a flow is required, remove the above and uncomment the below.
     // private static Map<String,MarkLogicInsertionBatcher> instances = new HashMap<>();
     // Object that describes the metadata for documents being inserted
-    private final DocumentMetadataHandle metadataHandle;
+    private DocumentMetadataHandle metadataHandle;
 
     // How will we know when the resources are ready to be freed up and provide the results report?
-    private final JobTicket jobTicket;
+    private JobTicket jobTicket;
     private final String jobName;
 
     // The object that actually write record to ML
@@ -70,6 +70,9 @@ public class MarkLogicInsertionBatcher
     // The timestamp of the last write to ML-- used to determine when the pipe to ML should be flushed
     private long lastWriteTime;
 
+    private boolean batcherRequiresReinit = false;
+    private MarkLogicConnection connection;
+    private Timer timer = null;
     /**
      * Private constructor-- enforces singleton pattern
      *
@@ -79,8 +82,15 @@ public class MarkLogicInsertionBatcher
      */
     private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection)
     {
-
         // get the object handles needed to talk to MarkLogic
+        initializeBatcher(connection, configuration, outputCollections, outputPermissions, outputQuality, temporalCollection);
+        this.jobName = jobName;
+    }
+
+    private void initializeBatcher(MarkLogicConnection connection, MarkLogicConfiguration configuration, String outputCollections, String outputPermissions, int outputQuality, String temporalCollection)
+    {
+        this.connection = connection;
+        connection.addMarkLogicClientInvalidationListener(this);
         DatabaseClient myClient = connection.getClient();
         dmm = myClient.newDataMovementManager();
         batcher = dmm.newWriteBatcher();
@@ -117,7 +127,10 @@ public class MarkLogicInsertionBatcher
         // Set up the timer to flush the pipe to MarkLogic if it's waiting to long
         int secondsBeforeFlush = configuration.getSecondsBeforeFlush();
 
-        Timer timer = new Timer();
+        if (timer != null) {
+            timer.cancel();
+        }
+        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask()
         {
             @Override
@@ -179,7 +192,6 @@ public class MarkLogicInsertionBatcher
 
         // start the batcher job
         this.jobTicket = dmm.startJob(batcher);
-        this.jobName = jobName;
     }
 
     /**
@@ -239,6 +251,11 @@ public class MarkLogicInsertionBatcher
             instance = new MarkLogicInsertionBatcher(config, connection, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection);
             // instances.put(configId,instance);
             // Uncomment above to support multiple connection config scenario
+        } else if ((!(connection == null)) && (!connection.equals(instance.connection))) {
+            if (instance.batcherRequiresReinit) {
+                instance.initializeBatcher(connection, config, outputCollections, outputPermissions, outputQuality, temporalCollection);
+                instance.batcherRequiresReinit = false;
+            }
         }
         return instance;
     }
@@ -281,5 +298,11 @@ public class MarkLogicInsertionBatcher
         TimeZone tz = calendar.getTimeZone();
         ZoneId zid = tz == null ? ZoneId.systemDefault() : tz.toZoneId();
         return ZonedDateTime.ofInstant(calendar.toInstant(), zid);
+    }
+
+    @Override
+    public void markLogicConnectionInvalidated() {
+        logger.info("MarkLogic connection invalidated... reinitializing insertion batcher...");
+        batcherRequiresReinit = true;
     }
 }
