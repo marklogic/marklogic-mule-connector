@@ -14,8 +14,8 @@
 package com.marklogic.mule.extension.connector.internal.error;
 
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
-import org.mule.runtime.extension.api.error.MuleErrors;
 
-public enum MarkLogicConnectorSimpleError implements ErrorTypeDefinition<MarkLogicConnectorSimpleError> {
+public enum MarkLogicConnectorSimpleErrorType implements ErrorTypeDefinition<MarkLogicConnectorSimpleErrorType>
+{
     DATA_MOVEMENT_ERROR
 }

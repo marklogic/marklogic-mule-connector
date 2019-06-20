@@ -25,19 +25,24 @@ import org.mule.runtime.api.metadata.resolving.OutputTypeResolver;
  * @since 1.0.1
  *
  */
-public class MarkLogicSelectMetadataResolver implements OutputTypeResolver<String> {
+public class MarkLogicSelectMetadataResolver implements OutputTypeResolver<String>
+{
+
     @Override
-    public String getResolverName() {
+    public String getResolverName()
+    {
         return "MarkLogicSelectResolver";
     }
 
     @Override
-    public MetadataType getOutputType(MetadataContext metadataContext, String s) throws MetadataResolvingException, ConnectionException {
+    public MetadataType getOutputType(MetadataContext metadataContext, String s) throws MetadataResolvingException, ConnectionException
+    {
         return null;
     }
 
     @Override
-    public String getCategoryName() {
+    public String getCategoryName()
+    {
         return "MarkLogicCategory";
     }
 }

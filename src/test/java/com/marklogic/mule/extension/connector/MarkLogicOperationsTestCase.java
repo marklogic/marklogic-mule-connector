@@ -19,86 +19,94 @@ import java.util.GregorianCalendar;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
 
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 
-public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase {
+public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
+{
 
-  private static final String UUID_REGEX = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
-  private static final String CURRENT_DATE = new SimpleDateFormat("yyyy-MM-dd").format(new GregorianCalendar().getTime());
-  
-  /**
-   * Specifies the mule config xml with the flows that are going to be executed in the tests, this file lives in the test resources.
-   */
-  @Override
-  protected String getConfigFile() {
-    return "test-mule-config.xml";
-  }
+    private static final String UUID_REGEX = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
+    private static final String CURRENT_DATE = new SimpleDateFormat("yyyy-MM-dd").format(new GregorianCalendar().getTime());
 
-  @Test
-  public void executeRetrieveInfoOperation() throws Exception {
-    String payloadValue = ((String) flowRunner("retrieveInfoFlow")
-                                      .run()
-                                      .getMessage()
-                                      .getPayload()
-                                      .getValue());
-    assertThat(payloadValue, is("Using Configuration [configId] with Connection id [testConfig-223efe]"));
-  }
+    /**
+     * Specifies the mule config xml with the flows that are going to be
+     * executed in the tests, this file lives in the test resources.
+     */
+    @Override
+    protected String getConfigFile()
+    {
+        return "test-mule-config.xml";
+    }
 
-  @Test
-  public void executeImportDocsOperation() throws Exception {
-    String payloadValue = ((String) flowRunner("importDocsFlow")
-                                      .run()
-                                      .getMessage()
-                                      .getPayload()
-                                      .getValue());
-    assertThat(payloadValue, payloadValue.matches(UUID_REGEX));
-  }
-  
-  @Test
-  public void executeQueryTemporalOperation() throws Exception {
-    Object payloadValue = (flowRunner("querytemporalFlow")
-                                      .run()
-                                      .getMessage()
-                                      .getPayload()
-                                      .getValue());
-    assertThat(payloadValue, notNullValue());
-  }
-  
-  @Test
-  public void executeExportDocsOperation() throws Exception {
-    Object payloadValue = (flowRunner("exportDocsFlow")
-            .run()
-            .getMessage()
-            .getPayload()
-            .getValue());
-    assertThat(payloadValue, notNullValue());
-  }
-  @Test
-  public void executeGetJobReportOperation() throws Exception {
-    String payloadValue = ((String) flowRunner("getJobReportFlow")
-                                      .run()
-                                      .getMessage()
-                                      .getPayload()
-                                      .getValue());
-    assertThat(payloadValue, startsWith("{\"importResults\":[{\"jobID\":\""));
-    assertThat(payloadValue, containsString("\"jobStartTime\":\"" + CURRENT_DATE + "T"));
-    assertThat(payloadValue, containsString("\"jobEndTime\":\"" + CURRENT_DATE + "T"));
-    assertThat(payloadValue, containsString("\"jobReportTime\":\"" + CURRENT_DATE + "T"));
-  }  
-  @Test
-  public void executeDeleteDocsStructuredQueryFlow() throws Exception {
-    String payloadValue = ((String) flowRunner("deleteDocsStructuredQueryFlow")
-                                      .run()
-                                      .getMessage()
-                                      .getPayload()
-                                      .getValue());
-    assertThat(payloadValue, containsString(" document(s) deleted"));
-  }  
+    @Test
+    public void executeRetrieveInfoOperation() throws Exception
+    {
+        String payloadValue = ((String) flowRunner("retrieveInfoFlow")
+                .run()
+                .getMessage()
+                .getPayload()
+                .getValue());
+        assertThat(payloadValue, is("Using Configuration [configId] with Connection id [testConfig-223efe]"));
+    }
+
+    @Test
+    public void executeImportDocsOperation() throws Exception
+    {
+        String payloadValue = ((String) flowRunner("importDocsFlow")
+                .run()
+                .getMessage()
+                .getPayload()
+                .getValue());
+        assertThat(payloadValue, payloadValue.matches(UUID_REGEX));
+    }
+
+    @Test
+    public void executeQueryTemporalOperation() throws Exception
+    {
+        Object payloadValue = (flowRunner("querytemporalFlow")
+                .run()
+                .getMessage()
+                .getPayload()
+                .getValue());
+        assertThat(payloadValue, notNullValue());
+    }
+
+    @Test
+    public void executeExportDocsOperation() throws Exception
+    {
+        Object payloadValue = (flowRunner("exportDocsFlow")
+                .run()
+                .getMessage()
+                .getPayload()
+                .getValue());
+        assertThat(payloadValue, notNullValue());
+    }
+
+    @Test
+    public void executeGetJobReportOperation() throws Exception
+    {
+        String payloadValue = ((String) flowRunner("getJobReportFlow")
+                .run()
+                .getMessage()
+                .getPayload()
+                .getValue());
+        assertThat(payloadValue, containsString("\"importResults\":[{\"jobID\":\""));
+        assertThat(payloadValue, containsString("\"jobStartTime\":\"" + CURRENT_DATE + "T"));
+        assertThat(payloadValue, containsString("\"jobEndTime\":\"" + CURRENT_DATE + "T"));
+        assertThat(payloadValue, containsString("\"jobReportTime\":\"" + CURRENT_DATE + "T"));
+    }
+
+    @Test
+    public void executeDeleteDocsStructuredQueryFlow() throws Exception
+    {
+        String payloadValue = ((String) flowRunner("deleteDocsStructuredQueryFlow")
+                .run()
+                .getMessage()
+                .getPayload()
+                .getValue());
+        assertThat(payloadValue, containsString(" document(s) deleted"));
+    }
 }
