@@ -42,7 +42,7 @@ import com.marklogic.mule.extension.connector.internal.error.MarkLogicExecuteErr
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 
-import com.marklogic.mule.extension.connector.api.exception.MarkLogicConnectorException;
+import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnectorException;
 import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicSelectMetadataResolver;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetCloser;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetIterator;

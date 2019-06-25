@@ -13,7 +13,6 @@
  */
 package com.marklogic.mule.extension.connector.internal.exception;
 
-import com.marklogic.mule.extension.connector.api.exception.MarkLogicConnectorException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

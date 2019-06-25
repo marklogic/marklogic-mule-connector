@@ -26,7 +26,7 @@ import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.ext.DatabaseClientConfig;
 import com.marklogic.client.ext.DefaultConfiguredDatabaseClientFactory;
 import com.marklogic.client.ext.SecurityContextType;
-import com.marklogic.mule.extension.connector.api.exception.MarkLogicConnectorException;
+import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnectorException;
 
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
 import org.mule.runtime.api.tls.TlsContextFactory;
