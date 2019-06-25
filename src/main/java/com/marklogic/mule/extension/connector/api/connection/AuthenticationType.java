@@ -11,13 +11,21 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-package com.marklogic.mule.extension.connector.internal.operation;
+package com.marklogic.mule.extension.connector.api.connection;
 
 /**
- * Created by credding on 4/28/2019.
+ * Created by jkrebs on 4/11/2019.
  */
-public enum MarkLogicQueryFormat
+public enum AuthenticationType
 {
-    XML,
-    JSON
+    digest("digest"),
+    certificate("certificate"),
+    basic("basic");
+
+    String value;
+
+    AuthenticationType(String value)
+    {
+        this.value = value;
+    }
 }

@@ -73,6 +73,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     private boolean batcherRequiresReinit = false;
     private MarkLogicConnection connection;
     private Timer timer = null;
+
     /**
      * Private constructor-- enforces singleton pattern
      *
@@ -127,7 +128,8 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         // Set up the timer to flush the pipe to MarkLogic if it's waiting to long
         int secondsBeforeFlush = configuration.getSecondsBeforeFlush();
 
-        if (timer != null) {
+        if (timer != null)
+        {
             timer.cancel();
         }
         timer = new Timer();
@@ -251,8 +253,11 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
             instance = new MarkLogicInsertionBatcher(config, connection, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection);
             // instances.put(configId,instance);
             // Uncomment above to support multiple connection config scenario
-        } else if ((!(connection == null)) && (!connection.equals(instance.connection))) {
-            if (instance.batcherRequiresReinit) {
+        }
+        else if ((!(connection == null)) && (!connection.equals(instance.connection)))
+        {
+            if (instance.batcherRequiresReinit)
+            {
                 instance.initializeBatcher(connection, config, outputCollections, outputPermissions, outputQuality, temporalCollection);
                 instance.batcherRequiresReinit = false;
             }
@@ -291,8 +296,10 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         return jobTicket.getJobId();
     }
 
-    private ZonedDateTime toZonedDateTime(Calendar calendar) {
-        if (calendar == null) {
+    private ZonedDateTime toZonedDateTime(Calendar calendar)
+    {
+        if (calendar == null)
+        {
             return ZonedDateTime.now();
         }
         TimeZone tz = calendar.getTimeZone();
@@ -301,7 +308,8 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     }
 
     @Override
-    public void markLogicConnectionInvalidated() {
+    public void markLogicConnectionInvalidated()
+    {
         logger.info("MarkLogic connection invalidated... reinitializing insertion batcher...");
         batcherRequiresReinit = true;
     }

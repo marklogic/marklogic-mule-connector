@@ -13,6 +13,8 @@
  */
 package com.marklogic.mule.extension.connector.internal.operation;
 
+import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
+import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
 import java.io.InputStream;
 
 import java.util.*;
@@ -40,7 +42,7 @@ import com.marklogic.mule.extension.connector.internal.error.MarkLogicExecuteErr
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 
-import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnectorException;
+import com.marklogic.mule.extension.connector.api.exception.MarkLogicConnectorException;
 import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicSelectMetadataResolver;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetCloser;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetIterator;
@@ -174,7 +176,6 @@ public class MarkLogicOperations
         // Add support for query jobReport here!
         String result = rootObj.toString();
 
-        // System.out.println("RESULT: " + result);
         // Add support for query result report here!
         return result;
 
@@ -230,10 +231,12 @@ public class MarkLogicOperations
                 throw new RuntimeException("Invalid query type. Unable to create query to delete documents");
         }
         SearchHandle resultsHandle = qm.search(query, new SearchHandle());
-        if (Boolean.valueOf(useConsistentSnapshot) == Boolean.TRUE)
+        
+        if (useConsistentSnapshot)
         {
             batcher.withConsistentSnapshot();
         }
+        
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
                 .onUrisReady(new DeleteListener())
@@ -244,10 +247,11 @@ public class MarkLogicOperations
         dmm.startJob(batcher);
         batcher.awaitCompletion();
         dmm.stopJob(batcher);
+        
         ObjectNode rootObj = jsonFactory.createObjectNode();
-        //ArrayNode imports = jsonFactory.createArrayNode();
         rootObj.put("deletionResult", String.format("%d document(s) deleted", resultsHandle.getTotalResults()));
         rootObj.put("deletionCount", resultsHandle.getTotalResults());
+        
         return rootObj.toString();
     }
 
@@ -304,15 +308,15 @@ public class MarkLogicOperations
                 if (initialised.compareAndSet(false, true))
                 {
                     resultSetCloser = new MarkLogicResultSetCloser(connection);
-                    flowListener.onError(e ->
+                    flowListener.onError(ex ->
                     {
                         try
                         {
                             close(connection);
                         }
-                        catch (Exception t)
+                        catch (MuleException e)
                         {
-                            logger.warn(String.format("Exception was found closing connection for select operation. Error was: %s", t.getMessage()), e);
+                            logger.warn(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), ex);
                         }
                     });
 
@@ -412,12 +416,4 @@ public class MarkLogicOperations
     {
         return str != null && !str.trim().isEmpty() && !"null".equals(str.trim());
     }
-    //TODO: Make toString function for UI
-//    private enum WhereMethod
-//    {
-//        Collections,
-//        Uris,
-//        UriPattern,
-//        UrisQuery
-//    }
 }

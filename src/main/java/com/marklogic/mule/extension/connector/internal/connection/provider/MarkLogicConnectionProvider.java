@@ -13,7 +13,7 @@
  */
 package com.marklogic.mule.extension.connector.internal.connection.provider;
 
-import com.marklogic.mule.extension.connector.internal.connection.AuthenticationType;
+import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
 import org.mule.runtime.api.connection.ConnectionException;

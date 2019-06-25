@@ -42,7 +42,7 @@ import java.util.*;
  * @since 1.0.1
  *
  */
-// TODO: Support server-side transforms
+//N.b: Support server-side transforms
 public class MarkLogicResultSetIterator implements Iterator
 {
 
@@ -117,21 +117,24 @@ public class MarkLogicResultSetIterator implements Iterator
                 {
                     JsonNode jsonNode = nextRecord.getContent(jacksonHandle).get();
                     JsonNodeType nodeType = jsonNode.getNodeType();
-                    if (nodeType == JsonNodeType.ARRAY)
-                    {
-                        content = jsonMapper.convertValue(jsonNode, List.class);
-                    }
-                    else if (nodeType == JsonNodeType.STRING)
-                    {
-                        content = jsonMapper.convertValue(jsonNode, String.class);
-                    }
-                    else if (nodeType == JsonNodeType.NUMBER)
-                    {
-                        content = jsonMapper.convertValue(jsonNode, Number.class);
-                    }
-                    else
+                    if (null == nodeType)
                     {
                         content = jsonMapper.convertValue(jsonNode, Map.class);
+                    }
+                    else switch (nodeType)
+                    {
+                        case ARRAY:
+                            content = jsonMapper.convertValue(jsonNode, List.class);
+                            break;
+                        case STRING:
+                            content = jsonMapper.convertValue(jsonNode, String.class);
+                            break;
+                        case NUMBER:
+                            content = jsonMapper.convertValue(jsonNode, Number.class);
+                            break;
+                        default:
+                            content = jsonMapper.convertValue(jsonNode, Map.class);
+                            break;
                     }
                 }
                 else if (lowerCaseType.contains("text"))
@@ -182,7 +185,7 @@ public class MarkLogicResultSetIterator implements Iterator
                 }
                 else
                 {
-                    List<Object> objs = new LinkedList<Object>();
+                    List<Object> objs = new LinkedList<>();
                     objs.add(obj);
                     objs.add(value);
                     map.put(name, objs);

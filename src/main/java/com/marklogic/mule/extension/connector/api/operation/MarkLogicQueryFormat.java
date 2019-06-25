@@ -11,14 +11,13 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-package com.marklogic.mule.extension.connector.internal.operation;
+package com.marklogic.mule.extension.connector.api.operation;
 
 /**
- * Created by jkrebs on 4/9/2019.
+ * Created by credding on 4/28/2019.
  */
-public enum MarkLogicQueryStrategy
+public enum MarkLogicQueryFormat
 {
-    RawStructuredQueryDefinition,
-    StructuredQueryBuilder,
-    CTSQuery
+    XML,
+    JSON
 }
