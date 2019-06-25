@@ -11,21 +11,21 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-package com.marklogic.mule.extension.connector.internal.connection;
+package com.marklogic.mule.extension.connector.api.exception;
 
-/**
- * Created by jkrebs on 4/11/2019.
- */
-public enum AuthenticationType
+import com.marklogic.mule.extension.connector.internal.error.MarkLogicConnectorSimpleErrorType;
+import org.mule.runtime.extension.api.exception.ModuleException;
+
+public class MarkLogicConnectorException extends ModuleException
 {
-    digest("digest"),
-    certificate("certificate"),
-    basic("basic");
 
-    String value;
-
-    AuthenticationType(String value)
+    public MarkLogicConnectorException(String errorMessge)
     {
-        this.value = value;
+        super(errorMessge, MarkLogicConnectorSimpleErrorType.DATA_MOVEMENT_ERROR);
+    }
+
+    public MarkLogicConnectorException(String errorMessage, Throwable error)
+    {
+        super(errorMessage, MarkLogicConnectorSimpleErrorType.DATA_MOVEMENT_ERROR, error);
     }
 }

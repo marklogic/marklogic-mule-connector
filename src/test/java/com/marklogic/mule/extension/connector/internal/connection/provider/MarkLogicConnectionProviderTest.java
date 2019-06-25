@@ -11,14 +11,9 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.marklogic.mule.extension.connector.internal.connection.provider;
 
-import com.marklogic.mule.extension.connector.internal.connection.AuthenticationType;
+import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -43,16 +38,12 @@ public class MarkLogicConnectionProviderTest
     /**
      * Test of connect method, of class MarkLogicConnectionProvider.
      */
-    //@Test
-    public void testConnect() throws Exception
+    @Test
+    public void testConnect() throws ConnectionException
     {
-        System.out.println("connect");
-        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider();
-        MarkLogicConnection expResult = null;
+        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
         MarkLogicConnection result = instance.connect();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(CONNECTION_ID, result.getId());
     }
 
     @Test

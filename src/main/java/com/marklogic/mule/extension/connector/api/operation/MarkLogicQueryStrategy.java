@@ -11,21 +11,14 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-package com.marklogic.mule.extension.connector.internal.exception;
+package com.marklogic.mule.extension.connector.api.operation;
 
-import com.marklogic.mule.extension.connector.internal.error.MarkLogicConnectorSimpleErrorType;
-import org.mule.runtime.extension.api.exception.ModuleException;
-
-public class MarkLogicConnectorException extends ModuleException
+/**
+ * Created by jkrebs on 4/9/2019.
+ */
+public enum MarkLogicQueryStrategy
 {
-
-    public MarkLogicConnectorException(String errorMessge)
-    {
-        super(errorMessge, MarkLogicConnectorSimpleErrorType.DATA_MOVEMENT_ERROR);
-    }
-
-    public MarkLogicConnectorException(String errorMessage, Throwable error)
-    {
-        super(errorMessage, MarkLogicConnectorSimpleErrorType.DATA_MOVEMENT_ERROR, error);
-    }
+    RawStructuredQueryDefinition,
+    StructuredQueryBuilder,
+    CTSQuery
 }
