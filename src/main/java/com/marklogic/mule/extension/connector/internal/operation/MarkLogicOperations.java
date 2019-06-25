@@ -258,6 +258,7 @@ public class MarkLogicOperations
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     @Deprecated
+    @Throws(MarkLogicExecuteErrorsProvider.class)
     public PagingProvider<MarkLogicConnection, Object> selectDocsByStructuredQuery(
             @DisplayName("Serialized Query String")
             @Summary("The serialized query XML or JSON")
@@ -272,13 +273,14 @@ public class MarkLogicOperations
             @Summary("The format of the serialized query") MarkLogicQueryFormat fmt,
             StreamingHelper streamingHelper,
             FlowListener flowListener
-    ) throws MarkLogicConnectorException
+    )
     {
         return queryDocs(structuredQuery, configuration, optionsName, structuredQueryStrategy, fmt, streamingHelper, flowListener);
     }
 
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
+    @Throws(MarkLogicExecuteErrorsProvider.class)
     public PagingProvider<MarkLogicConnection, Object> queryDocs(
             @DisplayName("Serialized Query String")
             @Summary("The serialized query XML or JSON")
@@ -293,7 +295,6 @@ public class MarkLogicOperations
             @Summary("The format of the serialized query") MarkLogicQueryFormat fmt,
             StreamingHelper streamingHelper,
             FlowListener flowListener)
-            throws MarkLogicConnectorException
     {
         return new PagingProvider<MarkLogicConnection, Object>()
         {
