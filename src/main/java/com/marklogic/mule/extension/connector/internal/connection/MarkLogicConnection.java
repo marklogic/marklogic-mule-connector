@@ -13,6 +13,7 @@
  */
 package com.marklogic.mule.extension.connector.internal.connection;
 
+import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.*;
@@ -25,7 +26,7 @@ import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.ext.DatabaseClientConfig;
 import com.marklogic.client.ext.DefaultConfiguredDatabaseClientFactory;
 import com.marklogic.client.ext.SecurityContextType;
-import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnectorException;
+import com.marklogic.mule.extension.connector.api.exception.MarkLogicConnectorException;
 
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
 import org.mule.runtime.api.tls.TlsContextFactory;
@@ -93,10 +94,11 @@ public final class MarkLogicConnection
     public void invalidate()
     {
         client.release();
-    for (MarkLogicConnectionInvalidationListener listener : markLogicClientInvalidationListeners) {
-        listener.markLogicConnectionInvalidated();
-    }
-    logger.debug("MarkLogic connection invalidated.");
+        markLogicClientInvalidationListeners.forEach((listener) ->
+        {
+            listener.markLogicConnectionInvalidated();
+        });
+        logger.debug("MarkLogic connection invalidated.");
   }
     public boolean isConnected(int port)
     {
@@ -158,6 +160,30 @@ public final class MarkLogicConnection
             }
             SSLContext context = sslContext.createSslContext();
             config.setSslContext(context);
+            
+            // N.b: Figure out what this means:
+            // config.setConnectionType(DatabaseClient.ConnectionType.GATEWAY or DatabaseClient.ConnectionType.DIRECT);
+            if (AuthenticationType.certificate == authenticationType && sslContext.isTrustStoreConfigured())
+            {
+                String defaultAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(defaultAlgorithm);
+                final KeyStore trustStore = getTrustStore(sslContext.getTrustStoreConfiguration().getType());
+                try (final InputStream is = new FileInputStream(sslContext.getTrustStoreConfiguration().getPath()))
+                {
+                    trustStore.load(is, sslContext.getTrustStoreConfiguration().getPassword().toCharArray());
+                }
+                trustManagerFactory.init(trustStore);
+                X509TrustManager tm = (X509TrustManager) trustManagerFactory.getTrustManagers()[0];
+                if (logger.isDebugEnabled())
+                {
+                    Enumeration<String> enumera = trustStore.aliases();
+                    while (enumera.hasMoreElements())
+                    {
+                        logger.debug("Got cert with alias: " + enumera.nextElement());
+                    }
+                }
+                config.setTrustManager(tm);
+            }
         }
         else
         {
@@ -166,35 +192,13 @@ public final class MarkLogicConnection
 
         config.setSslHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.ANY);
 
-        // TODO: Figure out what this means:
-        // config.setConnectionType(DatabaseClient.ConnectionType.GATEWAY or DatabaseClient.ConnectionType.DIRECT);
-        if (sslContext != null && sslContext.isTrustStoreConfigured() && authenticationType.equals(AuthenticationType.certificate))
-        {
-            String defaultAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(defaultAlgorithm);
-            final KeyStore trustStore = getTrustStore(sslContext.getTrustStoreConfiguration().getType());
-            try (final InputStream is = new FileInputStream(sslContext.getTrustStoreConfiguration().getPath()))
-            {
-                trustStore.load(is, sslContext.getTrustStoreConfiguration().getPassword().toCharArray());
-            }
-            trustManagerFactory.init(trustStore);
-            X509TrustManager tm = (X509TrustManager) trustManagerFactory.getTrustManagers()[0];
-            if (logger.isDebugEnabled())
-            {
-                Enumeration<String> enumera = trustStore.aliases();
-                while (enumera.hasMoreElements())
-                {
-                    logger.debug("Got cert with alias: " + enumera.nextElement());
-                }
-            }
-            config.setTrustManager(tm);
-        }
-
+        
         client = new DefaultConfiguredDatabaseClientFactory().newDatabaseClient(config);
     }
 
     private KeyStore getTrustStore(String trustStoreType) throws KeyStoreException
     {
+        // N.b: Make Key Store Provider Configurable in the UI
         String keyStoreProvider = "SUN";
         if ("PKCS12".equals(trustStoreType))
         {
@@ -218,10 +222,13 @@ public final class MarkLogicConnection
 
     }
 
-    public void addMarkLogicClientInvalidationListener(MarkLogicConnectionInvalidationListener listener) {
-        this.markLogicClientInvalidationListeners.add(listener);
+    public void addMarkLogicClientInvalidationListener(MarkLogicConnectionInvalidationListener listener) 
+    {
+        markLogicClientInvalidationListeners.add(listener);
     }
-    public void removeMarkLogicClientInvalidationListener(MarkLogicConnectionInvalidationListener listener) {
+    
+    public void removeMarkLogicClientInvalidationListener(MarkLogicConnectionInvalidationListener listener) 
+    {
         markLogicClientInvalidationListeners.remove(listener);
     }
 }

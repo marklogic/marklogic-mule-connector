@@ -16,7 +16,7 @@ package com.marklogic.mule.extension.connector.internal.config;
 import com.marklogic.client.document.ServerTransform;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicOperations;
 import com.marklogic.mule.extension.connector.internal.connection.provider.MarkLogicConnectionProvider;
-import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnectorException;
+import com.marklogic.mule.extension.connector.api.exception.MarkLogicConnectorException;
 import java.util.Arrays;
 import java.util.List;
 
