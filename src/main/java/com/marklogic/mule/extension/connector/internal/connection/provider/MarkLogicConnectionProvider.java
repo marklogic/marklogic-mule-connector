@@ -13,9 +13,11 @@
  */
 package com.marklogic.mule.extension.connector.internal.connection.provider;
 
+import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
 import org.mule.runtime.api.connection.ConnectionException;
+import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
@@ -31,96 +33,122 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class (as it's name implies) provides connection instances and the functionality to disconnect and validate those
- * connections.
+ * This class (as it's name implies) provides connection instances and the
+ * functionality to disconnect and validate those connections.
  * <p>
- * All connection related parameters (values required in order to create a connection) must be
- * declared in the connection providers.
+ * All connection related parameters (values required in order to create a
+ * connection) must be declared in the connection providers.
  * <p>
- * This particular example is a {@link PoolingConnectionProvider} which declares that connections resolved by this provider
- * will be pooled and reused. There are other implementations like {@link CachedConnectionProvider} which lazily creates and
- * caches connections or simply {@link ConnectionProvider} if you want a new connection each time something requires one.
+ * This particular example is a {@link PoolingConnectionProvider} which declares
+ * that connections resolved by this provider will be pooled and reused. There
+ * are other implementations like {@link CachedConnectionProvider} which lazily
+ * creates and caches connections or simply {@link ConnectionProvider} if you
+ * want a new connection each time something requires one.
  */
-public class MarkLogicConnectionProvider implements PoolingConnectionProvider<MarkLogicConnection> {
+public class MarkLogicConnectionProvider implements PoolingConnectionProvider<MarkLogicConnection>
+{
 
-  private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnectionProvider.class);
-  
-  @DisplayName("Host name")
-  @Parameter
-  @Summary("The hostname against which operations should run.")
-  @Example("localhost")
-  private String hostname;
-  
-  @DisplayName("Port")
-  @Parameter
-  @Summary("The app server port against which operations should run.")
-  @Example("8010")
-  private int port;
-  
-  @DisplayName("Database")
-  @Parameter
-  @Summary("The MarkLogic database name (i.e., xdmp:database-name()), against which operations should run. If not supplied or left as null, the database will be determined automatically by the app server port being called.")
-  @Optional(defaultValue = "null")
-  @Example("data-hub-STAGING")
-  private String database;
-  
-  @DisplayName("User name")
-  @Parameter
-  @Summary("The named user.")
-  @Example("admin")
-  private String username;
+    private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnectionProvider.class);
 
-  @DisplayName("Password")
-  @Parameter
-  @Summary("The named user's password.")
-  @Password
-  @Example("admin")
-  private String password;
-  
-  @DisplayName("Authentication Type")
-  @Parameter
-  @Summary("The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic.")
-  @Example("digest")
-  private String authenticationType;
-  
-  @DisplayName("SSL Context (Not Yet Supported)")
-  @Parameter
-  @Summary("")
-  @Optional(defaultValue = "null")
-  private String sslContext;
-  
-  @DisplayName("Kerberos External Name (Not Yet Supported)")
-  @Parameter
-  @Summary("If \"kerberos\" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.")
-  @Optional(defaultValue = "null")
-  private String kerberosExternalName;
-  
-  @DisplayName("Connection ID")
-  @Parameter
-  @Summary("An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic. Also set on the Connector configuration parameters.")
-  @Example("testConfig-223efe")
-  private String connectionId;
+    @DisplayName("Host name")
+    @Parameter
+    @Summary("The hostname against which operations should run.")
+    @Example("localhost")
+    private String hostname;
 
-  @Override
-  public MarkLogicConnection connect() throws ConnectionException {
-      MarkLogicConnection conn = new MarkLogicConnection(hostname, port, database, username, password, authenticationType, sslContext, kerberosExternalName, connectionId);
-      conn.connect();
-      return conn;
-  }
+    @DisplayName("Port")
+    @Parameter
+    @Summary("The app server port against which operations should run.")
+    @Example("8010")
+    private int port;
 
-  @Override
-  public void disconnect(MarkLogicConnection connection) {
-      connection.invalidate();
-  }
+    @DisplayName("Database")
+    @Parameter
+    @Summary("The MarkLogic database name (i.e., xdmp:database-name()), against which operations should run. If not supplied or left as null, the database will be determined automatically by the app server port being called.")
+    @Optional(defaultValue = "null")
+    @Example("data-hub-STAGING")
+    private String database;
 
-  @Override
-  public ConnectionValidationResult validate(MarkLogicConnection connection) {
-    ConnectionValidationResult result;
-    if (connection.isConnected(port)) {
-        result = ConnectionValidationResult.success();
-    } else {
-        result = ConnectionValidationResult.failure("Connection failed " + connection.getId(), new Exception());
+    @DisplayName("User name")
+    @Parameter
+    @Summary("The named user.")
+    @Example("admin")
+    private String username;
+
+    @DisplayName("Password")
+    @Parameter
+    @Summary("The named user's password.")
+    @Password
+    @Example("admin")
+    private String password;
+
+    @DisplayName("Authentication Type")
+    @Parameter
+    @Summary("The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic.")
+    private AuthenticationType authenticationType;
+
+    @DisplayName("TLS Context")
+    @Parameter
+    @Optional
+    private TlsContextFactory tlsContextFactory;
+
+    @DisplayName("Kerberos External Name (Not Yet Supported)")
+    @Parameter
+    @Summary("If \"kerberos\" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.")
+    @Optional(defaultValue = "null")
+    private String kerberosExternalName;
+
+    @DisplayName("Connection ID")
+    @Parameter
+    @Summary("An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic. Also set on the Connector configuration parameters.")
+    @Example("testConfig-223efe")
+    private String connectionId;
+
+    //Mainly Used for testing
+    MarkLogicConnectionProvider(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, TlsContextFactory tlsContextFactory, String kerberosExternalName, String connectionId)
+    {
+        this.hostname = hostname;
+        this.port = port;
+        this.database = database;
+        this.username = username;
+        this.password = password;
+        this.authenticationType = authenticationType;
+        this.tlsContextFactory = tlsContextFactory;
+        this.kerberosExternalName = kerberosExternalName;
+        this.connectionId = connectionId;
     }
-    return result;
-  }
+
+    public MarkLogicConnectionProvider()
+    {
+    }
+
+    @Override
+    public MarkLogicConnection connect() throws ConnectionException
+    {
+
+        MarkLogicConnection conn = new MarkLogicConnection(hostname, port, database, username, password, authenticationType, tlsContextFactory, kerberosExternalName, connectionId);
+        conn.connect();
+        return conn;
+    }
+
+    @Override
+    public void disconnect(MarkLogicConnection connection)
+    {
+        connection.invalidate();
+    }
+
+    @Override
+    public ConnectionValidationResult validate(MarkLogicConnection connection)
+    {
+        ConnectionValidationResult result;
+        if (connection.isConnected(port))
+        {
+            result = ConnectionValidationResult.success();
+        }
+        else
+        {
+            result = ConnectionValidationResult.failure("Connection failed " + connection.getId(), new Exception());
+        }
+        return result;
+    }
 }

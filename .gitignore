@@ -1,3 +1,6 @@
+#Ignore Creddentials Files
+**/automation-credentials.properties
+
 #Ignore IntelliJ Files
 .idea/*
 *.iml

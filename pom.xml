@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.marklogic</groupId> 
     <artifactId>marklogic-mule-connector</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0-SNAPSHOT</version>
     <build>
         <plugins>
             <plugin>
@@ -56,13 +56,37 @@
     <dependencies>
         <dependency>
             <groupId>com.marklogic</groupId>
+            <artifactId>ml-javaclient-util</artifactId>
+            <version>3.10.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.marklogic</groupId>
+                    <artifactId>marklogic-xcc</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jdom</groupId>
+                    <artifactId>jdom2</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>	
+	    <dependency>
+            <groupId>com.marklogic</groupId>
             <artifactId>marklogic-client-api</artifactId>
-            <version>4.0.4</version>
+            <version>4.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>marklogic-data-movement-components</artifactId>
             <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jexl3</artifactId>
+            <version>3.1</version>
         </dependency>
     </dependencies>
     <packaging>mule-extension</packaging>
@@ -70,7 +94,7 @@
     <parent>
         <groupId>org.mule.connectors</groupId>
         <artifactId>mule-certified-parent</artifactId>
-        <version>1.2.2</version>
+        <version>1.2.4</version>
     </parent>
     <repositories>
         <repository>
@@ -92,8 +116,8 @@
     </pluginRepositories>
     <scm>
         <connection>scm:git:git://github.com/marklogic-community/marklogic-mule-connector</connection>
-        <developerConnection>scm:svn:https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.0.0</developerConnection>
-        <tag>marklogic-mule-connector-1.0.0</tag>
-        <url>https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.0.0</url>
+        <developerConnection>scm:svn:https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.1.0</developerConnection>
+        <tag>marklogic-mule-connector-1.1.0</tag>
+        <url>https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.1.0</url>
     </scm>
 </project>

@@ -11,14 +11,8 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.marklogic.mule.extension.connector.internal.extension;
 
-import com.marklogic.mule.extension.connector.internal.extension.MarkLogicExtension;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -28,11 +22,11 @@ import static org.junit.Assert.*;
  */
 public class MarkLogicExtensionTest
 {
-    
+
     @Test
     public void testExtensionCreation()
     {
         assertNotNull(new MarkLogicExtension());
     }
-    
+
 }

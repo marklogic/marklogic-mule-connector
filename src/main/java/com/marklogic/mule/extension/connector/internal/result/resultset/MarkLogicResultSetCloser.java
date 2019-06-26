@@ -11,11 +11,28 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-package com.marklogic.mule.extension.connector.internal.error;
+package com.marklogic.mule.extension.connector.internal.result.resultset;
 
-import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
-import org.mule.runtime.extension.api.error.MuleErrors;
+import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
-public enum MarkLogicConnectorSimpleError implements ErrorTypeDefinition<MarkLogicConnectorSimpleError> {
-    DATA_MOVEMENT_ERROR
+/**
+ * Closes a {@link MarkLogicConnection} once it has been processed
+ *
+ * @since 1.0.1
+ */
+public class MarkLogicResultSetCloser
+{
+
+    private final MarkLogicConnection connection;
+
+    public MarkLogicResultSetCloser(MarkLogicConnection connection)
+    {
+        this.connection = connection;
+    }
+
+    public void closeResultSets()
+    {
+        /* It appears nothing should happen here, as the connection is automatically closed when the query has
+           returned all of its results. */
+    }
 }

@@ -1,0 +1,13 @@
+{
+	"emp_no": "0001",
+	"name": {
+		"first": "Bob",
+		"last": "Smith"
+	},
+	"favorite_colors": ["red",
+	"white",
+	"blue"],
+	"hire_date": "01/01/2018",
+	"birth_date": "01/01/1970",
+	"gender": "male"
+}

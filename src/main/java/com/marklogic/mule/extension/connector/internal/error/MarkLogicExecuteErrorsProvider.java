@@ -18,11 +18,14 @@ import java.util.HashSet;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
-public class MarkLogicExecuteErrorsProvider implements ErrorTypeProvider {
+public class MarkLogicExecuteErrorsProvider implements ErrorTypeProvider
+{
+
     @Override
-    public Set<ErrorTypeDefinition> getErrorTypes() {
+    public Set<ErrorTypeDefinition> getErrorTypes()
+    {
         HashSet<ErrorTypeDefinition> errors = new HashSet<>();
-        errors.add(MarkLogicConnectorSimpleError.DATA_MOVEMENT_ERROR);
+        errors.add(MarkLogicConnectorSimpleErrorType.DATA_MOVEMENT_ERROR);
         return errors;
     }
 }

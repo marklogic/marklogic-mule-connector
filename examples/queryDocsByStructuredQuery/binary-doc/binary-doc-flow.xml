@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+    xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+    xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+    http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
+    http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+    http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+    http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+    http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+    http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+    http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+    http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+    http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <configuration-properties file="automation-credentials.properties"/>
+    <marklogic:config name="MarkLogic_Config_output" doc:name="MarkLogic Config" doc:id="0bcfab92-4aaf-4820-afba-f341b8ff18b8" threadCount="3" configId="ML Config 1" batchSize="5" secondsBeforeFlush="5" jobName="test">
+        <marklogic:connection hostname="${config.output-hostName}" username="${config.output-username}" password="${config.output-password}" port="8010" authenticationType="digest" connectionId="testconfig_output"/>
+    </marklogic:config>
+    <file:config name="File_Config" doc:name="File Config" doc:id="7f7d79c2-cb85-4bfe-8015-511e6ddc4f0a" >
+        <file:connection workingDir="/temp/mule" />
+    </file:config>
+    <marklogic:config name="MarkLogic_Config_Input" doc:name="MarkLogic Config" doc:id="9531169c-080c-43bb-9c38-01f87843c511" configId="testConfig-Input" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName">
+		<marklogic:connection hostname="${config.input-hostName}" port="8003" database="my-app-content" username="${config.input-username}" password="${config.input-password}" authenticationType="digest" connectionId="testConfig-Input" />
+	</marklogic:config>
+	<file:config name="pdf-output-file-config" doc:name="File Config" doc:id="c45cfe10-08c6-42bc-ac01-09f118a0f901" >
+		<file:connection workingDir="D:\Temp\mule" />
+	</file:config>
+	<flow name="marklogicconnector20180618Flow1" doc:id="a7d8a53d-7087-4ff2-8367-fae0aade7264" initialState="started">
+        <scheduler doc:name="Scheduler" doc:id="4d8ab0a2-3fda-4e5e-95a7-80afb1adc37c" >
+            <scheduling-strategy >
+                <fixed-frequency frequency="30000"/>
+            </scheduling-strategy>
+        </scheduler>
+        <marklogic:query-docs queryStrategy="RawStructuredQueryDefinition" fmt="XML" doc:name="Select docs by structured query" doc:id="6566c640-7b87-4f96-b035-79d01baea905" config-ref="MarkLogic_Config_Input">
+			<reconnect />
+			<marklogic:query-string >                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+                  &lt;document-query&gt;
+                    &lt;uri&gt;/test/doc1.pdf&lt;/uri&gt;                   
+                  &lt;/document-query&gt;
+                &lt;/query&gt;</marklogic:query-string>
+		</marklogic:query-docs>
+		<batch:job jobName="marklogicconnector20180618Batch_Job" doc:id="bc50e5a8-d2a1-4dc5-9f1d-22b15f6f5dcd">
+            <batch:process-records >
+                <batch:step name="Batch_Step" doc:id="fe877d5c-e3cf-40c5-8fdd-bf0d45430032" acceptPolicy="ALL">
+                    <ee:transform doc:name="Transform Message" doc:id="7fdd3e71-d14d-41de-a592-d3c191b94dd0">
+                        <ee:message>
+                            <ee:set-payload><![CDATA[%dw 2.0
+output application/octet-stream
+---
+payload]]></ee:set-payload>
+                        </ee:message>
+                    </ee:transform>
+					<file:write doc:name="Write" doc:id="0339ef0e-5466-4683-b989-e09c0b6bcd29" config-ref="pdf-output-file-config" path="D:\Temp\mule\marklogic_mule_out2.pdf"/>
+                </batch:step>
+            </batch:process-records>
+        </batch:job>
+    </flow>
+</mule>
