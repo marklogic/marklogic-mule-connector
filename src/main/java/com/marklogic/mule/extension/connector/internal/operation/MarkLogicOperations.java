@@ -317,7 +317,8 @@ public class MarkLogicOperations
                         }
                         catch (MuleException e)
                         {
-                            logger.warn(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), ex);
+                            logger.warn(String.format("Exception was thrown during select operation. Error was: %s", ex.getMessage()), ex);
+                            logger.warn(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), e);
                         }
                     });
 
