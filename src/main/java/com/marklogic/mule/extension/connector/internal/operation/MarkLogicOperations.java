@@ -311,14 +311,14 @@ public class MarkLogicOperations
                     resultSetCloser = new MarkLogicResultSetCloser(connection);
                     flowListener.onError(ex ->
                     {
+                        logger.error(String.format("Exception was thrown during select operation. Error was: %s", ex.getMessage()), ex);
                         try
                         {
                             close(connection);
                         }
                         catch (MuleException e)
                         {
-                            logger.warn(String.format("Exception was thrown during select operation. Error was: %s", ex.getMessage()), ex);
-                            logger.warn(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), e);
+                            logger.info(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), e);
                         }
                     });
 
