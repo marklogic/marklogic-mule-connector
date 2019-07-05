@@ -1,5 +1,6 @@
 = MarkLogic Connector
 :imagesdir: ../images
+:toc:
 
 _MuleSoft Certified_
 
@@ -12,6 +13,16 @@ This document assumes that you are familiar with the following Mule concepts: An
 See the Release Notes for compatibility information listed in the See Also section of this document.
 
 == What's New in this Connector
+
+=== Version 1.1.0 - 2019-06-30
+
+Release 1.1.0 adds:
+
+* Operations for queryDocs (which deprecates operation selectDocsByStructuredQuery) and deleteDocs.
+* Updates documentation and tests.
+* Refer to the <<"MarkLogic Module Documentation Reference">> section below for details.
+
+=== Version 1.0.0 - 2019-01-18
 
 This is the initial release of the Connector, so, everything's new!
 
@@ -183,7 +194,7 @@ read(payload, "application/json")]]></ee:set-payload>
 
 Explain how to run the application and test the connector.
 
-== Example: MarkLogic Mule Connector
+== Example: MarkLogic Mule Connector importDocs
 
 This example demonstrates the use of the MarkLogic Mule Connector, doing the following:
 
@@ -218,5 +229,7 @@ Please reference the flow XML described above.
 == See Also
 
 * link:release-notes[MarkLogic Connector Release Notes]
+
+include::technical-reference/marklogic-documentation.adoc[]
 
 

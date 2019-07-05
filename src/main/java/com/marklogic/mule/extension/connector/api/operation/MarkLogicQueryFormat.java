@@ -11,21 +11,13 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-package com.marklogic.mule.extension.connector.internal.error;
+package com.marklogic.mule.extension.connector.api.operation;
 
-import java.util.Set;
-import java.util.HashSet;
-import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
-import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
-
-public class MarkLogicExecuteErrorsProvider implements ErrorTypeProvider
+/**
+ * Created by credding on 4/28/2019.
+ */
+public enum MarkLogicQueryFormat
 {
-
-    @Override
-    public Set<ErrorTypeDefinition> getErrorTypes()
-    {
-        HashSet<ErrorTypeDefinition> errors = new HashSet<>();
-        errors.add(MarkLogicConnectorSimpleErrorType.DATA_MOVEMENT_ERROR);
-        return errors;
-    }
+    XML,
+    JSON
 }

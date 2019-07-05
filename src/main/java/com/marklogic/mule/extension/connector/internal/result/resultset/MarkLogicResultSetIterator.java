@@ -1,3 +1,16 @@
+/**
+ * MarkLogic Mule Connector
+ *
+ * Copyright © 2019 MarkLogic Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ *
+ * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
+ */
 package com.marklogic.mule.extension.connector.internal.result.resultset;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,15 +36,15 @@ import org.w3c.dom.NodeList;
 import java.util.*;
 
 /**
- * Iterates across all results returned by a synchronous {@link QueryDefinition} execution.
+ * Iterates across all results returned by a synchronous {@link QueryDefinition}
+ * execution.
  *
  * @since 1.0.1
  *
  */
-
-// TODO: Support server-side transforms
-
-public class MarkLogicResultSetIterator implements Iterator {
+//N.b: Support server-side transforms
+public class MarkLogicResultSetIterator implements Iterator
+{
 
     private static final Logger logger = LoggerFactory.getLogger(MarkLogicResultSetIterator.class);
 
@@ -56,7 +69,8 @@ public class MarkLogicResultSetIterator implements Iterator {
     private int start = 1;
     private QueryDefinition query;
 
-    public MarkLogicResultSetIterator(MarkLogicConnection connection, MarkLogicConfiguration configuration, QueryDefinition query) {
+    public MarkLogicResultSetIterator(MarkLogicConnection connection, MarkLogicConfiguration configuration, QueryDefinition query)
+    {
         this.configuration = configuration;
         this.query = query;
         DatabaseClient client = connection.getClient();
@@ -65,46 +79,70 @@ public class MarkLogicResultSetIterator implements Iterator {
     }
 
     @Override
-    public boolean hasNext() {
+    public boolean hasNext()
+    {
         return (start == 1 || documents.hasNextPage());
     }
 
     @Override
-    public List<Object> next() {
+    public List<Object> next()
+    {
 
-        if (logger.isInfoEnabled()) {
+        if (logger.isInfoEnabled())
+        {
             logger.info("iterator query: " + query.toString());
         }
 
         documents = dm.search(query, start);
         int fetchSize = configuration.getBatchSize();
         final List<Object> page = new ArrayList<>(fetchSize);
-        for (int i = 0; i < fetchSize && documents.hasNext(); i++) {
+        for (int i = 0; i < fetchSize && documents.hasNext(); i++)
+        {
             DocumentRecord nextRecord = documents.next();
             Object content;
             String type = nextRecord.getMimetype();
-            if (type == null) { // Treat no mimetype as binary
+            if (type == null)
+            { // Treat no mimetype as binary
                 content = nextRecord.getContent(binaryHandle).get();
-            } else {
+            }
+            else
+            {
                 String lowerCaseType = type.toLowerCase();
-                if (lowerCaseType.contains("xml")) {
+                if (lowerCaseType.contains("xml"))
+                {
                     Document node = nextRecord.getContent(xmlHandle).get();
                     content = createMapFromXML(node.getDocumentElement());
-                } else if (lowerCaseType.contains("json")) {
+                }
+                else if (lowerCaseType.contains("json"))
+                {
                     JsonNode jsonNode = nextRecord.getContent(jacksonHandle).get();
                     JsonNodeType nodeType = jsonNode.getNodeType();
-                    if (nodeType == JsonNodeType.ARRAY) {
-                        content = jsonMapper.convertValue(jsonNode, List.class);
-                    } else if (nodeType == JsonNodeType.STRING){
-                        content = jsonMapper.convertValue(jsonNode, String.class);
-                    } else if (nodeType == JsonNodeType.NUMBER) {
-                        content = jsonMapper.convertValue(jsonNode, Number.class);
-                    } else {
+                    if (null == nodeType)
+                    {
                         content = jsonMapper.convertValue(jsonNode, Map.class);
                     }
-                } else if (lowerCaseType.contains("text")) {
+                    else switch (nodeType)
+                    {
+                        case ARRAY:
+                            content = jsonMapper.convertValue(jsonNode, List.class);
+                            break;
+                        case STRING:
+                            content = jsonMapper.convertValue(jsonNode, String.class);
+                            break;
+                        case NUMBER:
+                            content = jsonMapper.convertValue(jsonNode, Number.class);
+                            break;
+                        default:
+                            content = jsonMapper.convertValue(jsonNode, Map.class);
+                            break;
+                    }
+                }
+                else if (lowerCaseType.contains("text"))
+                {
                     content = nextRecord.getContent(stringHandle).get();
-                } else {
+                }
+                else
+                {
                     content = nextRecord.getContent(binaryHandle).get();
                 }
             }
@@ -117,35 +155,44 @@ public class MarkLogicResultSetIterator implements Iterator {
 
     /**
      * This recursive method creates a Map from DOM object
+     *
      * @param node XML Node
      * @return an object; type depends on what type of node is being processed
      */
-    private static Object createMapFromXML(Node node) {
+    private Object createMapFromXML(Node node)
+    {
         Map<String, Object> map = new HashMap<>();
         NodeList nodeList = node.getChildNodes();
-        for (int i = 0; i < nodeList.getLength(); i++) {
+        for (int i = 0; i < nodeList.getLength(); i++)
+        {
             Node currentNode = nodeList.item(i);
             String name = currentNode.getNodeName();
             Object value = null;
-            if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
+            if (currentNode.getNodeType() == Node.ELEMENT_NODE)
+            {
                 value = createMapFromXML(currentNode);
             }
-            else if (currentNode.getNodeType() == Node.TEXT_NODE) {
+            else if (currentNode.getNodeType() == Node.TEXT_NODE)
+            {
                 return currentNode.getTextContent();
             }
-            if (map.containsKey(name)) {
+            if (map.containsKey(name))
+            {
                 Object obj = map.get(name);
-                if (obj instanceof List) {
-                    ((List)obj).add(value);
+                if (obj instanceof List)
+                {
+                    ((List) obj).add(value);
                 }
-                else {
-                    List<Object> objs = new LinkedList<Object>();
+                else
+                {
+                    List<Object> objs = new LinkedList<>();
                     objs.add(obj);
                     objs.add(value);
                     map.put(name, objs);
                 }
             }
-            else {
+            else
+            {
                 map.put(name, value);
             }
         }

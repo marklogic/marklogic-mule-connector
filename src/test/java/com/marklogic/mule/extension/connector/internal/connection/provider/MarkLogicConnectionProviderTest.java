@@ -11,19 +11,14 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.marklogic.mule.extension.connector.internal.connection.provider;
 
-import com.marklogic.mule.extension.connector.internal.connection.AuthenticationType;
+import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
-import org.mule.runtime.api.tls.TlsContextFactory;
 
 /**
  *
@@ -31,6 +26,7 @@ import org.mule.runtime.api.tls.TlsContextFactory;
  */
 public class MarkLogicConnectionProviderTest
 {
+
     private static final String CONNECTION_ID = "test-connection-id";
     private static final String USER_PASSWORD = "test-password";
     private static final String USER_NAME = "test-user";
@@ -42,44 +38,50 @@ public class MarkLogicConnectionProviderTest
     /**
      * Test of connect method, of class MarkLogicConnectionProvider.
      */
-    //@Test
-    public void testConnect() throws Exception
+    @Test
+    public void testConnect() throws ConnectionException
     {
-        System.out.println("connect");
-        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider();
-        MarkLogicConnection expResult = null;
+        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
         MarkLogicConnection result = instance.connect();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(CONNECTION_ID, result.getId());
     }
 
     @Test
-    public void testDisconnect()
+    public void testDisconnect() throws ConnectionException
     {
-        TlsContextFactory tlsContextFactory = null;
-        MarkLogicConnection connection = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, tlsContextFactory, null, CONNECTION_ID);
-        connection.connect();
-        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider();
+        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
+        MarkLogicConnection connection = instance.connect();
         instance.disconnect(connection);
     }
-    
+
     /**
-     * Test of validate method, of class MarkLogicConnectionProvider.
+     * Tests of validate method, of class MarkLogicConnectionProvider.
      */
     @Test
-    public void testValidate()
+    public void testValidatePass()
     {
-        TlsContextFactory tlsContextFactory = null;
-        MarkLogicConnection connection = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, tlsContextFactory, null, CONNECTION_ID);
+        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
+
+        MarkLogicConnection connection = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
         connection.connect();
-        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider();
-        String message = String.format("Connection failed %s", CONNECTION_ID);
+
         ConnectionValidationResult result = instance.validate(connection);
-        
+
+        assertTrue(result.isValid());
+
+    }
+
+    @Test
+    public void testValidateFail()
+    {
+        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider();
+
+        MarkLogicConnection connection = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
+        ConnectionValidationResult result = instance.validate(connection);
+
+        String message = String.format("Connection failed %s", CONNECTION_ID);
         assertEquals(message, result.getMessage());
         assertTrue(result.getException() instanceof Exception);
-        
     }
-    
+
 }
