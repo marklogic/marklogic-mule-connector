@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" 
+    xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" 
+    xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" 
+    xmlns:batch="http://www.mulesoft.org/schema/mule/batch" 
+    xmlns:java="http://www.mulesoft.org/schema/mule/java" 
+    xmlns:http="http://www.mulesoft.org/schema/mule/http" 
+    xmlns:file="http://www.mulesoft.org/schema/mule/file" 
+    xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" 
+    xmlns:db="http://www.mulesoft.org/schema/mule/db" 
+    xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" 
+    xmlns="http://www.mulesoft.org/schema/mule/core" 
+    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+    http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
+    http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+    http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+    http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+    http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+    http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+    http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+    http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+    http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <configuration-properties file="automation-credentials.properties"/>
+
+    <marklogic:config name="MarkLogic_Config_output" doc:name="MarkLogic Config" doc:id="f2e7ee97-16fd-4334-9a8f-72b3a42acaef" threadCount="3" configId="ML Config 1" batchSize="5" secondsBeforeFlush="5" jobName="test">
+        <marklogic:connection hostname="localhost" username="admin" password="admin" port="8010" authenticationType="digest" connectionId="testconfig_output"/>
+    </marklogic:config>
+    <file:config name="File_Config" doc:name="File Config" doc:id="a8cda0ef-0440-4f98-9553-6141200f8cb4">
+        <file:connection workingDir="/temp/mule" />
+    </file:config>
+    <marklogic:config name="MarkLogic_Config_Input" doc:name="MarkLogic Config" doc:id="3a526532-b81c-4dbe-8bac-fa3e27e655d3" configId="testConfig-Input" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName">
+        <marklogic:connection hostname="localhost" port="8010" username="admin" password="admin" authenticationType="digest" connectionId="testConfig-Input"/>
+    </marklogic:config>
+    <flow name="marklogicconnector20180618Flow1" doc:id="d2424ebc-f550-48c2-ad7f-c3b9322b180b" initialState="started">
+        <scheduler doc:name="Scheduler" doc:id="82c6bbf7-25d6-4f75-a038-fb8d98e03210">
+            <scheduling-strategy >
+                <fixed-frequency frequency="30000"/>
+            </scheduling-strategy>
+        </scheduler>
+        <marklogic:values doc:name="Values" doc:id="a5b62f03-63bd-4e28-821d-fbd401879d8a" config-ref="MarkLogic_Config_Input">
+            <marklogic:options-name >employee</marklogic:options-name>
+            <marklogic:values-name >EmployeeNumber</marklogic:values-name>
+        </marklogic:values>
+        <foreach doc:name="For Each" doc:id="fe9867a9-7ffa-4f22-b6a8-defd861a5eb8">
+            <file:write doc:name="Write" doc:id="5bf7266d-2307-4547-9628-6f7813418b55" config-ref="File_Config" path="output.txt" mode="APPEND"/>
+        </foreach>
+
+    </flow>
+</mule>
