@@ -243,7 +243,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
      * @param temporalCollection
      * @return instance of the batcher
      */
-    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection)
+    static synchronized MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection)
     {
         // String configId = config.getConfigId();
         // MarkLogicInsertionBatcher instance = instances.get(configId);

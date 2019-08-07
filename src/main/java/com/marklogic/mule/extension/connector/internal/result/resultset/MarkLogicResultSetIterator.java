@@ -161,6 +161,7 @@ public class MarkLogicResultSetIterator implements Iterator {
 
                 page.add(content);
             }
+            documents.close();
             start += fetchSize;
             return page;
         } else if (type == VALUES_TYPE) {
