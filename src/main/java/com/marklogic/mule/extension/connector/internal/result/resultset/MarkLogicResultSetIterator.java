@@ -69,13 +69,13 @@ public class MarkLogicResultSetIterator implements Iterator
     private int start = 1;
     private QueryDefinition query;
 
-    public MarkLogicResultSetIterator(MarkLogicConnection connection, MarkLogicConfiguration configuration, QueryDefinition query)
+    public MarkLogicResultSetIterator(MarkLogicConnection connection, MarkLogicConfiguration configuration, QueryDefinition query, long pageLength)
     {
         this.configuration = configuration;
         this.query = query;
         DatabaseClient client = connection.getClient();
         dm = client.newDocumentManager();
-        dm.setPageLength(configuration.getBatchSize());
+        dm.setPageLength(pageLength);
     }
 
     @Override
@@ -94,8 +94,8 @@ public class MarkLogicResultSetIterator implements Iterator
         }
 
         documents = dm.search(query, start);
-        int fetchSize = configuration.getBatchSize();
-        final List<Object> page = new ArrayList<>(fetchSize);
+        long fetchSize = dm.getPageLength();
+        final List<Object> page = new ArrayList<>((int)fetchSize);
         for (int i = 0; i < fetchSize && documents.hasNext(); i++)
         {
             DocumentRecord nextRecord = documents.next();
@@ -149,6 +149,7 @@ public class MarkLogicResultSetIterator implements Iterator
 
             page.add(content);
         }
+        documents.close();
         start += fetchSize;
         return page;
     }

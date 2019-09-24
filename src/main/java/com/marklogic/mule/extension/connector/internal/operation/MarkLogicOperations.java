@@ -275,7 +275,7 @@ public class MarkLogicOperations
             FlowListener flowListener
     )
     {
-        return queryDocs(structuredQuery, configuration, optionsName, structuredQueryStrategy, fmt, streamingHelper, flowListener);
+        return queryDocs(structuredQuery, configuration, optionsName, 0, structuredQueryStrategy, fmt, streamingHelper, flowListener);
     }
 
     @MediaType(value = ANY, strict = false)
@@ -289,6 +289,9 @@ public class MarkLogicOperations
             @DisplayName("Search API Options")
             @Optional(defaultValue = "null")
             @Summary("The server-side Search API options file used to configure the search") String optionsName,
+            @DisplayName("Page Length")
+            @Optional(defaultValue = "0")
+            @Summary("The number of documents fetched at a time.  If blank, defaults to the connection's batch size.") long pageLength,
             @DisplayName("Search Strategy")
             @Summary("The Java class used to execute the serialized query") MarkLogicQueryStrategy queryStrategy,
             @DisplayName("Serialized Query Format")
@@ -350,9 +353,16 @@ public class MarkLogicOperations
                         logger.info("Ingesting doc payload without a transform");
                     }
 
-                    iterator = new MarkLogicResultSetIterator(connection, configuration, query);
-                }
+                    if (pageLength < 1)
+                    {
+                        iterator = new MarkLogicResultSetIterator(connection, configuration, query, configuration.getBatchSize());
+                    }
+                    else
+                    {
+                        iterator = new MarkLogicResultSetIterator(connection, configuration, query, pageLength);
+                    }
 
+                }
                 return iterator.next();
             }
 
