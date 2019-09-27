@@ -13,7 +13,6 @@
  */
 package com.marklogic.mule.extension.connector.internal.operation;
 
-import com.marklogic.client.datamovement.ExportListener;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
 import java.io.InputStream;
@@ -44,7 +43,7 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 
 import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicSelectMetadataResolver;
-import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicRecordExtractor;
+import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicExportListener;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetCloser;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetIterator;
 
@@ -393,75 +392,75 @@ public class MarkLogicOperations
             @DisplayName("Use Consistent Snapshot")
             @Summary("Whether to use a consistent point-in-time snapshot for operations") boolean useConsistentSnapshot,
             @DisplayName("Serialized Query Format")
-            @Summary("The format of the serialized query") MarkLogicQueryFormat fmt,
-            StreamingHelper streamingHelper,
-            FlowListener flowListener
+            @Summary("The format of the serialized query") MarkLogicQueryFormat fmt
     )
     {
+        MarkLogicExportListener exportListener = new MarkLogicExportListener();
         return new PagingProvider<MarkLogicConnection, Object>() {
+
+            private final AtomicBoolean initialised = new AtomicBoolean(false);
+            private MarkLogicResultSetCloser resultSetCloser;
+            private QueryBatcher batcher;
+            private DataMovementManager dmm = null;
+
             @Override
             public List<Object> getPage(MarkLogicConnection markLogicConnection) {
-                DatabaseClient client = markLogicConnection.getClient();
-                QueryManager qm = client.newQueryManager();
-                DataMovementManager dmm = client.newDataMovementManager();
-                QueryBatcher batcher;
-                QueryDefinition query;
-                switch (queryStrategy)
-                {
-                    case RawStructuredQueryDefinition:
-                        query = createRawStructuredQuery(qm, queryString, fmt);
-                        batcher = dmm.newQueryBatcher((RawStructuredQueryDefinition) query);
-                        break;
-                    case StructuredQueryBuilder:
-                        // Example of incoming structuredQuery string as criteria: sb.document("/mulesoft/10078.json")
-                        query = createStructuredQuery(qm, queryString, optionsName);
-                        batcher = dmm.newQueryBatcher((StructuredQueryDefinition) query);
-                        break;
-                    case CTSQuery:
-                        query = createCtsQuery(qm, queryString, fmt, null);
-                        batcher = dmm.newQueryBatcher((RawCtsQueryDefinition) query);
-                        break;
-                    default:
-                        logger.error(String.format("Query Strategy %s is not supported", queryStrategy));
-                        throw new RuntimeException("Invalid query type. Unable to create query");
+                if (initialised.compareAndSet(false, true)) {
+
+                    DatabaseClient client = markLogicConnection.getClient();
+                    QueryManager qm = client.newQueryManager();
+                    dmm = client.newDataMovementManager();
+
+                    QueryDefinition query;
+                    switch (queryStrategy) {
+                        case RawStructuredQueryDefinition:
+                            query = createRawStructuredQuery(qm, queryString, fmt);
+                            batcher = dmm.newQueryBatcher((RawStructuredQueryDefinition) query);
+                            break;
+                        case StructuredQueryBuilder:
+                            // Example of incoming structuredQuery string as criteria: sb.document("/mulesoft/10078.json")
+                            query = createStructuredQuery(qm, queryString, optionsName);
+                            batcher = dmm.newQueryBatcher((StructuredQueryDefinition) query);
+                            break;
+                        case CTSQuery:
+                            query = createCtsQuery(qm, queryString, fmt, null);
+                            batcher = dmm.newQueryBatcher((RawCtsQueryDefinition) query);
+                            break;
+                        default:
+                            logger.error(String.format("Query Strategy %s is not supported", queryStrategy));
+                            throw new RuntimeException("Invalid query type. Unable to create query");
+                    }
+
+                    if (configuration.hasServerTransform()) {
+                        query.setResponseTransform(configuration.createServerTransform());
+                    }
+
+                    if (useConsistentSnapshot) {
+                        batcher.withConsistentSnapshot();
+                    }
+                    batcher.withBatchSize(configuration.getBatchSize())
+                            .withThreadCount(configuration.getThreadCount())
+                            .onUrisReady(exportListener)
+                            .onQueryFailure((throwable) ->
+                            {
+                                logger.error("Exception thrown by an onBatchSuccess listener", throwable);  // For Sonar...
+                            });
+                    dmm.startJob(batcher);
+                    batcher.awaitCompletion();
+                    dmm.stopJob(batcher);
                 }
 
-                if (configuration.hasServerTransform())
-                {
-                    query.setResponseTransform(configuration.createServerTransform());
+                if (dmm != null) {
+                    System.out.println("JOB REPORT success batches: " + dmm.getJobReport(batcher.getJobTicket()).getSuccessBatchesCount());
+                    System.out.println("JOB REPORT success events: " + dmm.getJobReport(batcher.getJobTicket()).getSuccessEventsCount());
+                    System.out.println("JOB REPORT getReportTimestamp: " + dmm.getJobReport(batcher.getJobTicket()).getReportTimestamp());
+                } else {
+                    logger.warn("Data Movement Manager weirdly null after initialization");
                 }
+                List<Object> results = new ArrayList<>(exportListener.getDocs());
+                exportListener.clearDocs();
 
-                if (useConsistentSnapshot)
-                {
-                    batcher.withConsistentSnapshot();
-                }
-
-
-                List results = new ArrayList();
-                batcher.withBatchSize(configuration.getBatchSize())
-                        .withThreadCount(configuration.getThreadCount())
-                        .onUrisReady(batch -> {
-                            new ExportListener()
-                                    .onDocumentReady(doc-> {
-                                        try {
-                                            results.add(MarkLogicRecordExtractor.extractRecord(doc));
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
-                        })
-                        .onQueryFailure((throwable) ->
-                        {
-                            logger.error("Exception thrown by an onBatchSuccess listener", throwable);  // For Sonar...
-                        });
-                dmm.startJob(batcher);
-                batcher.awaitCompletion();
-                dmm.stopJob(batcher);
-                System.out.println("JOB REPORT success batches: " + dmm.getJobReport(batcher.getJobTicket()).getSuccessBatchesCount());
-                System.out.println("JOB REPORT success events: " + dmm.getJobReport(batcher.getJobTicket()).getSuccessEventsCount());
-                System.out.println("JOB REPORT getReportTimestamp: " + dmm.getJobReport(batcher.getJobTicket()).getReportTimestamp());
                 return results;
-
             }
 
             @Override
@@ -471,7 +470,7 @@ public class MarkLogicOperations
 
             @Override
             public void close(MarkLogicConnection markLogicConnection) throws MuleException {
-                logger.warn("NOT Invalidating ML connection...");
+                logger.debug("NOT Invalidating ML connection...");
                 //markLogicConnection.invalidate();
             }
         };
