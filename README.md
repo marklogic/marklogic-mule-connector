@@ -16,7 +16,7 @@ If you wish to install from the source code in this repository, see "<a href="wi
 ### Learn More ###
 -------------------------
 
-To get started, visit the <a href="Wiki">Wiki</a>.
+To get started, visit the <a href="wiki">Wiki</a>.
 
 
 ### About the Connector ###
