@@ -80,15 +80,17 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
      * @param configuration -- information describing how the insertion process
      * should work
      * @param connection -- information describing how to connect to MarkLogic
+     * @param serverTransform
+     * @param serverTransformParams
      */
-    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection)
+    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
     {
         // get the object handles needed to talk to MarkLogic
-        initializeBatcher(connection, configuration, outputCollections, outputPermissions, outputQuality, temporalCollection);
+        initializeBatcher(connection, configuration, outputCollections, outputPermissions, outputQuality, temporalCollection, serverTransform, serverTransformParams);
         this.jobName = jobName;
     }
 
-    private void initializeBatcher(MarkLogicConnection connection, MarkLogicConfiguration configuration, String outputCollections, String outputPermissions, int outputQuality, String temporalCollection)
+    private void initializeBatcher(MarkLogicConnection connection, MarkLogicConfiguration configuration, String outputCollections, String outputPermissions, int outputQuality, String temporalCollection, String serverTransform, String serverTransformParams)
     {
         this.connection = connection;
         connection.addMarkLogicClientInvalidationListener(this);
@@ -115,10 +117,16 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
             batcher.withTemporalCollection(temporalCollection);
         }
 
-        if (configuration.hasServerTransform())
+        if (MarkLogicConfiguration.serverTransformExists(serverTransform))
+        {
+            batcher.withTransform(MarkLogicConfiguration.createServerTransform(serverTransform,serverTransformParams));
+            logger.info("Transforming input doc payload with operation-defined transform: " + serverTransform);
+        }
+
+        else if (configuration.hasServerTransform())
         {
             batcher.withTransform(configuration.createServerTransform());
-            logger.info("Transforming input doc payload with transform: " + configuration.getServerTransform());
+            logger.info("Transforming input doc payload with connection-defined transform: " + configuration.getServerTransform());
         }
         else
         {
@@ -243,14 +251,14 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
      * @param temporalCollection
      * @return instance of the batcher
      */
-    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection)
+    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
     {
         // String configId = config.getConfigId();
         // MarkLogicInsertionBatcher instance = instances.get(configId);
         // Uncomment above to support multiple connection config scenario
         if (instance == null)
         {
-            instance = new MarkLogicInsertionBatcher(config, connection, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection);
+            instance = new MarkLogicInsertionBatcher(config, connection, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
             // instances.put(configId,instance);
             // Uncomment above to support multiple connection config scenario
         }
@@ -258,7 +266,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         {
             if (instance.batcherRequiresReinit)
             {
-                instance.initializeBatcher(connection, config, outputCollections, outputPermissions, outputQuality, temporalCollection);
+                instance.initializeBatcher(connection, config, outputCollections, outputPermissions, outputQuality, temporalCollection, serverTransform, serverTransformParams);
                 instance.batcherRequiresReinit = false;
             }
         }
