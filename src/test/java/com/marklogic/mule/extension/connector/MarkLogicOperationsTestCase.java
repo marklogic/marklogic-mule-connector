@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright Â© 2019 MarkLogic Corporation.
+ * Copyright © 2019 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -19,10 +19,11 @@ import java.util.GregorianCalendar;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.Is.isA;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
-
+//import org.mule.runtime.core.internal.streaming.object.ManagedCursorIteratorProvider;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 
 public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
@@ -108,5 +109,17 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
                 .getPayload()
                 .getValue());
         assertThat(payloadValue, containsString(" document(s) deleted"));
+    }
+    
+    @Test
+    public void executeOperationTransformEgress() throws Exception
+    {
+        String payloadValue = ((String) flowRunner("operation-transform-egressFlow")
+                .run()
+                .getMessage()
+                .getPayload()
+                .getValue());
+        assertThat(payloadValue, containsString("\"transformer\": \"transformTestEgress\""));
+        //isA(ManagedCursorIteratorProvider.class);
     }
 }
