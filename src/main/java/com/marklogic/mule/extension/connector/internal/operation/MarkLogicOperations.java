@@ -48,6 +48,7 @@ import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogi
 
 import org.apache.commons.jexl3.*;
 import org.mule.runtime.api.exception.MuleException;
+import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
@@ -167,6 +168,7 @@ public class MarkLogicOperations
      */
 
     @MediaType(value = APPLICATION_JSON, strict = true)
+    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used", since = "1.1.0")
     public String getJobReport()
     {
         ObjectNode rootObj = jsonFactory.createObjectNode();
@@ -265,7 +267,7 @@ public class MarkLogicOperations
 
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
-    @Deprecated
+    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "Use Query Docs instead", since = "1.1.0")
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public PagingProvider<MarkLogicConnection, Object> selectDocsByStructuredQuery(
             @DisplayName("Serialized Query String")
