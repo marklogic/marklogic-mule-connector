@@ -275,7 +275,7 @@ public class MarkLogicOperations
             FlowListener flowListener
     )
     {
-        return queryDocs(structuredQuery, configuration, optionsName, 0, structuredQueryStrategy, fmt, streamingHelper, flowListener);
+        return queryDocs(structuredQuery, configuration, optionsName, null, null, structuredQueryStrategy, fmt, streamingHelper, flowListener);
     }
 
     @MediaType(value = ANY, strict = false)
@@ -290,8 +290,11 @@ public class MarkLogicOperations
             @Optional(defaultValue = "null")
             @Summary("The server-side Search API options file used to configure the search") String optionsName,
             @DisplayName("Page Length")
-            @Optional(defaultValue = "0")
-            @Summary("The number of documents fetched at a time.  If blank, defaults to the connection's batch size.") long pageLength,
+            @Optional
+            @Summary("The number of documents fetched at a time.  If blank, defaults to the connection's batch size.") Integer pageLength,
+            @DisplayName("Maximum number of results")
+            @Optional
+            @Summary("The maximum number of results to be fetched.  If blank, defaults to unlimited.") Long maxResults,
             @DisplayName("Search Strategy")
             @Summary("The Java class used to execute the serialized query") MarkLogicQueryStrategy queryStrategy,
             @DisplayName("Serialized Query Format")
@@ -353,13 +356,13 @@ public class MarkLogicOperations
                         logger.info("Ingesting doc payload without a transform");
                     }
 
-                    if (pageLength < 1)
+                    if ((pageLength != null) && (pageLength < 1))
                     {
-                        iterator = new MarkLogicResultSetIterator(connection, configuration, query, configuration.getBatchSize());
+                        iterator = new MarkLogicResultSetIterator(connection, configuration, query, configuration.getBatchSize(), maxResults);
                     }
                     else
                     {
-                        iterator = new MarkLogicResultSetIterator(connection, configuration, query, pageLength);
+                        iterator = new MarkLogicResultSetIterator(connection, configuration, query, pageLength, maxResults);
                     }
 
                 }
