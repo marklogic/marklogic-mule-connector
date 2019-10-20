@@ -168,7 +168,8 @@ public class MarkLogicOperations
      */
 
     @MediaType(value = APPLICATION_JSON, strict = true)
-    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used", since = "1.1.0")
+    @DisplayName("Get Job Report (deprecated)")
+    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used.  Instead, use the built-in MuleSoft BatchJobResult output.", since = "1.1.0")
     public String getJobReport()
     {
         ObjectNode rootObj = jsonFactory.createObjectNode();
@@ -267,6 +268,7 @@ public class MarkLogicOperations
 
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
+    @DisplayName("Select Documents By Structured Query (deprecated)")
     @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "Use Query Docs instead", since = "1.1.0")
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public PagingProvider<MarkLogicConnection, Object> selectDocsByStructuredQuery(
