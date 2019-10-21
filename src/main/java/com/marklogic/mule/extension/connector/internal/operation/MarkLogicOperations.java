@@ -42,13 +42,13 @@ import com.marklogic.mule.extension.connector.internal.error.MarkLogicExecuteErr
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 
-import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnectorException;
 import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicSelectMetadataResolver;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetCloser;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetIterator;
 
 import org.apache.commons.jexl3.*;
 import org.mule.runtime.api.exception.MuleException;
+import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
@@ -112,11 +112,20 @@ public class MarkLogicOperations
             @DisplayName("Temporal collection")
             @Optional(defaultValue = "null")
             @Summary("The temporal collection imported documents will be loaded into.")
-            @Example("") String temporalCollection)
+            @Example("") String temporalCollection,
+            @Summary("The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.")
+            @Optional(defaultValue = "null")
+            @Example("ml:sjsInputFlow")
+            String serverTransform,
+            @Summary("A comma-separated list of alternating transform parameter names and transform parameter values.")
+            @Optional(defaultValue = "null")
+            @Example("entity-name,MyEntity,flow-name,loadMyEntity")
+            String serverTransformParams
+            )
     {
 
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection);
+        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection,serverTransform,serverTransformParams);
 
         // Determine output URI
         // If the config tells us to generate a new UUID, do that
@@ -159,6 +168,8 @@ public class MarkLogicOperations
      */
 
     @MediaType(value = APPLICATION_JSON, strict = true)
+    @DisplayName("Get Job Report (deprecated)")
+    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used.  Instead, use the built-in MuleSoft BatchJobResult output.", since = "1.1.0")
     public String getJobReport()
     {
         ObjectNode rootObj = jsonFactory.createObjectNode();
@@ -257,7 +268,8 @@ public class MarkLogicOperations
 
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
-    @Deprecated
+    @DisplayName("Select Documents By Structured Query (deprecated)")
+    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "Use Query Docs instead", since = "1.1.0")
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public PagingProvider<MarkLogicConnection, Object> selectDocsByStructuredQuery(
             @DisplayName("Serialized Query String")
@@ -271,11 +283,17 @@ public class MarkLogicOperations
             @Summary("The Java class used to execute the serialized query") MarkLogicQueryStrategy structuredQueryStrategy,
             @DisplayName("Serialized Query Format")
             @Summary("The format of the serialized query") MarkLogicQueryFormat fmt,
+            @Summary("The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.")
+            @Optional(defaultValue = "null")
+            @Example("ml:sjsInputFlow") String serverTransform,
+            @Summary("A comma-separated list of alternating transform parameter names and transform parameter values.")
+            @Optional(defaultValue = "null")
+            @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams,
             StreamingHelper streamingHelper,
             FlowListener flowListener
     )
     {
-        return queryDocs(structuredQuery, configuration, optionsName, structuredQueryStrategy, fmt, streamingHelper, flowListener);
+        return queryDocs(structuredQuery, configuration, optionsName, structuredQueryStrategy, fmt, serverTransform, serverTransformParams, streamingHelper, flowListener);
     }
 
     @MediaType(value = ANY, strict = false)
@@ -293,6 +311,12 @@ public class MarkLogicOperations
             @Summary("The Java class used to execute the serialized query") MarkLogicQueryStrategy queryStrategy,
             @DisplayName("Serialized Query Format")
             @Summary("The format of the serialized query") MarkLogicQueryFormat fmt,
+            @Summary("The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.")
+            @Optional(defaultValue = "null")
+            @Example("ml:sjsInputFlow") String serverTransform,
+            @Summary("A comma-separated list of alternating transform parameter names and transform parameter values.")
+            @Optional(defaultValue = "null")
+            @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams,
             StreamingHelper streamingHelper,
             FlowListener flowListener)
     {
@@ -341,13 +365,19 @@ public class MarkLogicOperations
                             query = createRawStructuredQuery(qm, queryString, fmt);
                     }
 
-                    if (configuration.hasServerTransform())
+                    if (MarkLogicConfiguration.serverTransformExists(serverTransform))
+                    {
+                        query.setResponseTransform(MarkLogicConfiguration.createServerTransform(serverTransform,serverTransformParams));
+                        logger.info("Transforming query doc payload with operation-defined transform: " + serverTransform);
+                    }
+                    else if (configuration.hasServerTransform())
                     {
                         query.setResponseTransform(configuration.createServerTransform());
+                        logger.info("Transforming query doc payload with connection-defined transform: " + configuration.getServerTransform());
                     }
                     else
                     {
-                        logger.info("Ingesting doc payload without a transform");
+                        logger.info("Querying docs without a transform");
                     }
 
                     iterator = new MarkLogicResultSetIterator(connection, configuration, query);
