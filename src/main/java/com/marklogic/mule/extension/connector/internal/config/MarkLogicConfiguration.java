@@ -148,26 +148,43 @@ public class MarkLogicConfiguration
 
     public boolean hasServerTransform()
     {
-        return this.getServerTransform() != null
-                && !this.getServerTransform().trim().isEmpty()
-                && !"null".equalsIgnoreCase(this.getServerTransform().trim());
+        return serverTransformExists(serverTransform);
+    }
+
+    public static boolean serverTransformExists(String serverTransformName) {
+        return serverTransformName != null
+                && !serverTransformName.trim().isEmpty()
+                && !"null".equalsIgnoreCase(serverTransformName.trim());
+
     }
 
     public ServerTransform createServerTransform() throws MarkLogicConnectorException
     {
-        if (!hasServerTransform())
+        if (hasServerTransform())
+        {
+            return createServerTransform(serverTransform,serverTransformParams);
+        }
+        else
         {
             throw new MarkLogicConnectorException("Cannot create Server Transform without a name.");
         }
-        else if (this.serverTransformParams == null
-                || this.serverTransformParams.trim().isEmpty()
-                || "null".equalsIgnoreCase(this.serverTransformParams.trim()))
+    }
+
+    public static ServerTransform createServerTransform(String serverTransform, String serverTransformParams) {
+
+        if (!serverTransformExists(serverTransform))
+        {
+            throw new MarkLogicConnectorException("Cannot create Server Transform without a name.");
+        }
+        else if (serverTransformParams == null
+                || serverTransformParams.trim().isEmpty()
+                || "null".equalsIgnoreCase(serverTransformParams.trim()))
         {
             throw new MarkLogicConnectorException("Cannot create Server Transform without any params");
         }
         else
         {
-            List<String> pairs = Arrays.asList(this.serverTransformParams.split(","));
+            List<String> pairs = Arrays.asList(serverTransformParams.split(","));
 
             int size = pairs.size();
 
@@ -176,7 +193,7 @@ public class MarkLogicConfiguration
                 throw new MarkLogicConnectorException("Cannot create Server Transforms because params do not pair up");
             }
 
-            ServerTransform transform = new ServerTransform(this.serverTransform);
+            ServerTransform transform = new ServerTransform(serverTransform);
 
             for (int i = 0; i < size; i += 2)
             {
@@ -185,5 +202,6 @@ public class MarkLogicConfiguration
 
             return transform;
         }
+
     }
 }
