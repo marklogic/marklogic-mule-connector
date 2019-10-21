@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright Â© 2019 MarkLogic Corporation.
+ * Copyright © 2019 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -292,7 +292,7 @@ public class MarkLogicOperations
             @DisplayName("Page Length")
             @Optional
             @Summary("The number of documents fetched at a time.  If blank, defaults to the connection's batch size.") Integer pageLength,
-            @DisplayName("Maximum number of results")
+            @DisplayName("Maximum Number of Results")
             @Optional
             @Summary("The maximum number of results to be fetched.  If blank, defaults to unlimited.") Long maxResults,
             @DisplayName("Search Strategy")

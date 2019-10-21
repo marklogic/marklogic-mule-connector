@@ -110,7 +110,7 @@ public class MarkLogicResultSetIterator implements Iterator
         for (int i = 0; i < fetchSize && documents.hasNext(); i++)
         {
             if (resultCount.getAndIncrement() >= maxResults) {
-                logger.info("Processed the maximum number of results, which is " + maxResults);
+                logger.info("Processed the user-supplied maximum number of results, which is " + maxResults);
                 break;
             }
             DocumentRecord nextRecord = documents.next();
