@@ -312,7 +312,7 @@ public class MarkLogicOperations
             @Summary("The number of documents fetched at a time.  If blank, defaults to the connection's batch size.") Integer pageLength,
             @DisplayName("Maximum Number of Results")
             @Optional
-            @Summary("The maximum number of results to be fetched.  If blank, defaults to unlimited.") Long maxResults,
+            @Summary("The maximum number of results to be fetched.  If blank or zero, defaults to unlimited.") Long maxResults,
             @DisplayName("Search Strategy")
             @Summary("The Java class used to execute the serialized query") MarkLogicQueryStrategy queryStrategy,
             @DisplayName("Serialized Query Format")
