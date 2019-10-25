@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright © 2019 MarkLogic Corporation.
+ * Copyright Â© 2019 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -433,14 +433,20 @@ public class MarkLogicOperations
             @Summary("The server-side Search API options file used to configure the search") String optionsName,
             @DisplayName("Search Strategy")
             @Summary("The Java class used to execute the serialized query") MarkLogicQueryStrategy queryStrategy,
+            @DisplayName("Maximum Number of Results")
+            @Optional
+            @Summary("The maximum number of results to be fetched.  If blank or zero, defaults to unlimited.") Long maxResults,
             @DisplayName("Use Consistent Snapshot")
             @Summary("Whether to use a consistent point-in-time snapshot for operations") boolean useConsistentSnapshot,
             @DisplayName("Serialized Query Format")
             @Summary("The format of the serialized query") MarkLogicQueryFormat fmt
     )
     {
-        MarkLogicExportListener exportListener = new MarkLogicExportListener();
-        return new PagingProvider<MarkLogicConnection, Object>() {
+        maxResults = maxResults != null ? maxResults : 0;
+        MarkLogicExportListener exportListener = new MarkLogicExportListener(maxResults);
+
+        return new PagingProvider<MarkLogicConnection, Object>()
+        {
 
             private final AtomicBoolean initialised = new AtomicBoolean(false);
             private MarkLogicResultSetCloser resultSetCloser;
@@ -448,15 +454,17 @@ public class MarkLogicOperations
             private DataMovementManager dmm = null;
 
             @Override
-            public List<Object> getPage(MarkLogicConnection markLogicConnection) {
-                if (initialised.compareAndSet(false, true)) {
-
+            public List<Object> getPage(MarkLogicConnection markLogicConnection)
+            {
+                if (initialised.compareAndSet(false, true))
+                {
                     DatabaseClient client = markLogicConnection.getClient();
                     QueryManager qm = client.newQueryManager();
                     dmm = client.newDataMovementManager();
 
                     QueryDefinition query;
-                    switch (queryStrategy) {
+                    switch (queryStrategy)
+                    {
                         case RawStructuredQueryDefinition:
                             query = createRawStructuredQuery(qm, queryString, fmt);
                             batcher = dmm.newQueryBatcher((RawStructuredQueryDefinition) query);
@@ -475,11 +483,13 @@ public class MarkLogicOperations
                             throw new RuntimeException("Invalid query type. Unable to create query");
                     }
 
-                    if (configuration.hasServerTransform()) {
+                    if (configuration.hasServerTransform())
+                    {
                         query.setResponseTransform(configuration.createServerTransform());
                     }
 
-                    if (useConsistentSnapshot) {
+                    if (useConsistentSnapshot)
+                    {
                         batcher.withConsistentSnapshot();
                     }
                     batcher.withBatchSize(configuration.getBatchSize())
@@ -494,12 +504,9 @@ public class MarkLogicOperations
                     dmm.stopJob(batcher);
                 }
 
-                if (dmm != null) {
-                    System.out.println("JOB REPORT success batches: " + dmm.getJobReport(batcher.getJobTicket()).getSuccessBatchesCount());
-                    System.out.println("JOB REPORT success events: " + dmm.getJobReport(batcher.getJobTicket()).getSuccessEventsCount());
-                    System.out.println("JOB REPORT getReportTimestamp: " + dmm.getJobReport(batcher.getJobTicket()).getReportTimestamp());
-                } else {
-                    logger.warn("Data Movement Manager weirdly null after initialization");
+                if (dmm == null)
+                {
+                    logger.warn("Data Movement Manager is null after initialization.");
                 }
                 List<Object> results = new ArrayList<>(exportListener.getDocs());
                 exportListener.clearDocs();
@@ -508,12 +515,14 @@ public class MarkLogicOperations
             }
 
             @Override
-            public java.util.Optional<Integer> getTotalResults(MarkLogicConnection markLogicConnection) {
+            public java.util.Optional<Integer> getTotalResults(MarkLogicConnection markLogicConnection)
+            {
                 return java.util.Optional.empty();
             }
 
             @Override
-            public void close(MarkLogicConnection markLogicConnection) throws MuleException {
+            public void close(MarkLogicConnection markLogicConnection) throws MuleException
+            {
                 logger.debug("NOT Invalidating ML connection...");
                 //markLogicConnection.invalidate();
             }
