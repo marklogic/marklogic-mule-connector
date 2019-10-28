@@ -15,6 +15,7 @@ package com.marklogic.mule.extension.connector;
 
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
+import java.util.logging.Logger;
 
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ import org.mule.runtime.core.internal.streaming.object.ManagedCursorIteratorProv
 
 public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
 {
-
+    private static final Logger logger = Logger.getLogger(MarkLogicOperationsTestCase.class.getName());
     private static final String UUID_REGEX = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
     private static final String CURRENT_DATE = new SimpleDateFormat("yyyy-MM-dd").format(new GregorianCalendar().getTime());
 
@@ -113,7 +114,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
         assertThat(payloadValue, containsString(" document(s) deleted"));
     }
 
-    @Test
+    /*@Test
     public void executeOperationTransformEgress() throws Exception
     {
         Object payloadValue = (flowRunner("operation-transform-egressFlow")
@@ -132,5 +133,18 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
         //    assertThat(cursor.next().toString(), containsString("\"transformer\": \"transformTestEgress\""));
         //}
         //isA(ManagedCursorIteratorProvider.class);
+    }*/
+    
+    @Test
+    public void executeMaxResults() throws Exception
+    {
+        Object payloadValue = (flowRunner("maxResultsFlow")
+                .run()
+                .getMessage()
+                .getPayload()
+                .getValue());
+
+        logger.info("Returned from flow - " + payloadValue);
+//assertThat(payloadValue, containsString("mlw: 5"));
     }
 }

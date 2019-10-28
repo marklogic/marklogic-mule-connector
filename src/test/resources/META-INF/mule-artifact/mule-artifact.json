@@ -1,0 +1,19 @@
+{
+  "configs": [
+    "test-mule-config.xml", "test-operation-transform.xml"
+  ],
+  "redeploymentEnabled": true,
+  "name": "retail-api",
+  "minMuleVersion": "4.2.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedResources": []
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}

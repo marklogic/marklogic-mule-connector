@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+                  xsi:schemaLocation="
+                        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                        http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+                        http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+                        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+                        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
+	<munit:config name="new-test-suite.xml" />
+                  <marklogic:config name="transform_config" configId="transformConfig" threadCount="4" batchSize="100" serverTransform="ml:sjsInputFlow" serverTransformParams="entity-name,Employees,flow-name,loadEmployees" secondsBeforeFlush="2" jobName="myJobName" >
+                        <marklogic:connection connectionId="transformConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" />
+                  </marklogic:config>
+                  <!-- <flow name="operation-transform-egressFlow">
+                        <marklogic:query-docs config-ref="transform_config" queryStrategy="RawStructuredQueryDefinition" fmt="XML" serverTransform="transformTestEgress" serverTransformParams="q,e">
+                            <marklogic:query-string>&lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+                                &lt;document-query&gt;
+                                &lt;uri&gt;/test/doc1.json&lt;/uri&gt;
+                                &lt;/document-query&gt;
+                                &lt;/query&gt;
+                            </marklogic:query-string>
+                        </marklogic:query-docs>
+                        <set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]'/>
+                    </flow> -->
+	<munit:test name="new-test-suite-operation-transformFlowTest" description="Test">
+		<munit:behavior>
+                                        <marklogic:query-docs config-ref="transform_config" queryStrategy="RawStructuredQueryDefinition" fmt="XML" serverTransform="transformTestEgress" serverTransformParams="q,e">
+                                            <marklogic:query-string>&lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+                                                &lt;document-query&gt;
+                                                &lt;uri&gt;/test/doc1.json&lt;/uri&gt;
+                                                &lt;/document-query&gt;
+                                                &lt;/query&gt;
+                                            </marklogic:query-string>
+                                        </marklogic:query-docs>
+		</munit:behavior>
+		<munit:execution >
+                                        <flow-ref name="operation-transform-egressFlow"/>
+		</munit:execution>
+		<munit:validation >
+                                        <munit-tools:assert-that expression="#[payload.transformer]" is="transformTestEgress"/>
+		</munit:validation>
+	</munit:test>
+</mule>
