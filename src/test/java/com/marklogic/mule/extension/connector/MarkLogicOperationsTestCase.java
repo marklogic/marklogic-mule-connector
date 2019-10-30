@@ -135,7 +135,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
         //isA(ManagedCursorIteratorProvider.class);
     }*/
     
-    @Test
+    /*@Test
     public void executeMaxResults() throws Exception
     {
         Object payloadValue = (flowRunner("maxResultsFlow")
@@ -144,7 +144,8 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
                 .getPayload()
                 .getValue());
 
-        logger.info("Returned from flow - " + payloadValue);
-//assertThat(payloadValue, containsString("mlw: 5"));
-    }
+        //logger.info("Returned from flow - " + payloadValue);
+        //assertThat(payloadValue, containsString("mlw: 5"));
+        assertThat(payloadValue, notNullValue());
+    } */
 }

@@ -25,7 +25,7 @@
                         </marklogic:query-docs>
                         <set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]'/>
                     </flow> -->
-	<munit:test name="new-test-suite-operation-transformFlowTest" description="Test">
+	<!--<munit:test name="new-test-suite-operation-transformFlowTest" description="Test">
 		<munit:behavior>
                                         <marklogic:query-docs config-ref="transform_config" queryStrategy="RawStructuredQueryDefinition" fmt="XML" serverTransform="transformTestEgress" serverTransformParams="q,e">
                                             <marklogic:query-string>&lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
@@ -42,5 +42,5 @@
 		<munit:validation >
                                         <munit-tools:assert-that expression="#[payload.transformer]" is="transformTestEgress"/>
 		</munit:validation>
-	</munit:test>
+	</munit:test>-->
 </mule>

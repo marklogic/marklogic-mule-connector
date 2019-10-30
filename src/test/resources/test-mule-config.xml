@@ -48,13 +48,13 @@
         </marklogic:query-docs>
         <set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]'/>
     </flow> -->
-    <flow name="maxResultsFlow">
+    <!-- <flow name="maxResultsFlow">
         <marklogic:query-docs queryStrategy="CTSQuery" fmt="XML" config-ref="config" maxResults="5">
             <marklogic:query-string>
                 &lt;cts:true-query xmlns:cts=&quot;http://marklogic.com/cts&quot;&gt;&lt;/cts:true-query&gt;
             </marklogic:query-string>
-        </marklogic:query-docs>
+        </marklogic:query-docs> -->
         <!-- <set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; sizeOf(payload)]'/>
     <logger level="INFO" message="#[&quot;mlw: &quot; ++ payload]"/> -->
-    </flow>
+    <!-- </flow> -->
 </mule>

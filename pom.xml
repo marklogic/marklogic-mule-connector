@@ -54,7 +54,7 @@
             <plugin>
                 <groupId>com.mulesoft.munit</groupId>
                 <artifactId>munit-extensions-maven-plugin</artifactId>
-                <version>${munit.extensions.maven.plugin.version}</version>
+                <version>1.0.0-BETA3</version>
                 <executions>
                     <execution>
                         <phase>integration-test</phase>
@@ -88,7 +88,7 @@
             <plugin>
                 <groupId>com.mulesoft.munit.tools</groupId>
                 <artifactId>munit-maven-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>${munit.version}</version>
                 <executions>
                     <execution>
                         <id>test</id>
@@ -158,14 +158,14 @@
         <dependency>
             <groupId>com.mulesoft.munit</groupId>
             <artifactId>munit-runner</artifactId>
-            <version>2.2.1</version>
+            <version>${munit.version}</version>
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.mulesoft.munit</groupId>
             <artifactId>munit-tools</artifactId>
-            <version>2.2.1</version>
+            <version>${munit.version}</version>
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
@@ -191,7 +191,7 @@
         <dependency>
             <groupId>com.mulesoft.munit</groupId>
             <artifactId>mtf-tools</artifactId>
-            <version>1.0.0-BETA3</version>
+            <version>1.0.0-BETA2</version>
             <classifier>mule-plugin</classifier>
         </dependency>
     </dependencies>
@@ -200,7 +200,7 @@
     <parent>
         <groupId>org.mule.connectors</groupId>
         <artifactId>mule-certified-parent</artifactId>
-        <version>1.4.0</version>
+        <version>1.4.1</version>
     </parent>
     <repositories>
         <repository>
