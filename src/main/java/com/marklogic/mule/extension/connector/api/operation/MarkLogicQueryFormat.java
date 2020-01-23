@@ -13,11 +13,36 @@
  */
 package com.marklogic.mule.extension.connector.api.operation;
 
+import com.marklogic.client.io.Format;
+
 /**
  * Created by credding on 4/28/2019.
  */
 public enum MarkLogicQueryFormat
 {
-    XML,
-    JSON
+    XML{
+        @Override
+        public Format getMlClientFormat() {
+            return Format.XML;
+        }
+    },
+    JSON {
+        @Override
+        public Format getMlClientFormat() {
+            return Format.JSON;
+        }
+    },
+    Binary {
+        @Override
+        public Format getMlClientFormat() {
+            return Format.BINARY;
+        }
+    },
+    Text {
+        @Override
+        public Format getMlClientFormat() {
+            return Format.TEXT;
+        }
+    };
+    public abstract Format getMlClientFormat();
 }
