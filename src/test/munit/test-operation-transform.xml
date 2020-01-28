@@ -11,6 +11,7 @@
                         http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
                         http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
 	<munit:config name="new-test-suite.xml" />
+                  <configuration-properties file="automation-credentials.properties"/>
                   <marklogic:config name="transform_config" configId="transformConfig" threadCount="4" batchSize="100" serverTransform="ml:sjsInputFlow" serverTransformParams="entity-name,Employees,flow-name,loadEmployees" secondsBeforeFlush="2" jobName="myJobName" >
                         <marklogic:connection connectionId="transformConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" />
                   </marklogic:config>
