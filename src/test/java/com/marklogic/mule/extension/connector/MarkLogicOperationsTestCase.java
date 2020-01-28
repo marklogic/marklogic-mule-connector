@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright Â© 2019 MarkLogic Corporation.
+ * Copyright © 2019 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -15,19 +15,23 @@ package com.marklogic.mule.extension.connector;
 
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
+import java.util.logging.Logger;
 
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
+
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
+import org.mule.runtime.api.streaming.object.CursorIterator;
+import org.mule.runtime.core.internal.streaming.object.ManagedCursorIteratorProvider;
 
 public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
 {
-
+    private static final Logger logger = Logger.getLogger(MarkLogicOperationsTestCase.class.getName());
     private static final String UUID_REGEX = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
     private static final String CURRENT_DATE = new SimpleDateFormat("yyyy-MM-dd").format(new GregorianCalendar().getTime());
 
@@ -109,4 +113,39 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
                 .getValue());
         assertThat(payloadValue, containsString(" document(s) deleted"));
     }
+
+    /*@Test
+    public void executeOperationTransformEgress() throws Exception
+    {
+        Object payloadValue = (flowRunner("operation-transform-egressFlow")
+                .run()
+                .getMessage()
+                .getPayload()
+                .getValue());
+
+        assertThat(payloadValue, notNullValue());
+
+        // At some point in the future this test should actually test the results.  For whatever reason the following lines
+        // throw java.lang.NoClassDefFoundError: org/mule/runtime/core/internal/streaming/object/ManagedCursorIteratorProvider
+        // even though there is a jar file in surefire.test.class.path that contains that class.
+        //CursorIterator cursor = ((ManagedCursorIteratorProvider) payloadValue).openCursor();
+        //while(cursor.hasNext()) {
+        //    assertThat(cursor.next().toString(), containsString("\"transformer\": \"transformTestEgress\""));
+        //}
+        //isA(ManagedCursorIteratorProvider.class);
+    }*/
+    
+    /*@Test
+    public void executeMaxResults() throws Exception
+    {
+        Object payloadValue = (flowRunner("maxResultsFlow")
+                .run()
+                .getMessage()
+                .getPayload()
+                .getValue());
+
+        //logger.info("Returned from flow - " + payloadValue);
+        //assertThat(payloadValue, containsString("mlw: 5"));
+        assertThat(payloadValue, notNullValue());
+    } */
 }

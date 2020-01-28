@@ -31,9 +31,6 @@ import com.marklogic.client.datamovement.QueryBatcher;
 import com.marklogic.client.io.*;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
-import com.marklogic.client.query.RawCtsQueryDefinition;
-import com.marklogic.client.query.RawStructuredQueryDefinition;
-import com.marklogic.client.query.StructuredQueryDefinition;
 
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
@@ -42,12 +39,11 @@ import com.marklogic.mule.extension.connector.internal.error.MarkLogicExecuteErr
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 
-import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnectorException;
 import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicSelectMetadataResolver;
+import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicExportListener;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetCloser;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetIterator;
 
-import org.apache.commons.jexl3.*;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
@@ -98,7 +94,7 @@ public class MarkLogicOperations
             @Optional(defaultValue = "/")
             @Summary("The URI prefix, used to prepend and concatenate basenameUri.")
             @Example("/mulesoft/") String outputUriPrefix,
-            @Optional(defaultValue = ".json")
+            @Optional(defaultValue = "")
             @Summary("The URI suffix, used to append and concatenate basenameUri.")
             @Example(".json") String outputUriSuffix,
             @DisplayName("Generate output URI basename?")
@@ -112,11 +108,20 @@ public class MarkLogicOperations
             @DisplayName("Temporal collection")
             @Optional(defaultValue = "null")
             @Summary("The temporal collection imported documents will be loaded into.")
-            @Example("") String temporalCollection)
+            @Example("") String temporalCollection,
+            @Summary("The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.")
+            @Optional(defaultValue = "null")
+            @Example("ml:sjsInputFlow")
+            String serverTransform,
+            @Summary("A comma-separated list of alternating transform parameter names and transform parameter values.")
+            @Optional(defaultValue = "null")
+            @Example("entity-name,MyEntity,flow-name,loadMyEntity")
+            String serverTransformParams
+            )
     {
 
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection);
+        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection,serverTransform,serverTransformParams);
 
         // Determine output URI
         // If the config tells us to generate a new UUID, do that
@@ -159,6 +164,8 @@ public class MarkLogicOperations
      */
 
     @MediaType(value = APPLICATION_JSON, strict = true)
+    @DisplayName("Get Job Report (deprecated)")
+    //@org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used.  Instead, use the built-in MuleSoft BatchJobResult output.", since = "1.1.0")
     public String getJobReport()
     {
         ObjectNode rootObj = jsonFactory.createObjectNode();
@@ -209,27 +216,8 @@ public class MarkLogicOperations
         DatabaseClient client = connection.getClient();
         QueryManager qm = client.newQueryManager();
         DataMovementManager dmm = client.newDataMovementManager();
-        QueryBatcher batcher;
-        QueryDefinition query;
-        switch (queryStrategy)
-        {
-            case RawStructuredQueryDefinition:
-                query = createRawStructuredQuery(qm, queryString, fmt);
-                batcher = dmm.newQueryBatcher((RawStructuredQueryDefinition) query);
-                break;
-            case StructuredQueryBuilder:
-                // Example of incoming structuredQuery string as criteria: sb.document("/mulesoft/10078.json") 
-                query = createStructuredQuery(qm, queryString, optionsName);
-                batcher = dmm.newQueryBatcher((StructuredQueryDefinition) query);
-                break;
-            case CTSQuery:
-                query = createCtsQuery(qm, queryString, fmt, optionsName);
-                batcher = dmm.newQueryBatcher((RawCtsQueryDefinition) query);
-                break;
-            default:
-                logger.error(String.format("Query Strategy %s is not supported", queryStrategy));
-                throw new RuntimeException("Invalid query type. Unable to create query to delete documents");
-        }
+        QueryDefinition query = queryStrategy.getQueryDefinition(qm,queryString,fmt,optionsName);
+        QueryBatcher batcher = queryStrategy.newQueryBatcher(dmm,query);
         SearchHandle resultsHandle = qm.search(query, new SearchHandle());
         
         if (useConsistentSnapshot)
@@ -257,7 +245,8 @@ public class MarkLogicOperations
 
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
-    @Deprecated
+    @DisplayName("Select Documents By Structured Query (deprecated)")
+    //@org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "Use Query Docs instead", since = "1.1.0")
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public PagingProvider<MarkLogicConnection, Object> selectDocsByStructuredQuery(
             @DisplayName("Serialized Query String")
@@ -271,11 +260,17 @@ public class MarkLogicOperations
             @Summary("The Java class used to execute the serialized query") MarkLogicQueryStrategy structuredQueryStrategy,
             @DisplayName("Serialized Query Format")
             @Summary("The format of the serialized query") MarkLogicQueryFormat fmt,
+            @Summary("The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.")
+            @Optional(defaultValue = "null")
+            @Example("ml:sjsInputFlow") String serverTransform,
+            @Summary("A comma-separated list of alternating transform parameter names and transform parameter values.")
+            @Optional(defaultValue = "null")
+            @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams,
             StreamingHelper streamingHelper,
             FlowListener flowListener
     )
     {
-        return queryDocs(structuredQuery, configuration, optionsName, structuredQueryStrategy, fmt, streamingHelper, flowListener);
+        return queryDocs(structuredQuery, configuration, optionsName, null, null, structuredQueryStrategy, fmt, serverTransform, serverTransformParams, streamingHelper, flowListener);
     }
 
     @MediaType(value = ANY, strict = false)
@@ -289,10 +284,22 @@ public class MarkLogicOperations
             @DisplayName("Search API Options")
             @Optional(defaultValue = "null")
             @Summary("The server-side Search API options file used to configure the search") String optionsName,
+            @DisplayName("Page Length")
+            @Optional
+            @Summary("The number of documents fetched at a time.  If blank, defaults to the connection's batch size.") Integer pageLength,
+            @DisplayName("Maximum Number of Results")
+            @Optional
+            @Summary("The maximum number of results to be fetched.  If blank or zero, defaults to unlimited.") Long maxResults,
             @DisplayName("Search Strategy")
             @Summary("The Java class used to execute the serialized query") MarkLogicQueryStrategy queryStrategy,
             @DisplayName("Serialized Query Format")
             @Summary("The format of the serialized query") MarkLogicQueryFormat fmt,
+            @Summary("The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.")
+            @Optional(defaultValue = "null")
+            @Example("ml:sjsInputFlow") String serverTransform,
+            @Summary("A comma-separated list of alternating transform parameter names and transform parameter values.")
+            @Optional(defaultValue = "null")
+            @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams,
             StreamingHelper streamingHelper,
             FlowListener flowListener)
     {
@@ -322,37 +329,37 @@ public class MarkLogicOperations
                         }
                     });
 
-                    QueryDefinition query;
                     DatabaseClient client = connection.getClient();
                     QueryManager qm = client.newQueryManager();
 
                     String options = isDefined(optionsName) ? optionsName : null;
+                    QueryDefinition query = queryStrategy.getQueryDefinition(qm,queryString,fmt,options);
 
-                    switch (queryStrategy)
+                    if (MarkLogicConfiguration.serverTransformExists(serverTransform))
                     {
-                        case StructuredQueryBuilder:
-                            // Example of incoming structuredQuery string as criteria: sb.document("/mulesoft/10078.json")
-                            query = createStructuredQuery(qm, queryString, options);
-                            break;
-                        case CTSQuery:
-                            query = createCtsQuery(qm, queryString, fmt, options);
-                            break;
-                        default: //RawStructuredQueryDefinition:
-                            query = createRawStructuredQuery(qm, queryString, fmt);
+                        query.setResponseTransform(MarkLogicConfiguration.createServerTransform(serverTransform,serverTransformParams));
+                        logger.info("Transforming query doc payload with operation-defined transform: " + serverTransform);
                     }
-
-                    if (configuration.hasServerTransform())
+                    else if (configuration.hasServerTransform())
                     {
                         query.setResponseTransform(configuration.createServerTransform());
+                        logger.info("Transforming query doc payload with connection-defined transform: " + configuration.getServerTransform());
                     }
                     else
                     {
-                        logger.info("Ingesting doc payload without a transform");
+                        logger.info("Querying docs without a transform");
                     }
 
-                    iterator = new MarkLogicResultSetIterator(connection, configuration, query);
-                }
+                    if ((pageLength != null) && (pageLength < 1))
+                    {
+                        iterator = new MarkLogicResultSetIterator(connection, configuration, query, configuration.getBatchSize(), maxResults);
+                    }
+                    else
+                    {
+                        iterator = new MarkLogicResultSetIterator(connection, configuration, query, pageLength, maxResults);
+                    }
 
+                }
                 return iterator.next();
             }
 
@@ -376,44 +383,97 @@ public class MarkLogicOperations
         };
     }
 
-    private QueryDefinition createCtsQuery(QueryManager queryManager, String queryString, MarkLogicQueryFormat fmt, String optionsName)
+    @MediaType(value = ANY, strict = false)
+    @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
+    @Throws(MarkLogicExecuteErrorsProvider.class)
+    public PagingProvider<MarkLogicConnection, Object> exportDocs(
+            @Config MarkLogicConfiguration configuration,
+            @DisplayName("Serialized Query String")
+            @Summary("The serialized query XML or JSON")
+            @Text String queryString,
+            @DisplayName("Search API Options")
+            @Optional(defaultValue = "null")
+            @Summary("The server-side Search API options file used to configure the search") String optionsName,
+            @DisplayName("Search Strategy")
+            @Summary("The Java class used to execute the serialized query") MarkLogicQueryStrategy queryStrategy,
+            @DisplayName("Maximum Number of Results")
+            @Optional
+            @Summary("The maximum number of results to be fetched.  If blank or zero, defaults to unlimited.") Long maxResults,
+            @DisplayName("Use Consistent Snapshot")
+            @Summary("Whether to use a consistent point-in-time snapshot for operations") boolean useConsistentSnapshot,
+            @DisplayName("Serialized Query Format")
+            @Summary("The format of the serialized query") MarkLogicQueryFormat fmt
+    )
     {
-        return queryManager.newRawCtsQueryDefinitionAs(getMLQueryFormat(fmt), queryString, optionsName);
-    }
+        maxResults = maxResults != null ? maxResults : 0;
+        MarkLogicExportListener exportListener = new MarkLogicExportListener(maxResults);
 
-    private static Format getMLQueryFormat(MarkLogicQueryFormat format)
-    {
-        switch (format)
+        return new PagingProvider<MarkLogicConnection, Object>()
         {
-            case JSON:
-                return Format.JSON;
-            default:
-                return Format.XML;
-        }
-    }
 
-    private RawStructuredQueryDefinition createRawStructuredQuery(QueryManager qManager, String structuredQuery, MarkLogicQueryFormat fmt)
-    {
-        return qManager.newRawStructuredQueryDefinition(new StringHandle().withFormat(getMLQueryFormat(fmt)).with(structuredQuery));
-    }
+            private final AtomicBoolean initialised = new AtomicBoolean(false);
+            private MarkLogicResultSetCloser resultSetCloser;
+            private QueryBatcher batcher;
+            private DataMovementManager dmm = null;
 
-    private StructuredQueryDefinition createStructuredQuery(QueryManager qManager, String structuredQuery, String optionsName)
-    {
-        JexlEngine jexl = new JexlBuilder().create();
-        JexlExpression e = jexl.createExpression(structuredQuery);
-        JexlContext jc = new MapContext();
-        if (optionsName == null)
-        {
-            jc.set("sb", qManager.newStructuredQueryBuilder());
-        }
-        else
-        {
-            jc.set("sb", qManager.newStructuredQueryBuilder(optionsName));
-        }
-        Object o = e.evaluate(jc);
-        return (StructuredQueryDefinition) o;
-    }
+            @Override
+            public List<Object> getPage(MarkLogicConnection markLogicConnection)
+            {
+                if (initialised.compareAndSet(false, true))
+                {
+                    DatabaseClient client = markLogicConnection.getClient();
+                    QueryManager qm = client.newQueryManager();
+                    dmm = client.newDataMovementManager();
 
+                    QueryDefinition query = queryStrategy.getQueryDefinition(qm,queryString,fmt,optionsName);
+                    batcher = queryStrategy.newQueryBatcher(dmm,query);
+
+                    if (configuration.hasServerTransform())
+                    {
+                        query.setResponseTransform(configuration.createServerTransform());
+                    }
+
+                    if (useConsistentSnapshot)
+                    {
+                        batcher.withConsistentSnapshot();
+                    }
+                    batcher.withBatchSize(configuration.getBatchSize())
+                            .withThreadCount(configuration.getThreadCount())
+                            .onUrisReady(exportListener)
+                            .onQueryFailure((throwable) ->
+                            {
+                                logger.error("Exception thrown by an onBatchSuccess listener", throwable);  // For Sonar...
+                            });
+                    dmm.startJob(batcher);
+                    batcher.awaitCompletion();
+                    dmm.stopJob(batcher);
+                }
+
+                if (dmm == null)
+                {
+                    logger.warn("Data Movement Manager is null after initialization.");
+                }
+                List<Object> results = new ArrayList<>(exportListener.getDocs());
+                exportListener.clearDocs();
+
+                return results;
+            }
+
+            @Override
+            public java.util.Optional<Integer> getTotalResults(MarkLogicConnection markLogicConnection)
+            {
+                return java.util.Optional.empty();
+            }
+
+            @Override
+            public void close(MarkLogicConnection markLogicConnection) throws MuleException
+            {
+                logger.debug("NOT Invalidating ML connection...");
+                //markLogicConnection.invalidate();
+            }
+        };
+
+    }
     private boolean isDefined(String str)
     {
         return str != null && !str.trim().isEmpty() && !"null".equals(str.trim());
