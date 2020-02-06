@@ -13,59 +13,54 @@
  */
 package com.marklogic.mule.extension.connector.internal.operation;
 
-import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
-import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
-import java.io.InputStream;
-
-import java.util.*;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.client.datamovement.DataMovementManager;
-import com.marklogic.client.datamovement.DeleteListener;
-import com.marklogic.client.datamovement.QueryBatcher;
-import com.marklogic.client.io.*;
-import com.marklogic.client.query.QueryDefinition;
-import com.marklogic.client.query.QueryManager;
-import com.marklogic.client.query.RawCtsQueryDefinition;
-import com.marklogic.client.query.RawStructuredQueryDefinition;
-import com.marklogic.client.query.StructuredQueryDefinition;
-
+import com.marklogic.client.datamovement.*;
+import com.marklogic.client.document.ServerTransform;
+import com.marklogic.client.ext.DatabaseClientConfig;
+import com.marklogic.client.ext.DefaultConfiguredDatabaseClientFactory;
+import com.marklogic.client.io.DocumentMetadataHandle;
+import com.marklogic.client.io.Format;
+import com.marklogic.client.io.SearchHandle;
+import com.marklogic.client.io.StringHandle;
+import com.marklogic.client.query.*;
+import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
+import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
+import com.marklogic.mule.extension.connector.internal.config.DataHubConfiguration;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
+import com.marklogic.mule.extension.connector.internal.config.RunFlowOptions;
+import com.marklogic.mule.extension.connector.internal.config.RunFlowWithIngestOptions;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import com.marklogic.mule.extension.connector.internal.error.MarkLogicExecuteErrorsProvider;
-
-import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
-import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
-
-import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnectorException;
 import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicSelectMetadataResolver;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetCloser;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetIterator;
-
 import org.apache.commons.jexl3.*;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
-import org.mule.runtime.extension.api.annotation.param.MediaType;
-import org.mule.runtime.extension.api.annotation.param.Config;
-import org.mule.runtime.extension.api.annotation.param.Content;
-import org.mule.runtime.extension.api.annotation.param.Connection;
-import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.*;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
-
 import org.mule.runtime.extension.api.annotation.param.display.Text;
 import org.mule.runtime.extension.api.runtime.operation.FlowListener;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
+import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 
 /* This class is a container for operations, every public method in this class will be taken as an extension operation. */
 public class MarkLogicOperations
@@ -75,6 +70,23 @@ public class MarkLogicOperations
     private static final String OUTPUT_URI_TEMPLATE = "%s%s%s"; // URI Prefix + basenameUri + URI Suffix
 
     private ObjectMapper jsonFactory = new ObjectMapper();
+
+    private String generateOutputURI(boolean generateOutputUriBasename, String basenameUri, String outputUriPrefix, String outputUriSuffix) {
+        // Determine output URI
+        // If the config tells us to generate a new UUID, do that
+        if (generateOutputUriBasename)
+        {
+            basenameUri = UUID.randomUUID().toString();
+            // Also, if the basenameURI is blank for whatever reason, use a new UUID
+        }
+        else if ((basenameUri == null) || (basenameUri.equals("null")) || (basenameUri.length() < 1))
+        {
+            basenameUri = UUID.randomUUID().toString();
+        }
+
+        // Assemble the output URI components
+        return String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basenameUri, outputUriSuffix);
+    }
 
     // Loading files into MarkLogic asynchronously InputStream docPayload
     @MediaType(value = APPLICATION_JSON, strict = true)
@@ -114,24 +126,52 @@ public class MarkLogicOperations
             @Summary("The temporal collection imported documents will be loaded into.")
             @Example("") String temporalCollection)
     {
+        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, null, null, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection);
+        String outURI = generateOutputURI(generateOutputUriBasename, basenameUri, outputUriPrefix, outputUriSuffix);
 
-        // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection);
+        // Actually do the insert and return the result
+        return batcher.doInsert(outURI, docPayloads);
+    }
 
-        // Determine output URI
-        // If the config tells us to generate a new UUID, do that
-        if (generateOutputUriBasename)
-        {
-            basenameUri = UUID.randomUUID().toString();
-            // Also, if the basenameURI is blank for whatever reason, use a new UUID
-        }
-        else if ((basenameUri == null) || (basenameUri.equals("null")) || (basenameUri.length() < 1))
-        {
-            basenameUri = UUID.randomUUID().toString();
-        }
-
-        // Assemble the output URI components
-        String outURI = String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basenameUri, outputUriSuffix);
+    // Loads documents into MarkLogic (similar to importDocs) and executes a data hub flow
+    @MediaType(value = APPLICATION_JSON, strict = true)
+    @Throws(MarkLogicExecuteErrorsProvider.class)
+    public String runFlowWithIngestion(
+            @Config MarkLogicConfiguration configuration,
+            @Connection MarkLogicConnection connection,
+            @ParameterGroup(name = "Data Hub Configuration") DataHubConfiguration dataHubConfiguration,
+            @ParameterGroup(name = "Run Flow Options") RunFlowWithIngestOptions runFlowOptions,
+            @DisplayName("Document payload")
+            @Summary("The content of the input files to be used for ingestion into MarkLogic.")
+            @Example("#[payload]")
+            @Content InputStream docPayloads,
+            @Optional(defaultValue = "null")
+            @Summary("A comma-separated list of the collections to which persisted documents will belong after successful ingestion.")
+            @Example("mulesoft-test") String outputCollections,
+            @Optional(defaultValue = "data-hub-operator,read,data-hub-operator,update")
+            @Summary("A comma-separated list of roles and capabilities to which persisted documents will possess after successful ingestion.")
+            @Example("myRole,read,myRole,update") String outputPermissions,
+            @Optional(defaultValue = "/")
+            @Summary("The URI prefix, used to prepend and concatenate basenameUri.")
+            @Example("/mulesoft/") String outputUriPrefix,
+            @Optional(defaultValue = ".json")
+            @Summary("The URI suffix, used to append and concatenate basenameUri.")
+            @Example(".json") String outputUriSuffix,
+            @DisplayName("Generate output URI basename?")
+            @Optional(defaultValue = "true")
+            @Summary("Creates a document basename based on a UUID, to be combined with the outputUriPrefix and outputUriSuffix. Use this if you can't programmatically assign a basename from an identifier in the document. Otherwise use basenameUri.")
+            @Example("false") boolean generateOutputUriBasename,
+            @DisplayName("Output document basename")
+            @Optional(defaultValue = "null")
+            @Summary("The file basename to be used for persistence in MarkLogic, usually derived a value from within the payload. Different than the UUID produced from generateOutputUriBasename.")
+            @Example("employee123.json") String basenameUri,
+            @DisplayName("Temporal collection")
+            @Optional(defaultValue = "null")
+            @Summary("The temporal collection imported documents will be loaded into.")
+            @Example("") String temporalCollection)
+    {
+        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, dataHubConfiguration, runFlowOptions, outputCollections, outputPermissions, 0, configuration.getJobName(), temporalCollection);
+        String outURI = generateOutputURI(generateOutputUriBasename, basenameUri, outputUriPrefix, outputUriSuffix);
 
         // Actually do the insert and return the result
         return batcher.doInsert(outURI, docPayloads);

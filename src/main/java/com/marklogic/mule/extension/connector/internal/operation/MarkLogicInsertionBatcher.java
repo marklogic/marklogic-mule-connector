@@ -20,9 +20,13 @@ import com.marklogic.client.datamovement.DataMovementManager;
 import com.marklogic.client.datamovement.JobReport;
 import com.marklogic.client.datamovement.JobTicket;
 import com.marklogic.client.datamovement.WriteBatcher;
+import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.InputStreamHandle;
+import com.marklogic.mule.extension.connector.internal.config.DataHubConfiguration;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
+import com.marklogic.mule.extension.connector.internal.config.RunFlowOptions;
+import com.marklogic.mule.extension.connector.internal.config.RunFlowWithIngestOptions;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
 import java.io.InputStream;
@@ -74,6 +78,10 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     private MarkLogicConnection connection;
     private Timer timer = null;
 
+    // data hub specific options
+    private DataHubConfiguration dataHubConfiguration;
+    private RunFlowWithIngestOptions runFlowOptions;
+
     /**
      * Private constructor-- enforces singleton pattern
      *
@@ -81,40 +89,60 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
      * should work
      * @param connection -- information describing how to connect to MarkLogic
      */
-    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection)
+    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, DataHubConfiguration dataHubConfiguration, RunFlowWithIngestOptions runFlowOptions, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection)
     {
         // get the object handles needed to talk to MarkLogic
-        initializeBatcher(connection, configuration, outputCollections, outputPermissions, outputQuality, temporalCollection);
+        initializeBatcher(connection, configuration, dataHubConfiguration, runFlowOptions, outputCollections, outputPermissions, outputQuality, temporalCollection);
         this.jobName = jobName;
     }
 
-    private void initializeBatcher(MarkLogicConnection connection, MarkLogicConfiguration configuration, String outputCollections, String outputPermissions, int outputQuality, String temporalCollection)
+    private void initializeBatcher(MarkLogicConnection connection, MarkLogicConfiguration configuration, DataHubConfiguration dataHubConfiguration, RunFlowWithIngestOptions runFlowOptions, String outputCollections, String outputPermissions, int outputQuality, String temporalCollection)
     {
         this.connection = connection;
         connection.addMarkLogicClientInvalidationListener(this);
+
+        this.dataHubConfiguration = dataHubConfiguration;
+        this.runFlowOptions = runFlowOptions;
+        boolean usingDataHub = dataHubConfiguration != null && runFlowOptions != null;
+
         DatabaseClient myClient = connection.getClient();
         dmm = myClient.newDataMovementManager();
         batcher = dmm.newWriteBatcher();
+
         // Configure the batcher's behavior
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
-                .onBatchSuccess((batch) ->
-                {
-                })
                 .onBatchFailure((batch, throwable) ->
                 {
                     logger.error("Exception thrown by an onBatchSuccess listener", throwable);  // For Sonar...
                 });
+
+        if (usingDataHub) {
+            RunFlowWriteBatchListener flowListener = new RunFlowWriteBatchListener(connection, dataHubConfiguration, runFlowOptions);
+            batcher.onBatchSuccess(flowListener);
+        }
+        else {
+            batcher.onBatchSuccess((batch) -> { });
+        }
+
         // Configure the transform to be used, if any
         // ASSUMPTION: The same transform (or lack thereof) will be used for every document to be inserted during the
         // lifetime of this object
-
         if ((temporalCollection != null) && !"null".equalsIgnoreCase(temporalCollection))
         {
             System.out.println("TEMPORAL COLLECTION: " + temporalCollection);
             batcher.withTemporalCollection(temporalCollection);
         }
 
+        if (usingDataHub) {
+            // Have to do this if we want to duplicate "standard" DHF ingestion (e.g. wrap data in an envelope)
+            // Will still work w/o a transform, but we won't get header metadata or trigger custom hook(s)
+            ServerTransform transform = new ServerTransform("mlRunIngest");
+            transform.addParameter("flow-name", runFlowOptions.getFlowName());
+            transform.addParameter("step", runFlowOptions.getIngestionStep()); // this cannot be empty and has to match the ingestion step
+            batcher.withTransform(transform);
+            logger.info("Transforming input doc payload with default data hub transform: " + transform);
+        }
         if (configuration.hasServerTransform())
         {
             batcher.withTransform(configuration.createServerTransform());
@@ -162,7 +190,9 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
             metadataHandle.withCollections(configCollections);
         }
         // Set up quality new docs should have
-        metadataHandle.setQuality(outputQuality);
+        if (!usingDataHub) { // not sure yet, but getting XDMP-INVOPTVAL when used with data hub's "mlIngest" transform; skipping for now
+            metadataHandle.setQuality(outputQuality);
+        }
 
         // Set up list of permissions that new docs should be granted
         String[] permissions = outputPermissions.split(",");
@@ -243,14 +273,14 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
      * @param temporalCollection
      * @return instance of the batcher
      */
-    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection)
+    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, DataHubConfiguration dataHubConfiguration, RunFlowWithIngestOptions runFlowOptions, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection)
     {
         // String configId = config.getConfigId();
         // MarkLogicInsertionBatcher instance = instances.get(configId);
         // Uncomment above to support multiple connection config scenario
         if (instance == null)
         {
-            instance = new MarkLogicInsertionBatcher(config, connection, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection);
+            instance = new MarkLogicInsertionBatcher(config, connection, dataHubConfiguration, runFlowOptions, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection);
             // instances.put(configId,instance);
             // Uncomment above to support multiple connection config scenario
         }
@@ -258,7 +288,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         {
             if (instance.batcherRequiresReinit)
             {
-                instance.initializeBatcher(connection, config, outputCollections, outputPermissions, outputQuality, temporalCollection);
+                instance.initializeBatcher(connection, config, dataHubConfiguration, runFlowOptions, outputCollections, outputPermissions, outputQuality, temporalCollection);
                 instance.batcherRequiresReinit = false;
             }
         }

@@ -4,6 +4,7 @@
 #Ignore IntelliJ Files
 .idea/*
 *.iml
+.settings
 
 #Ignore Build Directory
 /target

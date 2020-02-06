@@ -13,6 +13,8 @@
  */
 package com.marklogic.mule.extension.connector.internal.connection;
 
+import com.marklogic.hub.HubConfig;
+import com.marklogic.hub.impl.HubConfigImpl;
 import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -160,7 +162,7 @@ public final class MarkLogicConnection
             }
             SSLContext context = sslContext.createSslContext();
             config.setSslContext(context);
-            
+
             // N.b: Figure out what this means:
             // config.setConnectionType(DatabaseClient.ConnectionType.GATEWAY or DatabaseClient.ConnectionType.DIRECT);
             if (AuthenticationType.certificate == authenticationType && sslContext.isTrustStoreConfigured())
@@ -192,7 +194,7 @@ public final class MarkLogicConnection
 
         config.setSslHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.ANY);
 
-        
+
         client = new DefaultConfiguredDatabaseClientFactory().newDatabaseClient(config);
     }
 
@@ -220,6 +222,10 @@ public final class MarkLogicConnection
         }
         return KeyStore.getInstance(trustStoreType);
 
+    }
+
+    public HubConfig createDataHubConfig() {
+        return new HubConfigImpl(hostname, username, password);
     }
 
     public void addMarkLogicClientInvalidationListener(MarkLogicConnectionInvalidationListener listener) 
