@@ -1,0 +1,16 @@
+apply plugin: 'com.marklogic.ml-data-hub'
+
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.marklogic:ml-data-hub:5.2-SNAPSHOT'
+  }
+}
+
+wrapper {
+  gradleVersion = '4.10'
+}

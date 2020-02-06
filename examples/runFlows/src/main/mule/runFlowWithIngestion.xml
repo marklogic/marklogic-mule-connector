@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="47e1be37-7625-41bc-813c-2bace48cb95f" configId="testConfig-1234" threadCount="4" batchSize="1000" secondsBeforeFlush="2" jobName="testJob">
+		<marklogic:connection hostname="localhost" port="9010" username="admin" password="admin" authenticationType="digest" connectionId="testConfig-1234"/>
+	</marklogic:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="62123faa-d03d-4bdb-9c2e-027e486e1ca6" >
+		<http:listener-connection host="0.0.0.0" port="13000" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="1b625ba8-226e-45a5-a206-4b902b12a1f4" >
+		<http:request-connection protocol="HTTPS" host="data.cityofnewyork.us" />
+	</http:request-config>
+	<flow name="rundatahubflowFlow1" doc:id="551d07ed-eb80-4aca-8f8e-ee6896d65317" >
+		<http:listener doc:name="Listener" doc:id="b3869cb6-c45f-4e29-8087-d7063ddd850e" config-ref="HTTP_Listener_config" path="/"/>
+		<http:request method="GET" doc:name="Get CSV from server" doc:id="2d82cd45-1786-4686-a0d2-8f54fc43f5e1" config-ref="HTTP_Request_configuration" url="https://data.cityofnewyork.us/api/views/jzhd-m6uv/rows.csv" outputMimeType="text/csv"/>
+		<batch:job jobName="rundatahubflowBatch_Job" doc:id="9e732558-ac59-41be-a7a6-fa7b14b3a0e7" blockSize="1000" maxConcurrency="4">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="3a2ffd40-92da-40fb-b515-064f44369a35" >
+					<ee:transform doc:name="CSV to JSON" doc:id="a079bd47-1779-4883-8a22-93d0e0d442f8">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/json
+var streettwo = if (sizeOf(payload."Street 2"[0]) > 0 ) (payload."Street 2"[0]) else null
+var unitType =  if (sizeOf(payload."Unit Type"[0]) > 0 ) (capitalize(payload."Unit Type"[0])) else null
+var unit =  if (sizeOf(payload.Unit[0]) > 0 ) (capitalize(payload.Unit[0])) else null
+var description = if (sizeOf(payload.Description[0]) > 0) (capitalize(payload.Description[0])) else null
+var lat = if (sizeOf(payload.Latitude[0]) > 0) (payload.Latitude[0] as Number) else null
+var long = if (sizeOf(payload.Longitude[0]) > 0) (payload.Longitude[0] as Number) else null
+var dateTokens = splitBy(payload."Inspection Date"[0], "/")
+var date = joinBy([dateTokens[2], dateTokens[0], dateTokens[1]], "-")
+---
+{
+	headers: {
+		uuid: uuid(),
+		ingestDateTime: now(),
+		source: "https://data.cityofnewyork.us/api/views/jzhd-m6uv/rows.csv?accessType=DOWNLOAD"
+	},
+	data: {
+		recordId: payload."Record ID"[0],
+		address: {
+			buildingNumber: payload."Building Number"[0],
+			street: payload.Street[0],
+			street2: streettwo,
+			unitType: unitType,
+			unit: unit,
+			description: description,
+			city: capitalize(payload.City[0]),
+			state: payload.State[0],
+			zip: payload.Zip[0],			
+			latitude: lat,
+			longitude: long
+		},
+		certificateNumber: payload."Certificate Number"[0],
+		businessName: capitalize(payload."Business Name"[0]),
+		industry: capitalize(payload.Industry[0]),
+		borough: capitalize(payload.Borough[0]),
+		inspection: {
+			inspectionResult: payload."Inspection Result"[0],
+			inspectionDate: date as Date {format: "yyyy-MM-dd"}
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				</batch:step>
+				<batch:step name="Batch_Step1" doc:id="95c62bc9-cec1-40b8-a44f-f53634dff884" >
+					<marklogic:run-flow-with-ingestion doc:name="Run flow with ingestion and custom steps" doc:id="dab743b4-8e89-4089-b654-7e0c15cb961e" config-ref="MarkLogic_Config" stagingDbName="example-mule-data-hub-STAGING" stagingPort="9010" finalDbName="example-mule-data-hub-FINAL" finalPort="9011" jobsDbName="example-mule-data-hub-JOBS" jobsPort="9013" flowName="sampleFlow" flowSteps="1,2" threadCount="4" batchSize="1000" ingestionStep="1" outputCollections="nyc-inspections,from-mule" outputUriPrefix="/nyc/inspections/" basenameUri="#[payload.headers.uuid]" />
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+	</flow>
+</mule>

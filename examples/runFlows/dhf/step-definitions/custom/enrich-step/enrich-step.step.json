@@ -1,0 +1,28 @@
+{
+  "lang" : "zxx",
+  "name" : "enrich-step",
+  "description" : "Sample enrich step",
+  "type" : "CUSTOM",
+  "version" : 2,
+  "options" : {
+    "additionalCollections" : [ "enriched" ],
+    "sourceQuery" : "cts.collectionQuery(['from-mule', 'default-ingestion'])",
+    "targetEntity" : "",
+    "collections" : [ "enriched" ],
+    "sourceDatabase" : "example-mule-data-hub-STAGING",
+    "permissions" : "data-hub-operator,read,data-hub-operator,update",
+    "sourceCollection" : "",
+    "outputFormat" : "json",
+    "targetDatabase" : "example-mule-data-hub-FINAL"
+  },
+  "customHook" : {
+    "module" : "",
+    "parameters" : { },
+    "user" : "",
+    "runBefore" : false
+  },
+  "modulePath" : "/custom-modules/custom/enrich-step/main.sjs",
+  "retryLimit" : 0,
+  "batchSize" : 100,
+  "threadCount" : 4
+}
