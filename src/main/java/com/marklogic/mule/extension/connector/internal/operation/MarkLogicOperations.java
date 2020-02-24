@@ -33,7 +33,7 @@ import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
 
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
-import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
+import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnector;
 import com.marklogic.mule.extension.connector.internal.error.MarkLogicExecuteErrorsProvider;
 
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
@@ -77,7 +77,7 @@ public class MarkLogicOperations
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public String importDocs(
             @Config MarkLogicConfiguration configuration,
-            @Connection MarkLogicConnection connection,
+            @Connection MarkLogicConnector connection,
             @DisplayName("Document payload")
             @Summary("The content of the input files to be used for ingestion into MarkLogic.")
             @Example("#[payload]")
@@ -165,7 +165,7 @@ public class MarkLogicOperations
 
     @MediaType(value = APPLICATION_JSON, strict = true)
     @DisplayName("Get Job Report (deprecated)")
-    //@org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used.  Instead, use the built-in MuleSoft BatchJobResult output.", since = "1.1.0")
+    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used.  Instead, use the built-in MuleSoft BatchJobResult output.", since = "1.1.0")
     public String getJobReport()
     {
         ObjectNode rootObj = jsonFactory.createObjectNode();
@@ -189,7 +189,7 @@ public class MarkLogicOperations
     }
 
     @MediaType(value = ANY, strict = false)
-    public String retrieveInfo(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection)
+    public String retrieveInfo(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnector connection)
     {
         return "Using Configuration [" + configuration.getConfigId() + "] with Connection id [" + connection.getId() + "]";
     }
@@ -198,7 +198,7 @@ public class MarkLogicOperations
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public String deleteDocs(
             @Config MarkLogicConfiguration configuration,
-            @Connection MarkLogicConnection connection,
+            @Connection MarkLogicConnector connection,
             @DisplayName("Serialized Query String")
             @Summary("The serialized query XML or JSON")
             @Text String queryString,
@@ -246,9 +246,9 @@ public class MarkLogicOperations
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     @DisplayName("Select Documents By Structured Query (deprecated)")
-    //@org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "Use Query Docs instead", since = "1.1.0")
+    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "Use Query Docs instead", since = "1.1.0")
     @Throws(MarkLogicExecuteErrorsProvider.class)
-    public PagingProvider<MarkLogicConnection, Object> selectDocsByStructuredQuery(
+    public PagingProvider<MarkLogicConnector, Object> selectDocsByStructuredQuery(
             @DisplayName("Serialized Query String")
             @Summary("The serialized query XML or JSON")
             @Text String structuredQuery,
@@ -276,7 +276,7 @@ public class MarkLogicOperations
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     @Throws(MarkLogicExecuteErrorsProvider.class)
-    public PagingProvider<MarkLogicConnection, Object> queryDocs(
+    public PagingProvider<MarkLogicConnector, Object> queryDocs(
             @DisplayName("Serialized Query String")
             @Summary("The serialized query XML or JSON")
             @Text String queryString,
@@ -303,7 +303,7 @@ public class MarkLogicOperations
             StreamingHelper streamingHelper,
             FlowListener flowListener)
     {
-        return new PagingProvider<MarkLogicConnection, Object>()
+        return new PagingProvider<MarkLogicConnector, Object>()
         {
 
             private final AtomicBoolean initialised = new AtomicBoolean(false);
@@ -311,7 +311,7 @@ public class MarkLogicOperations
             MarkLogicResultSetIterator iterator;
 
             @Override
-            public List<Object> getPage(MarkLogicConnection connection)
+            public List<Object> getPage(MarkLogicConnector connection)
             {
                 if (initialised.compareAndSet(false, true))
                 {
@@ -364,13 +364,13 @@ public class MarkLogicOperations
             }
 
             @Override
-            public java.util.Optional<Integer> getTotalResults(MarkLogicConnection markLogicConnection)
+            public java.util.Optional<Integer> getTotalResults(MarkLogicConnector markLogicConnector)
             {
                 return java.util.Optional.empty();
             }
 
             @Override
-            public void close(MarkLogicConnection connection) throws MuleException
+            public void close(MarkLogicConnector connection) throws MuleException
             {
                 resultSetCloser.closeResultSets();
             }
@@ -386,7 +386,7 @@ public class MarkLogicOperations
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     @Throws(MarkLogicExecuteErrorsProvider.class)
-    public PagingProvider<MarkLogicConnection, Object> exportDocs(
+    public PagingProvider<MarkLogicConnector, Object> exportDocs(
             @Config MarkLogicConfiguration configuration,
             @DisplayName("Serialized Query String")
             @Summary("The serialized query XML or JSON")
@@ -408,7 +408,7 @@ public class MarkLogicOperations
         maxResults = maxResults != null ? maxResults : 0;
         MarkLogicExportListener exportListener = new MarkLogicExportListener(maxResults);
 
-        return new PagingProvider<MarkLogicConnection, Object>()
+        return new PagingProvider<MarkLogicConnector, Object>()
         {
 
             private final AtomicBoolean initialised = new AtomicBoolean(false);
@@ -417,11 +417,11 @@ public class MarkLogicOperations
             private DataMovementManager dmm = null;
 
             @Override
-            public List<Object> getPage(MarkLogicConnection markLogicConnection)
+            public List<Object> getPage(MarkLogicConnector markLogicConnector)
             {
                 if (initialised.compareAndSet(false, true))
                 {
-                    DatabaseClient client = markLogicConnection.getClient();
+                    DatabaseClient client = markLogicConnector.getClient();
                     QueryManager qm = client.newQueryManager();
                     dmm = client.newDataMovementManager();
 
@@ -460,13 +460,13 @@ public class MarkLogicOperations
             }
 
             @Override
-            public java.util.Optional<Integer> getTotalResults(MarkLogicConnection markLogicConnection)
+            public java.util.Optional<Integer> getTotalResults(MarkLogicConnector markLogicConnector)
             {
                 return java.util.Optional.empty();
             }
 
             @Override
-            public void close(MarkLogicConnection markLogicConnection) throws MuleException
+            public void close(MarkLogicConnector markLogicConnector) throws MuleException
             {
                 logger.debug("NOT Invalidating ML connection...");
                 //markLogicConnection.invalidate();

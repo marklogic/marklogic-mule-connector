@@ -23,7 +23,7 @@ import com.marklogic.client.datamovement.WriteBatcher;
 import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
-import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
+import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnector;
 
 import java.io.InputStream;
 import java.time.ZoneId;
@@ -71,7 +71,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     private long lastWriteTime;
 
     private boolean batcherRequiresReinit = false;
-    private MarkLogicConnection connection;
+    private MarkLogicConnector connection;
     private Timer timer = null;
 
     /**
@@ -83,14 +83,14 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
      * @param serverTransform
      * @param serverTransformParams
      */
-    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
+    private MarkLogicInsertionBatcher(MarkLogicConfiguration configuration, MarkLogicConnector connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
     {
         // get the object handles needed to talk to MarkLogic
         initializeBatcher(connection, configuration, outputCollections, outputPermissions, outputQuality, temporalCollection, serverTransform, serverTransformParams);
         this.jobName = jobName;
     }
 
-    private void initializeBatcher(MarkLogicConnection connection, MarkLogicConfiguration configuration, String outputCollections, String outputPermissions, int outputQuality, String temporalCollection, String serverTransform, String serverTransformParams)
+    private void initializeBatcher(MarkLogicConnector connection, MarkLogicConfiguration configuration, String outputCollections, String outputPermissions, int outputQuality, String temporalCollection, String serverTransform, String serverTransformParams)
     {
         this.connection = connection;
         connection.addMarkLogicClientInvalidationListener(this);
@@ -251,7 +251,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
      * @param temporalCollection
      * @return instance of the batcher
      */
-    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
+    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnector connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
     {
         // String configId = config.getConfigId();
         // MarkLogicInsertionBatcher instance = instances.get(configId);
