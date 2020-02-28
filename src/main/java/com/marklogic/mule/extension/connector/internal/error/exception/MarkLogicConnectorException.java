@@ -11,7 +11,7 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-package com.marklogic.mule.extension.connector.internal.exception;
+package com.marklogic.mule.extension.connector.internal.error.exception;
 
 import com.marklogic.mule.extension.connector.internal.error.MarkLogicConnectorSimpleErrorType;
 import org.mule.runtime.extension.api.exception.ModuleException;
