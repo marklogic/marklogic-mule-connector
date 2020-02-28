@@ -29,6 +29,8 @@ import com.marklogic.client.ext.SecurityContextType;
 import com.marklogic.mule.extension.connector.internal.error.exception.MarkLogicConnectorException;
 
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
+import org.mule.runtime.api.lifecycle.Initialisable;
+import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +60,15 @@ public final class MarkLogicConnector
     {
 
         this.useSSL = (sslContext != null);
+        if (sslContext instanceof Initialisable) {
+            try {
+                ((Initialisable) sslContext).initialise();
+            } catch (InitialisationException e) {
+                String message = "Error initializing SSL Context.";
+                logger.error(message, e);
+                throw new MarkLogicConnectorException(message, e);
+            }
+        }
         this.sslContext = sslContext;
         this.hostname = hostname;
         this.port = port;
