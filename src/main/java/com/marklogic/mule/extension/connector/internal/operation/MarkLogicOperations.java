@@ -165,7 +165,7 @@ public class MarkLogicOperations
 
     @MediaType(value = APPLICATION_JSON, strict = true)
     @DisplayName("Get Job Report (deprecated)")
-    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used.  Instead, use the built-in MuleSoft BatchJobResult output.", since = "1.1.0")
+//    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used.  Instead, use the built-in MuleSoft BatchJobResult output.", since = "1.1.0")
     public String getJobReport()
     {
         ObjectNode rootObj = jsonFactory.createObjectNode();
@@ -246,13 +246,13 @@ public class MarkLogicOperations
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     @DisplayName("Select Documents By Structured Query (deprecated)")
-    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "Use Query Docs instead", since = "1.1.0")
+//    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "Use Query Docs instead", since = "1.1.0")
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public PagingProvider<MarkLogicConnector, Object> selectDocsByStructuredQuery(
+            @Config MarkLogicConfiguration configuration,
             @DisplayName("Serialized Query String")
             @Summary("The serialized query XML or JSON")
             @Text String structuredQuery,
-            @Config MarkLogicConfiguration configuration,
             @DisplayName("Search API Options")
             @Optional(defaultValue = "null")
             @Summary("The server-side Search API options file used to configure the search") String optionsName,
@@ -270,17 +270,17 @@ public class MarkLogicOperations
             FlowListener flowListener
     )
     {
-        return queryDocs(structuredQuery, configuration, optionsName, null, null, structuredQueryStrategy, fmt, serverTransform, serverTransformParams, streamingHelper, flowListener);
+        return queryDocs(configuration, structuredQuery, optionsName, null, null, structuredQueryStrategy, fmt, serverTransform, serverTransformParams, streamingHelper, flowListener);
     }
 
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public PagingProvider<MarkLogicConnector, Object> queryDocs(
+            @Config MarkLogicConfiguration configuration,
             @DisplayName("Serialized Query String")
             @Summary("The serialized query XML or JSON")
             @Text String queryString,
-            @Config MarkLogicConfiguration configuration,
             @DisplayName("Search API Options")
             @Optional(defaultValue = "null")
             @Summary("The server-side Search API options file used to configure the search") String optionsName,
