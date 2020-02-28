@@ -34,7 +34,7 @@ import com.marklogic.client.query.QueryManager;
 
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnector;
-import com.marklogic.mule.extension.connector.internal.error.MarkLogicExecuteErrorsProvider;
+import com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider;
 
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
@@ -246,7 +246,7 @@ public class MarkLogicOperations
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     @DisplayName("Select Documents By Structured Query (deprecated)")
-//    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "Use Query Docs instead", since = "1.1.0")
+    //@org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "Use Query Docs instead", since = "1.1.0")
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public PagingProvider<MarkLogicConnector, Object> selectDocsByStructuredQuery(
             @Config MarkLogicConfiguration configuration,
