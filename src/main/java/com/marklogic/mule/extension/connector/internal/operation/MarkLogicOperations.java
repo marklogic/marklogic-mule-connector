@@ -260,7 +260,7 @@ public class MarkLogicOperations
             @Summary("The serialized query XML or JSON.")
             @Text String queryString,
             @DisplayName("Search API Options")
-            @Optional(defaultValue = "null")
+            @Optional
             @Summary("The server-side Search API options file used to configure the search.") String optionsName,
             @DisplayName("Search Strategy")
             @Summary("The Java class used to execute the serialized query.") MarkLogicQueryStrategy queryStrategy,
@@ -327,7 +327,7 @@ public class MarkLogicOperations
             @Summary("The serialized query XML or JSON.")
             @Text String structuredQuery,
             @DisplayName("Search API Options")
-            @Optional(defaultValue = "null")
+            @Optional
             @Summary("The server-side Search API options file used to configure the search.") String optionsName,
             @DisplayName("Search Strategy")
             @Summary("The Java class used to execute the serialized query.") MarkLogicQueryStrategy structuredQueryStrategy,
@@ -373,7 +373,7 @@ public class MarkLogicOperations
             @Summary("The serialized query XML or JSON.")
             @Text String queryString,
             @DisplayName("Search API Options")
-            @Optional(defaultValue = "null")
+            @Optional
             @Summary("The server-side Search API options file used to configure the search.") String optionsName,
             @DisplayName("Page Length")
             @Optional
@@ -498,7 +498,7 @@ public class MarkLogicOperations
             @Summary("The serialized query XML or JSON.")
             @Text String queryString,
             @DisplayName("Search API Options")
-            @Optional(defaultValue = "null")
+            @Optional
             @Summary("The server-side Search API options file used to configure the search.") String optionsName,
             @DisplayName("Search Strategy")
             @Summary("The Java class used to execute the serialized query.") MarkLogicQueryStrategy queryStrategy,
