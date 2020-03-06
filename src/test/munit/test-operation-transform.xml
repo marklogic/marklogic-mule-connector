@@ -86,7 +86,7 @@
             <flow-ref name="queryDocsRawStructuredQueryDefinitionXMLFlow"/>
         </munit:execution>
         <munit:validation >
-            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::containsString('male')]"/>
+            <munit-tools:assert-that expression="#[payload.gender]" is="#[MunitTools::containsString('male')]"/>
         </munit:validation>
     </munit:test>
 </mule>

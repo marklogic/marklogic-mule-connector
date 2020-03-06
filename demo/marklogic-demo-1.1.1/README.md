@@ -120,10 +120,7 @@ Also, update the automation-credentials.properties to populate username, and pas
                         ---
                         {
                         	"count": sizeOf(payload),
-                        	"contents": payload map ((item, index) -> {
-                                      "index": index,
-                                      "content": read(item as String, 'application/json')
-                                   })
+                        	"contents": payload
                         }
                         ]]>
                 </ee:set-payload>
