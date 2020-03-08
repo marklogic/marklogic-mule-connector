@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright © 2019 MarkLogic Corporation.
+ * Copyright 2019 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -33,8 +33,8 @@ import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
 
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
-import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
-import com.marklogic.mule.extension.connector.internal.error.MarkLogicExecuteErrorsProvider;
+import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnector;
+import com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider;
 
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
@@ -63,7 +63,17 @@ import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/* This class is a container for operations, every public method in this class will be taken as an extension operation. */
+/**
+* This class is a container for operations, every public method in this class will be taken as an extension operation for the MarkLogic MuleSoft Connector
+* 
+* @author Jonathan Krebs (jkrebs)
+* @author Clay Redding (wattsferry)
+* @author John Shingler (jshingler)
+* @since 1.0.0
+* @version 1.1.1
+* @see <a target="_blank" href="https://github.com/marklogic-community/marklogic-mule-connector">MarkLogic MuleSoft Connector GitHub</a>
+* 
+*/
 public class MarkLogicOperations
 {
 
@@ -72,24 +82,43 @@ public class MarkLogicOperations
 
     private ObjectMapper jsonFactory = new ObjectMapper();
 
-    // Loading files into MarkLogic asynchronously InputStream docPayload
+ /**
+ * <p>Loads JSON, XML, text, or binary document content asynchronously into MarkLogic, via the <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a> <a target="_blank" href="https://docs.marklogic.com/guide/java/data-movement">Data Movement SDK (DMSDK)</a> returning the DMSDK <a target="_blank" href="https://docs.marklogic.com/javadoc/client/com/marklogic/client/datamovement/JobTicket.html">JobTicket</a> ID used to insert the contents into MarkLogic.</p>
+ * @param configuration The MarkLogic configuration details
+ * @param connection The MarkLogic connection details
+ * @param docPayloads The content of the input files to be used for ingestion into MarkLogic.
+ * @param outputCollections A comma-separated list of output collections used during ingestion.
+ * @param outputPermissions A comma-separated list of roles and capabilities used during ingestion.
+ * @param outputQuality A number indicating the quality of the persisted documents.
+ * @param outputUriPrefix The URI prefix, used to prepend and concatenate basenameUri.
+ * @param outputUriSuffix The URI suffix, used to append and concatenate basenameUri.
+ * @param generateOutputUriBasename Creates a document basename based on an auto-generated UUID.
+ * @param basenameUri File basename to be used for persistence in MarkLogic, usually payload-derived.
+ * @param temporalCollection The temporal collection imported documents will be loaded into.
+ * @param serverTransform The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.
+ * @param serverTransformParams A comma-separated list of alternating transform parameter names and values.
+ * @return java.lang.String
+ * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
+ * @since 1.0.0
+ * @version 1.1.1
+ */
     @MediaType(value = APPLICATION_JSON, strict = true)
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public String importDocs(
             @Config MarkLogicConfiguration configuration,
-            @Connection MarkLogicConnection connection,
+            @Connection MarkLogicConnector connection,
             @DisplayName("Document payload")
             @Summary("The content of the input files to be used for ingestion into MarkLogic.")
             @Example("#[payload]")
             @Content InputStream docPayloads,
             @Optional(defaultValue = "null")
-            @Summary("A comma-separated list of the collections to which persisted documents will belong after successful ingestion.")
+            @Summary("A comma-separated list of output collections used during ingestion.")
             @Example("mulesoft-test") String outputCollections,
             @Optional(defaultValue = "rest-reader,read,rest-writer,update")
-            @Summary("A comma-separated list of roles and capabilities to which persisted documents will possess after successful ingestion.")
+            @Summary("A comma-separated list of roles and capabilities used during ingestion.")
             @Example("myRole,read,myRole,update") String outputPermissions,
             @Optional(defaultValue = "1")
-            @Summary("A number indicating the quality of the persisted documents")
+            @Summary("A number indicating the quality of the persisted documents.")
             @Example("1") int outputQuality,
             @Optional(defaultValue = "/")
             @Summary("The URI prefix, used to prepend and concatenate basenameUri.")
@@ -99,21 +128,20 @@ public class MarkLogicOperations
             @Example(".json") String outputUriSuffix,
             @DisplayName("Generate output URI basename?")
             @Optional(defaultValue = "true")
-            @Summary("Creates a document basename based on a UUID, to be combined with the outputUriPrefix and outputUriSuffix. Use this if you can't programmatically assign a basename from an identifier in the document. Otherwise use basenameUri.")
+            @Summary("Creates a document basename based on an auto-generated UUID.")
             @Example("false") boolean generateOutputUriBasename,
             @DisplayName("Output document basename")
             @Optional(defaultValue = "null")
-            @Summary("The file basename to be used for persistence in MarkLogic, usually derived a value from within the payload. Different than the UUID produced from generateOutputUriBasename.")
+            @Summary("File basename to be used for persistence in MarkLogic, usually payload-derived.")
             @Example("employee123.json") String basenameUri,
             @DisplayName("Temporal collection")
             @Optional(defaultValue = "null")
             @Summary("The temporal collection imported documents will be loaded into.")
-            @Example("") String temporalCollection,
-            @Summary("The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.")
+            @Example("myTemporalCollection") String temporalCollection,
+            @Summary("The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.")
             @Optional(defaultValue = "null")
-            @Example("ml:sjsInputFlow")
-            String serverTransform,
-            @Summary("A comma-separated list of alternating transform parameter names and transform parameter values.")
+            @Example("ml:sjsInputFlow") String serverTransform,
+            @Summary("A comma-separated list of alternating transform parameter names and values.")
             @Optional(defaultValue = "null")
             @Example("entity-name,MyEntity,flow-name,loadMyEntity")
             String serverTransformParams
@@ -163,9 +191,16 @@ public class MarkLogicOperations
 }
      */
 
+ /**
+ * <p>Retrieves a JSON representation of a <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a> <a target="_blank" href="https://docs.marklogic.com/guide/java/data-movement">Data Movement SDK (DMSDK)</a> <a target="_blank" href="https://docs.marklogic.com/javadoc/client/com/marklogic/client/datamovement/JobReport.html">JobReport</a> following an importDocs operation.</p>
+ * @return java.lang.String
+ * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
+ * @since 1.0.0
+ * @deprecated Deprecated in v.1.1.1
+ */
     @MediaType(value = APPLICATION_JSON, strict = true)
     @DisplayName("Get Job Report (deprecated)")
-    //@org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used.  Instead, use the built-in MuleSoft BatchJobResult output.", since = "1.1.0")
+//    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used.  Instead, use the built-in MuleSoft BatchJobResult output.", since = "1.1.0")
     public String getJobReport()
     {
         ObjectNode rootObj = jsonFactory.createObjectNode();
@@ -188,29 +223,51 @@ public class MarkLogicOperations
 
     }
 
+ /**
+ * <p>Echoes the current MarkLogicConnector and MarkLogicConfiguration information.</p>
+ * @param configuration The MarkLogic configuration details
+ * @param connection The MarkLogic connection details
+ * @return java.lang.String
+ * @since 1.0.0
+ * @version 1.1.1
+ */
     @MediaType(value = ANY, strict = false)
-    public String retrieveInfo(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection)
+    public String retrieveInfo(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnector connection)
     {
         return "Using Configuration [" + configuration.getConfigId() + "] with Connection id [" + connection.getId() + "]";
     }
 
+ /**
+ * <p>Delete query-selected document content asynchronously from MarkLogic, via the <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a> <a target="_blank" href="https://docs.marklogic.com/guide/java/data-movement">Data Movement SDK (DMSDK)</a> returning a JSON object detailing the outcome.</p>
+ * @param configuration The MarkLogic configuration details
+ * @param connection The MarkLogic connection details
+ * @param queryString The serialized query XML or JSON.
+ * @param optionsName The server-side Search API options file used to configure the search.
+ * @param queryStrategy The Java class used to execute the serialized query.
+ * @param useConsistentSnapshot Whether to use a consistent point-in-time snapshot for operations.
+ * @param fmt The format of the serialized query.
+ * @return java.lang.String
+ * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
+ * @since 1.1.0
+ * @version 1.1.1
+ */
     @MediaType(value = APPLICATION_JSON, strict = true)
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public String deleteDocs(
             @Config MarkLogicConfiguration configuration,
-            @Connection MarkLogicConnection connection,
+            @Connection MarkLogicConnector connection,
             @DisplayName("Serialized Query String")
-            @Summary("The serialized query XML or JSON")
+            @Summary("The serialized query XML or JSON.")
             @Text String queryString,
             @DisplayName("Search API Options")
-            @Optional(defaultValue = "null")
-            @Summary("The server-side Search API options file used to configure the search") String optionsName,
+            @Optional
+            @Summary("The server-side Search API options file used to configure the search.") String optionsName,
             @DisplayName("Search Strategy")
-            @Summary("The Java class used to execute the serialized query") MarkLogicQueryStrategy queryStrategy,
+            @Summary("The Java class used to execute the serialized query.") MarkLogicQueryStrategy queryStrategy,
             @DisplayName("Use Consistent Snapshot")
-            @Summary("Whether to use a consistent point-in-time snapshot for operations") boolean useConsistentSnapshot,
+            @Summary("Whether to use a consistent point-in-time snapshot for operations.") boolean useConsistentSnapshot,
             @DisplayName("Serialized Query Format")
-            @Summary("The format of the serialized query") MarkLogicQueryFormat fmt
+            @Summary("The format of the serialized query.") MarkLogicQueryFormat fmt
     )
     {
         DatabaseClient client = connection.getClient();
@@ -243,67 +300,101 @@ public class MarkLogicOperations
         return rootObj.toString();
     }
 
+ /**
+ * <p>Retrieve query-selected document content synchronously from MarkLogic, via the <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a>.</p>
+ * @param configuration The MarkLogic configuration details
+ * @param structuredQuery The serialized query XML or JSON.
+ * @param optionsName The server-side Search API options file used to configure the search.
+ * @param structuredQueryStrategy The Java class used to execute the serialized query
+ * @param fmt The format of the serialized query.
+ * @param serverTransform The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.
+ * @param serverTransformParams A comma-separated list of alternating transform parameter names and values.
+ * @param streamingHelper The streaming helper.
+ * @param flowListener The flow listener.
+ * @return org.mule.runtime.extension.api.runtime.streaming.PagingProvider
+ * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
+ * @deprecated Deprecated in v.1.1.0, use queryDocs instead
+ * @since 1.1.0
+ */
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     @DisplayName("Select Documents By Structured Query (deprecated)")
     //@org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "Use Query Docs instead", since = "1.1.0")
     @Throws(MarkLogicExecuteErrorsProvider.class)
-    public PagingProvider<MarkLogicConnection, Object> selectDocsByStructuredQuery(
-            @DisplayName("Serialized Query String")
-            @Summary("The serialized query XML or JSON")
-            @Text String structuredQuery,
+    public PagingProvider<MarkLogicConnector, Object> selectDocsByStructuredQuery(
             @Config MarkLogicConfiguration configuration,
+            @DisplayName("Serialized Query String")
+            @Summary("The serialized query XML or JSON.")
+            @Text String structuredQuery,
             @DisplayName("Search API Options")
-            @Optional(defaultValue = "null")
-            @Summary("The server-side Search API options file used to configure the search") String optionsName,
+            @Optional
+            @Summary("The server-side Search API options file used to configure the search.") String optionsName,
             @DisplayName("Search Strategy")
-            @Summary("The Java class used to execute the serialized query") MarkLogicQueryStrategy structuredQueryStrategy,
+            @Summary("The Java class used to execute the serialized query.") MarkLogicQueryStrategy structuredQueryStrategy,
             @DisplayName("Serialized Query Format")
-            @Summary("The format of the serialized query") MarkLogicQueryFormat fmt,
-            @Summary("The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.")
+            @Summary("The format of the serialized query.") MarkLogicQueryFormat fmt,
+            @Summary("The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.")
             @Optional(defaultValue = "null")
             @Example("ml:sjsInputFlow") String serverTransform,
-            @Summary("A comma-separated list of alternating transform parameter names and transform parameter values.")
+            @Summary("A comma-separated list of alternating transform parameter names and values.")
             @Optional(defaultValue = "null")
             @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams,
             StreamingHelper streamingHelper,
             FlowListener flowListener
     )
     {
-        return queryDocs(structuredQuery, configuration, optionsName, null, null, structuredQueryStrategy, fmt, serverTransform, serverTransformParams, streamingHelper, flowListener);
+        return queryDocs(configuration, structuredQuery, optionsName, null, null, structuredQueryStrategy, fmt, serverTransform, serverTransformParams, streamingHelper, flowListener);
     }
 
+ /**
+ * <p>Retrieve query-selected document content synchronously from MarkLogic, via the <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a>.</p>
+ * @param configuration The MarkLogic configuration details
+ * @param queryString The serialized query XML or JSON.
+ * @param optionsName The server-side Search API options file used to configure the search.
+ * @param pageLength Number of documents fetched at a time, defaults to the connection batch size.
+ * @param maxResults Maximum total number of documents to be fetched, defaults to unlimited.
+ * @param queryStrategy The Java class used to execute the serialized query
+ * @param fmt The format of the serialized query.
+ * @param serverTransform The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.
+ * @param serverTransformParams A comma-separated list of alternating transform parameter names and values.
+ * @param streamingHelper The streaming helper.
+ * @param flowListener The flow listener.
+ * @return org.mule.runtime.extension.api.runtime.streaming.PagingProvider
+ * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
+ * @since 1.1.0
+ * @version 1.1.1
+ */
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     @Throws(MarkLogicExecuteErrorsProvider.class)
-    public PagingProvider<MarkLogicConnection, Object> queryDocs(
-            @DisplayName("Serialized Query String")
-            @Summary("The serialized query XML or JSON")
-            @Text String queryString,
+    public PagingProvider<MarkLogicConnector, Object> queryDocs(
             @Config MarkLogicConfiguration configuration,
+            @DisplayName("Serialized Query String")
+            @Summary("The serialized query XML or JSON.")
+            @Text String queryString,
             @DisplayName("Search API Options")
-            @Optional(defaultValue = "null")
-            @Summary("The server-side Search API options file used to configure the search") String optionsName,
+            @Optional
+            @Summary("The server-side Search API options file used to configure the search.") String optionsName,
             @DisplayName("Page Length")
             @Optional
-            @Summary("The number of documents fetched at a time.  If blank, defaults to the connection's batch size.") Integer pageLength,
+            @Summary("Number of documents fetched at a time, defaults to the connection batch size.") Integer pageLength,
             @DisplayName("Maximum Number of Results")
             @Optional
-            @Summary("The maximum number of results to be fetched.  If blank or zero, defaults to unlimited.") Long maxResults,
+            @Summary("Maximum total number of documents to be fetched, defaults to unlimited.") Long maxResults,
             @DisplayName("Search Strategy")
-            @Summary("The Java class used to execute the serialized query") MarkLogicQueryStrategy queryStrategy,
+            @Summary("The Java class used to execute the serialized query.") MarkLogicQueryStrategy queryStrategy,
             @DisplayName("Serialized Query Format")
-            @Summary("The format of the serialized query") MarkLogicQueryFormat fmt,
-            @Summary("The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.")
+            @Summary("The format of the serialized query.") MarkLogicQueryFormat fmt,
+            @Summary("The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.")
             @Optional(defaultValue = "null")
             @Example("ml:sjsInputFlow") String serverTransform,
-            @Summary("A comma-separated list of alternating transform parameter names and transform parameter values.")
+            @Summary("A comma-separated list of alternating transform parameter names and values.")
             @Optional(defaultValue = "null")
             @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams,
             StreamingHelper streamingHelper,
             FlowListener flowListener)
     {
-        return new PagingProvider<MarkLogicConnection, Object>()
+        return new PagingProvider<MarkLogicConnector, Object>()
         {
 
             private final AtomicBoolean initialised = new AtomicBoolean(false);
@@ -311,7 +402,7 @@ public class MarkLogicOperations
             MarkLogicResultSetIterator iterator;
 
             @Override
-            public List<Object> getPage(MarkLogicConnection connection)
+            public List<Object> getPage(MarkLogicConnector connection)
             {
                 if (initialised.compareAndSet(false, true))
                 {
@@ -364,13 +455,13 @@ public class MarkLogicOperations
             }
 
             @Override
-            public java.util.Optional<Integer> getTotalResults(MarkLogicConnection markLogicConnection)
+            public java.util.Optional<Integer> getTotalResults(MarkLogicConnector markLogicConnector)
             {
                 return java.util.Optional.empty();
             }
 
             @Override
-            public void close(MarkLogicConnection connection) throws MuleException
+            public void close(MarkLogicConnector connection) throws MuleException
             {
                 resultSetCloser.closeResultSets();
             }
@@ -383,32 +474,47 @@ public class MarkLogicOperations
         };
     }
 
+ /**
+ * <p>Retrieve query-selected document content asynchronously from MarkLogic, via the <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a> <a target="_blank" href="https://docs.marklogic.com/guide/java/data-movement">Data Movement SDK (DMSDK)</a>.</p>
+ * @param configuration The MarkLogic configuration details
+ * @param queryString The serialized query XML or JSON.
+ * @param optionsName The server-side Search API options file used to configure the search.
+ * @param queryStrategy The Java class used to execute the serialized query.
+ * @param pageLength Number of documents fetched at a time, defaults to the connection batch size.
+ * @param maxResults Maximum total number of documents to be fetched, defaults to unlimited.
+ * @param useConsistentSnapshot Whether to use a consistent point-in-time snapshot for operations.
+ * @param fmt The format of the serialized query.
+ * @return org.mule.runtime.extension.api.runtime.streaming.PagingProvider
+ * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
+ * @since 1.1.0
+ * @version 1.1.1
+ */
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     @Throws(MarkLogicExecuteErrorsProvider.class)
-    public PagingProvider<MarkLogicConnection, Object> exportDocs(
+    public PagingProvider<MarkLogicConnector, Object> exportDocs(
             @Config MarkLogicConfiguration configuration,
             @DisplayName("Serialized Query String")
-            @Summary("The serialized query XML or JSON")
+            @Summary("The serialized query XML or JSON.")
             @Text String queryString,
             @DisplayName("Search API Options")
-            @Optional(defaultValue = "null")
-            @Summary("The server-side Search API options file used to configure the search") String optionsName,
+            @Optional
+            @Summary("The server-side Search API options file used to configure the search.") String optionsName,
             @DisplayName("Search Strategy")
-            @Summary("The Java class used to execute the serialized query") MarkLogicQueryStrategy queryStrategy,
+            @Summary("The Java class used to execute the serialized query.") MarkLogicQueryStrategy queryStrategy,
             @DisplayName("Maximum Number of Results")
             @Optional
-            @Summary("The maximum number of results to be fetched.  If blank or zero, defaults to unlimited.") Long maxResults,
+            @Summary("Maximum total number of documents to be fetched, defaults to unlimited.") Long maxResults,
             @DisplayName("Use Consistent Snapshot")
-            @Summary("Whether to use a consistent point-in-time snapshot for operations") boolean useConsistentSnapshot,
+            @Summary("Whether to use a consistent point-in-time snapshot for operations.") boolean useConsistentSnapshot,
             @DisplayName("Serialized Query Format")
-            @Summary("The format of the serialized query") MarkLogicQueryFormat fmt
+            @Summary("The format of the serialized query.") MarkLogicQueryFormat fmt
     )
     {
         maxResults = maxResults != null ? maxResults : 0;
         MarkLogicExportListener exportListener = new MarkLogicExportListener(maxResults);
 
-        return new PagingProvider<MarkLogicConnection, Object>()
+        return new PagingProvider<MarkLogicConnector, Object>()
         {
 
             private final AtomicBoolean initialised = new AtomicBoolean(false);
@@ -417,11 +523,11 @@ public class MarkLogicOperations
             private DataMovementManager dmm = null;
 
             @Override
-            public List<Object> getPage(MarkLogicConnection markLogicConnection)
+            public List<Object> getPage(MarkLogicConnector markLogicConnector)
             {
                 if (initialised.compareAndSet(false, true))
                 {
-                    DatabaseClient client = markLogicConnection.getClient();
+                    DatabaseClient client = markLogicConnector.getClient();
                     QueryManager qm = client.newQueryManager();
                     dmm = client.newDataMovementManager();
 
@@ -460,13 +566,13 @@ public class MarkLogicOperations
             }
 
             @Override
-            public java.util.Optional<Integer> getTotalResults(MarkLogicConnection markLogicConnection)
+            public java.util.Optional<Integer> getTotalResults(MarkLogicConnector markLogicConnector)
             {
                 return java.util.Optional.empty();
             }
 
             @Override
-            public void close(MarkLogicConnection markLogicConnection) throws MuleException
+            public void close(MarkLogicConnector markLogicConnector) throws MuleException
             {
                 logger.debug("NOT Invalidating ML connection...");
                 //markLogicConnection.invalidate();

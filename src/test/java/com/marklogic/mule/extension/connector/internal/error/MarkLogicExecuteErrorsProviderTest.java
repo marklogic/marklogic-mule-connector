@@ -13,6 +13,7 @@
  */
 package com.marklogic.mule.extension.connector.internal.error;
 
+import com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider;
 import java.util.Set;
 import org.junit.Test;
 import static org.junit.Assert.*;

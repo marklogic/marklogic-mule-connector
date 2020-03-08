@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<configuration-properties file="automation-credentials.properties"/>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8b45556d-702c-49c6-bdaf-3943845bdc8e" basePath="/" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="70508ab1-c787-485a-9b35-970bbfbf9208" configId="testConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName" >
+		<marklogic:connection hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" connectionId="testConfig" />
+	</marklogic:config>
+	<flow name="marklogic-demo-1.1.1Flow" doc:id="ee6da7e5-0aa3-4208-9b29-876a30707dab" >
+		<http:listener doc:name="/exportDocs Listener" doc:id="e4850d1f-0bbe-41ea-97f4-ad98042690a8" config-ref="HTTP_Listener_config" path="/exportDocs">
+			<http:response >
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"X-MarkLogic-ResultCount" : payload.count
+}]]]></http:headers>
+			</http:response>
+		</http:listener>
+		<marklogic:export-docs doc:name="Export employees collection documents" doc:id="d4b0b5d3-0e20-4b84-8894-fb43c1e82c22" config-ref="MarkLogic_Config" queryStrategy="CTSQuery" maxResults="12" useConsistentSnapshot="true" fmt="XML">
+			<marklogic:query-string >&lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+    &lt;collection-query&gt;
+        &lt;uri&gt;employees&lt;/uri&gt;
+    &lt;/collection-query&gt;
+&lt;/query&gt;</marklogic:query-string>
+		</marklogic:export-docs>
+		<ee:transform doc:name="Transform to  Response JSON" doc:id="826fe31b-3566-4e83-b23c-ff2c66ae7ac0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"count": sizeOf(payload),
+	"contents": payload
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

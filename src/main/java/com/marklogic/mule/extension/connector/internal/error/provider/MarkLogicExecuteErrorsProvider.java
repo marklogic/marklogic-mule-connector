@@ -11,8 +11,9 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-package com.marklogic.mule.extension.connector.internal.error;
+package com.marklogic.mule.extension.connector.internal.error.provider;
 
+import com.marklogic.mule.extension.connector.internal.error.MarkLogicConnectorSimpleErrorType;
 import java.util.Set;
 import java.util.HashSet;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
