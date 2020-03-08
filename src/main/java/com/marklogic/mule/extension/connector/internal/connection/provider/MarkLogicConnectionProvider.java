@@ -14,16 +14,14 @@
 package com.marklogic.mule.extension.connector.internal.connection.provider;
 
 import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
-import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
+import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnector;
 
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
-import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
-import org.mule.runtime.extension.api.annotation.param.display.Example;
-import org.mule.runtime.extension.api.annotation.param.display.Password;
-import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
+import org.mule.runtime.extension.api.annotation.param.display.*;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionProvider;
@@ -45,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * creates and caches connections or simply {@link ConnectionProvider} if you
  * want a new connection each time something requires one.
  */
-public class MarkLogicConnectionProvider implements PoolingConnectionProvider<MarkLogicConnection>
+public class MarkLogicConnectionProvider implements PoolingConnectionProvider<MarkLogicConnector>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnectionProvider.class);
@@ -88,11 +86,13 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
     private AuthenticationType authenticationType;
 
     @DisplayName("TLS Context")
+    @Placement(tab="Security")
     @Parameter
     @Optional
     private TlsContextFactory tlsContextFactory;
 
     @DisplayName("Kerberos External Name (Not Yet Supported)")
+    @Placement(tab="Security")
     @Parameter
     @Summary("If \"kerberos\" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.")
     @Optional(defaultValue = "null")
@@ -123,22 +123,22 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
     }
 
     @Override
-    public MarkLogicConnection connect() throws ConnectionException
+    public MarkLogicConnector connect() throws ConnectionException
     {
 
-        MarkLogicConnection conn = new MarkLogicConnection(hostname, port, database, username, password, authenticationType, tlsContextFactory, kerberosExternalName, connectionId);
+        MarkLogicConnector conn = new MarkLogicConnector(hostname, port, database, username, password, authenticationType, tlsContextFactory, kerberosExternalName, connectionId);
         conn.connect();
         return conn;
     }
 
     @Override
-    public void disconnect(MarkLogicConnection connection)
+    public void disconnect(MarkLogicConnector connection)
     {
         connection.invalidate();
     }
 
     @Override
-    public ConnectionValidationResult validate(MarkLogicConnection connection)
+    public ConnectionValidationResult validate(MarkLogicConnector connection)
     {
         ConnectionValidationResult result;
         if (connection.isConnected(port))

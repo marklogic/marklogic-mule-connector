@@ -26,19 +26,21 @@ import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.ext.DatabaseClientConfig;
 import com.marklogic.client.ext.DefaultConfiguredDatabaseClientFactory;
 import com.marklogic.client.ext.SecurityContextType;
-import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnectorException;
+import com.marklogic.mule.extension.connector.internal.error.exception.MarkLogicConnectorException;
 
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
+import org.mule.runtime.api.lifecycle.Initialisable;
+import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
 
-public final class MarkLogicConnection
+public final class MarkLogicConnector
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnection.class);
+    private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnector.class);
 
     //private static final SecurityContextType DEFAULT_AUTHENTICATION_TYPE = SecurityContextType.BASIC;
     private DatabaseClient client;
@@ -54,10 +56,19 @@ public final class MarkLogicConnection
     private final String connectionId;
     private Set<MarkLogicConnectionInvalidationListener> markLogicClientInvalidationListeners = new HashSet<>();
 
-    public MarkLogicConnection(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId)
+    public MarkLogicConnector(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId)
     {
 
         this.useSSL = (sslContext != null);
+        if (sslContext instanceof Initialisable) {
+            try {
+                ((Initialisable) sslContext).initialise();
+            } catch (InitialisationException e) {
+                String message = "Error initializing SSL Context.";
+                logger.error(message, e);
+                throw new MarkLogicConnectorException(message, e);
+            }
+        }
         this.sslContext = sslContext;
         this.hostname = hostname;
         this.port = port;

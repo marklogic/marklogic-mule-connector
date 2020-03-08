@@ -7,9 +7,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <app.runtime>4.2.0</app.runtime>
+        <app.runtime>4.2.2</app.runtime>
         <mule.maven.plugin.version>3.3.2</mule.maven.plugin.version>
-        <munit.version>2.2.2</munit.version>
+        <munit.version>2.2.4</munit.version>
     </properties>
     <build>
         <plugins>
@@ -54,7 +54,7 @@
             <plugin>
                 <groupId>com.mulesoft.munit</groupId>
                 <artifactId>munit-extensions-maven-plugin</artifactId>
-                <version>1.0.0-BETA4</version>
+                <version>1.0.0</version>
                 <executions>
                     <execution>
                         <phase>integration-test</phase>

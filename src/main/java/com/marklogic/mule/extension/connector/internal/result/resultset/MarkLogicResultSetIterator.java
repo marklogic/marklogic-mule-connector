@@ -19,7 +19,7 @@ import com.marklogic.client.document.DocumentPage;
 import com.marklogic.client.document.DocumentRecord;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
-import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
+import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public class MarkLogicResultSetIterator implements Iterator
     private AtomicLong start = new AtomicLong(1);
     private AtomicLong resultCount = new AtomicLong(0);
 
-    public MarkLogicResultSetIterator(MarkLogicConnection connection, MarkLogicConfiguration configuration, QueryDefinition query, Integer pageLength, Long maxResults)
+    public MarkLogicResultSetIterator(MarkLogicConnector connection, MarkLogicConfiguration configuration, QueryDefinition query, Integer pageLength, Long maxResults)
     {
         this.query = query;
         DatabaseClient client = connection.getClient();
