@@ -88,7 +88,7 @@
                     <dependency>
                         <groupId>com.mulesoft.munit</groupId>
                         <artifactId>mtf-tools</artifactId>
-                        <version>1.0.0-BETA4</version>
+                        <version>1.0.0</version>
                         <classifier>mule-plugin</classifier>
                     </dependency>
                 </dependencies> 
