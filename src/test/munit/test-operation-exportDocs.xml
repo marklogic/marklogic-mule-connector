@@ -10,7 +10,7 @@
                         http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
     <munit:config name="exportDocs Suite" />
     <configuration-properties file="automation-credentials.properties"/>
-    <marklogic:config name="exportDocs_config" configId="exportDocsConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName" serverTransform="transformTestEgress" serverTransformParams="q,e">
+    <marklogic:config name="exportDocs_config" configId="exportDocsConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName">
         <marklogic:connection connectionId="exportDocsConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" />
     </marklogic:config>
     <flow name="exportDocsFlow">
