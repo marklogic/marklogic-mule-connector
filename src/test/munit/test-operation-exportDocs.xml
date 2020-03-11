@@ -2,8 +2,7 @@
 <mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
 	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
-                  xsi:schemaLocation="
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
                         http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
                         http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
                         http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
@@ -11,7 +10,7 @@
                         http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
     <munit:config name="exportDocs Suite" />
     <configuration-properties file="automation-credentials.properties"/>
-    <marklogic:config name="exportDocs_config" configId="exportDocsConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName" >
+    <marklogic:config name="exportDocs_config" configId="exportDocsConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName">
         <marklogic:connection connectionId="exportDocsConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" />
     </marklogic:config>
     <flow name="exportDocsFlow">
@@ -26,7 +25,7 @@
         </marklogic:export-docs>
         <set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]'/>
     </flow>
-    <munit:test name="exportCountMaxResultsTest" description="exportDocs Count Max Results">
+    <munit:test name="exportDocsCountMaxResultsTest" description="exportDocs Count Max Results">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="exportDocsFlow"/>
         </munit:enable-flow-sources>
@@ -47,7 +46,19 @@
             <flow-ref name="exportDocsFlow"/>
         </munit:execution>
         <munit:validation>
-            <munit-tools:assert-that expression="#[payload[0].envelope.instance.employee.empNo]" is="#[MunitTools::notNullValue()]"/>
+            <munit-tools:assert-that expression="#[payload[0].envelope.instance.employee.empNo >= 10000]" is="#[MunitTools::equalTo(true)]"/>
         </munit:validation>
     </munit:test>
+    <!--<munit:test name="exportDocsCheckConfigTransform" description="exportDocs Check Configuration Transform">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="exportDocsFlow"/>
+        </munit:enable-flow-sources>
+        <!-\-<munit:behavior/>-\->
+        <munit:execution>
+            <flow-ref name="exportDocsFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload[0].transformer]" is="#[MunitTools::equalTo('transformTestEgress')]"/>
+        </munit:validation>
+    </munit:test>-->
 </mule>
