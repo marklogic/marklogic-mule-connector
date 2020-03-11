@@ -93,7 +93,7 @@
                     </dependency>
                 </dependencies> 
             </plugin>
-<!--            <plugin>
+            <!--<plugin>
                 <groupId>com.mulesoft.munit.tools</groupId>
                 <artifactId>munit-maven-plugin</artifactId>
                 <version>${munit.version}</version>
@@ -163,7 +163,7 @@
             <artifactId>commons-jexl3</artifactId>
             <version>3.1</version>
         </dependency>
-<!--        <dependency>
+        <!--<dependency>
             <groupId>com.mulesoft.munit</groupId>
             <artifactId>munit-runner</artifactId>
             <version>${munit.version}</version>
