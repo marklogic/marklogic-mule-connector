@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright © 2019 MarkLogic Corporation.
+ * Copyright Â© 2020 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -20,14 +20,14 @@ import java.util.logging.Logger;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
-
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
-import org.mule.runtime.api.streaming.object.CursorIterator;
-import org.mule.runtime.core.internal.streaming.object.ManagedCursorIteratorProvider;
+//import org.mule.runtime.api.streaming.object.CursorIterator;
+//import org.mule.runtime.core.internal.streaming.object.ManagedCursorIteratorProvider;
 
 public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
 {
@@ -114,10 +114,10 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
         assertThat(payloadValue, containsString(" document(s) deleted"));
     }
 
-    /*@Test
-    public void executeOperationTransformEgress() throws Exception
+    @Test
+    public void executeQueryDocsTransformFlow() throws Exception
     {
-        Object payloadValue = (flowRunner("operation-transform-egressFlow")
+        Object payloadValue = (flowRunner("queryDocsTransformFlow")
                 .run()
                 .getMessage()
                 .getPayload()
@@ -133,12 +133,12 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
         //    assertThat(cursor.next().toString(), containsString("\"transformer\": \"transformTestEgress\""));
         //}
         //isA(ManagedCursorIteratorProvider.class);
-    }*/
+    }
     
-    /*@Test
-    public void executeMaxResults() throws Exception
+    @Test
+    public void executeQueryDocsMaxResults() throws Exception
     {
-        Object payloadValue = (flowRunner("maxResultsFlow")
+        Object payloadValue = (flowRunner("queryDocsMaxResultsFlow")
                 .run()
                 .getMessage()
                 .getPayload()
@@ -147,5 +147,5 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
         //logger.info("Returned from flow - " + payloadValue);
         //assertThat(payloadValue, containsString("mlw: 5"));
         assertThat(payloadValue, notNullValue());
-    } */
+    }
 }

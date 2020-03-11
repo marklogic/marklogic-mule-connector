@@ -88,12 +88,12 @@
                     <dependency>
                         <groupId>com.mulesoft.munit</groupId>
                         <artifactId>mtf-tools</artifactId>
-                        <version>1.0.0-BETA4</version>
+                        <version>1.0.0</version>
                         <classifier>mule-plugin</classifier>
                     </dependency>
                 </dependencies> 
             </plugin>
-<!--            <plugin>
+            <!--<plugin>
                 <groupId>com.mulesoft.munit.tools</groupId>
                 <artifactId>munit-maven-plugin</artifactId>
                 <version>${munit.version}</version>
@@ -163,7 +163,7 @@
             <artifactId>commons-jexl3</artifactId>
             <version>3.1</version>
         </dependency>
-<!--        <dependency>
+        <!--<dependency>
             <groupId>com.mulesoft.munit</groupId>
             <artifactId>munit-runner</artifactId>
             <version>${munit.version}</version>
@@ -185,7 +185,7 @@
         </dependency>
     </dependencies>
     <packaging>mule-extension</packaging>
-    <name>MarkLogic Extension</name>
+    <name>MarkLogic Connector - Mule 4</name>
     <parent>
         <groupId>org.mule.connectors</groupId>
         <artifactId>mule-certified-parent</artifactId>
