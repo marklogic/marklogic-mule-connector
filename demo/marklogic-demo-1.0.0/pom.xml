@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.mycompany</groupId>
+    <groupId>com.mulesoft.connectors.examples</groupId>
     <artifactId>marklogic-demo-1.0.0</artifactId>
     <version>1.0.0</version>
     <packaging>mule-application</packaging>
-
     <name>marklogic-demo-1.0.0</name>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
         <app.runtime>4.1.1</app.runtime>
         <mule.maven.plugin.version>3.1.2</mule.maven.plugin.version>
     </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -29,7 +24,6 @@
             </plugin>
         </plugins>
     </build>
-
     <dependencies>
         <dependency>
             <groupId>org.mule.connectors</groupId>
@@ -80,7 +74,6 @@
             <classifier>mule-plugin</classifier>
         </dependency>
     </dependencies>
-
     <repositories>
           <repository>
             <id>anypoint-exchange</id>
@@ -106,5 +99,4 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-
 </project>
