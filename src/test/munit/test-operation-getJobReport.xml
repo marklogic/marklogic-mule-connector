@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+                        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                        http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+                        http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+                        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+                        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
+    <munit:config name="getJobReport Suite" minMuleVersion="4.2.0" />
+    <configuration-properties file="automation-credentials.properties"/>
+    <marklogic:config name="getJobReportConfig" configId="getJobReportConfig" threadCount="5" batchSize="3" secondsBeforeFlush="2" jobName="getJobReportJob">
+        <marklogic:connection connectionId="getJobReportConfig-223efe" hostname="${config.hostName}" port="8010" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" />
+    </marklogic:config>
+    <flow name="getJobReportFlow">
+        <marklogic:get-job-report/>
+        <set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]'/>
+    </flow>
+    <munit:test name="getJobReportTest" description="getJobReport Results">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="getJobReportFlow"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="today" value="#[%dw 2.0 import * from dw::core::Strings output text/plain &#x002D;&#x002D;&#x002D; substringBefore(now(), 'T')]" />
+            <munit-tools:mock-when processor="marklogic:get-job-report">
+                <munit-tools:then-return>
+                    <munit-tools:variables>
+                        <munit-tools:variable key="getJobJSON" value="#[{&quot;importResults&quot;: [{&quot;jobID&quot;: &quot;59903224-c3db-46d8-9881-d24952131b4d&quot;, &quot;jobOutcome&quot;: &quot;successful&quot;, &quot;successfulBatches&quot;: 2, &quot;successfulEvents&quot;: 100, &quot;failedBatches&quot;: 0, &quot;failedEvents&quot;: 0, &quot;jobName&quot;: &quot;test-import&quot;, &quot;jobReportTime&quot;: now() as String, &quot;jobStartTime&quot;: now() as String, &quot;jobEndTime&quot;: now() as String } ], &quot;exportResults&quot;: []}]"/>
+                    </munit-tools:variables>
+                </munit-tools:then-return>
+            </munit-tools:mock-when>
+        </munit:behavior>
+        <munit:execution>
+            <flow-ref name="getJobReportFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[sizeOf(vars.getJobJSON.importResults) >= 0]" is="#[MunitTools::equalTo(true)]"/>
+            <munit-tools:assert-that expression="#[sizeOf(vars.getJobJSON.exportResults) >= 0]" is="#[MunitTools::equalTo(true)]"/>
+            <munit-tools:assert-that expression="#[vars.getJobJSON.importResults[0].jobID matches /[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/]" is="#[MunitTools::equalTo(true)]"/>
+            <munit-tools:assert-that expression="#[vars.getJobJSON.importResults[0].jobReportTime]" is="#[MunitTools::startsWith(vars.today)]"/>
+            <munit-tools:assert-that expression="#[vars.getJobJSON.importResults[0].jobStartTime]" is="#[MunitTools::startsWith(vars.today)]"/>
+            <munit-tools:assert-that expression="#[vars.getJobJSON.importResults[0].jobEndTime]" is="#[MunitTools::startsWith(vars.today)]"/>
+        </munit:validation>
+    </munit:test>
+</mule>

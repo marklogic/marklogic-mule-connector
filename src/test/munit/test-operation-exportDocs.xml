@@ -10,11 +10,11 @@
                         http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
     <munit:config name="exportDocs Suite" />
     <configuration-properties file="automation-credentials.properties"/>
-    <marklogic:config name="exportDocs_config" configId="exportDocsConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName">
+    <marklogic:config name="exportDocsConfig" configId="exportDocsConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="exportDocsJob">
         <marklogic:connection connectionId="exportDocsConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" />
     </marklogic:config>
     <flow name="exportDocsFlow">
-        <marklogic:export-docs config-ref="exportDocs_config" queryStrategy="CTSQuery" maxResults="12" useConsistentSnapshot="true" fmt="XML">
+        <marklogic:export-docs config-ref="exportDocsConfig" queryStrategy="CTSQuery" maxResults="12" useConsistentSnapshot="true" fmt="XML">
             <marklogic:query-string>
                 &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
                     &lt;collection-query&gt;
