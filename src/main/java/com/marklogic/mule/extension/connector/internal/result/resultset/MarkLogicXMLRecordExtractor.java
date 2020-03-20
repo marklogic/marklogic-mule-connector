@@ -13,6 +13,9 @@
  */
 package com.marklogic.mule.extension.connector.internal.result.resultset;
 
+import com.marklogic.client.io.Format;
+import com.marklogic.client.io.StringHandle;
+import com.marklogic.client.io.XMLStreamReaderHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +36,13 @@ public class MarkLogicXMLRecordExtractor extends MarkLogicRecordExtractor {
     private static final Logger logger = LoggerFactory.getLogger(MarkLogicXMLRecordExtractor.class);
 
     // Objects used for handling XML documents
-    private DOMHandle xmlHandle = new DOMHandle();
+    private StringHandle handle = new StringHandle();
 
     @Override
     protected Object extractRecord(DocumentRecord record) {
-        Document node = record.getContent(xmlHandle).get();
-        return createMapFromXML(node.getDocumentElement());
+        StringHandle retVal = record.getContent(handle).withMimetype("application/xml").withFormat(Format.XML);
+        return retVal.get();
+
     }
 
     /**
