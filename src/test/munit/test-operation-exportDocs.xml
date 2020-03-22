@@ -26,7 +26,7 @@
         <set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]'/>
     </flow>
     <flow name="exportDocsBinaryFlow">
-        <marklogic:query-docs config-ref="exportDocsConfig" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
+        <marklogic:export-docs config-ref="exportDocsConfig" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
             <marklogic:query-string>
                 &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
                     &lt;document-query&gt;
@@ -34,11 +34,11 @@
                     &lt;/document-query&gt;
                 &lt;/query&gt;
             </marklogic:query-string>
-        </marklogic:query-docs>
+        </marklogic:export-docs>
         <set-payload value="#[%dw 2.0 output application/octet-stream &#x002D;&#x002D;&#x002D; payload[0]]"/>
     </flow>
     <flow name="exportDocsTextFlow">
-        <marklogic:query-docs config-ref="exportDocsConfig" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
+        <marklogic:export-docs config-ref="exportDocsConfig" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
             <marklogic:query-string>
                 &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
                     &lt;document-query&gt;
@@ -46,8 +46,32 @@
                     &lt;/document-query&gt;
                 &lt;/query&gt;
             </marklogic:query-string>
-        </marklogic:query-docs>
+        </marklogic:export-docs>
         <set-payload value="#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload[0]]"/>
+    </flow>
+    <flow name="exportDocsJSONFlow">
+        <marklogic:export-docs config-ref="exportDocsConfig" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
+            <marklogic:query-string>
+                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+                    &lt;document-query&gt;
+                        &lt;uri&gt;/test/doc1.json&lt;/uri&gt;
+                    &lt;/document-query&gt;
+                &lt;/query&gt;
+            </marklogic:query-string>
+        </marklogic:export-docs>
+        <set-payload value="#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload[0]]"/>
+    </flow>
+    <flow name="exportDocsXMLFlow">
+        <marklogic:export-docs config-ref="exportDocsConfig" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
+            <marklogic:query-string>
+                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+                    &lt;document-query&gt;
+                        &lt;uri&gt;/test/helloworld.xml&lt;/uri&gt;
+                    &lt;/document-query&gt;
+                &lt;/query&gt;
+            </marklogic:query-string>
+        </marklogic:export-docs>
+        <set-payload value="#[%dw 2.0 output application/xml ns sem http://marklogic.com/semantics &#x002D;&#x002D;&#x002D; read(payload[0], 'application/xml')]"/>
     </flow>
     <munit:test name="exportDocsCountMaxResultsTest" description="exportDocs Count Max Results">
         <munit:enable-flow-sources>
@@ -91,6 +115,29 @@
         </munit:execution>
         <munit:validation>
             <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Hello world')]"/>
+        </munit:validation>
+    </munit:test>
+    <munit:test name="exportDocsCheckJSONMimetype" description="exportDocs Check JSON Mimetype">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="exportDocsJSONFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="exportDocsJSONFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload.emp_no]" is="#[MunitTools::equalTo('0001')]"/>
+        </munit:validation>
+    </munit:test>
+    <munit:test name="exportDocsCheckXMLMimetype" description="exportDocs Check XML Mimetype">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="exportDocsXMLFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="exportDocsXMLFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[%dw 2.0 output application/xml &#x002D;&#x002D;&#x002D; payload]" is="#[MunitTools::withMediaType('application/xml')]"/>
+            <munit-tools:assert-that expression="#[%dw 2.0 output text/plain &#x002D;&#x002D;&#x002D; payload.envelope.test]" is="#[MunitTools::equalTo('Hello world')]"/>
         </munit:validation>
     </munit:test>
 </mule>
