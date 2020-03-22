@@ -98,12 +98,12 @@
             <marklogic:query-string>
                 &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
                     &lt;document-query&gt;
-                        &lt;uri&gt;/demo/dmlc-skos.xml&lt;/uri&gt;
+                        &lt;uri&gt;/test/helloworld.xml&lt;/uri&gt;
                     &lt;/document-query&gt;
                 &lt;/query&gt;
             </marklogic:query-string>
         </marklogic:query-docs>
-        <set-payload value="#[%dw 2.0 output application/xml ns sem http://marklogic.com/semantics &#x002D;&#x002D;&#x002D; sem#wrapper: payload[0]]"/>
+        <set-payload value="#[%dw 2.0 output application/xml ns sem http://marklogic.com/semantics &#x002D;&#x002D;&#x002D; read(payload[0], 'application/xml')]"/>
     </flow>
     <munit:test name="queryDocsRawStructuredQuery" description="queryDocs RawStructuredQueryDefinition XML Test">
         <munit:enable-flow-sources>
@@ -195,7 +195,7 @@
             <munit-tools:assert-that expression="#[payload.emp_no]" is="#[MunitTools::equalTo('0001')]"/>
         </munit:validation>
     </munit:test>
-    <!--<munit:test name="queryDocsCheckXMLMimetype" description="queryDocs Check XML Mimetype">
+    <munit:test name="queryDocsCheckXMLMimetype" description="queryDocs Check XML Mimetype">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="queryDocsXMLFlow"/>
         </munit:enable-flow-sources>
@@ -203,7 +203,8 @@
             <flow-ref name="queryDocsXMLFlow"/>
         </munit:execution>
         <munit:validation>
-            <munit-tools:assert-that expression="#[%dw 2.0 output application/xml ns sem http://marklogic.com/semantics &#x002D;&#x002D;&#x002D; payload.sem#triples]" is="#[MunitTools::withMediaType('application/xml')]"/>
+            <munit-tools:assert-that expression="#[%dw 2.0 output application/xml &#x002D;&#x002D;&#x002D; payload]" is="#[MunitTools::withMediaType('application/xml')]"/>
+            <munit-tools:assert-that expression="#[%dw 2.0 output text/plain &#x002D;&#x002D;&#x002D; payload.envelope.test]" is="#[MunitTools::equalTo('Hello world')]"/>
         </munit:validation>
-    </munit:test>-->
+    </munit:test>
 </mule>
