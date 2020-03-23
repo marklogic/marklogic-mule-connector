@@ -301,7 +301,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         // Have the DMSDK WriteBatcher object sleep until it is needed again
         batcher.awaitCompletion();
         // Return the job ticket ID so it can be used to retrieve the document in the future
-        return jobTicket.getJobId();
+        return "\"" + jobTicket.getJobId() + "\"";
     }
 
     private ZonedDateTime toZonedDateTime(Calendar calendar)

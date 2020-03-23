@@ -68,6 +68,7 @@
         </marklogic:query-docs>
         <!-- Read in the bytes from the query-returned PNG file in MarkLogic, so that we can search for the magic numbers that start the file -->
         <set-payload value="#[%dw 2.0 import * from dw::core::Binaries output application/json &#x002D;&#x002D;&#x002D; payload[0] readLinesWith 'UTF-8']"/>
+        <!-- <set-payload value="#[%dw 2.0 output text/plain &#x002D;&#x002D;&#x002D; '89 50 4E 47']"/> -->
     </flow>
     <flow name="queryDocsTextFlow">
         <marklogic:query-docs config-ref="config" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
