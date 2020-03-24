@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+                        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                        http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+                        http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+                        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+                        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
+    <munit:config name="deleteDocs Suite" minMuleVersion="4.2.0" />
+    <configuration-properties file="automation-credentials.properties"/>
+    <marklogic:config name="deleteDocsConfig" configId="deleteDocsConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="deleteDocsJob">
+        <marklogic:connection connectionId="deleteDocs1"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" />
+    </marklogic:config>
+    <flow name="deleteDocsFlow">
+        <marklogic:delete-docs config-ref="deleteDocsConfig" queryStrategy="RawStructuredQueryDefinition" useConsistentSnapshot="true" fmt="JSON">
+            <marklogic:query-string>{ &quot;query&quot;: { &quot;queries&quot;: [{ &quot;document-query&quot;: { &quot;uri&quot;: [ &quot;/mulesoft/deleteTestStructuredQuery-munit.json&quot; ] } }] } } </marklogic:query-string>
+        </marklogic:delete-docs>
+        <set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]'/>
+    </flow>
+    <munit:test name="deleteDocsTest" description="deleteDocs Results">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="deleteDocsFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="deleteDocsFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload.deletionResult]" is="#[MunitTools::containsString(' document(s) deleted')]"/>
+            <munit-tools:assert-that expression="#[payload.deletionCount >= 0]" is="#[MunitTools::equalTo(true)]"/>
+        </munit:validation>
+    </munit:test>
+</mule>
