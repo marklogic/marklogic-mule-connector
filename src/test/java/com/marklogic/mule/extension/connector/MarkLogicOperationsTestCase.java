@@ -64,7 +64,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
                 .getMessage()
                 .getPayload()
                 .getValue());
-        assertThat(payloadValue, payloadValue.matches(UUID_REGEX));
+        assertThat(payloadValue, payloadValue.matches('"' + UUID_REGEX + '"'));
     }
 
     @Test

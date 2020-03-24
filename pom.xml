@@ -129,6 +129,13 @@
         </plugins>
     </build>
     <dependencies>
+        <!-- jackson-databind 2.10.1 is needed to replace jackson-databind 2.9.8 that exists in marklogic-client-api 4.2.0.  -->
+        <!-- jackson-databind 2.10.1 exists in marklogic-client-api 5.1.0, but 5.1.0 requires >= Java 9, so adding upgraded jackson-databind dependency outside of ml-client-api --> 
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind </artifactId>
+            <version>2.10.1</version>
+        </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>ml-javaclient-util</artifactId>
@@ -152,6 +159,7 @@
             <groupId>com.marklogic</groupId>
             <artifactId>marklogic-client-api</artifactId>
             <version>4.2.0</version>
+            <!--<version>5.1.0</version>-->
         </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>

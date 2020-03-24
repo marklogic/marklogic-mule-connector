@@ -13,35 +13,36 @@
  */
 package com.marklogic.mule.extension.connector.internal.result.resultset;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.marklogic.client.document.DocumentRecord;
-import com.marklogic.client.io.BytesHandle;
-import com.marklogic.client.io.DOMHandle;
-import com.marklogic.client.io.JacksonHandle;
+import com.marklogic.client.io.Format;
 import com.marklogic.client.io.StringHandle;
+import com.marklogic.client.io.XMLStreamReaderHandle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.marklogic.client.document.DocumentRecord;
+import com.marklogic.client.io.DOMHandle;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by jkrebs on 1/19/2020.
  */
 public class MarkLogicXMLRecordExtractor extends MarkLogicRecordExtractor {
 
+    private static final Logger logger = LoggerFactory.getLogger(MarkLogicXMLRecordExtractor.class);
+
     // Objects used for handling XML documents
-    private DOMHandle xmlHandle = new DOMHandle();
+    private StringHandle handle = new StringHandle();
 
     @Override
     protected Object extractRecord(DocumentRecord record) {
-        Document node = record.getContent(xmlHandle).get();
-        return createMapFromXML(node.getDocumentElement());
+        StringHandle retVal = record.getContent(handle).withMimetype("application/xml").withFormat(Format.XML);
+        return retVal.get();
+
     }
 
     /**
@@ -54,38 +55,39 @@ public class MarkLogicXMLRecordExtractor extends MarkLogicRecordExtractor {
     {
         Map<String, Object> map = new HashMap<>();
         NodeList nodeList = node.getChildNodes();
-        for (int i = 0; i < nodeList.getLength(); i++)
+
+        if (node.getNodeType() == Node.ELEMENT_NODE)
         {
-            Node currentNode = nodeList.item(i);
-            String name = currentNode.getNodeName();
-            Object value = null;
-            if (currentNode.getNodeType() == Node.ELEMENT_NODE)
-            {
-                value = createMapFromXML(currentNode);
-            }
-            else if (currentNode.getNodeType() == Node.TEXT_NODE)
-            {
-                return currentNode.getTextContent();
-            }
-            if (map.containsKey(name))
-            {
-                Object obj = map.get(name);
-                if (obj instanceof List)
-                {
-                    ((List) obj).add(value);
+            List<Object> children = new ArrayList<>();
+            map.put(node.getNodeName(),children);
+            NamedNodeMap attributes = node.getAttributes();
+            if ((attributes != null ) && (attributes.getLength() > 0)) {
+                Map<String,String> attributesMap = new HashMap<>();
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    Node item = attributes.item(i);
+                    attributesMap.put(item.getNodeName(), item.getNodeValue());
                 }
-                else
-                {
-                    List<Object> objs = new LinkedList<>();
-                    objs.add(obj);
-                    objs.add(value);
-                    map.put(name, objs);
-                }
+                children.add(attributesMap);
             }
-            else
-            {
-                map.put(name, value);
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                children.add(createMapFromXML(nodeList.item(i)));
             }
+            return map;
+        }
+        else if (node.getNodeType() == Node.TEXT_NODE)
+        {
+            return node.getTextContent();
+        }
+        else if (node.getNodeType() == Node.COMMENT_NODE)
+        {
+            return node.getTextContent();
+        }
+        else if (node.getNodeType() == Node.PROCESSING_INSTRUCTION_NODE)
+        {
+            return node.getTextContent();
+        }
+        else {
+            logger.warn("Unhandled XML node type: " + node.getNodeType());
         }
         return map;
     }
