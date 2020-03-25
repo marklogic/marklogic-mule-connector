@@ -61,14 +61,13 @@
             <marklogic:query-string>
                 &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
                     &lt;document-query&gt;
-                        &lt;uri&gt;/test/map-icon-16.png&lt;/uri&gt;
+                        &lt;uri&gt;/test/smalltest.pdf&lt;/uri&gt;
                     &lt;/document-query&gt;
                 &lt;/query&gt;
             </marklogic:query-string>
         </marklogic:query-docs>
-        <!-- Read in the bytes from the query-returned PNG file in MarkLogic, so that we can search for the magic numbers that start the file -->
+        <!-- Read in the bytes from the query-returned PDF file in MarkLogic, so that we can search for the magic numbers that start the file -->
         <set-payload value="#[%dw 2.0 import * from dw::core::Binaries output application/json &#x002D;&#x002D;&#x002D; payload[0] readLinesWith 'UTF-8']"/>
-        <!-- <set-payload value="#[%dw 2.0 output text/plain &#x002D;&#x002D;&#x002D; '89 50 4E 47']"/> -->
     </flow>
     <flow name="queryDocsTextFlow">
         <marklogic:query-docs config-ref="config" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
@@ -171,7 +170,9 @@
         </munit:execution>
         <munit:validation>
             <!-- 89 50 4E 47 are the magic numbers for a PNG file -->
-            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::containsString('89 50 4E 47')]"/>
+            <!-- PDF files start with %PDF -->
+            <!--<munit-tools:assert-that expression="#[payload]" is="#[MunitTools::containsString('89 50 4E 47')]"/>-->
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::containsString('%PDF')]"/>
         </munit:validation>
     </munit:test>
     <munit:test name="queryDocsCheckTextMimetype" description="queryDocs Check Text Mimetype">
