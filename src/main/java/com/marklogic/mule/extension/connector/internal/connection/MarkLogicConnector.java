@@ -42,7 +42,6 @@ public final class MarkLogicConnector
 
     private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnector.class);
 
-    //private static final SecurityContextType DEFAULT_AUTHENTICATION_TYPE = SecurityContextType.BASIC;
     private DatabaseClient client;
     private final String hostname;
     private final int port;
@@ -59,7 +58,7 @@ public final class MarkLogicConnector
     public MarkLogicConnector(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId)
     {
 
-        this.useSSL = (sslContext != null);
+        this.useSSL = sslContext != null;
         if (sslContext instanceof Initialisable) {
             try {
                 ((Initialisable) sslContext).initialise();
@@ -82,7 +81,7 @@ public final class MarkLogicConnector
 
     public void connect() throws MarkLogicConnectorException
     {
-
+        logger.debug("Kerberos external name: " + this.kerberosExternalName);
         logger.info("MarkLogic connection id = " + this.getId());
         try
         {
@@ -105,10 +104,7 @@ public final class MarkLogicConnector
     public void invalidate()
     {
         client.release();
-        markLogicClientInvalidationListeners.forEach((listener) ->
-        {
-            listener.markLogicConnectionInvalidated();
-        });
+        markLogicClientInvalidationListeners.forEach((listener) -> listener.markLogicConnectionInvalidated());
         logger.debug("MarkLogic connection invalidated.");
   }
     public boolean isConnected(int port)

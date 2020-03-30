@@ -66,7 +66,7 @@ public class MarkLogicResultSetIterator implements Iterator
     @Override
     public boolean hasNext()
     {
-        return ((start.longValue() == 1 || documents.hasNextPage()) && ((maxResults == 0) || (resultCount.get() < maxResults)));
+        return (start.longValue() == 1 || documents.hasNextPage() && maxResults == 0 || resultCount.get() < maxResults);
     }
 
     @Override
