@@ -23,7 +23,7 @@
                 &lt;/query&gt;
             </marklogic:query-string>
         </marklogic:export-docs>
-        <set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]'/>
+        <set-payload value="#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]"/>
     </flow>
     <flow name="exportDocsBinaryFlow">
         <marklogic:export-docs config-ref="exportDocsConfig" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
