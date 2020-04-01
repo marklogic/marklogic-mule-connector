@@ -253,22 +253,14 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
      */
     static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnector connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
     {
-        // String configId = config.getConfigId();
-        // MarkLogicInsertionBatcher instance = instances.get(configId);
-        // Uncomment above to support multiple connection config scenario
         if (instance == null)
         {
             instance = new MarkLogicInsertionBatcher(config, connection, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
-            // instances.put(configId,instance);
-            // Uncomment above to support multiple connection config scenario
         }
-        else if ((!(connection == null)) && (!connection.equals(instance.connection)))
+        else if ((!(connection == null)) && (!connection.equals(instance.connection)) && (instance.batcherRequiresReinit))
         {
-            if (instance.batcherRequiresReinit)
-            {
-                instance.initializeBatcher(connection, config, outputCollections, outputPermissions, outputQuality, temporalCollection, serverTransform, serverTransformParams);
-                instance.batcherRequiresReinit = false;
-            }
+            instance.initializeBatcher(connection, config, outputCollections, outputPermissions, outputQuality, temporalCollection, serverTransform, serverTransformParams);
+            instance.batcherRequiresReinit = false;
         }
         return instance;
     }

@@ -170,27 +170,6 @@ public class MarkLogicOperations
         return batcher.doInsert(outURI, docPayloads);
     }
 
-    /*
-  Sample JSON created by getJobReport() :
-{
-	"importResults": [
-		{
-			"jobID": "59903224-c3db-46d8-9881-d24952131b4d",
-			"jobOutcome": "successful",
-			"successfulBatches": 2,
-			"successfulEvents": 100,
-			"failedBatches": 0,
-			"failedEvents": 0,
-			"jobName": "test-import",
-			"jobStartTime": "2019-04-18T12:00:00Z",
-			"jobEndTime": "2019-04-18T12:00:01Z",
-			"jobReportTime": "2019-04-18T12:00:02Z"
-		}
-	],
-	"exportResults": []
-}
-     */
-
  /**
  * <p>Retrieves a JSON representation of a <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a> <a target="_blank" href="https://docs.marklogic.com/guide/java/data-movement">Data Movement SDK (DMSDK)</a> <a target="_blank" href="https://docs.marklogic.com/javadoc/client/com/marklogic/client/datamovement/JobReport.html">JobReport</a> following an importDocs operation.</p>
  * @return java.lang.String
@@ -198,6 +177,7 @@ public class MarkLogicOperations
  * @since 1.0.0
  * @deprecated Deprecated in v.1.1.1
  */
+    @Deprecated
     @MediaType(value = APPLICATION_JSON, strict = true)
     @DisplayName("Get Job Report (deprecated)")
 //    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used.  Instead, use the built-in MuleSoft BatchJobResult output.", since = "1.1.0")
@@ -316,6 +296,7 @@ public class MarkLogicOperations
  * @deprecated Deprecated in v.1.1.0, use queryDocs instead
  * @since 1.1.0
  */
+    @Deprecated
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
     @DisplayName("Select Documents By Structured Query (deprecated)")
@@ -518,7 +499,6 @@ public class MarkLogicOperations
         {
 
             private final AtomicBoolean initialised = new AtomicBoolean(false);
-            private MarkLogicResultSetCloser resultSetCloser;
             private QueryBatcher batcher;
             private DataMovementManager dmm = null;
 
@@ -575,7 +555,6 @@ public class MarkLogicOperations
             public void close(MarkLogicConnector markLogicConnector) throws MuleException
             {
                 logger.debug("NOT Invalidating ML connection...");
-                //markLogicConnection.invalidate();
             }
         };
 
