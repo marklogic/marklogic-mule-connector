@@ -28,6 +28,7 @@ import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.datamovement.DataMovementManager;
 import com.marklogic.client.datamovement.DeleteListener;
 import com.marklogic.client.datamovement.QueryBatcher;
+import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.*;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
@@ -461,10 +462,12 @@ public class MarkLogicOperations
  * @param queryString The serialized query XML or JSON.
  * @param optionsName The server-side Search API options file used to configure the search.
  * @param queryStrategy The Java class used to execute the serialized query.
+ * @param fmt The format of the serialized query.
  * @param pageLength Number of documents fetched at a time, defaults to the connection batch size.
  * @param maxResults Maximum total number of documents to be fetched, defaults to unlimited.
  * @param useConsistentSnapshot Whether to use a consistent point-in-time snapshot for operations.
- * @param fmt The format of the serialized query.
+ * @param serverTransform The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.
+ * @param serverTransformParams A comma-separated list of alternating transform parameter names and values.
  * @return org.mule.runtime.extension.api.runtime.streaming.PagingProvider
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.1.0
@@ -483,13 +486,19 @@ public class MarkLogicOperations
             @Summary("The server-side Search API options file used to configure the search.") String optionsName,
             @DisplayName("Search Strategy")
             @Summary("The Java class used to execute the serialized query.") MarkLogicQueryStrategy queryStrategy,
+            @DisplayName("Serialized Query Format")
+            @Summary("The format of the serialized query.") MarkLogicQueryFormat fmt,
             @DisplayName("Maximum Number of Results")
             @Optional
             @Summary("Maximum total number of documents to be fetched, defaults to unlimited.") Long maxResults,
             @DisplayName("Use Consistent Snapshot")
             @Summary("Whether to use a consistent point-in-time snapshot for operations.") boolean useConsistentSnapshot,
-            @DisplayName("Serialized Query Format")
-            @Summary("The format of the serialized query.") MarkLogicQueryFormat fmt
+            @Summary("The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.")
+            @Optional(defaultValue = "null")
+            @Example("ml:sjsInputFlow") String serverTransform,
+            @Summary("A comma-separated list of alternating transform parameter names and values.")
+            @Optional(defaultValue = "null")
+            @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams
     )
     {
         maxResults = maxResults != null ? maxResults : 0;
@@ -497,7 +506,7 @@ public class MarkLogicOperations
 
         return new PagingProvider<MarkLogicConnector, Object>()
         {
-
+            private ServerTransform transform = null;
             private final AtomicBoolean initialised = new AtomicBoolean(false);
             private QueryBatcher batcher;
             private DataMovementManager dmm = null;
@@ -512,13 +521,29 @@ public class MarkLogicOperations
                     dmm = client.newDataMovementManager();
 
                     QueryDefinition query = queryStrategy.getQueryDefinition(qm,queryString,fmt,optionsName);
-                    batcher = queryStrategy.newQueryBatcher(dmm,query);
-
-                    if (configuration.hasServerTransform())
+                    
+                    if (MarkLogicConfiguration.serverTransformExists(serverTransform))
                     {
-                        query.setResponseTransform(configuration.createServerTransform());
+                        transform = MarkLogicConfiguration.createServerTransform(serverTransform,serverTransformParams);
+                        logger.info("Transforming query doc payload with operation-defined transform: " + transform.getName());
+                    }
+                    else if (configuration.hasServerTransform())
+                    {
+                        transform = configuration.createServerTransform();
+                        logger.info("Transforming query doc payload with connection-defined transform: " + configuration.getServerTransform());
+                    }
+                    else
+                    {
+                        logger.info("Querying docs without a transform");
                     }
 
+                    batcher = queryStrategy.newQueryBatcher(dmm,query);
+                    
+                    if (transform != null) {
+                        logger.info("Configuring transform for exportListener: " + transform.getName());
+                        exportListener.withTransform(transform);
+                    }
+                    
                     if (useConsistentSnapshot)
                     {
                         batcher.withConsistentSnapshot();

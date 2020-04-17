@@ -171,21 +171,23 @@ public class MarkLogicConfiguration
     }
 
     public static ServerTransform createServerTransform(String serverTransform, String serverTransformParams) {
-
+        String stparams = serverTransformParams;
+        ServerTransform transform;
         if (!serverTransformExists(serverTransform))
         {
             throw new MarkLogicConnectorException("Cannot create Server Transform without a name.");
         }
-        else if (serverTransformParams == null
-                || serverTransformParams.trim().isEmpty()
-                || "null".equalsIgnoreCase(serverTransformParams.trim()))
+        else if (stparams == null || stparams.trim().isEmpty() || "null".equalsIgnoreCase(stparams.trim()))
+        {
+            transform = new ServerTransform(serverTransform);
+        }
+        /*else if ("null".equalsIgnoreCase(stparams.trim()))
         {
             throw new MarkLogicConnectorException("Cannot create Server Transform without any params");
-        }
+        }*/
         else
-        {
-            List<String> pairs = Arrays.asList(serverTransformParams.split(","));
-
+        {            
+            List<String> pairs = Arrays.asList(stparams.split(","));
             int size = pairs.size();
 
             if (size % 2 != 0 || pairs.stream().anyMatch(it -> it.trim().isEmpty())) //Test for "null" string?
@@ -193,15 +195,13 @@ public class MarkLogicConfiguration
                 throw new MarkLogicConnectorException("Cannot create Server Transforms because params do not pair up");
             }
 
-            ServerTransform transform = new ServerTransform(serverTransform);
+            transform = new ServerTransform(serverTransform);
 
             for (int i = 0; i < size; i += 2)
             {
                 transform.addParameter(pairs.get(i).trim(), pairs.get(i + 1).trim());
             }
-
-            return transform;
         }
-
+        return transform;
     }
 }
