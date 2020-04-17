@@ -1,12 +1,12 @@
 = MarkLogic Connector Release Notes 
 
-March 2020
+April 2020
 
 _MuleSoft Certified_
 
 The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users (via the MuleSoft Anypoint Exchange) with easy integration to MarkLogic, delivering data movement and transformation pipelines via MuleSoft AnypointStudio and Design Center flows. The MuleSoft Connector is built atop MarkLogic’s https://developer.marklogic.com/learn/data-movement-sdk/[Data Movement SDK] (DMSDK), which is a Java API library for applications that need to move data into, out of, or within a MarkLogic cluster.  For those familiar with the existing MarkLogic ecosystem, it provides the core capabilities of MarkLogic Content Pump in the vernacular of the MarkLogic Java Client API.
 
-== Version 1.1.1 - 2020-03-31
+== Version 1.1.1 - 2020-04-30
 
 === Version 1.1.1 - Compatibility
 [%header%autowidth.spread]
@@ -23,7 +23,8 @@ The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users
 This release of the Connector includes the following:
 
 * Provides a bugfix, via operation exportDocs, to allow one to peform a query to retrieve a consistent, point-in-time snapshot of documents coming out of MarkLogic.  exportDocs is distinguished from queryDocs in that the former has withConsistentSnapshot and works asynchronously, through DMSDK.  While queryDocs is synchronous through the MarkLogic Java API proper.
-* Provided bugfix to allow for execution of MarkLogic server-side transforms at the operation level, and not just via the connector configuration.  Having transforms only at the connector configuration meant that multiple connections could have been necessary to handle two or more transformation calls.
+* Provided bugfix to allow for execution of MarkLogic server-side transforms at the operation level, and not just via the connector configuration.  Having transforms only at the connector configuration meant that multiple connections could have been necessary to handle two or more transformation calls. An additional transformation-related bugfix was made to remove the requirement for specifying transformation parameters.  The only enforcement now is to check that parameter names and values match up pairwise when specified.
+* Provided bugfix to properly allow Search API options to be specified when using RawStructuredQueryType queries.  
 * Deprecated operation getJobReport, which was used in conjunction with the DMSDK batch job reporting.  It is now recommended to leverage MuleSoft's built in batch job reporting.
 * Improved output and pagination functionality, for egress-centric operations, including more advanced mimetype and document type recognition for use with Mule flow messaging.
 * Improved egress operations by allowing for specification of pagination length, and max results returned
@@ -53,7 +54,8 @@ This release of the Connector includes the following:
 === Version 1.1.1 - Bugs Fixed
 
 * Provides a bugfix, to allow one to peform a query to retrieve a consistent, point-in-time snapshot of documents coming out of MarkLogic.  
-* Provided bugfix to allow for execution of MarkLogic server-side transforms at the operation level
+* Provides a bugfix to allow server-side Search API options files to work correctly when using RawStructuredQueryType queries.
+* Provides a bugfix to allow for execution of MarkLogic server-side transforms at the operation level, and to improve transformation parameter handling (they are no longer required, but just checked to name/value pairwise matching).
 
 === Version 1.1.1 - Operations
 
