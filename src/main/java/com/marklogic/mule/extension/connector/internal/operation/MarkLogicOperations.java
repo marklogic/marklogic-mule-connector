@@ -28,6 +28,7 @@ import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.datamovement.DataMovementManager;
 import com.marklogic.client.datamovement.DeleteListener;
 import com.marklogic.client.datamovement.QueryBatcher;
+import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.*;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
@@ -40,6 +41,7 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 
 import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicSelectMetadataResolver;
+import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicAnyMetadataResolver;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicExportListener;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetCloser;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetIterator;
@@ -346,7 +348,7 @@ public class MarkLogicOperations
  * @version 1.1.1
  */
     @MediaType(value = ANY, strict = false)
-    @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
+    @OutputResolver(output = MarkLogicAnyMetadataResolver.class)
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public PagingProvider<MarkLogicConnector, Object> queryDocs(
             @Config MarkLogicConfiguration configuration,
@@ -404,24 +406,15 @@ public class MarkLogicOperations
                     DatabaseClient client = connection.getClient();
                     QueryManager qm = client.newQueryManager();
 
-                    String options = isDefined(optionsName) ? optionsName : null;
+                    String options = MarkLogicConfiguration.isDefined(optionsName) ? optionsName : null;
                     QueryDefinition query = queryStrategy.getQueryDefinition(qm,queryString,fmt,options);
 
-                    if (MarkLogicConfiguration.serverTransformExists(serverTransform))
+                    ServerTransform transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
+                    if(transform != null)
                     {
-                        query.setResponseTransform(MarkLogicConfiguration.createServerTransform(serverTransform,serverTransformParams));
-                        logger.info("Transforming query doc payload with operation-defined transform: " + serverTransform);
+                        query.setResponseTransform(transform);
                     }
-                    else if (configuration.hasServerTransform())
-                    {
-                        query.setResponseTransform(configuration.createServerTransform());
-                        logger.info("Transforming query doc payload with connection-defined transform: " + configuration.getServerTransform());
-                    }
-                    else
-                    {
-                        logger.info("Querying docs without a transform");
-                    }
-
+                    
                     if ((pageLength != null) && (pageLength < 1))
                     {
                         iterator = new MarkLogicResultSetIterator(connection, configuration, query, configuration.getBatchSize(), maxResults);
@@ -461,17 +454,19 @@ public class MarkLogicOperations
  * @param queryString The serialized query XML or JSON.
  * @param optionsName The server-side Search API options file used to configure the search.
  * @param queryStrategy The Java class used to execute the serialized query.
+ * @param fmt The format of the serialized query.
  * @param pageLength Number of documents fetched at a time, defaults to the connection batch size.
  * @param maxResults Maximum total number of documents to be fetched, defaults to unlimited.
  * @param useConsistentSnapshot Whether to use a consistent point-in-time snapshot for operations.
- * @param fmt The format of the serialized query.
+ * @param serverTransform The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.
+ * @param serverTransformParams A comma-separated list of alternating transform parameter names and values.
  * @return org.mule.runtime.extension.api.runtime.streaming.PagingProvider
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.1.0
  * @version 1.1.1
  */
     @MediaType(value = ANY, strict = false)
-    @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
+    @OutputResolver(output = MarkLogicAnyMetadataResolver.class)
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public PagingProvider<MarkLogicConnector, Object> exportDocs(
             @Config MarkLogicConfiguration configuration,
@@ -483,13 +478,19 @@ public class MarkLogicOperations
             @Summary("The server-side Search API options file used to configure the search.") String optionsName,
             @DisplayName("Search Strategy")
             @Summary("The Java class used to execute the serialized query.") MarkLogicQueryStrategy queryStrategy,
+            @DisplayName("Serialized Query Format")
+            @Summary("The format of the serialized query.") MarkLogicQueryFormat fmt,
             @DisplayName("Maximum Number of Results")
             @Optional
             @Summary("Maximum total number of documents to be fetched, defaults to unlimited.") Long maxResults,
             @DisplayName("Use Consistent Snapshot")
             @Summary("Whether to use a consistent point-in-time snapshot for operations.") boolean useConsistentSnapshot,
-            @DisplayName("Serialized Query Format")
-            @Summary("The format of the serialized query.") MarkLogicQueryFormat fmt
+            @Summary("The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.")
+            @Optional(defaultValue = "null")
+            @Example("ml:sjsInputFlow") String serverTransform,
+            @Summary("A comma-separated list of alternating transform parameter names and values.")
+            @Optional(defaultValue = "null")
+            @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams
     )
     {
         maxResults = maxResults != null ? maxResults : 0;
@@ -497,7 +498,6 @@ public class MarkLogicOperations
 
         return new PagingProvider<MarkLogicConnector, Object>()
         {
-
             private final AtomicBoolean initialised = new AtomicBoolean(false);
             private QueryBatcher batcher;
             private DataMovementManager dmm = null;
@@ -512,17 +512,20 @@ public class MarkLogicOperations
                     dmm = client.newDataMovementManager();
 
                     QueryDefinition query = queryStrategy.getQueryDefinition(qm,queryString,fmt,optionsName);
+                    
                     batcher = queryStrategy.newQueryBatcher(dmm,query);
-
-                    if (configuration.hasServerTransform())
-                    {
-                        query.setResponseTransform(configuration.createServerTransform());
+                    
+                    ServerTransform transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
+                    if (transform != null) {
+                        logger.info("Configuring transform for exportListener: " + transform.getName());
+                        exportListener.withTransform(transform);
                     }
-
+                    
                     if (useConsistentSnapshot)
                     {
                         batcher.withConsistentSnapshot();
                     }
+                    
                     batcher.withBatchSize(configuration.getBatchSize())
                             .withThreadCount(configuration.getThreadCount())
                             .onUrisReady(exportListener)
@@ -558,9 +561,5 @@ public class MarkLogicOperations
             }
         };
 
-    }
-    private boolean isDefined(String str)
-    {
-        return str != null && !str.trim().isEmpty() && !"null".equals(str.trim());
     }
 }

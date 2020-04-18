@@ -19,7 +19,8 @@ See the Release Notes for compatibility information listed in the See Also secti
 Release 1.1.1 adds:
 
 * A bugfix, to allow one to peform a query to retrieve a consistent, point-in-time snapshot of documents coming out of MarkLogic.  
-* A bugfix to allow for execution of MarkLogic server-side transforms at the operation level
+* A bugfix to allow for execution of MarkLogic server-side transforms at the operation level, with improved transformation parameter handling.
+* A bugfix to allow server-side Search API options files to work correctly when using RawStructuredQueryType queries.
 * Improved ability to work with consistent point-in-time snapshot queries for MarkLogic egress operations.
 * Improved ability to work with server-side transformations at the operation level.
 * Improved output and pagination functionality, for egress-centric operations, including more advanced mimetype and document type recognition for use with Mule flow messaging.

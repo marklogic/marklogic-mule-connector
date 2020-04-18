@@ -28,7 +28,7 @@ public enum MarkLogicQueryStrategy
     RawStructuredQueryDefinition {
         @Override
         public QueryDefinition getQueryDefinition(QueryManager queryManager, String queryString, MarkLogicQueryFormat fmt, String optionsName) {
-            return createRawStructuredQuery(queryManager,queryString,fmt);
+            return createRawStructuredQuery(queryManager,queryString,fmt,optionsName);
         }
 
         @Override
@@ -60,9 +60,9 @@ public enum MarkLogicQueryStrategy
     public abstract QueryDefinition getQueryDefinition(QueryManager queryManager, String queryString, MarkLogicQueryFormat fmt, String optionsName);
     public abstract QueryBatcher newQueryBatcher(DataMovementManager dmm, QueryDefinition query);
 
-    protected com.marklogic.client.query.RawStructuredQueryDefinition createRawStructuredQuery(QueryManager qManager, String structuredQuery, MarkLogicQueryFormat fmt)
+    protected com.marklogic.client.query.RawStructuredQueryDefinition createRawStructuredQuery(QueryManager qManager, String structuredQuery, MarkLogicQueryFormat fmt, String optionsName)
     {
-        return qManager.newRawStructuredQueryDefinition(new StringHandle().withFormat(fmt.getMlClientFormat()).with(structuredQuery));
+        return qManager.newRawStructuredQueryDefinition(new StringHandle().withFormat(fmt.getMlClientFormat()).with(structuredQuery), optionsName);
     }
 
     protected StructuredQueryDefinition createStructuredQuery(QueryManager qManager, String structuredQuery, String optionsName)

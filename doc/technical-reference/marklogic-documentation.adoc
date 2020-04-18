@@ -146,14 +146,16 @@ Default configuration
 ** RawStructuredQueryDefinition
 ** StructuredQueryBuilder
 ** CTSQuery |  +++The Java class used to execute the serialized query.+++ |  | *x*{nbsp}
-| Maximum Number of Results a| Number |  +++Maximum total number of documents to be fetched, defaults to unlimited.+++ |  | {nbsp}
-| Use Consistent Snapshot a| Boolean |  +++Whether to use a consistent point-in-time snapshot for operations.+++ |  +++false+++ | {nbsp}
 | Serialized Query Format a| Enumeration, one of:
 
 ** XML
 ** JSON
 ** Binary
 ** Text |  +++The format of the serialized query.+++ |  | *x*{nbsp}
+| Maximum Number of Results a| Number |  +++Maximum total number of documents to be fetched, defaults to unlimited.+++ |  | {nbsp}
+| Use Consistent Snapshot a| Boolean |  +++Whether to use a consistent point-in-time snapshot for operations.+++ |  +++false+++ | {nbsp}
+| Server Transform a| String |  +++The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.+++ |  +++null+++ | {nbsp}
+| Server Transform Params a| String |  +++A comma-separated list of alternating transform parameter names and values.+++ |  +++null+++ | {nbsp}
 | Streaming Strategy a| * <<repeatable-in-memory-iterable>>
 * <<repeatable-file-store-iterable>>
 * <<non-repeatable-iterable>> |  +++Configure if repeatable streams should be used and their behaviour+++ |  | {nbsp}
@@ -166,7 +168,7 @@ Default configuration
 ==== Output
 [cols=".^50%,.^50%"]
 |======================
-| *Type* a| Array of Any
+| *Type* a| Any
 |======================
 
 ==== For Configurations.
@@ -263,7 +265,7 @@ Default configuration
 ==== Output
 [cols=".^50%,.^50%"]
 |======================
-| *Type* a| Array of Any
+| *Type* a| Any
 |======================
 
 ==== For Configurations.
