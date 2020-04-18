@@ -120,129 +120,136 @@ public class MarkLogicConfigurationTest
     }
 
     /**
-     * Test of hasServerTransform method, of class MarkLogicConfiguration.
+     * Test of isDefine static method, of class MarkLogicConfiguration.
      */
     @Test
-    public void testHasServerTransformNull()
+    public void testIsDefined()
     {
-        assertNull(instance.getServerTransform());
-        assertFalse(instance.hasServerTransform());
+        assertTrue(MarkLogicConfiguration.isDefined("TestTransformName"));
+    }
+    
+    @Test
+    public void testIsDefinedNull()
+    {
+        assertFalse(MarkLogicConfiguration.isDefined(null));
     }
 
     @Test
-    public void testHasServerTransformEmptyString()
+    public void testIsDefinedEmptyString()
     {
-        String expected = "";
-        instance.setServerTransform(expected);
-        assertEquals(expected, instance.getServerTransform());
-        assertFalse(instance.hasServerTransform());
+        assertFalse(MarkLogicConfiguration.isDefined(""));
     }
 
     @Test
-    public void testHasServerTransformBlankString()
+    public void testIsDefinedBlankString()
     {
-        String expected = " "; //In case a user enters a space/tab
-        instance.setServerTransform(expected);
-        assertEquals(expected, instance.getServerTransform());
-        assertFalse(instance.hasServerTransform());
+        assertFalse(MarkLogicConfiguration.isDefined(" ")); //In case a user enters a space/tab
     }
 
     @Test
-    public void testHasServerTransformNullString()
+    public void testIsDefinedNullString()
     {
-        String expected = "null";
-        instance.setServerTransform(expected);
-        assertEquals(expected, instance.getServerTransform());
-        assertFalse(instance.hasServerTransform());
+        assertFalse(MarkLogicConfiguration.isDefined("null"));
     }
 
     @Test
-    public void testHasServerTransformNullCapString()
+    public void testIsDefinedNullCapString()
     {
-        String expected = "NULL";
-        instance.setServerTransform(expected);
-        assertEquals(expected, instance.getServerTransform());
-        assertFalse(instance.hasServerTransform());
-    }
-
-    @Test
-    public void testHasServerTransform()
-    {
-        String expected = "TestTransformName";
-        instance.setServerTransform(expected);
-        assertEquals(expected, instance.getServerTransform());
-        assertTrue(instance.hasServerTransform());
+        assertFalse(MarkLogicConfiguration.isDefined("NULL"));
     }
 
     /**
      * Test of createServerTransform method, of class MarkLogicConfiguration.
      */
-    @Test(expected = MarkLogicConnectorException.class)
-    public void testCreateServerTransformWithoutName()
+    @Test
+    public void testGenerateServerTransformWithoutName()
     {
-        instance.createServerTransform();
+        assertNull(instance.generateServerTransform(null, null));
     }
 
-    /*@Test(expected = MarkLogicConnectorException.class)
-    public void testCreateServerTransformWithoutParams()
+    @Test
+    public void testGenerateServerTransformNameWithoutParams()
+    {
+        ServerTransform transform = instance.generateServerTransform("TestTransform", null);
+        assertEquals("TestTransform", transform.getName());
+        assertEquals(0, transform.size());
+    }
+    
+    @Test
+    public void testGenerateServerTransformConfigNameWithoutParams()
     {
         instance.setServerTransform("TestTransform");
+        ServerTransform transform = instance.generateServerTransform(null, null);
+        assertEquals("TestTransform", transform.getName());
+        assertEquals(0, transform.size());
+    }
 
-        instance.createServerTransform();
-    }*/
-
-    /*@Test(expected = MarkLogicConnectorException.class)
-    public void testCreateServerTransformWithEmptyParams()
+    @Test
+    public void testGenerateServerTransformNameAndConfigNameWithoutParams()
     {
-        instance.setServerTransform("TestTransform");
-        instance.setServerTransformParams("   ");
-        instance.createServerTransform();
-    }*/
+        instance.setServerTransform("TestTransform-Not-Used");
+        ServerTransform transform = instance.generateServerTransform("TestTransform", null);
+        assertEquals("TestTransform", transform.getName());
+        assertEquals(0, transform.size());
+    }
+    
+    @Test
+    public void testGenerateServerTransformWithEmptyParams()
+    {
+        ServerTransform transform = instance.generateServerTransform("TestTransform", "   ");
+        assertEquals("TestTransform", transform.getName());
+        assertEquals(0, transform.size());
+    }
 
-    /*@Test(expected = MarkLogicConnectorException.class)
-    public void testCreateServerTransformWithNullParams()
+    @Test
+    public void testGenerateServerTransformWithNullParams()
     {
         instance.setServerTransform("TestTransform");
         instance.setServerTransformParams("null");
-        instance.createServerTransform();
-    }*/
-
-    @Test(expected = MarkLogicConnectorException.class)
-    public void testCreateServerTransformUnequalPairs()
-    {
-        instance.setServerTransform("TestTransform");
-        instance.setServerTransformParams("entity-name,MyEntity,flow-name");
-
-        instance.createServerTransform();
+        ServerTransform transform = instance.generateServerTransform(null, "not-used");
+        assertEquals("TestTransform", transform.getName());
+        assertEquals(0, transform.size());
     }
 
     @Test(expected = MarkLogicConnectorException.class)
-    public void testCreateServerTransformUnequalPairs2()
+    public void testGenerateServerTransformUnequalPairs()
     {
-        instance.setServerTransform("TestTransform");
-        instance.setServerTransformParams("entity-name,MyEntity,flow-name, ");
+        createServerTransformTester("TestTransform", "entity-name,MyEntity,flow-name", true);
+    }
 
-        instance.createServerTransform();
+    @Test(expected = MarkLogicConnectorException.class)
+    public void testGenerateServerTransformUnequalPairs2()
+    {
+        createServerTransformTester("TestTransform", "entity-name,MyEntity,flow-name, ", false);
     }
 
     @Test
-    public void testCreateServerTransform()
+    public void testGenerateServerTransform()
     {
-        createServerTransformTester("TestTransform", "entity-name,MyEntity,flow-name,loadMyEntity");
+        createServerTransformTester("TestTransform", "entity-name,MyEntity,flow-name,loadMyEntity", true);
     }
 
     @Test
-    public void testCreateServerTransformWithSpaces()
+    public void testGenerateServerTransformWithSpaces()
     {
-        createServerTransformTester("TestTransform", "entity-name, MyEntity, flow-name, loadMyEntity ");
+        createServerTransformTester("TestTransform", "entity-name, MyEntity, flow-name, loadMyEntity ", false);
     }
 
-    private void createServerTransformTester(String name, String params)
+    private void createServerTransformTester(String name, String params, boolean useVars)
     {
-        instance.setServerTransform(name);
-        instance.setServerTransformParams(params);
-
-        ServerTransform transform = instance.createServerTransform();
+        ServerTransform transform;
+        if(useVars)
+        {
+            transform = instance.generateServerTransform(name, params);
+        }
+        else
+        {
+            instance.setServerTransform(name);
+            instance.setServerTransformParams(params);
+            
+            transform = instance.generateServerTransform(null, null);
+        }
+        
         assertEquals(name, transform.getName());
 
         transformParamTester(transform, "entity-name", "MyEntity");
