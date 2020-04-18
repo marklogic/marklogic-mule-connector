@@ -405,24 +405,15 @@ public class MarkLogicOperations
                     DatabaseClient client = connection.getClient();
                     QueryManager qm = client.newQueryManager();
 
-                    String options = isDefined(optionsName) ? optionsName : null;
+                    String options = MarkLogicConfiguration.isDefined(optionsName) ? optionsName : null;
                     QueryDefinition query = queryStrategy.getQueryDefinition(qm,queryString,fmt,options);
 
-                    if (MarkLogicConfiguration.serverTransformExists(serverTransform))
+                    ServerTransform transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
+                    if(transform != null)
                     {
-                        query.setResponseTransform(MarkLogicConfiguration.createServerTransform(serverTransform,serverTransformParams));
-                        logger.info("Transforming query doc payload with operation-defined transform: " + serverTransform);
+                        query.setResponseTransform(transform);
                     }
-                    else if (configuration.hasServerTransform())
-                    {
-                        query.setResponseTransform(configuration.createServerTransform());
-                        logger.info("Transforming query doc payload with connection-defined transform: " + configuration.getServerTransform());
-                    }
-                    else
-                    {
-                        logger.info("Querying docs without a transform");
-                    }
-
+                    
                     if ((pageLength != null) && (pageLength < 1))
                     {
                         iterator = new MarkLogicResultSetIterator(connection, configuration, query, configuration.getBatchSize(), maxResults);
@@ -506,7 +497,6 @@ public class MarkLogicOperations
 
         return new PagingProvider<MarkLogicConnector, Object>()
         {
-            private ServerTransform transform = null;
             private final AtomicBoolean initialised = new AtomicBoolean(false);
             private QueryBatcher batcher;
             private DataMovementManager dmm = null;
@@ -522,23 +512,9 @@ public class MarkLogicOperations
 
                     QueryDefinition query = queryStrategy.getQueryDefinition(qm,queryString,fmt,optionsName);
                     
-                    if (MarkLogicConfiguration.serverTransformExists(serverTransform))
-                    {
-                        transform = MarkLogicConfiguration.createServerTransform(serverTransform,serverTransformParams);
-                        logger.info("Transforming query doc payload with operation-defined transform: " + transform.getName());
-                    }
-                    else if (configuration.hasServerTransform())
-                    {
-                        transform = configuration.createServerTransform();
-                        logger.info("Transforming query doc payload with connection-defined transform: " + configuration.getServerTransform());
-                    }
-                    else
-                    {
-                        logger.info("Querying docs without a transform");
-                    }
-
                     batcher = queryStrategy.newQueryBatcher(dmm,query);
                     
+                    ServerTransform transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
                     if (transform != null) {
                         logger.info("Configuring transform for exportListener: " + transform.getName());
                         exportListener.withTransform(transform);
@@ -548,6 +524,7 @@ public class MarkLogicOperations
                     {
                         batcher.withConsistentSnapshot();
                     }
+                    
                     batcher.withBatchSize(configuration.getBatchSize())
                             .withThreadCount(configuration.getThreadCount())
                             .onUrisReady(exportListener)
@@ -583,9 +560,5 @@ public class MarkLogicOperations
             }
         };
 
-    }
-    private boolean isDefined(String str)
-    {
-        return str != null && !str.trim().isEmpty() && !"null".equals(str.trim());
     }
 }
