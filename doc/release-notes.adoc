@@ -30,6 +30,7 @@ This release of the Connector includes the following:
 * Improved egress operations by allowing for specification of pagination length, and max results returned
 * Added new support for executing MUnit tests.
 * Added v1.1.1 demo, featuring exportDocs usage.
+* Improved DataSense output metadata handling.
 * Renamed internal classes to reflect MuleSoft certification best practices.
 * Made TLS context initialization improvements, to reflect MuleSoft certification best practices.
 * Updated documentation, moving some non-required Markdown documents out of source control, and into GitHub wiki pages.
@@ -50,6 +51,7 @@ This release of the Connector includes the following:
 * Made TLS context initialization improvements, to reflect MuleSoft certification best practices.
 * Updated documentation, moving some non-required Markdown documents out of source control, and into GitHub wiki pages.
 * Applied increased usage of Enumerations on connection and configuration parameters, plus operations, to provide better UI inputs for Anypoint Studio and Anypoint Design Center.
+* Improved DataSense output metadata handling.
 
 === Version 1.1.1 - Bugs Fixed
 

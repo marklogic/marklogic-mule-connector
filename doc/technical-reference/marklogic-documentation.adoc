@@ -168,7 +168,7 @@ Default configuration
 ==== Output
 [cols=".^50%,.^50%"]
 |======================
-| *Type* a| Array of Any
+| *Type* a| Any
 |======================
 
 ==== For Configurations.
@@ -265,7 +265,7 @@ Default configuration
 ==== Output
 [cols=".^50%,.^50%"]
 |======================
-| *Type* a| Array of Any
+| *Type* a| Any
 |======================
 
 ==== For Configurations.
