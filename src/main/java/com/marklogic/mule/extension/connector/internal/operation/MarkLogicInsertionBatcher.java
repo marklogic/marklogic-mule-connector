@@ -20,6 +20,7 @@ import com.marklogic.client.datamovement.DataMovementManager;
 import com.marklogic.client.datamovement.JobReport;
 import com.marklogic.client.datamovement.JobTicket;
 import com.marklogic.client.datamovement.WriteBatcher;
+import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
@@ -117,20 +118,10 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
             batcher.withTemporalCollection(temporalCollection);
         }
 
-        if (MarkLogicConfiguration.serverTransformExists(serverTransform))
+        ServerTransform transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
+        if(transform != null)
         {
-            batcher.withTransform(MarkLogicConfiguration.createServerTransform(serverTransform,serverTransformParams));
-            logger.info("Transforming input doc payload with operation-defined transform: " + serverTransform);
-        }
-
-        else if (configuration.hasServerTransform())
-        {
-            batcher.withTransform(configuration.createServerTransform());
-            logger.info("Transforming input doc payload with connection-defined transform: " + configuration.getServerTransform());
-        }
-        else
-        {
-            logger.info("Ingesting doc payload without a transform");
+            batcher.withTransform(transform);
         }
 
         // Set up the timer to flush the pipe to MarkLogic if it's waiting to long
