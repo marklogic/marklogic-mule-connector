@@ -41,6 +41,7 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 
 import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicSelectMetadataResolver;
+import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicAnyMetadataResolver;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicExportListener;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetCloser;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetIterator;
@@ -347,7 +348,7 @@ public class MarkLogicOperations
  * @version 1.1.1
  */
     @MediaType(value = ANY, strict = false)
-    @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
+    @OutputResolver(output = MarkLogicAnyMetadataResolver.class)
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public PagingProvider<MarkLogicConnector, Object> queryDocs(
             @Config MarkLogicConfiguration configuration,
@@ -465,7 +466,7 @@ public class MarkLogicOperations
  * @version 1.1.1
  */
     @MediaType(value = ANY, strict = false)
-    @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
+    @OutputResolver(output = MarkLogicAnyMetadataResolver.class)
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public PagingProvider<MarkLogicConnector, Object> exportDocs(
             @Config MarkLogicConfiguration configuration,
