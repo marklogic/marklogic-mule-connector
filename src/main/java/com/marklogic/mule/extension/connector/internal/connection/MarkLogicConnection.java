@@ -37,10 +37,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
 
-public final class MarkLogicConnector
+public final class MarkLogicConnection
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnector.class);
+    private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnection.class);
 
     private DatabaseClient client;
     private final String hostname;
@@ -55,7 +55,7 @@ public final class MarkLogicConnector
     private final String connectionId;
     private Set<MarkLogicConnectionInvalidationListener> markLogicClientInvalidationListeners = new HashSet<>();
 
-    public MarkLogicConnector(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId)
+    public MarkLogicConnection(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId)
     {
 
         this.useSSL = sslContext != null;
