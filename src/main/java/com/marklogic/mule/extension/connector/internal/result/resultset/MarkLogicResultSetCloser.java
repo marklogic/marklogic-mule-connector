@@ -13,7 +13,7 @@
  */
 package com.marklogic.mule.extension.connector.internal.result.resultset;
 
-import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnector;
+import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
 /**
  * Closes a {@link MarkLogicConnector} once it has been processed
@@ -23,9 +23,9 @@ import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConne
 public class MarkLogicResultSetCloser
 {
 
-    private final MarkLogicConnector connection;
+    private final MarkLogicConnection connection;
 
-    public MarkLogicResultSetCloser(MarkLogicConnector connection)
+    public MarkLogicResultSetCloser(MarkLogicConnection connection)
     {
         this.connection = connection;
     }

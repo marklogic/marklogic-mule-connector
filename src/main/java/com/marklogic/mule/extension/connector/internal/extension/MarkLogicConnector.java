@@ -33,7 +33,7 @@ import org.mule.runtime.extension.api.annotation.license.RequiresEnterpriseLicen
 @ErrorTypes(MarkLogicConnectorSimpleErrorType.class)
 @RequiresEnterpriseLicense(allowEvaluationLicense = true)
 @Configurations(MarkLogicConfiguration.class)
-public class MarkLogicExtension
+public class MarkLogicConnector
 {
 
 }

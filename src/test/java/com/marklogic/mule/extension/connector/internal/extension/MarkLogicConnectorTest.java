@@ -20,13 +20,13 @@ import static org.junit.Assert.*;
  *
  * @author jshingler
  */
-public class MarkLogicExtensionTest
+public class MarkLogicConnectorTest
 {
 
     @Test
     public void testExtensionCreation()
     {
-        assertNotNull(new MarkLogicExtension());
+        assertNotNull(new MarkLogicConnector());
     }
 
 }
