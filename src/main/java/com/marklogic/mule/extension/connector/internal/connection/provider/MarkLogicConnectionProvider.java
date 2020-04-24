@@ -14,7 +14,7 @@
 package com.marklogic.mule.extension.connector.internal.connection.provider;
 
 import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
-import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnector;
+import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.tls.TlsContextFactory;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * creates and caches connections or simply {@link ConnectionProvider} if you
  * want a new connection each time something requires one.
  */
-public class MarkLogicConnectionProvider implements PoolingConnectionProvider<MarkLogicConnector>
+public class MarkLogicConnectionProvider implements PoolingConnectionProvider<MarkLogicConnection>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnectionProvider.class);
@@ -123,22 +123,22 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
     }
 
     @Override
-    public MarkLogicConnector connect() throws ConnectionException
+    public MarkLogicConnection connect() throws ConnectionException
     {
 
-        MarkLogicConnector conn = new MarkLogicConnector(hostname, port, database, username, password, authenticationType, tlsContextFactory, kerberosExternalName, connectionId);
+        MarkLogicConnection conn = new MarkLogicConnection(hostname, port, database, username, password, authenticationType, tlsContextFactory, kerberosExternalName, connectionId);
         conn.connect();
         return conn;
     }
 
     @Override
-    public void disconnect(MarkLogicConnector connection)
+    public void disconnect(MarkLogicConnection connection)
     {
         connection.invalidate();
     }
 
     @Override
-    public ConnectionValidationResult validate(MarkLogicConnector connection)
+    public ConnectionValidationResult validate(MarkLogicConnection connection)
     {
         ConnectionValidationResult result;
         if (connection.isConnected(port))
