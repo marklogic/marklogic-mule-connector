@@ -13,12 +13,11 @@
  */
 package com.marklogic.mule.extension.connector.internal.operation;
 
-import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
-import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.IOException;
 
 import java.util.*;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,13 +32,11 @@ import com.marklogic.client.io.*;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
 
+import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
+import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider;
-
-import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
-import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
-
 import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicSelectMetadataResolver;
 import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicAnyMetadataResolver;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicExportListener;
@@ -50,6 +47,8 @@ import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
+import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
+import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.Connection;
@@ -235,7 +234,7 @@ public class MarkLogicOperations
  */
     @MediaType(value = APPLICATION_JSON, strict = true)
     @Throws(MarkLogicExecuteErrorsProvider.class)
-    public String deleteDocs(
+    public InputStream deleteDocs(
             @Config MarkLogicConfiguration configuration,
             @Connection MarkLogicConnection connection,
             @DisplayName("Serialized Query String")
@@ -275,11 +274,18 @@ public class MarkLogicOperations
         batcher.awaitCompletion();
         dmm.stopJob(batcher);
         
+        InputStream targetStream = new ByteArrayInputStream(new byte[0]);
         ObjectNode rootObj = jsonFactory.createObjectNode();
         rootObj.put("deletionResult", String.format("%d document(s) deleted", resultsHandle.getTotalResults()));
         rootObj.put("deletionCount", resultsHandle.getTotalResults());
-        
-        return rootObj.toString();
+        logger.info("deleteDocs outcome: " + rootObj.toString());
+        try {
+            byte[] bin = rootObj.binaryValue();
+            targetStream = new ByteArrayInputStream(bin);
+        } catch(IOException ex) {
+            logger.error(ex.getMessage());
+        }
+        return targetStream;
     }
 
  /**
