@@ -98,14 +98,14 @@ public class MarkLogicOperations
  * @param temporalCollection The temporal collection imported documents will be loaded into.
  * @param serverTransform The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.
  * @param serverTransformParams A comma-separated list of alternating transform parameter names and values.
- * @return java.lang.String
+ * @return java.io.InputStream
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.0.0
  * @version 1.1.1
  */
     @MediaType(value = APPLICATION_JSON, strict = true)
     @Throws(MarkLogicExecuteErrorsProvider.class)
-    public String importDocs(
+    public InputStream importDocs(
             @Config MarkLogicConfiguration configuration,
             @Connection MarkLogicConnection connection,
             @DisplayName("Document payload")
@@ -150,7 +150,7 @@ public class MarkLogicOperations
     {
 
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection,serverTransform,serverTransformParams);
+        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection, serverTransform, serverTransformParams);
 
         // Determine output URI
         // If the config tells us to generate a new UUID, do that
@@ -176,14 +176,16 @@ public class MarkLogicOperations
  * @return java.lang.String
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.0.0
+ * @return java.io.InputStream
  * @deprecated Deprecated in v.1.1.1
  */
     @Deprecated
     @MediaType(value = APPLICATION_JSON, strict = true)
     @DisplayName("Get Job Report (deprecated)")
 //    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used.  Instead, use the built-in MuleSoft BatchJobResult output.", since = "1.1.0")
-    public String getJobReport()
+    public InputStream getJobReport()
     {
+        InputStream targetStream = new ByteArrayInputStream(new byte[0]);
         ObjectNode rootObj = jsonFactory.createObjectNode();
 
         ArrayNode exports = jsonFactory.createArrayNode();
@@ -196,12 +198,17 @@ public class MarkLogicOperations
             rootObj.set("importResults", imports);
         }
 
-        // Add support for query jobReport here!
-        String result = rootObj.toString();
-
-        // Add support for query result report here!
-        return result;
-
+        logger.debug("getJobReport outcome: " + rootObj.asText());
+        
+        try {
+            byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
+            targetStream = new ByteArrayInputStream(bin);
+            targetStream.close();
+        } catch(IOException ex) {
+            logger.error(ex.getMessage());
+        }
+        
+        return targetStream;
     }
 
  /**
@@ -227,7 +234,7 @@ public class MarkLogicOperations
  * @param queryStrategy The Java class used to execute the serialized query.
  * @param useConsistentSnapshot Whether to use a consistent point-in-time snapshot for operations.
  * @param fmt The format of the serialized query.
- * @return java.lang.String
+ * @return java.io.InputStream
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.1.0
  * @version 1.1.1
@@ -278,10 +285,12 @@ public class MarkLogicOperations
         ObjectNode rootObj = jsonFactory.createObjectNode();
         rootObj.put("deletionResult", String.format("%d document(s) deleted", resultsHandle.getTotalResults()));
         rootObj.put("deletionCount", resultsHandle.getTotalResults());
-        logger.info("deleteDocs outcome: " + rootObj.toString());
+        logger.debug("deleteDocs outcome: " + rootObj.asText());
+        
         try {
-            byte[] bin = rootObj.binaryValue();
+            byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
             targetStream = new ByteArrayInputStream(bin);
+            targetStream.close();
         } catch(IOException ex) {
             logger.error(ex.getMessage());
         }
