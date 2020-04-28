@@ -134,6 +134,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
     @Override
     public void disconnect(MarkLogicConnection connection)
     {
+        logger.debug("MarkLogicConnectionProvider disconnect() called, connection invalidated");
         connection.invalidate();
     }
 
@@ -148,6 +149,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
         else
         {
             result = ConnectionValidationResult.failure("Connection failed " + connection.getId(), new Exception());
+            logger.debug("MarkLogicConnectionProvider validate() result failed");
         }
         return result;
     }

@@ -154,18 +154,19 @@ public class MarkLogicOperations
 
         // Determine output URI
         // If the config tells us to generate a new UUID, do that
+        String basename = basenameUri;
         if (generateOutputUriBasename)
         {
-            basenameUri = UUID.randomUUID().toString();
+            basename = UUID.randomUUID().toString();
             // Also, if the basenameURI is blank for whatever reason, use a new UUID
         }
         else if ((basenameUri == null) || (basenameUri.equals("null")) || (basenameUri.length() < 1))
         {
-            basenameUri = UUID.randomUUID().toString();
+            basename = UUID.randomUUID().toString();
         }
 
         // Assemble the output URI components
-        String outURI = String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basenameUri, outputUriSuffix);
+        String outURI = String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basename, outputUriSuffix);
 
         // Actually do the insert and return the result
         return batcher.doInsert(outURI, docPayloads);

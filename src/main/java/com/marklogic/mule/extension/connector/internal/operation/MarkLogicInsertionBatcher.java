@@ -55,7 +55,8 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     private static MarkLogicInsertionBatcher instance;
 
     // If support for multiple connection configs within a flow is required, remove the above and uncomment the below.
-    // private static Map<String,MarkLogicInsertionBatcher> instances = new HashMap<>();
+    // private static Map<String,MarkLogicInsertionBatcher> instances = new HashMap<>()_
+    
     // Object that describes the metadata for documents being inserted
     private DocumentMetadataHandle metadataHandle;
 
@@ -102,16 +103,9 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         // Configure the batcher's behavior
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
-                .onBatchSuccess((batch) ->
-                    {
-                        logger.debug("Writes so far: " + batch.getJobWritesSoFar());
-                    }
-                )
-                .onBatchFailure((batch, throwable) ->
-                    {
-                        logger.error("Exception thrown by an onBatchSuccess listener", throwable);  // For Sonar...
-                    }
-                );
+                .onBatchSuccess((batch) -> logger.debug("Writes so far: " + batch.getJobWritesSoFar()))
+                .onBatchFailure((batch, throwable) -> logger.error("Exception thrown by an onBatchSuccess listener", throwable));
+        
         // Configure the transform to be used, if any
         // ASSUMPTION: The same transform (or lack thereof) will be used for every document to be inserted during the
         // lifetime of this object
@@ -151,7 +145,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
                     lastWriteTime = System.currentTimeMillis() + 900000;
                 }
             }
-        }, (secondsBeforeFlush * 1000), secondsBeforeFlush * 1000);
+        }, secondsBeforeFlush * 1000, secondsBeforeFlush * 1000);
 
         // Set up the metadata to be used for the documents that will be inserted
         // ASSUMPTION: The same metadata will be used for every document to be inserted during the lifetime of this
