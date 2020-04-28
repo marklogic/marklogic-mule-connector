@@ -13,6 +13,9 @@
  */
 package com.marklogic.mule.extension.connector;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.logging.Logger;
@@ -59,12 +62,16 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
     @Test
     public void executeImportDocsOperation() throws Exception
     {
-        String payloadValue = ((String) flowRunner("importDocsFlow")
+        Object isValue = (flowRunner("importDocsFlow")
                 .run()
                 .getMessage()
                 .getPayload()
                 .getValue());
-        assertThat(payloadValue, payloadValue.matches('"' + UUID_REGEX + '"'));
+        if (isValue instanceof InputStream) {
+            InputStream is = (InputStream) isValue;
+            String payloadValue = inputStreamToString(is);
+            assertThat(payloadValue, payloadValue.matches('"' + UUID_REGEX + '"'));
+        }
     }
 
     @Test
@@ -92,26 +99,34 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
     @Test
     public void executeGetJobReportOperation() throws Exception
     {
-        String payloadValue = ((String) flowRunner("getJobReportFlow")
+        Object isValue = (flowRunner("getJobReportFlow")
                 .run()
                 .getMessage()
                 .getPayload()
                 .getValue());
-        assertThat(payloadValue, containsString("\"importResults\":[{\"jobID\":\""));
-        assertThat(payloadValue, containsString("\"jobStartTime\":\"" + CURRENT_DATE + "T"));
-        assertThat(payloadValue, containsString("\"jobEndTime\":\"" + CURRENT_DATE + "T"));
-        assertThat(payloadValue, containsString("\"jobReportTime\":\"" + CURRENT_DATE + "T"));
+        if (isValue instanceof InputStream) {
+            InputStream is = (InputStream) isValue;
+            String payloadValue = inputStreamToString(is);
+            assertThat(payloadValue, containsString("\"importResults\":[{\"jobID\":\""));
+            assertThat(payloadValue, containsString("\"jobStartTime\":\"" + CURRENT_DATE + "T"));
+            assertThat(payloadValue, containsString("\"jobEndTime\":\"" + CURRENT_DATE + "T"));
+            assertThat(payloadValue, containsString("\"jobReportTime\":\"" + CURRENT_DATE + "T"));
+        }
     }
 
     @Test
     public void executeDeleteDocsStructuredQueryFlow() throws Exception
     {
-        String payloadValue = ((String) flowRunner("deleteDocsStructuredQueryFlow")
+        Object isValue = (flowRunner("deleteDocsStructuredQueryFlow")
                 .run()
                 .getMessage()
                 .getPayload()
                 .getValue());
-        assertThat(payloadValue, containsString(" document(s) deleted"));
+        if (isValue instanceof InputStream) {
+            InputStream is = (InputStream) isValue;
+            String payloadValue = inputStreamToString(is);
+            assertThat(payloadValue, containsString(" document(s) deleted"));
+        }
     }
 
     @Test
@@ -147,5 +162,21 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
         //logger.info("Returned from flow - " + payloadValue);
         //assertThat(payloadValue, containsString("mlw: 5"));
         assertThat(payloadValue, notNullValue());
+    }
+    
+    private String inputStreamToString(InputStream inputStream) {
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        String out = null;
+        byte[] buffer = new byte[1024];
+        int length;
+        try {
+            while ((length = inputStream.read(buffer)) != -1) {
+                result.write(buffer, 0, length);
+            }
+            out = result.toString("UTF-8");
+        } catch(IOException ex) {
+            logger.info(ex.getMessage());
+        }
+        return out;    
     }
 }

@@ -13,12 +13,11 @@
  */
 package com.marklogic.mule.extension.connector.internal.operation;
 
-import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
-import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.IOException;
 
 import java.util.*;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,13 +32,11 @@ import com.marklogic.client.io.*;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
 
+import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
+import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider;
-
-import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
-import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
-
 import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicSelectMetadataResolver;
 import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicAnyMetadataResolver;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicExportListener;
@@ -50,6 +47,8 @@ import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
+import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
+import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.Connection;
@@ -99,14 +98,14 @@ public class MarkLogicOperations
  * @param temporalCollection The temporal collection imported documents will be loaded into.
  * @param serverTransform The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.
  * @param serverTransformParams A comma-separated list of alternating transform parameter names and values.
- * @return java.lang.String
+ * @return java.io.InputStream
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.0.0
  * @version 1.1.1
  */
     @MediaType(value = APPLICATION_JSON, strict = true)
     @Throws(MarkLogicExecuteErrorsProvider.class)
-    public String importDocs(
+    public InputStream importDocs(
             @Config MarkLogicConfiguration configuration,
             @Connection MarkLogicConnection connection,
             @DisplayName("Document payload")
@@ -151,22 +150,23 @@ public class MarkLogicOperations
     {
 
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection,serverTransform,serverTransformParams);
+        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection, serverTransform, serverTransformParams);
 
         // Determine output URI
         // If the config tells us to generate a new UUID, do that
+        String basename = basenameUri;
         if (generateOutputUriBasename)
         {
-            basenameUri = UUID.randomUUID().toString();
+            basename = UUID.randomUUID().toString();
             // Also, if the basenameURI is blank for whatever reason, use a new UUID
         }
         else if ((basenameUri == null) || (basenameUri.equals("null")) || (basenameUri.length() < 1))
         {
-            basenameUri = UUID.randomUUID().toString();
+            basename = UUID.randomUUID().toString();
         }
 
         // Assemble the output URI components
-        String outURI = String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basenameUri, outputUriSuffix);
+        String outURI = String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basename, outputUriSuffix);
 
         // Actually do the insert and return the result
         return batcher.doInsert(outURI, docPayloads);
@@ -177,14 +177,16 @@ public class MarkLogicOperations
  * @return java.lang.String
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.0.0
+ * @return java.io.InputStream
  * @deprecated Deprecated in v.1.1.1
  */
     @Deprecated
     @MediaType(value = APPLICATION_JSON, strict = true)
     @DisplayName("Get Job Report (deprecated)")
 //    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used.  Instead, use the built-in MuleSoft BatchJobResult output.", since = "1.1.0")
-    public String getJobReport()
+    public InputStream getJobReport()
     {
+        InputStream targetStream = new ByteArrayInputStream(new byte[0]);
         ObjectNode rootObj = jsonFactory.createObjectNode();
 
         ArrayNode exports = jsonFactory.createArrayNode();
@@ -197,12 +199,17 @@ public class MarkLogicOperations
             rootObj.set("importResults", imports);
         }
 
-        // Add support for query jobReport here!
-        String result = rootObj.toString();
-
-        // Add support for query result report here!
-        return result;
-
+        logger.debug("getJobReport outcome: " + rootObj.asText());
+        
+        try {
+            byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
+            targetStream = new ByteArrayInputStream(bin);
+            targetStream.close();
+        } catch(IOException ex) {
+            logger.error(ex.getMessage());
+        }
+        
+        return targetStream;
     }
 
  /**
@@ -228,14 +235,14 @@ public class MarkLogicOperations
  * @param queryStrategy The Java class used to execute the serialized query.
  * @param useConsistentSnapshot Whether to use a consistent point-in-time snapshot for operations.
  * @param fmt The format of the serialized query.
- * @return java.lang.String
+ * @return java.io.InputStream
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.1.0
  * @version 1.1.1
  */
     @MediaType(value = APPLICATION_JSON, strict = true)
     @Throws(MarkLogicExecuteErrorsProvider.class)
-    public String deleteDocs(
+    public InputStream deleteDocs(
             @Config MarkLogicConfiguration configuration,
             @Connection MarkLogicConnection connection,
             @DisplayName("Serialized Query String")
@@ -275,11 +282,20 @@ public class MarkLogicOperations
         batcher.awaitCompletion();
         dmm.stopJob(batcher);
         
+        InputStream targetStream = new ByteArrayInputStream(new byte[0]);
         ObjectNode rootObj = jsonFactory.createObjectNode();
         rootObj.put("deletionResult", String.format("%d document(s) deleted", resultsHandle.getTotalResults()));
         rootObj.put("deletionCount", resultsHandle.getTotalResults());
+        logger.debug("deleteDocs outcome: " + rootObj.asText());
         
-        return rootObj.toString();
+        try {
+            byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
+            targetStream = new ByteArrayInputStream(bin);
+            targetStream.close();
+        } catch(IOException ex) {
+            logger.error(ex.getMessage());
+        }
+        return targetStream;
     }
 
  /**

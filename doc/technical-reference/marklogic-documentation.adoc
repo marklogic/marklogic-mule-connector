@@ -105,6 +105,9 @@ Default configuration
 ** JSON
 ** Binary
 ** Text |  +++The format of the serialized query.+++ |  | *x*{nbsp}
+| Streaming Strategy a| * <<repeatable-in-memory-stream>>
+* <<repeatable-file-store-stream>>
+* <<non-repeatable-stream>> |  +++Configure if repeatable streams should be used and their behaviour+++ |  | {nbsp}
 | Target Variable a| String |  +++The name of a variable on which the operation's output will be placed+++ |  | {nbsp}
 | Target Value a| String |  +++An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable+++ |  +++#[payload]+++ | {nbsp}
 | Reconnection Strategy a| * <<reconnect>>
@@ -114,7 +117,7 @@ Default configuration
 ==== Output
 [cols=".^50%,.^50%"]
 |======================
-| *Type* a| String
+| *Type* a| Binary
 |======================
 
 ==== For Configurations.
@@ -202,6 +205,9 @@ Default configuration
 | Temporal collection a| String |  +++The temporal collection imported documents will be loaded into.+++ |  +++null+++ | {nbsp}
 | Server Transform a| String |  +++The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.+++ |  +++null+++ | {nbsp}
 | Server Transform Params a| String |  +++A comma-separated list of alternating transform parameter names and values.+++ |  +++null+++ | {nbsp}
+| Streaming Strategy a| * <<repeatable-in-memory-stream>>
+* <<repeatable-file-store-stream>>
+* <<non-repeatable-stream>> |  +++Configure if repeatable streams should be used and their behaviour+++ |  | {nbsp}
 | Target Variable a| String |  +++The name of a variable on which the operation's output will be placed+++ |  | {nbsp}
 | Target Value a| String |  +++An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable+++ |  +++#[payload]+++ | {nbsp}
 | Reconnection Strategy a| * <<reconnect>>
@@ -211,7 +217,7 @@ Default configuration
 ==== Output
 [cols=".^50%,.^50%"]
 |======================
-| *Type* a| String
+| *Type* a| Binary
 |======================
 
 ==== For Configurations.
@@ -371,6 +377,9 @@ Default configuration
 [cols=".^20%,.^20%,.^35%,.^20%,^.^5%", options="header"]
 |======================
 | Name | Type | Description | Default Value | Required
+| Streaming Strategy a| * <<repeatable-in-memory-stream>>
+* <<repeatable-file-store-stream>>
+* <<non-repeatable-stream>> |  +++Configure if repeatable streams should be used and their behaviour+++ |  | {nbsp}
 | Target Variable a| String |  +++The name of a variable on which the operation's output will be placed+++ |  | {nbsp}
 | Target Value a| String |  +++An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable+++ |  +++#[payload]+++ | {nbsp}
 |======================
@@ -378,7 +387,7 @@ Default configuration
 ==== Output
 [cols=".^50%,.^50%"]
 |======================
-| *Type* a| String
+| *Type* a| Binary
 |======================
 
 
@@ -529,6 +538,38 @@ Default configuration
 ** MINUTES
 ** HOURS
 ** DAYS | A time unit that qualifies the maxIdleTime attribute |  | 
+|======================
+
+[[repeatable-in-memory-stream]]
+=== Repeatable In Memory Stream
+
+[cols=".^20%,.^25%,.^30%,.^15%,.^10%", options="header"]
+|======================
+| Field | Type | Description | Default Value | Required
+| Initial Buffer Size a| Number | This is the amount of memory that will be allocated in order to consume the stream and provide random access to it. If the stream contains more data than can be fit into this buffer, then it will be expanded by according to the bufferSizeIncrement attribute, with an upper limit of maxInMemorySize. |  | 
+| Buffer Size Increment a| Number | This is by how much will be buffer size by expanded if it exceeds its initial size. Setting a value of zero or lower will mean that the buffer should not expand, meaning that a STREAM_MAXIMUM_SIZE_EXCEEDED error will be raised when the buffer gets full. |  | 
+| Max Buffer Size a| Number | This is the maximum amount of memory that will be used. If more than that is used then a STREAM_MAXIMUM_SIZE_EXCEEDED error will be raised. A value lower or equal to zero means no limit. |  | 
+| Buffer Unit a| Enumeration, one of:
+
+** BYTE
+** KB
+** MB
+** GB | The unit in which all these attributes are expressed |  | 
+|======================
+
+[[repeatable-file-store-stream]]
+=== Repeatable File Store Stream
+
+[cols=".^20%,.^25%,.^30%,.^15%,.^10%", options="header"]
+|======================
+| Field | Type | Description | Default Value | Required
+| In Memory Size a| Number | Defines the maximum memory that the stream should use to keep data in memory. If more than that is consumed then it will start to buffer the content on disk. |  | 
+| Buffer Unit a| Enumeration, one of:
+
+** BYTE
+** KB
+** MB
+** GB | The unit in which maxInMemorySize is expressed |  | 
 |======================
 
 [[repeatable-in-memory-iterable]]

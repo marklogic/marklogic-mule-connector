@@ -173,7 +173,7 @@ public class MarkLogicConnectionTest
         assertEquals(USER_PASSWORD, digest.getPassword());
     }
 
-    //----------------- Kerveros Authentication Tests ------------------------//
+    //----------------- Kerberos Authentication Tests ------------------------//
     /**
      * The following two test throw an error
      * <p>

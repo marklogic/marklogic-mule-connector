@@ -2098,6 +2098,8 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#reconnect-forever">Reconnect Forever</a></li>
 <li><a href="#PoolingProfile">Pooling Profile</a></li>
 <li><a href="#ExpirationPolicy">Expiration Policy</a></li>
+<li><a href="#repeatable-in-memory-stream">Repeatable In Memory Stream</a></li>
+<li><a href="#repeatable-file-store-stream">Repeatable File Store Stream</a></li>
 <li><a href="#repeatable-in-memory-iterable">Repeatable In Memory Iterable</a></li>
 <li><a href="#repeatable-file-store-iterable">Repeatable File Store Iterable</a></li>
 </ul>
@@ -2521,6 +2523,25 @@ Default configuration
 <td class="tableblock halign-center valign-middle"><p class="tableblock"><strong>x</strong>&#160;</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Streaming Strategy</p></td>
+<td class="tableblock halign-left valign-middle"><div><div class="ulist">
+<ul>
+<li>
+<p><a href="#repeatable-in-memory-stream">Repeatable In Memory Stream</a></p>
+</li>
+<li>
+<p><a href="#repeatable-file-store-stream">Repeatable File Store Stream</a></p>
+</li>
+<li>
+<p><a href="#non-repeatable-stream">[non-repeatable-stream]</a></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Configure if repeatable streams should be used and their behaviour</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">&#160;</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Target Variable</p></td>
 <td class="tableblock halign-left valign-middle"><div><div class="paragraph">
 <p>String</p>
@@ -2568,7 +2589,7 @@ Default configuration
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Type</strong></p></td>
 <td class="tableblock halign-left valign-middle"><div><div class="paragraph">
-<p>String</p>
+<p>Binary</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -2970,6 +2991,25 @@ Default configuration
 <td class="tableblock halign-center valign-middle"><p class="tableblock">&#160;</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Streaming Strategy</p></td>
+<td class="tableblock halign-left valign-middle"><div><div class="ulist">
+<ul>
+<li>
+<p><a href="#repeatable-in-memory-stream">Repeatable In Memory Stream</a></p>
+</li>
+<li>
+<p><a href="#repeatable-file-store-stream">Repeatable File Store Stream</a></p>
+</li>
+<li>
+<p><a href="#non-repeatable-stream">[non-repeatable-stream]</a></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Configure if repeatable streams should be used and their behaviour</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">&#160;</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Target Variable</p></td>
 <td class="tableblock halign-left valign-middle"><div><div class="paragraph">
 <p>String</p>
@@ -3017,7 +3057,7 @@ Default configuration
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Type</strong></p></td>
 <td class="tableblock halign-left valign-middle"><div><div class="paragraph">
-<p>String</p>
+<p>Binary</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -3651,6 +3691,25 @@ Default configuration
 </thead>
 <tbody>
 <tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Streaming Strategy</p></td>
+<td class="tableblock halign-left valign-middle"><div><div class="ulist">
+<ul>
+<li>
+<p><a href="#repeatable-in-memory-stream">Repeatable In Memory Stream</a></p>
+</li>
+<li>
+<p><a href="#repeatable-file-store-stream">Repeatable File Store Stream</a></p>
+</li>
+<li>
+<p><a href="#non-repeatable-stream">[non-repeatable-stream]</a></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Configure if repeatable streams should be used and their behaviour</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">&#160;</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Target Variable</p></td>
 <td class="tableblock halign-left valign-middle"><div><div class="paragraph">
 <p>String</p>
@@ -3682,7 +3741,7 @@ Default configuration
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Type</strong></p></td>
 <td class="tableblock halign-left valign-middle"><div><div class="paragraph">
-<p>String</p>
+<p>Binary</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -4351,6 +4410,138 @@ Default configuration
 </ul>
 </div></div></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">A time unit that qualifies the maxIdleTime attribute</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="repeatable-in-memory-stream">Repeatable In Memory Stream</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 25%;">
+<col style="width: 30%;">
+<col style="width: 15%;">
+<col style="width: 10%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Field</th>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Default Value</th>
+<th class="tableblock halign-left valign-middle">Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Initial Buffer Size</p></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>Number</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">This is the amount of memory that will be allocated in order to consume the stream and provide random access to it. If the stream contains more data than can be fit into this buffer, then it will be expanded by according to the bufferSizeIncrement attribute, with an upper limit of maxInMemorySize.</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Buffer Size Increment</p></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>Number</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">This is by how much will be buffer size by expanded if it exceeds its initial size. Setting a value of zero or lower will mean that the buffer should not expand, meaning that a STREAM_MAXIMUM_SIZE_EXCEEDED error will be raised when the buffer gets full.</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Max Buffer Size</p></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>Number</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">This is the maximum amount of memory that will be used. If more than that is used then a STREAM_MAXIMUM_SIZE_EXCEEDED error will be raised. A value lower or equal to zero means no limit.</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Buffer Unit</p></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>Enumeration, one of:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>BYTE</p>
+</li>
+<li>
+<p>KB</p>
+</li>
+<li>
+<p>MB</p>
+</li>
+<li>
+<p>GB</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">The unit in which all these attributes are expressed</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="repeatable-file-store-stream">Repeatable File Store Stream</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 25%;">
+<col style="width: 30%;">
+<col style="width: 15%;">
+<col style="width: 10%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Field</th>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Default Value</th>
+<th class="tableblock halign-left valign-middle">Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">In Memory Size</p></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>Number</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Defines the maximum memory that the stream should use to keep data in memory. If more than that is consumed then it will start to buffer the content on disk.</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Buffer Unit</p></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>Enumeration, one of:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>BYTE</p>
+</li>
+<li>
+<p>KB</p>
+</li>
+<li>
+<p>MB</p>
+</li>
+<li>
+<p>GB</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">The unit in which maxInMemorySize is expressed</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
