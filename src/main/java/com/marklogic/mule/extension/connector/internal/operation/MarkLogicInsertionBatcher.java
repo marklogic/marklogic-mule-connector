@@ -26,12 +26,13 @@ import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -54,7 +55,8 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     private static MarkLogicInsertionBatcher instance;
 
     // If support for multiple connection configs within a flow is required, remove the above and uncomment the below.
-    // private static Map<String,MarkLogicInsertionBatcher> instances = new HashMap<>();
+    // private static Map<String,MarkLogicInsertionBatcher> instances = new HashMap<>()_
+    
     // Object that describes the metadata for documents being inserted
     private DocumentMetadataHandle metadataHandle;
 
@@ -101,13 +103,9 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         // Configure the batcher's behavior
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
-                .onBatchSuccess((batch) ->
-                {
-                })
-                .onBatchFailure((batch, throwable) ->
-                {
-                    logger.error("Exception thrown by an onBatchSuccess listener", throwable);  // For Sonar...
-                });
+                .onBatchSuccess((batch) -> logger.debug("Writes so far: " + batch.getJobWritesSoFar()))
+                .onBatchFailure((batch, throwable) -> logger.error("Exception thrown by an onBatchSuccess listener", throwable));
+        
         // Configure the transform to be used, if any
         // ASSUMPTION: The same transform (or lack thereof) will be used for every document to be inserted during the
         // lifetime of this object
@@ -147,7 +145,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
                     lastWriteTime = System.currentTimeMillis() + 900000;
                 }
             }
-        }, (secondsBeforeFlush * 1000), secondsBeforeFlush * 1000);
+        }, secondsBeforeFlush * 1000, secondsBeforeFlush * 1000);
 
         // Set up the metadata to be used for the documents that will be inserted
         // ASSUMPTION: The same metadata will be used for every document to be inserted during the lifetime of this
@@ -271,11 +269,10 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
      * thing
      *
      * @param outURI -- the URI to be used for the document being inserted
-     * @param documentStream -- the InputStream containing the document to be
-     * inserted... comes from mule
+     * @param documentStream -- the InputStream containing the document to be inserted...comes from Mule
      * @return jobTicketID
      */
-    String doInsert(String outURI, InputStream documentStream)
+    InputStream doInsert(String outURI, InputStream documentStream)
     {
         // Add the InputStream to the DMSDK WriteBatcher object
         batcher.addAs(outURI, metadataHandle, new InputStreamHandle(documentStream));
@@ -284,7 +281,18 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         // Have the DMSDK WriteBatcher object sleep until it is needed again
         batcher.awaitCompletion();
         // Return the job ticket ID so it can be used to retrieve the document in the future
-        return "\"" + jobTicket.getJobId() + "\"";
+        String jsonout = "\"" + jobTicket.getJobId() + "\"";
+        logger.debug("importDocs getJobId outcome: " + jsonout);
+        
+        InputStream targetStream = new ByteArrayInputStream(new byte[0]);
+        try {
+            targetStream = new ByteArrayInputStream(jsonout.getBytes());
+            targetStream.close();            
+        } catch(IOException ex) {
+            logger.error(ex.getMessage());
+        }
+        
+        return targetStream;
     }
 
     private ZonedDateTime toZonedDateTime(Calendar calendar)
