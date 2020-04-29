@@ -18,7 +18,7 @@
     </marklogic:config> -->
     <flow name="importDocsFlow">
         <set-payload value="#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; {'systemStart': null, 'systemEnd': null, 'validStart': now(), 'validEnd': '2030-12-31T00:00:00Z', 'name': 'test'}]"/>
-        <marklogic:import-docs config-ref="importDocsConfig" outputCollections="mulesoft-dmsdk-test,test" temporalCollection="temporal-input" serverTransform="transformTestInput" outputUriPrefix="/mulesoft/" outputUriSuffix=".json" basenameUri="test-importDocs-munit" serverTransformParams="null,null" generateOutputUriBasename="false"/>
+        <marklogic:import-docs config-ref="importDocsConfig" outputCollections="mulesoft-dmsdk-test,test" temporalCollection="temporal-input" serverTransform="transformTestInput" outputUriPrefix="/mulesoft/" outputUriSuffix=".json" basenameUri="test-importDocs-munit" serverTransformParams="text,test" generateOutputUriBasename="false"/>
         <set-payload value="#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]"/>
     </flow>
     <flow name="importDocsBinaryFlow">
