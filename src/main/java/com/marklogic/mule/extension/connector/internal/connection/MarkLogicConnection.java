@@ -130,6 +130,24 @@ public final class MarkLogicConnection
     {
         return str != null && !str.trim().isEmpty() && !"null".equalsIgnoreCase(str.trim());
     }
+    
+    private DatabaseClientConfig setConfigAuthType(DatabaseClientConfig cfg) {
+        switch (authenticationType)
+        {
+            case basic:
+                cfg.setSecurityContextType(SecurityContextType.BASIC);
+                break;
+            case digest:
+                cfg.setSecurityContextType(SecurityContextType.DIGEST);
+                break;
+            case certificate:
+                cfg.setSecurityContextType(SecurityContextType.CERTIFICATE);
+            default:
+                cfg.setSecurityContextType(SecurityContextType.DIGEST);
+                break;
+        }
+        return cfg;
+    }
 
     private void createClient() throws Exception
     {
@@ -138,21 +156,8 @@ public final class MarkLogicConnection
 
         config.setHost(hostname);
         config.setPort(port);
-
-        switch (authenticationType)
-        {
-            case basic:
-                config.setSecurityContextType(SecurityContextType.BASIC);
-                break;
-            case digest:
-                config.setSecurityContextType(SecurityContextType.DIGEST);
-                break;
-            case certificate:
-                config.setSecurityContextType(SecurityContextType.CERTIFICATE);
-            default:
-                config.setSecurityContextType(SecurityContextType.DIGEST);
-                break;
-        }
+        
+        setConfigAuthType(config);
 
         config.setUsername(username);
         config.setPassword(password);
