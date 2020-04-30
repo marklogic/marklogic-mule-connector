@@ -149,6 +149,9 @@ public final class MarkLogicConnection
                 break;
             case certificate:
                 config.setSecurityContextType(SecurityContextType.CERTIFICATE);
+            default:
+                config.setSecurityContextType(SecurityContextType.DIGEST);
+                break;
         }
 
         config.setUsername(username);

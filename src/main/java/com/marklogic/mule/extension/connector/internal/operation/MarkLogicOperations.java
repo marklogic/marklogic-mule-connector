@@ -204,9 +204,8 @@ public class MarkLogicOperations
         try {
             byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
             targetStream = new ByteArrayInputStream(bin);
-            targetStream.close();
         } catch(IOException ex) {
-            logger.error(ex.getMessage());
+            logger.error(String.format("Exception was thrown during getJobReport operation. Error was: %s", ex.getMessage()), ex);
         }
         
         return targetStream;
@@ -290,7 +289,7 @@ public class MarkLogicOperations
             targetStream = new ByteArrayInputStream(bin);
             targetStream.close();
         } catch(IOException ex) {
-            logger.error(ex.getMessage());
+            logger.error(String.format("Exception was thrown during deleteDocs operation. Error was: %s", ex.getMessage()), ex);
         }
         return targetStream;
     }
