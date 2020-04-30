@@ -286,8 +286,8 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         
         InputStream targetStream = new ByteArrayInputStream(new byte[0]);
         try {
-            targetStream = new ByteArrayInputStream(jsonout.getBytes());
-            targetStream.close();            
+            targetStream = new ByteArrayInputStream(jsonout.getBytes("UTF-8"));
+            targetStream.close();
         } catch(IOException ex) {
             logger.error(ex.getMessage());
         }

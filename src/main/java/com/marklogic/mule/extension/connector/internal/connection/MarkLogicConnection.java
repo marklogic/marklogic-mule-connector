@@ -168,8 +168,6 @@ public final class MarkLogicConnection
             SSLContext context = sslContext.createSslContext();
             config.setSslContext(context);
             
-            // N.b: Figure out what this means:
-            // config.setConnectionType(DatabaseClient.ConnectionType.GATEWAY or DatabaseClient.ConnectionType.DIRECT);
             if (AuthenticationType.certificate == authenticationType && sslContext.isTrustStoreConfigured())
             {
                 String defaultAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
