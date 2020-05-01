@@ -175,7 +175,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
             }
             out = result.toString("UTF-8");
         } catch(IOException ex) {
-            logger.info(ex.getMessage());
+            logger.info(String.format("Exception was thrown during MarkLogicOperationsTestCase. Error was: %s", ex));
         }
         return out;    
     }

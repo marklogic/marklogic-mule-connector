@@ -204,9 +204,8 @@ public class MarkLogicOperations
         try {
             byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
             targetStream = new ByteArrayInputStream(bin);
-            targetStream.close();
         } catch(IOException ex) {
-            logger.error(ex.getMessage());
+            logger.error(String.format("Exception was thrown during getJobReport operation. Error was: %s", ex.getMessage()), ex);
         }
         
         return targetStream;
@@ -274,10 +273,7 @@ public class MarkLogicOperations
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
                 .onUrisReady(new DeleteListener())
-                .onQueryFailure((throwable) ->
-                {
-                    logger.error("Exception thrown by an onBatchSuccess listener", throwable);  // For Sonar...
-                });
+                .onQueryFailure((throwable) -> logger.error("Exception thrown by an onBatchSuccess listener", throwable));
         dmm.startJob(batcher);
         batcher.awaitCompletion();
         dmm.stopJob(batcher);
@@ -293,7 +289,7 @@ public class MarkLogicOperations
             targetStream = new ByteArrayInputStream(bin);
             targetStream.close();
         } catch(IOException ex) {
-            logger.error(ex.getMessage());
+            logger.error(String.format("Exception was thrown during deleteDocs operation. Error was: %s", ex.getMessage()), ex);
         }
         return targetStream;
     }
@@ -508,8 +504,8 @@ public class MarkLogicOperations
             @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams
     )
     {
-        maxResults = maxResults != null ? maxResults : 0;
-        MarkLogicExportListener exportListener = new MarkLogicExportListener(maxResults);
+        Long max = maxResults != null ? maxResults : 0;
+        MarkLogicExportListener exportListener = new MarkLogicExportListener(max);
 
         return new PagingProvider<MarkLogicConnection, Object>()
         {
@@ -544,10 +540,8 @@ public class MarkLogicOperations
                     batcher.withBatchSize(configuration.getBatchSize())
                             .withThreadCount(configuration.getThreadCount())
                             .onUrisReady(exportListener)
-                            .onQueryFailure((throwable) ->
-                            {
-                                logger.error("Exception thrown by an onBatchSuccess listener", throwable);  // For Sonar...
-                            });
+                            .onQueryFailure((throwable) -> logger.error("Exception thrown by an onBatchSuccess listener", throwable));
+                    
                     dmm.startJob(batcher);
                     batcher.awaitCompletion();
                     dmm.stopJob(batcher);

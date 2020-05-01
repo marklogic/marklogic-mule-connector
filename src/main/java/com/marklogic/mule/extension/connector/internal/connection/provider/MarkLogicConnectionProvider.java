@@ -120,6 +120,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
 
     public MarkLogicConnectionProvider()
     {
+        logger.debug("MarkLogicConnectionProvider() constructor");
     }
 
     @Override
