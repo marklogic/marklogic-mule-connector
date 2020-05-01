@@ -29,6 +29,8 @@ import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConne
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -284,15 +286,8 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         String jsonout = "\"" + jobTicket.getJobId() + "\"";
         logger.debug("importDocs getJobId outcome: " + jsonout);
         
-        InputStream targetStream = new ByteArrayInputStream(new byte[0]);
-        try {
-            targetStream = new ByteArrayInputStream(jsonout.getBytes());
-            targetStream.close();            
-        } catch(IOException ex) {
-            logger.error(ex.getMessage());
-        }
-        
-        return targetStream;
+        Charset cs = StandardCharsets.UTF_8;
+        return new ByteArrayInputStream(jsonout.getBytes(cs));
     }
 
     private ZonedDateTime toZonedDateTime(Calendar calendar)

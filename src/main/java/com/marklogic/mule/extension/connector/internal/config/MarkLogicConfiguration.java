@@ -27,6 +27,8 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class represents an extension configuration, values set in this class
@@ -38,6 +40,8 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 public class MarkLogicConfiguration
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(MarkLogicConfiguration.class);
+    
     @DisplayName("Connection ID")
     @Parameter
     @Summary("An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic.")
@@ -150,17 +154,17 @@ public class MarkLogicConfiguration
     {
         if (isDefined(transformName))
         {
-            //logger.info("Transforming query doc payload with operation-defined transform: " + serverTransform);
+            logger.debug("Transforming query doc payload with operation-defined transform: " + serverTransform);
             return this.createServerTransform(transformName, transformParams);
         }
         else if (isDefined(this.serverTransform))
         {
-            //logger.info("Transforming query doc payload with connection-defined transform: " + this.getServerTransform());
+            logger.debug("Transforming query doc payload with connection-defined transform: " + this.getServerTransform());
             return createServerTransform(this.serverTransform, this.serverTransformParams);
         }
         else
         {
-            //logger.info("Querying docs without a transform");
+            logger.debug("Querying docs without a transform");
             return null;
         }
     }
