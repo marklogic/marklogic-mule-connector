@@ -45,7 +45,7 @@
         <set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload[0]]'/>
     </flow>
     <flow name="queryDocsMaxResultsFlow">
-        <marklogic:query-docs config-ref="transform_config" queryStrategy="CTSQuery" maxResults="12" fmt="XML">
+        <marklogic:query-docs config-ref="transform_config" queryStrategy="RawStructuredQueryDefinition" maxResults="12" fmt="XML">
             <marklogic:query-string>
                 &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
                     &lt;collection-query&gt;
