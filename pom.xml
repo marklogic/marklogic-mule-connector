@@ -19,16 +19,18 @@
                 <version>3.3.2</version>
                 <extensions>true</extensions> 
             </plugin>
-<!--            <plugin>
+            <!--
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
                 <version>2.5.2</version>
-            </plugin>-->
-<!--            <plugin>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.8.2</version>
-            </plugin>-->
+            </plugin>
+            -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.1.0</version>
@@ -67,7 +69,7 @@
                     <runtimeConfiguration>
                         <discoverRuntimes>
                             <product>EE</product>
-                            <includeSnapshots>true</includeSnapshots>
+                            <includeSnapshots>false</includeSnapshots>
                         </discoverRuntimes>
                     </runtimeConfiguration>
                 </configuration>
@@ -93,7 +95,8 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            <!--<plugin>
+            <!--
+            <plugin>
                 <groupId>com.mulesoft.munit.tools</groupId>
                 <artifactId>munit-maven-plugin</artifactId>
                 <version>${munit.version}</version>
@@ -109,15 +112,15 @@
                 </executions>
                 <configuration>
                     <runtimeProduct>MULE_EE</runtimeProduct>
-                    <runtimeVersion>4.2.0</runtimeVersion>
-                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <runtimeVersion>4.2.2</runtimeVersion>
+                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
                     <munitTestsDirectory>src/test/munit</munitTestsDirectory>
                     <coverage>
                         <runCoverage>true</runCoverage>
                         <failBuild>false</failBuild>
-                        <requiredApplicationCoverage>0</requiredApplicationCoverage>
-                        <requiredResourceCoverage>0</requiredResourceCoverage>
-                        <requiredFlowCoverage>0</requiredFlowCoverage>
+                        <requiredApplicationCoverage>50</requiredApplicationCoverage>
+                        <requiredResourceCoverage>50</requiredResourceCoverage>
+                        <requiredFlowCoverage>50</requiredFlowCoverage>
                         <formats>
                             <format>console</format>
                             <format>html</format>
@@ -125,7 +128,8 @@
                         </formats>
                     </coverage>
                 </configuration>
-            </plugin>-->
+            </plugin>
+            -->
         </plugins>
     </build>
     <dependencies>
