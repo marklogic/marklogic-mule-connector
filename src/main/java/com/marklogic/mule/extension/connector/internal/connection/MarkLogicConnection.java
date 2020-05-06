@@ -13,6 +13,9 @@
  */
 package com.marklogic.mule.extension.connector.internal.connection;
 
+import com.marklogic.hub.DatabaseKind;
+import com.marklogic.hub.HubConfig;
+import com.marklogic.hub.impl.HubConfigImpl;
 import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -26,6 +29,7 @@ import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.ext.DatabaseClientConfig;
 import com.marklogic.client.ext.DefaultConfiguredDatabaseClientFactory;
 import com.marklogic.client.ext.SecurityContextType;
+import com.marklogic.mule.extension.connector.internal.config.DataHubConfiguration;
 import com.marklogic.mule.extension.connector.internal.error.exception.MarkLogicConnectorException;
 
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
@@ -252,5 +256,23 @@ public final class MarkLogicConnection
             }
         }
         return KeyStore.getInstance(trustStoreType);
+    }
+
+    public HubConfig createHubConfig() {
+        return new HubConfigImpl(this.hostname, this.username, this.password);
+    }
+
+    public HubConfig createHubConfig(DataHubConfiguration dataHubConfiguration) {
+        HubConfig hubConfig = createHubConfig();
+
+        // DHF 5.2 only supports basic/digest auth, so this can safely be done
+        hubConfig.setPort(DatabaseKind.STAGING, dataHubConfiguration.getStagingPort());
+        hubConfig.setDbName(DatabaseKind.STAGING, dataHubConfiguration.getStagingDbName());
+        hubConfig.setPort(DatabaseKind.FINAL, dataHubConfiguration.getFinalPort());
+        hubConfig.setDbName(DatabaseKind.FINAL, dataHubConfiguration.getFinalDbName());
+        hubConfig.setPort(DatabaseKind.JOB, dataHubConfiguration.getJobsPort());
+        hubConfig.setDbName(DatabaseKind.JOB, dataHubConfiguration.getJobsDbName());
+
+        return hubConfig;
     }
 }
