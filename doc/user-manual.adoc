@@ -14,9 +14,9 @@ See the Release Notes for compatibility information listed in the See Also secti
 
 == What's New in this Connector
 
-=== Version 1.1.1 - 2020-03-31
+=== Version 1.1.1 - 2020-05-11
 
-Release 1.1.1 adds:
+Release 1.1.1 provides:
 
 * A bugfix, to allow one to peform a query to retrieve a consistent, point-in-time snapshot of documents coming out of MarkLogic.  
 * A bugfix to allow for execution of MarkLogic server-side transforms at the operation level, with improved transformation parameter handling.
@@ -26,7 +26,7 @@ Release 1.1.1 adds:
 * Improved output and pagination functionality, for egress-centric operations, including more advanced mimetype and document type recognition for use with Mule flow messaging.
 * Renamed internal classes to reflect MuleSoft certification best practices.
 * Improved egress operations by allowing for specification of pagination length, and max results returned.
-* Made TLS context initialization improvements, to reflect MuleSoft certification best practices.
+* TLS context initialization improvements, to reflect MuleSoft certification best practices.
 * Updated documentation, moving some non-required Markdown documents out of source control, and into GitHub wiki pages.
 * Applied increased usage of Enumerations on connection and configuration parameters, plus operations, to provide better UI inputs for Anypoint Studio and Anypoint Design Center.
 
