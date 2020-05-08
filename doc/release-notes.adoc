@@ -1,6 +1,6 @@
 = MarkLogic Connector Release Notes 
 
-April 2020
+May 2020
 
 _MuleSoft Certified_
 
@@ -19,7 +19,7 @@ The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users
 |MarkLogic|9.0-6.2 and later
 |===
 
-=== Version 1.1.1 - Features
+=== Version 1.1.1 - Fixed in this Release
 This release of the Connector includes the following:
 
 * Provides a bugfix, via operation exportDocs, to allow one to peform a query to retrieve a consistent, point-in-time snapshot of documents coming out of MarkLogic.  exportDocs is distinguished from queryDocs in that the former has withConsistentSnapshot and works asynchronously, through DMSDK.  While queryDocs is synchronous through the MarkLogic Java API proper.
@@ -28,7 +28,7 @@ This release of the Connector includes the following:
 * Deprecated operation getJobReport, which was used in conjunction with the DMSDK batch job reporting.  It is now recommended to leverage MuleSoft's built in batch job reporting.
 * Improved output and pagination functionality, for egress-centric operations, including more advanced mimetype and document type recognition for use with Mule flow messaging.
 * Improved egress operations by allowing for specification of pagination length, and max results returned
-* Added new support for executing MUnit tests.
+* Provided support for executing MUnit tests.
 * Added v1.1.1 demo, featuring exportDocs usage.
 * Improved DataSense output metadata handling.
 * Renamed internal classes to reflect MuleSoft certification best practices.
@@ -61,7 +61,7 @@ This release of the Connector includes the following:
 
 === Version 1.1.1 - Operations
 
-* Added operations for exportDocs for asynchronous, query-driven egress functionality, that allows for consistent point-in-time query execution.
+* Provided exportDocs operation.  This is a similar operation to queryDocs for query-driven egress functionality, but asynchronous.  This allows for consistent point-in-time query execution, the absence of which was considered a bug in queryDocs.
 
 == Version 1.1.0 - 2019-06-30
 
