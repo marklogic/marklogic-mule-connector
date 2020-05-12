@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+                  xsi:schemaLocation="
+                        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                        http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+                        http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+                        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+                        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
+    <munit:config name="queryDocs Suite" minMuleVersion="4.2.0" />
+    <configuration-properties file="automation-credentials.properties"/>
+    <marklogic:config name="transform_config" configId="transformConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myQueryDocsTransformJob" serverTransform="transformTestEgress" serverTransformParams="q,e">
+        <marklogic:connection connectionId="transformConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" />
+    </marklogic:config>
+    <marklogic:config name="config" configId="configId" threadCount="5" batchSize="3" secondsBeforeFlush="2" jobName="myQueryDocsJob">
+        <marklogic:connection connectionId="testConfig-223efe" hostname="${config.hostName}" port="8010" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" kerberosExternalName="null"/>
+    </marklogic:config>
+    <flow name="queryDocsTemporalFlow">
+        <marklogic:query-docs config-ref="config" queryStrategy="CTSQuery" fmt="XML">
+            <marklogic:query-string>
+                &lt;cts:and-query xmlns:cts=&quot;http://marklogic.com/cts&quot;&gt;
+                    &lt;cts:collection-query&gt;
+                        &lt;cts:uri&gt;temporal-input&lt;/cts:uri&gt;
+                    &lt;/cts:collection-query&gt;
+                    &lt;cts:document-query&gt;
+                        &lt;cts:uri&gt;/temporal-test/test.json&lt;/cts:uri&gt;
+                    &lt;/cts:document-query&gt;
+                &lt;/cts:and-query&gt;
+            </marklogic:query-string>
+        </marklogic:query-docs>
+        <set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload[0]]'/>
+    </flow>
+    <flow name="queryDocsRawStructuredQueryDefinitionXMLFlow">
+        <marklogic:query-docs config-ref="config" queryStrategy="RawStructuredQueryDefinition" fmt="XML" serverTransform="transformTestEgress" serverTransformParams="q,e">
+            <marklogic:query-string>
+                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+                    &lt;document-query&gt;
+                        &lt;uri&gt;/test/doc1.json&lt;/uri&gt;
+                    &lt;/document-query&gt;
+                &lt;/query&gt;
+            </marklogic:query-string>
+        </marklogic:query-docs>
+        <set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload[0]]'/>
+    </flow>
+    <flow name="queryDocsMaxResultsFlow">
+        <marklogic:query-docs config-ref="transform_config" queryStrategy="RawStructuredQueryDefinition" maxResults="12" fmt="XML">
+            <marklogic:query-string>
+                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+                    &lt;collection-query&gt;
+                        &lt;uri&gt;employees&lt;/uri&gt;
+                    &lt;/collection-query&gt;
+                &lt;/query&gt;
+            </marklogic:query-string>
+        </marklogic:query-docs>
+        <set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]'/>
+    </flow>
+    <flow name="queryDocsBinaryFlow">
+        <marklogic:query-docs config-ref="config" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
+            <marklogic:query-string>
+                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+                    &lt;document-query&gt;
+                        &lt;uri&gt;/test/smalltest.pdf&lt;/uri&gt;
+                    &lt;/document-query&gt;
+                &lt;/query&gt;
+            </marklogic:query-string>
+        </marklogic:query-docs>
+        <!-- Read in the bytes from the query-returned PDF file in MarkLogic, so that we can search for the magic numbers that start the file -->
+        <set-payload value="#[%dw 2.0 import * from dw::core::Binaries output application/json &#x002D;&#x002D;&#x002D; readLinesWith(payload[0], 'ISO-8859-1')[0]]"/>
+    </flow>
+    <flow name="queryDocsTextFlow">
+        <marklogic:query-docs config-ref="config" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
+            <marklogic:query-string>
+                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+                    &lt;document-query&gt;
+                        &lt;uri&gt;/test/helloworld.txt&lt;/uri&gt;
+                    &lt;/document-query&gt;
+                &lt;/query&gt;
+            </marklogic:query-string>
+        </marklogic:query-docs>
+        <set-payload value="#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload[0]]"/>
+    </flow>
+    <flow name="queryDocsJSONFlow">
+        <marklogic:query-docs config-ref="config" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
+            <marklogic:query-string>
+                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+                    &lt;document-query&gt;
+                        &lt;uri&gt;/test/doc1.json&lt;/uri&gt;
+                    &lt;/document-query&gt;
+                &lt;/query&gt;
+            </marklogic:query-string>
+        </marklogic:query-docs>
+        <set-payload value="#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload[0]]"/>
+    </flow>
+    <flow name="queryDocsXMLFlow">
+        <marklogic:query-docs config-ref="config" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
+            <marklogic:query-string>
+                &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+                    &lt;document-query&gt;
+                        &lt;uri&gt;/test/helloworld.xml&lt;/uri&gt;
+                    &lt;/document-query&gt;
+                &lt;/query&gt;
+            </marklogic:query-string>
+        </marklogic:query-docs>
+        <set-payload value="#[%dw 2.0 output application/xml ns sem http://marklogic.com/semantics &#x002D;&#x002D;&#x002D; read(payload[0], 'application/xml')]"/>
+    </flow>
+    <munit:test name="queryDocsRawStructuredQuery" description="queryDocs RawStructuredQueryDefinition XML Test">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="queryDocsRawStructuredQueryDefinitionXMLFlow"/>
+        </munit:enable-flow-sources>
+        <!--<munit:behavior/>-->
+        <munit:execution>
+            <flow-ref name="queryDocsRawStructuredQueryDefinitionXMLFlow"/>
+        </munit:execution>
+        <munit:validation >
+            <munit-tools:assert-that expression="#[payload.gender]" is="#[MunitTools::containsString('male')]"/>
+        </munit:validation>
+    </munit:test>
+    <munit:test name="queryDocsCountMaxResults" description="queryDocs Count Max Results">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="queryDocsMaxResultsFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="queryDocsMaxResultsFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(12)]"/>
+        </munit:validation>
+    </munit:test>
+    <munit:test name="queryDocsCheckConfigTransform" description="queryDocs Check Configuration Transform">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="queryDocsMaxResultsFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="queryDocsMaxResultsFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload[0].transformer]" is="#[MunitTools::equalTo('transformTestEgress')]"/>
+        </munit:validation>
+    </munit:test>
+    <munit:test name="queryDocsCheckOperationTransform" description="queryDocs Check Operation Transform">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="queryDocsRawStructuredQueryDefinitionXMLFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="queryDocsRawStructuredQueryDefinitionXMLFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload.transformer]" is="#[MunitTools::equalTo('transformTestEgress')]"/>
+        </munit:validation>
+    </munit:test>
+    <munit:test name="queryDocsCheckTemporal" description="queryDocs Check Temporal">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="queryDocsTemporalFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="queryDocsTemporalFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload.systemEnd]" is="#[MunitTools::equalTo('9999-12-31T11:59:59Z')]"/>
+        </munit:validation>
+    </munit:test>
+    <munit:test name="queryDocsCheckBinaryMimetype" description="queryDocs Check Binary Mimetype">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="queryDocsBinaryFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="queryDocsBinaryFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <!-- 89 50 4E 47 are the magic numbers for a PNG file -->
+            <!-- PDF files start with %PDF or magic numbers 25 50 44 46 -->
+            <!--<munit-tools:assert-that expression="#[payload]" is="#[MunitTools::containsString('89 50 4E 47')]"/>-->
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::anyOf([MunitTools::startsWith('%PDF'), MunitTools::startsWith('25504446')])]"/>
+        </munit:validation>
+    </munit:test>
+    <munit:test name="queryDocsCheckTextMimetype" description="queryDocs Check Text Mimetype">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="queryDocsTextFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="queryDocsTextFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Hello world')]"/>
+        </munit:validation>
+    </munit:test>
+    <munit:test name="queryDocsCheckJSONMimetype" description="queryDocs Check JSON Mimetype">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="queryDocsJSONFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="queryDocsJSONFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload.emp_no]" is="#[MunitTools::equalTo('0001')]"/>
+        </munit:validation>
+    </munit:test>
+    <munit:test name="queryDocsCheckXMLMimetype" description="queryDocs Check XML Mimetype">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="queryDocsXMLFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="queryDocsXMLFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[%dw 2.0 output application/xml &#x002D;&#x002D;&#x002D; payload]" is="#[MunitTools::withMediaType('application/xml')]"/>
+            <munit-tools:assert-that expression="#[%dw 2.0 output text/plain &#x002D;&#x002D;&#x002D; payload.envelope.test]" is="#[MunitTools::equalTo('Hello world')]"/>
+        </munit:validation>
+    </munit:test>
+</mule>

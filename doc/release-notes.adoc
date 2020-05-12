@@ -1,10 +1,67 @@
 = MarkLogic Connector Release Notes 
 
-June 2019
+May 2020
 
 _MuleSoft Certified_
 
-The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users (via the MuleSoft Anypoint Exchange) with easy integration to MarkLogic, delivering data movement and transformation pipelines via MuleSoft AnypointStudio flows. The MuleSoft Connector is built atop MarkLogic’s Data Movement SDK (DMSDK), which is a Java API library for applications that need to move data into, out of, or within a MarkLogic cluster.  For those familiar with the existing MarkLogic ecosystem, it provides the core capabilities of MarkLogic Content Pump in the vernacular of the MarkLogic Java Client API.
+The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users (via the MuleSoft Anypoint Exchange) with easy integration to MarkLogic, delivering data movement and transformation pipelines via MuleSoft AnypointStudio and Design Center flows. The MuleSoft Connector is built atop MarkLogic’s https://developer.marklogic.com/learn/data-movement-sdk/[Data Movement SDK] (DMSDK), which is a Java API library for applications that need to move data into, out of, or within a MarkLogic cluster.  For those familiar with the existing MarkLogic ecosystem, it provides the core capabilities of MarkLogic Content Pump in the vernacular of the MarkLogic Java Client API.
+
+== Version 1.1.1 - 2020-04-30
+
+=== Version 1.1.1 - Compatibility
+[%header%autowidth.spread]
+|===
+|Software |Version
+|Anypoint Studio |7.4.1 and later
+|Mule SDK|4.2.2 and later
+|JDK |1.8.x
+|MarkLogic Java Client API |4.2.0 and later
+|MarkLogic|9.0-6.2 and later
+|===
+
+=== Version 1.1.1 - Fixed in this Release
+This release of the Connector includes the following:
+
+* Provides a bugfix, via operation exportDocs, to allow one to peform a query to retrieve a consistent, point-in-time snapshot of documents coming out of MarkLogic.  exportDocs is distinguished from queryDocs in that the former has withConsistentSnapshot and works asynchronously, through DMSDK.  While queryDocs is synchronous through the MarkLogic Java API proper.
+* Provided bugfix to allow for execution of MarkLogic server-side transforms at the operation level, and not just via the connector configuration.  Having transforms only at the connector configuration meant that multiple connections could have been necessary to handle two or more transformation calls. An additional transformation-related bugfix was made to remove the requirement for specifying transformation parameters.  The only enforcement now is to check that parameter names and values match up pairwise when specified.
+* Provided bugfix to properly allow Search API options to be specified when using RawStructuredQueryType queries.  
+* Deprecated operation getJobReport, which was used in conjunction with the DMSDK batch job reporting.  It is now recommended to leverage MuleSoft's built in batch job reporting.
+* Improved output and pagination functionality, for egress-centric operations, including more advanced mimetype and document type recognition for use with Mule flow messaging.
+* Improved egress operations by allowing for specification of pagination length, and max results returned
+* Provided support for executing MUnit tests.
+* Added v1.1.1 demo, featuring exportDocs usage.
+* Improved DataSense output metadata handling.
+* Renamed internal classes to reflect MuleSoft certification best practices.
+* Made TLS context initialization improvements, to reflect MuleSoft certification best practices.
+* Updated documentation, moving some non-required Markdown documents out of source control, and into GitHub wiki pages.
+* Applied increased usage of Enumerations on connection and configuration parameters, plus operations, to provide better UI inputs for Anypoint Studio and Anypoint Design Center.
+
+=== Version 1.1.1 - Required Libraries
+
+* MarkLogic Java Client API v.4.2.2
+* MarkLogic Data Movement Components v.1.0
+
+=== Version 1.1.1 - Improvements
+
+* Improved ability to work with consistent point-in-time snapshot queries for MarkLogic egress operations.
+* Improved ability to work with server-side transformations at the operation level.
+* Improved output and pagination functionality, for egress-centric operations, including more advanced mimetype and document type recognition for use with Mule flow messaging.
+* Renamed internal classes to reflect MuleSoft certification best practices.
+* Improved egress operations by allowing for specification of pagination length, and max results returned.
+* Made TLS context initialization improvements, to reflect MuleSoft certification best practices.
+* Updated documentation, moving some non-required Markdown documents out of source control, and into GitHub wiki pages.
+* Applied increased usage of Enumerations on connection and configuration parameters, plus operations, to provide better UI inputs for Anypoint Studio and Anypoint Design Center.
+* Improved DataSense output metadata handling.
+
+=== Version 1.1.1 - Bugs Fixed
+
+* Provides a bugfix, to allow one to peform a query to retrieve a consistent, point-in-time snapshot of documents coming out of MarkLogic.  
+* Provides a bugfix to allow server-side Search API options files to work correctly when using RawStructuredQueryType queries.
+* Provides a bugfix to allow for execution of MarkLogic server-side transforms at the operation level, and to improve transformation parameter handling (they are no longer required, but just checked to name/value pairwise matching).
+
+=== Version 1.1.1 - Operations
+
+* Provided exportDocs operation.  This is a similar operation to queryDocs for query-driven egress functionality, but asynchronous.  This allows for consistent point-in-time query execution, the absence of which was considered a bug in queryDocs.
 
 == Version 1.1.0 - 2019-06-30
 
@@ -13,7 +70,7 @@ The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users
 |===
 |Software |Version
 |Anypoint Studio |7.1.4 and later
-|Mule |4.2.0 and later
+|Mule SDK |4.2.0 and later
 |JDK |1.8.x
 |MarkLogic Java Client API |4.2.0 and later
 |MarkLogic|9.0-6.2 and later
@@ -59,7 +116,7 @@ This connector supports these software versions:
 |===
 |Software |Version
 |Anypoint Studio |7.1.4 and later
-|Mule |4.1.1 and later
+|Mule SDK |4.1.1 and later
 |JDK |1.8.x
 |MarkLogic Java Client API |4.0.4 and later
 |MarkLogic|9.0-6.2 and later

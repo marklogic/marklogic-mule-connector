@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright © 2019 MarkLogic Corporation.
+ * Copyright © 2020 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -13,11 +13,36 @@
  */
 package com.marklogic.mule.extension.connector.api.operation;
 
+import com.marklogic.client.io.Format;
+
 /**
  * Created by credding on 4/28/2019.
  */
 public enum MarkLogicQueryFormat
 {
-    XML,
-    JSON
+    XML{
+        @Override
+        public Format getMlClientFormat() {
+            return Format.XML;
+        }
+    },
+    JSON {
+        @Override
+        public Format getMlClientFormat() {
+            return Format.JSON;
+        }
+    },
+    Binary {
+        @Override
+        public Format getMlClientFormat() {
+            return Format.BINARY;
+        }
+    },
+    Text {
+        @Override
+        public Format getMlClientFormat() {
+            return Format.TEXT;
+        }
+    };
+    public abstract Format getMlClientFormat();
 }

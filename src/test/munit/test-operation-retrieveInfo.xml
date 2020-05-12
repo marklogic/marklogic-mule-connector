@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+                        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                        http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+                        http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+                        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+                        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
+    <munit:config name="retrieveInfo Suite" minMuleVersion="4.2.0" />
+    <configuration-properties file="automation-credentials.properties"/>
+    <marklogic:config name="retrieveInfoConfig" configId="retrieveInfoConfig" threadCount="5" batchSize="3" secondsBeforeFlush="2" jobName="retrieveInfoJob">
+        <marklogic:connection connectionId="retrieveInfoConfig-223efe" hostname="${config.hostName}" port="8010" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" />
+    </marklogic:config>
+    <flow name="retrieveInfoFlow">
+        <marklogic:retrieve-info config-ref="retrieveInfoConfig"/>
+        <set-payload value='#[%dw 2.0 output text/plain &#x002D;&#x002D;&#x002D; payload]'/>
+    </flow>
+    <munit:test name="retrieveInfoTest" description="retrieveInfo Results">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="retrieveInfoFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="retrieveInfoFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Using Configuration [retrieveInfoConfig] with Connection id [retrieveInfoConfig-223efe]')]"/>
+        </munit:validation>
+    </munit:test>
+</mule>

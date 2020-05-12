@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright © 2019 MarkLogic Corporation.
+ * Copyright © 2020 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -20,10 +20,8 @@ import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
-import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
-import org.mule.runtime.extension.api.annotation.param.display.Example;
-import org.mule.runtime.extension.api.annotation.param.display.Password;
-import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
+import org.mule.runtime.extension.api.annotation.param.display.*;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionProvider;
@@ -88,11 +86,13 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
     private AuthenticationType authenticationType;
 
     @DisplayName("TLS Context")
+    @Placement(tab="Security")
     @Parameter
     @Optional
     private TlsContextFactory tlsContextFactory;
 
     @DisplayName("Kerberos External Name (Not Yet Supported)")
+    @Placement(tab="Security")
     @Parameter
     @Summary("If \"kerberos\" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.")
     @Optional(defaultValue = "null")
@@ -120,6 +120,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
 
     public MarkLogicConnectionProvider()
     {
+        logger.debug("MarkLogicConnectionProvider() constructor");
     }
 
     @Override
@@ -134,6 +135,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
     @Override
     public void disconnect(MarkLogicConnection connection)
     {
+        logger.debug("MarkLogicConnectionProvider disconnect() called, connection invalidated");
         connection.invalidate();
     }
 
@@ -148,6 +150,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
         else
         {
             result = ConnectionValidationResult.failure("Connection failed " + connection.getId(), new Exception());
+            logger.debug("MarkLogicConnectionProvider validate() result failed");
         }
         return result;
     }

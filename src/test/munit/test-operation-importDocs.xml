@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+                        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                        http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+                        http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+                        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+                        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
+    <munit:config name="importDocs Suite" minMuleVersion="4.2.0" />
+    <configuration-properties file="automation-credentials.properties"/>
+    <marklogic:config name="importDocsConfig" configId="importDocsConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="importDocsJob">
+        <marklogic:connection connectionId="importDocsConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" />
+    </marklogic:config>
+    <!-- <marklogic:config name="importDocsTransformConfig" configId="importDocsTransformConfig" threadCount="4" batchSize="100" serverTransform="ml:sjsInputFlow" serverTransformParams="entity-name,Employees,flow-name,loadEmployees" secondsBeforeFlush="2" jobName="importDocsTransformJobName" >
+        <marklogic:connection connectionId="importDocsTransformConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" />
+    </marklogic:config> -->
+    <flow name="importDocsFlow">
+        <set-payload value="#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; {'systemStart': null, 'systemEnd': null, 'validStart': now(), 'validEnd': '2030-12-31T00:00:00Z', 'name': 'test'}]"/>
+        <marklogic:import-docs config-ref="importDocsConfig" outputCollections="mulesoft-dmsdk-test,test" temporalCollection="temporal-input" serverTransform="transformTestInput" outputUriPrefix="/mulesoft/" outputUriSuffix=".json" basenameUri="test-importDocs-munit" serverTransformParams="text,test" generateOutputUriBasename="false"/>
+        <set-payload value="#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]"/>
+    </flow>
+    <flow name="importDocsBinaryFlow">
+        <set-payload value="#[%dw 2.0 output application/java &#x002D;&#x002D;&#x002D; readUrl('classpath://data/cc.png', 'application/octet-stream')]"/>
+        <marklogic:import-docs config-ref="importDocsConfig" outputCollections="mulesoft-dmsdk-test,test" outputUriPrefix="/mulesoft/" outputUriSuffix=".png" basenameUri="cc-test" generateOutputUriBasename="false"/>
+        <set-payload value="#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]"/>
+    </flow>
+    <munit:test name="importDocsOperationTransformTemporalTest" description="importDocs Operation-Level Transform and Temporal Results">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="importDocsFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="importDocsFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <!-- The JobID returned should use hexadecimal string output -->
+            <munit-tools:assert-that expression="#[payload matches /[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/]" is="#[MunitTools::equalTo(true)]"/>
+        </munit:validation>
+    </munit:test>
+    <munit:test name="importDocsBinaryTest" description="importDocs Binary Test">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="importDocsBinaryFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <flow-ref name="importDocsBinaryFlow"/>
+        </munit:execution>
+        <munit:validation>
+            <!-- The JobID returned should use hexadecimal string output -->
+            <munit-tools:assert-that expression="#[payload matches /[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/]" is="#[MunitTools::equalTo(true)]"/>
+        </munit:validation>
+    </munit:test>
+</mule>

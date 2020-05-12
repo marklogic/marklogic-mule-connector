@@ -3,15 +3,23 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.marklogic</groupId> 
     <artifactId>marklogic-mule-connector</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1-SNAPSHOT</version>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <app.runtime>4.2.2</app.runtime>
+        <mule.maven.plugin.version>3.3.2</mule.maven.plugin.version>
+        <munit.version>2.2.4</munit.version>
+    </properties>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.mule.tools.maven</groupId>
                 <artifactId>mule-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.3.2</version>
                 <extensions>true</extensions> 
             </plugin>
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
@@ -22,14 +30,80 @@
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.8.2</version>
             </plugin>
-            <!-- <plugin>
+            -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-munit-resources</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/test-mule/munit</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/test/munit</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.mulesoft.munit</groupId>
+                <artifactId>munit-extensions-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <runtimeConfiguration>
+                        <discoverRuntimes>
+                            <product>EE</product>
+                            <includeSnapshots>false</includeSnapshots>
+                        </discoverRuntimes>
+                    </runtimeConfiguration>
+                </configuration>
+                 <!--MUnit Dependencies--> 
+                 <dependencies>
+                    <dependency>
+                        <groupId>com.mulesoft.munit</groupId>
+                        <artifactId>munit-runner</artifactId>
+                        <version>${munit.version}</version>
+                        <classifier>mule-plugin</classifier>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.mulesoft.munit</groupId>
+                        <artifactId>munit-tools</artifactId>
+                        <version>${munit.version}</version>
+                        <classifier>mule-plugin</classifier>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.mulesoft.munit</groupId>
+                        <artifactId>mtf-tools</artifactId>
+                        <version>1.0.0</version>
+                        <classifier>mule-plugin</classifier>
+                    </dependency>
+                </dependencies> 
+            </plugin>
+            <!--
+            <plugin>
                 <groupId>com.mulesoft.munit.tools</groupId>
                 <artifactId>munit-maven-plugin</artifactId>
-                <version>2.1.4</version>
+                <version>${munit.version}</version>
                 <executions>
                     <execution>
                         <id>test</id>
-                        <phase>test</phase>
+                        <phase>integration-test</phase>
                         <goals>
                             <goal>test</goal>
                             <goal>coverage-report</goal>
@@ -37,12 +111,16 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <runtimeProduct>MULE_EE</runtimeProduct>
+                    <runtimeVersion>4.2.2</runtimeVersion>
+                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
+                    <munitTestsDirectory>src/test/munit</munitTestsDirectory>
                     <coverage>
                         <runCoverage>true</runCoverage>
                         <failBuild>false</failBuild>
-                        <requiredApplicationCoverage>0</requiredApplicationCoverage>
-                        <requiredResourceCoverage>0</requiredResourceCoverage>
-                        <requiredFlowCoverage>0</requiredFlowCoverage>
+                        <requiredApplicationCoverage>50</requiredApplicationCoverage>
+                        <requiredResourceCoverage>50</requiredResourceCoverage>
+                        <requiredFlowCoverage>50</requiredFlowCoverage>
                         <formats>
                             <format>console</format>
                             <format>html</format>
@@ -50,10 +128,18 @@
                         </formats>
                     </coverage>
                 </configuration>
-            </plugin>-->
+            </plugin>
+            -->
         </plugins>
     </build>
     <dependencies>
+        <!-- jackson-databind 2.10.1 is needed to replace jackson-databind 2.9.8 that exists in marklogic-client-api 4.2.0.  -->
+        <!-- jackson-databind 2.10.1 exists in marklogic-client-api 5.1.0, but 5.1.0 requires >= Java 9, so adding upgraded jackson-databind dependency outside of ml-client-api --> 
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind </artifactId>
+            <version>2.10.1</version>
+        </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>ml-javaclient-util</artifactId>
@@ -72,11 +158,12 @@
                     <artifactId>jdom2</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>	
-	    <dependency>
+        </dependency>
+        <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>marklogic-client-api</artifactId>
             <version>4.2.0</version>
+            <!--<version>5.1.0</version>-->
         </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>
@@ -88,19 +175,39 @@
             <artifactId>commons-jexl3</artifactId>
             <version>3.1</version>
         </dependency>
+        <!--<dependency>
+            <groupId>com.mulesoft.munit</groupId>
+            <artifactId>munit-runner</artifactId>
+            <version>${munit.version}</version>
+            <classifier>mule-plugin</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mulesoft.munit</groupId>
+            <artifactId>munit-tools</artifactId>
+            <version>${munit.version}</version>
+            <classifier>mule-plugin</classifier>
+            <scope>test</scope>
+        </dependency>-->
+        <dependency>
+            <groupId>org.mule.connectors</groupId>
+            <artifactId>mule-file-connector</artifactId>
+            <version>1.1.3</version>
+            <classifier>mule-plugin</classifier>
+        </dependency>
     </dependencies>
     <packaging>mule-extension</packaging>
-    <name>MarkLogic Extension</name>
+    <name>MarkLogic Connector - Mule 4</name>
     <parent>
         <groupId>org.mule.connectors</groupId>
         <artifactId>mule-certified-parent</artifactId>
-        <version>1.2.4</version>
+        <version>1.4.1</version>
     </parent>
     <repositories>
         <repository>
-            <id>mulesoft-releases</id>
-            <name>MuleSoft Releases Repository</name>
-            <url>http://repository.mulesoft.org/releases/</url>
+            <id>mule-releases</id>
+            <name>Nexus Public Releases</name>
+            <url>https://repository-master.mulesoft.org/nexus/content/repositories/releases/</url>
         </repository>
     </repositories>
     <pluginRepositories>
@@ -113,11 +220,15 @@
                 <enabled>false</enabled>
             </snapshots>
         </pluginRepository>
+        <pluginRepository>
+            <id>mule-public</id>
+            <url>https://repository.mulesoft.org/nexus/content/repositories/releases</url>
+        </pluginRepository>
     </pluginRepositories>
     <scm>
         <connection>scm:git:git://github.com/marklogic-community/marklogic-mule-connector</connection>
-        <developerConnection>scm:svn:https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.1.0</developerConnection>
-        <tag>marklogic-mule-connector-1.1.0</tag>
-        <url>https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.1.0</url>
+        <developerConnection>scm:svn:https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.1.1</developerConnection>
+        <tag>marklogic-mule-connector-1.1.1</tag>
+        <url>https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.1.1</url>
     </scm>
 </project>

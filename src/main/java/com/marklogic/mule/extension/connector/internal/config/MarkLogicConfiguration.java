@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright © 2019 MarkLogic Corporation.
+ * Copyright © 2020 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -16,7 +16,7 @@ package com.marklogic.mule.extension.connector.internal.config;
 import com.marklogic.client.document.ServerTransform;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicOperations;
 import com.marklogic.mule.extension.connector.internal.connection.provider.MarkLogicConnectionProvider;
-import com.marklogic.mule.extension.connector.internal.exception.MarkLogicConnectorException;
+import com.marklogic.mule.extension.connector.internal.error.exception.MarkLogicConnectorException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +27,8 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class represents an extension configuration, values set in this class
@@ -38,6 +40,8 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 public class MarkLogicConfiguration
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(MarkLogicConfiguration.class);
+    
     @DisplayName("Connection ID")
     @Parameter
     @Summary("An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic.")
@@ -146,44 +150,54 @@ public class MarkLogicConfiguration
         this.jobName = jobName;
     }
 
-    public boolean hasServerTransform()
+    public ServerTransform generateServerTransform(String transformName, String transformParams)
     {
-        return this.getServerTransform() != null
-                && !this.getServerTransform().trim().isEmpty()
-                && !"null".equalsIgnoreCase(this.getServerTransform().trim());
-    }
-
-    public ServerTransform createServerTransform() throws MarkLogicConnectorException
-    {
-        if (!hasServerTransform())
+        if (isDefined(transformName))
         {
-            throw new MarkLogicConnectorException("Cannot create Server Transform without a name.");
+            logger.debug("Transforming query doc payload with operation-defined transform: " + serverTransform);
+            return this.createServerTransform(transformName, transformParams);
         }
-        else if (this.serverTransformParams == null
-                || this.serverTransformParams.trim().isEmpty()
-                || "null".equalsIgnoreCase(this.serverTransformParams.trim()))
+        else if (isDefined(this.serverTransform))
         {
-            throw new MarkLogicConnectorException("Cannot create Server Transform without any params");
+            logger.debug("Transforming query doc payload with connection-defined transform: " + this.getServerTransform());
+            return createServerTransform(this.serverTransform, this.serverTransformParams);
         }
         else
         {
-            List<String> pairs = Arrays.asList(this.serverTransformParams.split(","));
+            logger.debug("Querying docs without a transform");
+            return null;
+        }
+    }
+        
+    public static boolean isDefined(String str) 
+    {
+        return str != null
+                && !str.trim().isEmpty()
+                && !"null".equalsIgnoreCase(str.trim());
 
+    }
+    
+    private ServerTransform createServerTransform(String name, String params) 
+    {
+
+        ServerTransform transform = new ServerTransform(name);
+
+        if (isDefined(params))
+        {
+            List<String> pairs = Arrays.asList(params.split(","));
             int size = pairs.size();
 
-            if (size % 2 != 0 || pairs.stream().anyMatch(it -> it.trim().isEmpty())) //Test for "null" string?
+            if (size % 2 != 0 || pairs.stream().anyMatch(it -> !isDefined(it))) 
             {
                 throw new MarkLogicConnectorException("Cannot create Server Transforms because params do not pair up");
             }
-
-            ServerTransform transform = new ServerTransform(this.serverTransform);
 
             for (int i = 0; i < size; i += 2)
             {
                 transform.addParameter(pairs.get(i).trim(), pairs.get(i + 1).trim());
             }
-
-            return transform;
         }
+
+        return transform;
     }
 }

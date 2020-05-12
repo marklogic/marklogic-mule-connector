@@ -31,11 +31,11 @@ Default configuration
 | Connection a| <<config_connection, Connection>>
  | The connection types that can be provided to this configuration. | | *x*{nbsp}
 | Connection ID a| String |  +++An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic.+++ |  | *x*{nbsp}
-| Thread Count a| String |  +++The thread count passed to DMSDK, representing the number of parallel processing threads.+++ |  | *x*{nbsp}
-| Batch Size a| String |  +++The batch size passed to DMSDK, representing the number of documents processed within a batch.+++ |  | *x*{nbsp}
+| Thread Count a| Number |  +++The thread count passed to DMSDK, representing the number of parallel processing threads.+++ |  | *x*{nbsp}
+| Batch Size a| Number |  +++The batch size passed to DMSDK, representing the number of documents processed within a batch.+++ |  | *x*{nbsp}
 | Server Transform a| String |  +++The name of an already registered and deployed MarkLogic server-side Javascript, XQuery, or XSLT module.+++ |  +++null+++ | {nbsp}
 | Server Transform Params a| String |  +++A comma-separated list of alternating transform parameter names and transform parameter values.+++ |  +++null+++ | {nbsp}
-| Seconds Before Flush a| String |  +++The number of seconds before DMSDK automatically flushes the current batch if not yet filled to the specified batchSize configurable.+++ |  | *x*{nbsp}
+| Seconds Before Flush a| Number |  +++The number of seconds before DMSDK automatically flushes the current batch if not yet filled to the specified batchSize configurable.+++ |  | *x*{nbsp}
 | Job Name a| String |  +++The job name used by DMSDK to track the job.+++ |  | *x*{nbsp}
 | Expiration Policy a| <<ExpirationPolicy>> |  +++Configures the minimum amount of time that a dynamic configuration instance can remain idle before the runtime considers it eligible for expiration. This does not mean that the platform will expire the instance at the exact moment that it becomes eligible. The runtime will actually purge the instances when it sees it fit.+++ |  | {nbsp}
 |======================
@@ -58,7 +58,7 @@ Default configuration
 
 ** digest
 ** certificate
-** basic |  +++The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic, certificate.+++ |  | *x*{nbsp}
+** basic |  +++The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic.+++ |  | *x*{nbsp}
 | Kerberos External Name (Not Yet Supported) a| String |  +++If "kerberos" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.+++ |  +++null+++ | {nbsp}
 | Connection ID a| String |  +++An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic. Also set on the Connector configuration parameters.+++ |  | *x*{nbsp}
 | TLS Context a| <<Tls>> |  |  | {nbsp}
@@ -68,6 +68,7 @@ Default configuration
 
 ==== Associated Operations
 * <<deleteDocs>> {nbsp}
+* <<exportDocs>> {nbsp}
 * <<importDocs>> {nbsp}
 * <<queryDocs>> {nbsp}
 * <<retrieveInfo>> {nbsp}
@@ -81,24 +82,32 @@ Default configuration
 === Delete Docs
 `<marklogic:delete-docs>`
 
++++
+<p>Delete query-selected document content asynchronously from MarkLogic, via the <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a> <a target="_blank" href="https://docs.marklogic.com/guide/java/data-movement">Data Movement SDK (DMSDK)</a> returning a JSON object detailing the outcome.</p>
++++
 
 ==== Parameters
 [cols=".^20%,.^20%,.^35%,.^20%,^.^5%", options="header"]
 |======================
 | Name | Type | Description | Default Value | Required
 | Configuration | String | The name of the configuration to use. | | *x*{nbsp}
-| Serialized Query String a| String |  +++The serialized query XML or JSON+++ |  | *x*{nbsp}
-| Search API Options a| String |  +++The server-side Search API options file used to configure the search+++ |  +++null+++ | {nbsp}
+| Serialized Query String a| String |  +++The serialized query XML or JSON.+++ |  | *x*{nbsp}
+| Search API Options a| String |  +++The server-side Search API options file used to configure the search.+++ |  | {nbsp}
 | Search Strategy a| Enumeration, one of:
 
 ** RawStructuredQueryDefinition
 ** StructuredQueryBuilder
-** CTSQuery |  +++The Java class used to execute the serialized query+++ |  | *x*{nbsp}
-| Use Consistent Snapshot a| Boolean |  +++Whether to use a consistent point-in-time snapshot for operations+++ |  +++false+++ | {nbsp}
+** CTSQuery |  +++The Java class used to execute the serialized query.+++ |  | *x*{nbsp}
+| Use Consistent Snapshot a| Boolean |  +++Whether to use a consistent point-in-time snapshot for operations.+++ |  +++false+++ | {nbsp}
 | Serialized Query Format a| Enumeration, one of:
 
 ** XML
-** JSON |  +++The format of the serialized query+++ |  | *x*{nbsp}
+** JSON
+** Binary
+** Text |  +++The format of the serialized query.+++ |  | *x*{nbsp}
+| Streaming Strategy a| * <<repeatable-in-memory-stream>>
+* <<repeatable-file-store-stream>>
+* <<non-repeatable-stream>> |  +++Configure if repeatable streams should be used and their behaviour+++ |  | {nbsp}
 | Target Variable a| String |  +++The name of a variable on which the operation's output will be placed+++ |  | {nbsp}
 | Target Value a| String |  +++An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable+++ |  +++#[payload]+++ | {nbsp}
 | Reconnection Strategy a| * <<reconnect>>
@@ -108,7 +117,7 @@ Default configuration
 ==== Output
 [cols=".^50%,.^50%"]
 |======================
-| *Type* a| String
+| *Type* a| Binary
 |======================
 
 ==== For Configurations.
@@ -120,25 +129,39 @@ Default configuration
 * MARKLOGIC:DATA_MOVEMENT_ERROR {nbsp}
 
 
-[[importDocs]]
-=== Import Docs
-`<marklogic:import-docs>`
+[[exportDocs]]
+=== Export Docs
+`<marklogic:export-docs>`
 
++++
+<p>Retrieve query-selected document content asynchronously from MarkLogic, via the <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a> <a target="_blank" href="https://docs.marklogic.com/guide/java/data-movement">Data Movement SDK (DMSDK)</a>.</p>
++++
 
 ==== Parameters
 [cols=".^20%,.^20%,.^35%,.^20%,^.^5%", options="header"]
 |======================
 | Name | Type | Description | Default Value | Required
 | Configuration | String | The name of the configuration to use. | | *x*{nbsp}
-| Document payload a| Binary |  +++The content of the input files to be used for ingestion into MarkLogic.+++ |  +++#[payload]+++ | {nbsp}
-| Output Collections a| String |  +++A comma-separated list of the collections to which persisted documents will belong after successful ingestion.+++ |  +++null+++ | {nbsp}
-| Output Permissions a| String |  +++A comma-separated list of roles and capabilities to which persisted documents will possess after successful ingestion.+++ |  +++rest-reader,read,rest-writer,update+++ | {nbsp}
-| Output Quality a| Number |  +++A number indicating the quality of the persisted documents+++ |  +++1+++ | {nbsp}
-| Output Uri Prefix a| String |  +++The URI prefix, used to prepend and concatenate basenameUri.+++ |  +++/+++ | {nbsp}
-| Output Uri Suffix a| String |  +++The URI suffix, used to append and concatenate basenameUri.+++ |  +++.json+++ | {nbsp}
-| Generate output URI basename? a| Boolean |  +++Creates a document basename based on a UUID, to be combined with the outputUriPrefix and outputUriSuffix. Use this if you can't programmatically assign a basename from an identifier in the document. Otherwise use basenameUri.+++ |  +++true+++ | {nbsp}
-| Output document basename a| String |  +++The file basename to be used for persistence in MarkLogic, usually derived a value from within the payload. Different than the UUID produced from generateOutputUriBasename.+++ |  +++null+++ | {nbsp}
-| Temporal collection a| String |  +++The temporal collection imported documents will be loaded into.+++ |  +++null+++ | {nbsp}
+| Serialized Query String a| String |  +++The serialized query XML or JSON.+++ |  | *x*{nbsp}
+| Search API Options a| String |  +++The server-side Search API options file used to configure the search.+++ |  | {nbsp}
+| Search Strategy a| Enumeration, one of:
+
+** RawStructuredQueryDefinition
+** StructuredQueryBuilder
+** CTSQuery |  +++The Java class used to execute the serialized query.+++ |  | *x*{nbsp}
+| Serialized Query Format a| Enumeration, one of:
+
+** XML
+** JSON
+** Binary
+** Text |  +++The format of the serialized query.+++ |  | *x*{nbsp}
+| Maximum Number of Results a| Number |  +++Maximum total number of documents to be fetched, defaults to unlimited.+++ |  | {nbsp}
+| Use Consistent Snapshot a| Boolean |  +++Whether to use a consistent point-in-time snapshot for operations.+++ |  +++false+++ | {nbsp}
+| Server Transform a| String |  +++The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.+++ |  +++null+++ | {nbsp}
+| Server Transform Params a| String |  +++A comma-separated list of alternating transform parameter names and values.+++ |  +++null+++ | {nbsp}
+| Streaming Strategy a| * <<repeatable-in-memory-iterable>>
+* <<repeatable-file-store-iterable>>
+* <<non-repeatable-iterable>> |  +++Configure if repeatable streams should be used and their behaviour+++ |  | {nbsp}
 | Target Variable a| String |  +++The name of a variable on which the operation's output will be placed+++ |  | {nbsp}
 | Target Value a| String |  +++An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable+++ |  +++#[payload]+++ | {nbsp}
 | Reconnection Strategy a| * <<reconnect>>
@@ -148,7 +171,53 @@ Default configuration
 ==== Output
 [cols=".^50%,.^50%"]
 |======================
-| *Type* a| String
+| *Type* a| Any
+|======================
+
+==== For Configurations.
+* <<config>> {nbsp}
+
+==== Throws
+* MARKLOGIC:DATA_MOVEMENT_ERROR {nbsp}
+
+
+[[importDocs]]
+=== Import Docs
+`<marklogic:import-docs>`
+
++++
+<p>Loads JSON, XML, text, or binary document content asynchronously into MarkLogic, via the <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a> <a target="_blank" href="https://docs.marklogic.com/guide/java/data-movement">Data Movement SDK (DMSDK)</a> returning the DMSDK <a target="_blank" href="https://docs.marklogic.com/javadoc/client/com/marklogic/client/datamovement/JobTicket.html">JobTicket</a> ID used to insert the contents into MarkLogic.</p>
++++
+
+==== Parameters
+[cols=".^20%,.^20%,.^35%,.^20%,^.^5%", options="header"]
+|======================
+| Name | Type | Description | Default Value | Required
+| Configuration | String | The name of the configuration to use. | | *x*{nbsp}
+| Document payload a| Binary |  +++The content of the input files to be used for ingestion into MarkLogic.+++ |  +++#[payload]+++ | {nbsp}
+| Output Collections a| String |  +++A comma-separated list of output collections used during ingestion.+++ |  +++null+++ | {nbsp}
+| Output Permissions a| String |  +++A comma-separated list of roles and capabilities used during ingestion.+++ |  +++rest-reader,read,rest-writer,update+++ | {nbsp}
+| Output Quality a| Number |  +++A number indicating the quality of the persisted documents.+++ |  +++1+++ | {nbsp}
+| Output Uri Prefix a| String |  +++The URI prefix, used to prepend and concatenate basenameUri.+++ |  +++/+++ | {nbsp}
+| Output Uri Suffix a| String |  +++The URI suffix, used to append and concatenate basenameUri.+++ |  ++++++ | {nbsp}
+| Generate output URI basename? a| Boolean |  +++Creates a document basename based on an auto-generated UUID.+++ |  +++true+++ | {nbsp}
+| Output document basename a| String |  +++File basename to be used for persistence in MarkLogic, usually payload-derived.+++ |  +++null+++ | {nbsp}
+| Temporal collection a| String |  +++The temporal collection imported documents will be loaded into.+++ |  +++null+++ | {nbsp}
+| Server Transform a| String |  +++The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.+++ |  +++null+++ | {nbsp}
+| Server Transform Params a| String |  +++A comma-separated list of alternating transform parameter names and values.+++ |  +++null+++ | {nbsp}
+| Streaming Strategy a| * <<repeatable-in-memory-stream>>
+* <<repeatable-file-store-stream>>
+* <<non-repeatable-stream>> |  +++Configure if repeatable streams should be used and their behaviour+++ |  | {nbsp}
+| Target Variable a| String |  +++The name of a variable on which the operation's output will be placed+++ |  | {nbsp}
+| Target Value a| String |  +++An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable+++ |  +++#[payload]+++ | {nbsp}
+| Reconnection Strategy a| * <<reconnect>>
+* <<reconnect-forever>> |  +++A retry strategy in case of connectivity errors+++ |  | {nbsp}
+|======================
+
+==== Output
+[cols=".^50%,.^50%"]
+|======================
+| *Type* a| Binary
 |======================
 
 ==== For Configurations.
@@ -164,14 +233,19 @@ Default configuration
 === Query Docs
 `<marklogic:query-docs>`
 
++++
+<p>Retrieve query-selected document content synchronously from MarkLogic, via the <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a>.</p>
++++
 
 ==== Parameters
 [cols=".^20%,.^20%,.^35%,.^20%,^.^5%", options="header"]
 |======================
 | Name | Type | Description | Default Value | Required
 | Configuration | String | The name of the configuration to use. | | *x*{nbsp}
-| Serialized Query String a| String |  +++The serialized query XML or JSON+++ |  | *x*{nbsp}
-| Search API Options a| String |  +++The server-side Search API options file used to configure the search+++ |  +++null+++ | {nbsp}
+| Serialized Query String a| String |  +++The serialized query XML or JSON.+++ |  | *x*{nbsp}
+| Search API Options a| String |  +++The server-side Search API options file used to configure the search.+++ |  | {nbsp}
+| Page Length a| Number |  +++Number of documents fetched at a time, defaults to the connection batch size.+++ |  | {nbsp}
+| Maximum Number of Results a| Number |  +++Maximum total number of documents to be fetched, defaults to unlimited.+++ |  | {nbsp}
 | Search Strategy a| Enumeration, one of:
 
 ** RawStructuredQueryDefinition
@@ -180,7 +254,11 @@ Default configuration
 | Serialized Query Format a| Enumeration, one of:
 
 ** XML
-** JSON |  +++The format of the serialized query+++ |  | *x*{nbsp}
+** JSON
+** Binary
+** Text |  +++The format of the serialized query.+++ |  | *x*{nbsp}
+| Server Transform a| String |  +++The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.+++ |  +++null+++ | {nbsp}
+| Server Transform Params a| String |  +++A comma-separated list of alternating transform parameter names and values.+++ |  +++null+++ | {nbsp}
 | Streaming Strategy a| * <<repeatable-in-memory-iterable>>
 * <<repeatable-file-store-iterable>>
 * <<non-repeatable-iterable>> |  +++Configure if repeatable streams should be used and their behaviour+++ |  | {nbsp}
@@ -193,18 +271,23 @@ Default configuration
 ==== Output
 [cols=".^50%,.^50%"]
 |======================
-| *Type* a| Array of Any
+| *Type* a| Any
 |======================
 
 ==== For Configurations.
 * <<config>> {nbsp}
 
+==== Throws
+* MARKLOGIC:DATA_MOVEMENT_ERROR {nbsp}
 
 
 [[retrieveInfo]]
 === Retrieve Info
 `<marklogic:retrieve-info>`
 
++++
+<p>Echoes the current MarkLogicConnector and MarkLogicConfiguration information.</p>
++++
 
 ==== Parameters
 [cols=".^20%,.^20%,.^35%,.^20%,^.^5%", options="header"]
@@ -233,17 +316,20 @@ Default configuration
 
 
 [[selectDocsByStructuredQuery]]
-=== Select Docs By Structured Query
+=== Select Documents By Structured Query (deprecated)
 `<marklogic:select-docs-by-structured-query>`
 
++++
+<p>Retrieve query-selected document content synchronously from MarkLogic, via the <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a>.</p>
++++
 
 ==== Parameters
 [cols=".^20%,.^20%,.^35%,.^20%,^.^5%", options="header"]
 |======================
 | Name | Type | Description | Default Value | Required
 | Configuration | String | The name of the configuration to use. | | *x*{nbsp}
-| Serialized Query String a| String |  +++The serialized query XML or JSON+++ |  | *x*{nbsp}
-| Search API Options a| String |  +++The server-side Search API options file used to configure the search+++ |  +++null+++ | {nbsp}
+| Serialized Query String a| String |  +++The serialized query XML or JSON.+++ |  | *x*{nbsp}
+| Search API Options a| String |  +++The server-side Search API options file used to configure the search.+++ |  | {nbsp}
 | Search Strategy a| Enumeration, one of:
 
 ** RawStructuredQueryDefinition
@@ -252,7 +338,11 @@ Default configuration
 | Serialized Query Format a| Enumeration, one of:
 
 ** XML
-** JSON |  +++The format of the serialized query+++ |  | *x*{nbsp}
+** JSON
+** Binary
+** Text |  +++The format of the serialized query.+++ |  | *x*{nbsp}
+| Server Transform a| String |  +++The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.+++ |  +++null+++ | {nbsp}
+| Server Transform Params a| String |  +++A comma-separated list of alternating transform parameter names and values.+++ |  +++null+++ | {nbsp}
 | Streaming Strategy a| * <<repeatable-in-memory-iterable>>
 * <<repeatable-file-store-iterable>>
 * <<non-repeatable-iterable>> |  +++Configure if repeatable streams should be used and their behaviour+++ |  | {nbsp}
@@ -271,17 +361,25 @@ Default configuration
 ==== For Configurations.
 * <<config>> {nbsp}
 
+==== Throws
+* MARKLOGIC:DATA_MOVEMENT_ERROR {nbsp}
 
 
 [[getJobReport]]
-=== Get Job Report
+=== Get Job Report (deprecated)
 `<marklogic:get-job-report>`
 
++++
+<p>Retrieves a JSON representation of a <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a> <a target="_blank" href="https://docs.marklogic.com/guide/java/data-movement">Data Movement SDK (DMSDK)</a> <a target="_blank" href="https://docs.marklogic.com/javadoc/client/com/marklogic/client/datamovement/JobReport.html">JobReport</a> following an importDocs operation.</p>
++++
 
 ==== Parameters
 [cols=".^20%,.^20%,.^35%,.^20%,^.^5%", options="header"]
 |======================
 | Name | Type | Description | Default Value | Required
+| Streaming Strategy a| * <<repeatable-in-memory-stream>>
+* <<repeatable-file-store-stream>>
+* <<non-repeatable-stream>> |  +++Configure if repeatable streams should be used and their behaviour+++ |  | {nbsp}
 | Target Variable a| String |  +++The name of a variable on which the operation's output will be placed+++ |  | {nbsp}
 | Target Value a| String |  +++An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable+++ |  +++#[payload]+++ | {nbsp}
 |======================
@@ -289,7 +387,7 @@ Default configuration
 ==== Output
 [cols=".^50%,.^50%"]
 |======================
-| *Type* a| String
+| *Type* a| Binary
 |======================
 
 
@@ -442,6 +540,38 @@ Default configuration
 ** DAYS | A time unit that qualifies the maxIdleTime attribute |  | 
 |======================
 
+[[repeatable-in-memory-stream]]
+=== Repeatable In Memory Stream
+
+[cols=".^20%,.^25%,.^30%,.^15%,.^10%", options="header"]
+|======================
+| Field | Type | Description | Default Value | Required
+| Initial Buffer Size a| Number | This is the amount of memory that will be allocated in order to consume the stream and provide random access to it. If the stream contains more data than can be fit into this buffer, then it will be expanded by according to the bufferSizeIncrement attribute, with an upper limit of maxInMemorySize. |  | 
+| Buffer Size Increment a| Number | This is by how much will be buffer size by expanded if it exceeds its initial size. Setting a value of zero or lower will mean that the buffer should not expand, meaning that a STREAM_MAXIMUM_SIZE_EXCEEDED error will be raised when the buffer gets full. |  | 
+| Max Buffer Size a| Number | This is the maximum amount of memory that will be used. If more than that is used then a STREAM_MAXIMUM_SIZE_EXCEEDED error will be raised. A value lower or equal to zero means no limit. |  | 
+| Buffer Unit a| Enumeration, one of:
+
+** BYTE
+** KB
+** MB
+** GB | The unit in which all these attributes are expressed |  | 
+|======================
+
+[[repeatable-file-store-stream]]
+=== Repeatable File Store Stream
+
+[cols=".^20%,.^25%,.^30%,.^15%,.^10%", options="header"]
+|======================
+| Field | Type | Description | Default Value | Required
+| In Memory Size a| Number | Defines the maximum memory that the stream should use to keep data in memory. If more than that is consumed then it will start to buffer the content on disk. |  | 
+| Buffer Unit a| Enumeration, one of:
+
+** BYTE
+** KB
+** MB
+** GB | The unit in which maxInMemorySize is expressed |  | 
+|======================
+
 [[repeatable-in-memory-iterable]]
 === Repeatable In Memory Iterable
 
@@ -459,7 +589,7 @@ Default configuration
 [cols=".^20%,.^25%,.^30%,.^15%,.^10%", options="header"]
 |======================
 | Field | Type | Description | Default Value | Required
-| Max In Memory Size a| Number | This is the maximum amount of instances that will be kept in memory. If more than that is required, then it will start to buffer the content on disk. |  | 
+| In Memory Objects a| Number | This is the maximum amount of instances that will be kept in memory. If more than that is required, then it will start to buffer the content on disk. |  | 
 | Buffer Unit a| Enumeration, one of:
 
 ** BYTE

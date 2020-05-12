@@ -1,0 +1,13 @@
+com.marklogic.mule.extension.connector.api
+com.marklogic.mule.extension.connector.api.connection
+com.marklogic.mule.extension.connector.api.operation
+com.marklogic.mule.extension.connector.internal.config
+com.marklogic.mule.extension.connector.internal.connection
+com.marklogic.mule.extension.connector.internal.connection.provider
+com.marklogic.mule.extension.connector.internal.error
+com.marklogic.mule.extension.connector.internal.error.exception
+com.marklogic.mule.extension.connector.internal.error.provider
+com.marklogic.mule.extension.connector.internal.extension
+com.marklogic.mule.extension.connector.internal.metadata
+com.marklogic.mule.extension.connector.internal.operation
+com.marklogic.mule.extension.connector.internal.result.resultset

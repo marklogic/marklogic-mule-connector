@@ -4,15 +4,31 @@
 
 _MuleSoft Certified_
 
-The MarkLogic Mulesoft Connector aims to provide the Mulesoft community of users (via the Mulesoft Anypoint Exchange) with easy integration to MarkLogic, delivering data movement and transformation pipelines via Mulesoft AnypointStudio flows. The Mulesoft Connector is built atop MarkLogic’s Data Movement SDK (DMSDK), which is a Java API library for applications that need to move data into, out of, or within a MarkLogic cluster.  For those familiar with the existing MarkLogic ecosystem, it provides the core capabilities of MarkLogic Content Pump in the vernacular of the MarkLogic Java Client API.
+The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users (via the MuleSoft Anypoint Exchange) with easy integration to MarkLogic, delivering data movement and transformation pipelines via MuleSoft AnypointStudio and Design Center flows. The MuleSoft Connector is built atop MarkLogic’s https://developer.marklogic.com/learn/data-movement-sdk/[Data Movement SDK] (DMSDK), which is a Java API library for applications that need to move data into, out of, or within a MarkLogic cluster.  For those familiar with the existing MarkLogic ecosystem, it provides the core capabilities of MarkLogic Content Pump in the vernacular of the MarkLogic Java Client API.
 
 == Prerequisites
 
-This document assumes that you are familiar with the following Mule concepts: Anypoint Connectors, Anypoint Studio, Mule flows, and Mule Global Elements.  It also assumes familiarity with the following MarkLogic concepts: MarkLogic Java Client API, Data Movement SDK, and REST APIs. 
+This document assumes that you are familiar with the following Mule concepts: Anypoint Connectors, Anypoint Studio or Design Center, Mule flows, and Mule Global Elements.  It also assumes familiarity with the following MarkLogic concepts: MarkLogic Java Client API, Data Movement SDK, and REST APIs. 
 
 See the Release Notes for compatibility information listed in the See Also section of this document.
 
 == What's New in this Connector
+
+=== Version 1.1.1 - 2020-05-11
+
+Release 1.1.1 provides:
+
+* A bugfix, to allow one to peform a query to retrieve a consistent, point-in-time snapshot of documents coming out of MarkLogic.  
+* A bugfix to allow for execution of MarkLogic server-side transforms at the operation level, with improved transformation parameter handling.
+* A bugfix to allow server-side Search API options files to work correctly when using RawStructuredQueryType queries.
+* Improved ability to work with consistent point-in-time snapshot queries for MarkLogic egress operations.
+* Improved ability to work with server-side transformations at the operation level.
+* Improved output and pagination functionality, for egress-centric operations, including more advanced mimetype and document type recognition for use with Mule flow messaging.
+* Renamed internal classes to reflect MuleSoft certification best practices.
+* Improved egress operations by allowing for specification of pagination length, and max results returned.
+* TLS context initialization improvements, to reflect MuleSoft certification best practices.
+* Updated documentation, moving some non-required Markdown documents out of source control, and into GitHub wiki pages.
+* Applied increased usage of Enumerations on connection and configuration parameters, plus operations, to provide better UI inputs for Anypoint Studio and Anypoint Design Center.
 
 === Version 1.1.0 - 2019-06-30
 
@@ -31,14 +47,34 @@ This is the initial release of the Connector, so, everything's new!
 
 == To Connect in Design Center
 
+There are two options for installing and running the 1.1.1 demo flow in Design Center.
+
+1. Deploying the demo flow directly to CloudHub and Anypoint Design Center, from Anypoint Studio.
+2. Exporting a JAR of the demo from Anypoint Studio, for import into Design Center.
+
+=== Deploying from Anypoint Studio Directly to CloudHub and Design Center
+
+. After installing the 1.1.1 demo in Anypoint Studio, deploy the application directly to CloudHub by selecting the 1.1.1 demo in the Project Explorer.  Then, right-click, and select "Anypoint Platform&rarr;Deploy to CloudHub".
+. Continue to authenticate to Design Center and CloudHub, and follow the steps.
+
+image::deploy-to-cloudhub.png[Deploy to CloudHub]
+
+=== Importing a JAR to Design Center
+
+. From Anypoint Studio, export a JAR of the demo 1.1.1 application by right-clicking the application name in Project Explorer, and selecting "Export".
+. Keep the default selections.
+. Choose the filesystem location to save the JAR and click "Finish".  The JAR should now reside on your filesystem at the chosen location.
 . Login to Anypoint Design Center.
 . Go to Runtime Manager in order to test the demo application. Select an environment. The default Sandbox environment will suffice.
 . In the Deploy Application screen, provide an application name, and specify the demo jar file to be uploaded for deployment.
-. This will deploy the application onto CloudHub by default. Select Runtime Version 4.1.4, with default worker size and workers.
+. This will deploy the application onto CloudHub by default. Select Runtime Version 4.2.2, with default worker size and workers.
 . Press the "Deploy Application" button. 
 . Track deployment and application process by clicking the "Logs" button in the Applications screen.
 . The demo application is the same as used and described in the Anypoint Studio 7 sections detailed below. 
 
+image::export-start-jar.png[Export Demo App Start]
+image::export-wizard-jar.png[Export Demo App Wizard]
+image::export-save-jar.png[Export Demo App Save JAR]
 image::designcenter-staging-deploy.png[Deploy Demo App]
 
 === Use the Connector in a Flow
@@ -51,11 +87,11 @@ image::designcenter-flow-1.png[Use MarkLogic Connector in a Flow]
 image::designcenter-flow-2.png[Select MarkLogic Operations]
 
 === Triggers
-* The demo uses the built-in Mulesoft Scheduler module as a trigger to begin the flow sequence.
-
-
+* The demo uses the built-in MuleSoft HTTP listener as a trigger to begin the flow sequence. 
 
 === Test the Connector
+
+An HTTP request to http://{cloudhub-created-host}8081/exportDocs will run the demo.
 
 See Example section below for how to execute a test of a flow from the demo app.
 
@@ -124,101 +160,435 @@ image::flow-xml-editor.png[Flow XML Editor]
 [source,xml,linenums]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:file="http://www.mulesoft.org/schema/mule/file"
-    xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
-    xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:compression="http://www.mulesoft.org/schema/mule/compression" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:xml-module="http://www.mulesoft.org/schema/mule/xml-module" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-    http://www.mulesoft.org/schema/mule/xml-module http://www.mulesoft.org/schema/mule/xml-module/current/mule-xml-module.xsd
-    http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
+    xmlns:http="http://www.mulesoft.org/schema/mule/http"
+    xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
     http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-    http://www.mulesoft.org/schema/mule/compression http://www.mulesoft.org/schema/mule/compression/current/mule-compression.xsd
-    http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
     http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
-    http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
-    http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
-    <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="300595dd-bdd6-48d7-9aa6-011ff0f2a239" configId="testConfig-223efe" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="kmlJobName" >
-        <marklogic:connection hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" connectionId="testConfig-223efe" />
+    http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <configuration-properties file="automation-credentials.properties"/>
+    <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8b45556d-702c-49c6-bdaf-3943845bdc8e" basePath="/" >
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="70508ab1-c787-485a-9b35-970bbfbf9208" configId="testConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName" >
+        <marklogic:connection hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" connectionId="testConfig" />
     </marklogic:config>
-    <file:config name="TmpDirFileConfig" doc:name="File Config" doc:id="59a59bab-f0b5-4b9f-80c6-82cf9f91f92e" >
-        <file:connection workingDir="/tmp/" />
-    </file:config>
-    <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="fe02efb9-23c0-42be-a558-16a85bd54954" >
-        <http:request-connection host="${config.hostName}" port="8010" >
-            <http:authentication >
-                <http:digest-authentication username="${config.username}" password="${config.password}" />
-            </http:authentication>
-        </http:request-connection>
-    </http:request-config>
-    <flow name="marklogic-demo-1.0.0Flow" doc:id="5ad02de3-73ed-47ad-8b22-f6e2058796f0" >
-        <scheduler doc:name="Scheduler" doc:id="78bbac91-46a4-4aeb-8b10-96f036aa5206" >
-            <scheduling-strategy >
-                <fixed-frequency frequency="10000"/>
-            </scheduling-strategy>
-        </scheduler>
-        <http:request method="GET" doc:name="Request Zip" doc:id="d831298f-51b5-42f6-bc39-23dab5e5d5ca" config-ref="HTTP_Request_configuration" path="/v1/documents" target="archive">
-            <http:query-params ><![CDATA[#[output applicaton/java
----
-{
-	"uri" : "/mulesoft/demo.zip"
-}]]]></http:query-params>
-        </http:request>
-        <compression:extract doc:name="Extract Zip" doc:id="0f49f842-848c-4a14-b210-c7b491e72a0b" target="out">
-            <compression:compressed ><![CDATA[#[vars.archive]]]></compression:compressed>
-            <compression:extractor >
-                <compression:zip-extractor />
-            </compression:extractor>
-        </compression:extract>
-        <ee:transform doc:name="Get Zip JSON Contents" doc:id="ca5d9d8c-14ff-48bf-a8ff-2c309a89d2ff" >
+    <flow name="marklogic-demo-1.1.1Flow" doc:id="ee6da7e5-0aa3-4208-9b29-876a30707dab" >
+        <http:listener doc:name="/exportDocs Listener" doc:id="e4850d1f-0bbe-41ea-97f4-ad98042690a8" config-ref="HTTP_Listener_config" path="/exportDocs">
+            <http:response>
+                <http:headers>
+                    <![CDATA[#[output application/java
+                        ---
+                        {
+                        	"X-MarkLogic-ResultCount" : payload.count
+                        }]]]>
+                </http:headers>
+            </http:response>
+        </http:listener>
+        <marklogic:export-docs doc:name="Export employees collection documents" doc:id="d4b0b5d3-0e20-4b84-8894-fb43c1e82c22" config-ref="MarkLogic_Config" queryStrategy="CTSQuery" maxResults="12" useConsistentSnapshot="true" fmt="XML">
+            <marklogic:query-string >&lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
+                &lt;collection-query&gt;
+                &lt;uri&gt;employees&lt;/uri&gt;
+                &lt;/collection-query&gt;
+                &lt;/query&gt;</marklogic:query-string>
+        </marklogic:export-docs>
+        <ee:transform doc:name="Transform to  Response JSON" doc:id="826fe31b-3566-4e83-b23c-ff2c66ae7ac0" >
             <ee:message >
-                <ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-vars.out pluck $]]></ee:set-payload>
+                <ee:set-payload >
+                    <![CDATA[%dw 2.0
+                        output application/json
+                        ---
+                        {
+                        	"count": sizeOf(payload),
+                        	"contents": payload
+                        }
+                        ]]>
+                </ee:set-payload>
             </ee:message>
         </ee:transform>
-        <foreach doc:name="For Each File" doc:id="33e8d5ba-b23d-4677-a6ce-d17f5cd01136" collection="#[payload]">
-            <ee:transform doc:name="Unescape JSON String" doc:id="0e989ad1-2abb-41b0-ad06-6930b53cc73d" >
-                <ee:message >
-                    <ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-read(payload, "application/json")]]></ee:set-payload>
-                </ee:message>
-            </ee:transform>
-            <marklogic:import-docs doc:name="Import JSON to MarkLogic" doc:id="d54ce4a5-a043-4013-99fe-19153e283afe" config-ref="MarkLogic_Config" docPayloads="#[payload]" outputCollections="/mulesoft/demo/" outputUriPrefix="/mulesoft/demo/" generateOutputUriBasename="false" basenameUri="#[payload.index]"/>
-        </foreach>
     </flow>
 </mule>
 ----
 
 === To Run and Test a Mule Flow
 
-Explain how to run the application and test the connector.
+See the demo instructions below to run and test a Mule flow.
 
-== Example: MarkLogic Mule Connector importDocs
+== Example: MarkLogic Mule Connector exportDocs
 
 This example demonstrates the use of the MarkLogic Mule Connector, doing the following:
 
-. Fetching a zip file over HTTP GET.
-. Extracting the zip, and sending the contents through to MarkLogic the importDocs operation via the Connector.
+. Creating an HTTP listener that accepts an HTTP GET request at /exportDocs as our trigger.
+. Formulates a MarkLogic StructuredQuery within the exportDocs operation, specifying a maximum result count of 12 documents, against the "employees" collection of documents persisted in MarkLogic.
+. MarkLogic returns the JSON document content, and places them into JSON response payload via the MuleSoft Transform operation and DataWeave code for satifying the user's HTTP request.  
+. The JSON response format is as follows:
 
-image::demo-flow.png[Demo Flow]
+[source,json,linenums]
+----
+{
+  "count": 12,
+  "contents": [
+    {
+      "envelope": {
+        "headers": {
+          
+        },
+        "triples": [
+          
+        ],
+        "instance": {
+          "entity": "Employees",
+          "provenance": {
+            "sourceSystemName": "MySQL",
+            "sourceSystemDatabase": "employees",
+            "sourceSystemTable": "employees",
+            "sourceSystemExtractTime": "2019-12-17T13:34:00.461-05:00"
+          },
+          "employee": {
+            "gender": "M",
+            "empNo": 10916,
+            "birthDate": "1962-01-03T00:00:00",
+            "lastName": "Spataro",
+            "hireDate": "1996-07-01T00:00:00",
+            "firstName": "Make"
+          }
+        },
+        "attachments": null
+      }
+    },
+    {
+      "envelope": {
+        "headers": {
+          
+        },
+        "triples": [
+          
+        ],
+        "instance": {
+          "entity": "Employees",
+          "provenance": {
+            "sourceSystemName": "MySQL",
+            "sourceSystemDatabase": "employees",
+            "sourceSystemTable": "employees",
+            "sourceSystemExtractTime": "2019-12-17T13:34:00.56-05:00"
+          },
+          "employee": {
+            "gender": "M",
+            "empNo": 10433,
+            "birthDate": "1954-09-02T00:00:00",
+            "lastName": "Dengi",
+            "hireDate": "1989-02-14T00:00:00",
+            "firstName": "Reuven"
+          }
+        },
+        "attachments": null
+      }
+    },
+    {
+      "envelope": {
+        "headers": {
+          
+        },
+        "triples": [
+          
+        ],
+        "instance": {
+          "entity": "Employees",
+          "provenance": {
+            "sourceSystemName": "MySQL",
+            "sourceSystemDatabase": "employees",
+            "sourceSystemTable": "employees",
+            "sourceSystemExtractTime": "2019-12-17T13:34:00.487-05:00"
+          },
+          "employee": {
+            "gender": "M",
+            "empNo": 10319,
+            "birthDate": "1963-03-09T00:00:00",
+            "lastName": "Miyakawa",
+            "hireDate": "1985-08-15T00:00:00",
+            "firstName": "Mechthild"
+          }
+        },
+        "attachments": null
+      }
+    },
+    {
+      "envelope": {
+        "headers": {
+          
+        },
+        "triples": [
+          
+        ],
+        "instance": {
+          "entity": "Employees",
+          "provenance": {
+            "sourceSystemName": "MySQL",
+            "sourceSystemDatabase": "employees",
+            "sourceSystemTable": "employees",
+            "sourceSystemExtractTime": "2019-12-17T13:34:00.387-05:00"
+          },
+          "employee": {
+            "gender": "M",
+            "empNo": 10903,
+            "birthDate": "1958-06-04T00:00:00",
+            "lastName": "Nyanchama",
+            "hireDate": "1989-02-14T00:00:00",
+            "firstName": "Visit"
+          }
+        },
+        "attachments": null
+      }
+    },
+    {
+      "envelope": {
+        "headers": {
+          
+        },
+        "triples": [
+          
+        ],
+        "instance": {
+          "entity": "Employees",
+          "provenance": {
+            "sourceSystemName": "MySQL",
+            "sourceSystemDatabase": "employees",
+            "sourceSystemTable": "employees",
+            "sourceSystemExtractTime": "2019-12-17T13:34:00.571-05:00"
+          },
+          "employee": {
+            "gender": "F",
+            "empNo": 10437,
+            "birthDate": "1956-07-07T00:00:00",
+            "lastName": "Reeker",
+            "hireDate": "1996-04-12T00:00:00",
+            "firstName": "Narain"
+          }
+        },
+        "attachments": null
+      }
+    },
+    {
+      "envelope": {
+        "headers": {
+          
+        },
+        "triples": [
+          
+        ],
+        "instance": {
+          "entity": "Employees",
+          "provenance": {
+            "sourceSystemName": "MySQL",
+            "sourceSystemDatabase": "employees",
+            "sourceSystemTable": "employees",
+            "sourceSystemExtractTime": "2019-12-17T13:34:00.496-05:00"
+          },
+          "employee": {
+            "gender": "M",
+            "empNo": 10417,
+            "birthDate": "1964-02-02T00:00:00",
+            "lastName": "Bakhtari",
+            "hireDate": "1992-03-12T00:00:00",
+            "firstName": "Bingning"
+          }
+        },
+        "attachments": null
+      }
+    },
+    {
+      "envelope": {
+        "headers": {
+          
+        },
+        "triples": [
+          
+        ],
+        "instance": {
+          "entity": "Employees",
+          "provenance": {
+            "sourceSystemName": "MySQL",
+            "sourceSystemDatabase": "employees",
+            "sourceSystemTable": "employees",
+            "sourceSystemExtractTime": "2019-12-17T13:34:00.475-05:00"
+          },
+          "employee": {
+            "gender": "F",
+            "empNo": 10023,
+            "birthDate": "1953-09-29T00:00:00",
+            "lastName": "Montemayor",
+            "hireDate": "1989-12-17T00:00:00",
+            "firstName": "Bojan"
+          }
+        },
+        "attachments": null
+      }
+    },
+    {
+      "envelope": {
+        "headers": {
+          
+        },
+        "triples": [
+          
+        ],
+        "instance": {
+          "entity": "Employees",
+          "provenance": {
+            "sourceSystemName": "MySQL",
+            "sourceSystemDatabase": "employees",
+            "sourceSystemTable": "employees",
+            "sourceSystemExtractTime": "2019-12-17T13:34:00.385-05:00"
+          },
+          "employee": {
+            "gender": "F",
+            "empNo": 10803,
+            "birthDate": "1952-09-15T00:00:00",
+            "lastName": "Velasco",
+            "hireDate": "1988-04-20T00:00:00",
+            "firstName": "Katsuyuki"
+          }
+        },
+        "attachments": null
+      }
+    },
+    {
+      "envelope": {
+        "headers": {
+          
+        },
+        "triples": [
+          
+        ],
+        "instance": {
+          "entity": "Employees",
+          "provenance": {
+            "sourceSystemName": "MySQL",
+            "sourceSystemDatabase": "employees",
+            "sourceSystemTable": "employees",
+            "sourceSystemExtractTime": "2019-12-17T13:34:00.55-05:00"
+          },
+          "employee": {
+            "gender": "F",
+            "empNo": 10228,
+            "birthDate": "1953-04-21T00:00:00",
+            "lastName": "Cesareni",
+            "hireDate": "1991-08-26T00:00:00",
+            "firstName": "Karoline"
+          }
+        },
+        "attachments": null
+      }
+    },
+    {
+      "envelope": {
+        "headers": {
+          
+        },
+        "triples": [
+          
+        ],
+        "instance": {
+          "entity": "Employees",
+          "provenance": {
+            "sourceSystemName": "MySQL",
+            "sourceSystemDatabase": "employees",
+            "sourceSystemTable": "employees",
+            "sourceSystemExtractTime": "2019-12-17T13:34:00.529-05:00"
+          },
+          "employee": {
+            "gender": "M",
+            "empNo": 10037,
+            "birthDate": "1963-07-22T00:00:00",
+            "lastName": "Makrucki",
+            "hireDate": "1990-12-05T00:00:00",
+            "firstName": "Pradeep"
+          }
+        },
+        "attachments": null
+      }
+    },
+    {
+      "envelope": {
+        "headers": {
+          
+        },
+        "triples": [
+          
+        ],
+        "instance": {
+          "entity": "Employees",
+          "provenance": {
+            "sourceSystemName": "MySQL",
+            "sourceSystemDatabase": "employees",
+            "sourceSystemTable": "employees",
+            "sourceSystemExtractTime": "2019-12-17T13:34:00.463-05:00"
+          },
+          "employee": {
+            "gender": "M",
+            "empNo": 10818,
+            "birthDate": "1958-12-20T00:00:00",
+            "lastName": "Monarch",
+            "hireDate": "1995-10-22T00:00:00",
+            "firstName": "Huan"
+          }
+        },
+        "attachments": null
+      }
+    },
+    {
+      "envelope": {
+        "headers": {
+          
+        },
+        "triples": [
+          
+        ],
+        "instance": {
+          "entity": "Employees",
+          "provenance": {
+            "sourceSystemName": "MySQL",
+            "sourceSystemDatabase": "employees",
+            "sourceSystemTable": "employees",
+            "sourceSystemExtractTime": "2019-12-17T13:34:00.562-05:00"
+          },
+          "employee": {
+            "gender": "M",
+            "empNo": 10133,
+            "birthDate": "1963-12-12T00:00:00",
+            "lastName": "Isaak",
+            "hireDate": "1985-12-15T00:00:00",
+            "firstName": "Giri"
+          }
+        },
+        "attachments": null
+      }
+    }
+  ]
+}
+----
+
+image::marklogic-demo-1.1.1.png[Demo Flow]
 
 === To Configure this Example
 
-The MarkLogic importDocs operation connection configuration is pre-populated.  However, should you need to tweak any settings, select the importDocs icon in the flow, and change any necessary settings.
+The MarkLogic exportDocs operation connection configuration is pre-populated.  However, should you need to tweak any settings, select the importDocs icon in the flow, and change any necessary settings.
 
-image::importDocs-config.png[importDocs Configuration]
+image::exportDocs-config-demo-1.1.1.png[exportDocs Configuration]
 
 === To Test the Example
 
-. Click File -> Import
-. On the next screen, click "Packaged mule application (.jar)" -> Next.
-. You can now import the demo jar on the next screen.  Locate the demo/ directory from the codebase, and add the demo jar file. Assign the demo a project name.
-. Run the project by right- or Ctrl-clicking the project name at left, the Run As -> Mule Application.
+. Click File &rarr; Import
+. On the next screen, click "Anypoint Studio project from File System" &rarr; Next.
+. You can now import the demo from the file system on the next screen.  Locate the demo/ directory from the codebase, and find the 1.1.1 demo.  
+. Provide a project name. Use ""Server Runtime 4.2.2 EE". 
+. The project will be imported and begin to build automatically.
+. Run the project by right- or Ctrl-clicking the project name at left, the Run As &rarr; Mule Application.
+. If you experience any dependency issues, you might need to add the JCenter repository to the demo project pom.xml file, as described above in "Adding Dependencies".
 
-image::import-jar-1.png[Import Packaged Mule Application]
+image::import-demo-fs-1.png[Import project from file system]
 
-image::import-jar-2.png[Import Mule Project]
+image::import-demo-fs-2-1.1.1.png[Import Mule Project]
 
 image::run-as-mule-application.png[Run Mule Application]
 
