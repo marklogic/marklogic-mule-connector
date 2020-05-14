@@ -34,6 +34,8 @@ import com.marklogic.client.query.QueryManager;
 
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
+import com.marklogic.mule.extension.connector.internal.config.DataHubConfiguration;
+import com.marklogic.mule.extension.connector.internal.config.DataHubRunFlowOptions;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider;
@@ -46,12 +48,11 @@ import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogi
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
-import org.mule.runtime.extension.api.annotation.param.MediaType;
+import org.mule.runtime.extension.api.annotation.param.*;
+
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
-import org.mule.runtime.extension.api.annotation.param.Config;
-import org.mule.runtime.extension.api.annotation.param.Content;
-import org.mule.runtime.extension.api.annotation.param.Connection;
+
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
@@ -106,8 +107,12 @@ public class MarkLogicOperations
     @MediaType(value = APPLICATION_JSON, strict = true)
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public InputStream importDocs(
-            @Config MarkLogicConfiguration configuration,
+            @Config MarkLogicConfiguration markLogicConfiguration,
             @Connection MarkLogicConnection connection,
+            @ParameterGroup(name = "Data Hub configuration")
+            DataHubConfiguration dataHubConfiguration,
+            @ParameterGroup(name = "Data Hub run flow options")
+            DataHubRunFlowOptions dataHubRunFlowOptions,
             @DisplayName("Document payload")
             @Summary("The content of the input files to be used for ingestion into MarkLogic.")
             @Example("#[payload]")
@@ -150,7 +155,7 @@ public class MarkLogicOperations
     {
 
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection, serverTransform, serverTransformParams);
+        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(markLogicConfiguration, connection, dataHubConfiguration, dataHubRunFlowOptions, outputCollections, outputPermissions, outputQuality, markLogicConfiguration.getJobName(), temporalCollection, serverTransform, serverTransformParams);
 
         // Determine output URI
         // If the config tells us to generate a new UUID, do that
