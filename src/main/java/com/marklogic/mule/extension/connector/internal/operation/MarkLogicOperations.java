@@ -32,6 +32,10 @@ import com.marklogic.client.io.*;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
 
+import com.marklogic.hub.flow.FlowInputs;
+import com.marklogic.hub.flow.FlowRunner;
+import com.marklogic.hub.flow.RunFlowResponse;
+import com.marklogic.hub.flow.impl.FlowRunnerImpl;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
 import com.marklogic.mule.extension.connector.internal.config.DataHubConfiguration;
@@ -86,7 +90,7 @@ public class MarkLogicOperations
 
  /**
  * <p>Loads JSON, XML, text, or binary document content asynchronously into MarkLogic, via the <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a> <a target="_blank" href="https://docs.marklogic.com/guide/java/data-movement">Data Movement SDK (DMSDK)</a> returning the DMSDK <a target="_blank" href="https://docs.marklogic.com/javadoc/client/com/marklogic/client/datamovement/JobTicket.html">JobTicket</a> ID used to insert the contents into MarkLogic.</p>
- * @param configuration The MarkLogic configuration details
+ * @param markLogicConfiguration The MarkLogic configuration details
  * @param connection The MarkLogic connection details
  * @param docPayloads The content of the input files to be used for ingestion into MarkLogic.
  * @param outputCollections A comma-separated list of output collections used during ingestion.
@@ -109,10 +113,6 @@ public class MarkLogicOperations
     public InputStream importDocs(
             @Config MarkLogicConfiguration markLogicConfiguration,
             @Connection MarkLogicConnection connection,
-            @ParameterGroup(name = "Data Hub configuration")
-            DataHubConfiguration dataHubConfiguration,
-            @ParameterGroup(name = "Data Hub run flow options")
-            DataHubRunFlowOptions dataHubRunFlowOptions,
             @DisplayName("Document payload")
             @Summary("The content of the input files to be used for ingestion into MarkLogic.")
             @Example("#[payload]")
@@ -155,23 +155,9 @@ public class MarkLogicOperations
     {
 
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(markLogicConfiguration, connection, dataHubConfiguration, dataHubRunFlowOptions, outputCollections, outputPermissions, outputQuality, markLogicConfiguration.getJobName(), temporalCollection, serverTransform, serverTransformParams);
+        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(markLogicConfiguration, connection, null, null, outputCollections, outputPermissions, outputQuality, markLogicConfiguration.getJobName(), temporalCollection, serverTransform, serverTransformParams);
 
-        // Determine output URI
-        // If the config tells us to generate a new UUID, do that
-        String basename = basenameUri;
-        if (generateOutputUriBasename)
-        {
-            basename = UUID.randomUUID().toString();
-            // Also, if the basenameURI is blank for whatever reason, use a new UUID
-        }
-        else if ((basenameUri == null) || (basenameUri.equals("null")) || (basenameUri.length() < 1))
-        {
-            basename = UUID.randomUUID().toString();
-        }
-
-        // Assemble the output URI components
-        String outURI = String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basename, outputUriSuffix);
+        String outURI = generateOutputUri(outputUriPrefix, outputUriSuffix, generateOutputUriBasename, basenameUri);
 
         // Actually do the insert and return the result
         return batcher.doInsert(outURI, docPayloads);
@@ -575,5 +561,94 @@ public class MarkLogicOperations
             }
         };
 
+    }
+
+    /**
+     * <p>Loads JSON, XML, text, or binary document content asynchronously into a MarkLogic Data Hub, via the <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a> <a target="_blank" href="https://docs.marklogic.com/guide/java/data-movement">Data Movement SDK (DMSDK)</a> returning the DMSDK <a target="_blank" href="https://docs.marklogic.com/javadoc/client/com/marklogic/client/datamovement/JobTicket.html">JobTicket</a> ID used to insert the contents into MarkLogic.</p>
+     * @param configuration The MarkLogic configuration details
+     * @param connection The MarkLogic connection details
+     * @param docPayloads The content of the input files to be used for ingestion into MarkLogic.
+     * @param outputCollections A comma-separated list of output collections used during ingestion.
+     * @param outputPermissions A comma-separated list of roles and capabilities used during ingestion.
+     * @param outputQuality A number indicating the quality of the persisted documents.
+     * @param outputUriPrefix The URI prefix, used to prepend and concatenate basenameUri.
+     * @param outputUriSuffix The URI suffix, used to append and concatenate basenameUri.
+     * @param generateOutputUriBasename Creates a document basename based on an auto-generated UUID.
+     * @param basenameUri File basename to be used for persistence in MarkLogic, usually payload-derived.
+     * @param temporalCollection The temporal collection imported documents will be loaded into.
+     * @return java.io.InputStream
+     * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
+     * @since 1.0.0
+     * @version 1.1.1
+     */
+    @MediaType(value = APPLICATION_JSON, strict = true)
+    @Throws(MarkLogicExecuteErrorsProvider.class)
+    public InputStream hubImportDocs(
+            @Config MarkLogicConfiguration configuration,
+            @Connection MarkLogicConnection connection,
+            @ParameterGroup(name = "Data Hub configuration")
+            DataHubConfiguration dataHubConfiguration,
+            @ParameterGroup(name = "Data Hub flow options")
+            DataHubRunFlowOptions dataHubRunFlowOptions,
+            @DisplayName("Document payload")
+            @Summary("The content of the input files to be used for ingestion into MarkLogic.")
+            @Example("#[payload]")
+            @Content InputStream docPayloads,
+            @Optional(defaultValue = "null")
+            @Summary("A comma-separated list of output collections used during ingestion.")
+            @Example("mulesoft-test") String outputCollections,
+            @Optional(defaultValue = "rest-reader,read,rest-writer,update")
+            @Summary("A comma-separated list of roles and capabilities used during ingestion.")
+            @Example("myRole,read,myRole,update") String outputPermissions,
+            @Optional(defaultValue = "1")
+            @Summary("A number indicating the quality of the persisted documents.")
+            @Example("1") int outputQuality,
+            @Optional(defaultValue = "/")
+            @Summary("The URI prefix, used to prepend and concatenate basenameUri.")
+            @Example("/mulesoft/") String outputUriPrefix,
+            @Optional(defaultValue = "")
+            @Summary("The URI suffix, used to append and concatenate basenameUri.")
+            @Example(".json") String outputUriSuffix,
+            @DisplayName("Generate output URI basename?")
+            @Optional(defaultValue = "true")
+            @Summary("Creates a document basename based on an auto-generated UUID.")
+            @Example("false") boolean generateOutputUriBasename,
+            @DisplayName("Output document basename")
+            @Optional(defaultValue = "null")
+            @Summary("File basename to be used for persistence in MarkLogic, usually payload-derived.")
+            @Example("employee123.json") String basenameUri,
+            @DisplayName("Temporal collection")
+            @Optional(defaultValue = "null")
+            @Summary("The temporal collection imported documents will be loaded into.")
+            @Example("myTemporalCollection") String temporalCollection
+    )
+    {
+        // Get a handle to the Insertion batch manager
+        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, dataHubConfiguration, dataHubRunFlowOptions, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection, null, null);
+
+        String outURI = generateOutputUri(outputUriPrefix, outputUriSuffix, generateOutputUriBasename, basenameUri);
+
+        // Actually do the insert and return the result
+        return batcher.doInsert(outURI, docPayloads);
+    }
+
+    private static String generateOutputUri(String outputUriPrefix, String outputUriSuffix, boolean generateOutputUriBasename, String basenameUri) {
+        // Determine output URI
+        // If the config tells us to generate a new UUID, do that
+        String basename = basenameUri;
+        if (generateOutputUriBasename)
+        {
+            basename = UUID.randomUUID().toString();
+            // Also, if the basenameURI is blank for whatever reason, use a new UUID
+        }
+        else if ((basenameUri == null) || (basenameUri.equals("null")) || (basenameUri.length() < 1))
+        {
+            basename = UUID.randomUUID().toString();
+        }
+
+        // Assemble the output URI components
+        String outURI = String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basename, outputUriSuffix);
+
+        return outURI;
     }
 }
