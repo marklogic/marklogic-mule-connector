@@ -137,7 +137,7 @@
         <!-- jackson-databind 2.10.1 exists in marklogic-client-api 5.1.0, but 5.1.0 requires >= Java 9, so adding upgraded jackson-databind dependency outside of ml-client-api --> 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind </artifactId>
+            <artifactId>jackson-databind</artifactId>
             <version>2.10.1</version>
         </dependency>
         <dependency>
@@ -247,8 +247,8 @@
     </pluginRepositories>
     <scm>
         <connection>scm:git:git://github.com/marklogic-community/marklogic-mule-connector</connection>
-        <developerConnection>scm:svn:https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.1.1</developerConnection>
-        <tag>marklogic-mule-connector-1.1.1</tag>
-        <url>https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.1.1</url>
+        <developerConnection>scm:svn:https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.2.0</developerConnection>
+        <tag>marklogic-mule-connector-1.2.0</tag>
+        <url>https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.2.0</url>
     </scm>
 </project>
