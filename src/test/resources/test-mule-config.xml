@@ -23,7 +23,7 @@
         </marklogic:query-docs>
     </flow>
     <flow name="exportDocsFlow">
-        <marklogic:export-docs queryStrategy="RawStructuredQueryDefinition" fmt="XML" config-ref="config" optionsName="test" useConsistentSnapshot="true" maxResults="5">
+        <marklogic:export-docs queryStrategy="RawStructuredQueryDefinition" fmt="XML" config-ref="config" optionsName="employeeTest" useConsistentSnapshot="true" maxResults="5">
             <marklogic:query-string> &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt; &lt;document-query&gt; &lt;uri&gt;/mulesoft/test.json&lt;/uri&gt; &lt;/document-query&gt; &lt;/query&gt; </marklogic:query-string>
         </marklogic:export-docs>
     </flow>

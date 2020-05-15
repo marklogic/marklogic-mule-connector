@@ -179,9 +179,9 @@
             <groupId>com.marklogic</groupId>
             <artifactId>marklogic-data-hub</artifactId>
             <version>5.2.1</version>
-            <type>pom</type>
+            <!--<type>pom</type>-->
         </dependency>
-        <!--<dependency>
+        <dependency>
             <groupId>com.mulesoft.munit</groupId>
             <artifactId>munit-runner</artifactId>
             <version>${munit.version}</version>
@@ -194,17 +194,12 @@
             <version>${munit.version}</version>
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-file-connector</artifactId>
             <version>1.1.3</version>
             <classifier>mule-plugin</classifier>
-        </dependency>
-        <dependency>
-            <groupId>com.marklogic</groupId>
-            <artifactId>marklogic-data-hub</artifactId>
-            <version>5.2.1</version>
         </dependency>
     </dependencies>
     <packaging>mule-extension</packaging>
