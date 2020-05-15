@@ -5,7 +5,7 @@
 ## Installing the Connector ##
 -------------------------
 
-### Get the Connector directly from Anypoint Exchange! ###
+### Get the Connector directly from MuleSoft Anypoint Exchange ###
 
 * <a href="https://www.anypoint.mulesoft.com/exchange/com.marklogic/marklogic-mule-connector/">The latest version (1.1.1) is available directly from Anypoint Exchange</a>.  
 
