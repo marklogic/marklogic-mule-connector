@@ -16,7 +16,7 @@ If you wish to install from the source code in this repository, see "<a href="wi
 ### Learn More ###
 -------------------------
 
-To get started, visit the <a href="https://github.com/marklogic-community/marklogic-mule-connector/wiki">Wiki</a>.
+To learn more about how to use the Connector, visit the <a href="https://github.com/marklogic-community/marklogic-mule-connector/wiki">Wiki</a>.
 
 
 ### About the Connector ###
