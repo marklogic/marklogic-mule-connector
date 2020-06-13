@@ -128,6 +128,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
     {
 
         MarkLogicConnection conn = new MarkLogicConnection(hostname, port, database, username, password, authenticationType, tlsContextFactory, kerberosExternalName, connectionId);
+        logger.info("MarkLogicConnectionProvider connect() called");
         conn.connect();
         return conn;
     }
@@ -135,7 +136,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
     @Override
     public void disconnect(MarkLogicConnection connection)
     {
-        logger.debug("MarkLogicConnectionProvider disconnect() called, connection invalidated");
+        logger.info("MarkLogicConnectionProvider disconnect() called, connection invalidated");
         connection.invalidate();
     }
 
@@ -146,11 +147,12 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
         if (connection.isConnected(port))
         {
             result = ConnectionValidationResult.success();
+            logger.info("MarkLogicConnectionProvider validate() result succeeded");
         }
         else
         {
             result = ConnectionValidationResult.failure("Connection failed " + connection.getId(), new Exception());
-            logger.debug("MarkLogicConnectionProvider validate() result failed");
+            logger.info("MarkLogicConnectionProvider validate() result failed");
         }
         return result;
     }

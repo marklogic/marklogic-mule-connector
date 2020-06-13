@@ -114,7 +114,7 @@ public final class MarkLogicConnection
     {
         client.release();
         markLogicClientInvalidationListeners.forEach((listener) -> listener.markLogicConnectionInvalidated());
-        logger.debug("MarkLogic connection invalidated.");
+        logger.info("MarkLogic connection invalidated.");
     }
     
     public boolean isConnected(int port)

@@ -112,7 +112,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         // Configure the batcher's behavior
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
-                .onBatchSuccess((batch) -> logger.debug("Writes so far: " + batch.getJobWritesSoFar()))
+                .onBatchSuccess((batch) -> logger.info("Writes so far: " + batch.getJobWritesSoFar()))
                 .onBatchFailure((batch, throwable) -> logger.error("Exception thrown by an onBatchSuccess listener", throwable));
 
         if (usingDataHub) {
