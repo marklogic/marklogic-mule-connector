@@ -625,6 +625,9 @@ public class MarkLogicOperations
             @Example("myTemporalCollection") String temporalCollection
     )
     {
+        String serverTransform = "mlRunIngest";
+        String serverTransformParams = "flow-name," + dataHubOptions.getFlowName() + ",step," + dataHubOptions.getFlowStep();
+
         // Get a handle to the Insertion batch manager
         MarkLogicInsertionBatcher batcher = connection.getInsertionBatcher(
                 configuration,
@@ -633,8 +636,8 @@ public class MarkLogicOperations
                 outputQuality,
                 configuration.getJobName(),
                 temporalCollection,
-                "mlRunIngest",
-                "flow-name=" + dataHubOptions.getFlowName() + ",step=" + Integer.toString(dataHubOptions.getFlowStep()));
+                serverTransform,
+                serverTransformParams);
 
         String outURI = generateOutputUri(outputUriPrefix, outputUriSuffix, generateOutputUriBasename, basenameUri);
 
