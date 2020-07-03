@@ -1,5 +1,6 @@
 package com.marklogic.mule.extension.connector.internal.config;
 
+import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
@@ -27,6 +28,12 @@ public class DataHubRunFlowOptions {
     @Example("100")
     private int batchSize;
 
+    @Parameter
+    @Optional
+    @Summary("The data hub job ID.")
+    @Example("mule-job-0001")
+    private String jobId;
+
     public String getFlowName() { return flowName; }
 
     public String getFlowSteps() { return flowSteps; }
@@ -35,6 +42,8 @@ public class DataHubRunFlowOptions {
 
     public int getBatchSize() { return batchSize; }
 
+    public String getJobId() { return jobId; }
+
     public void setFlowName(String flowName) { this.flowName = flowName; }
 
     public void setFlowSteps(String flowSteps) { this.flowSteps = flowSteps; }
@@ -42,6 +51,8 @@ public class DataHubRunFlowOptions {
     public void setThreadCount(int threadCount) { this.threadCount = threadCount; }
 
     public void setBatchSize(int batchSize) { this.batchSize = batchSize; }
+
+    public void setJobId(String jobId) { this.jobId = jobId; }
 
     public List<String> getFlowStepsAsList() {
         return Arrays.asList(flowSteps.split(","));

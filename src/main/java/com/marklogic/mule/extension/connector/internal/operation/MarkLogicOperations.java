@@ -627,6 +627,9 @@ public class MarkLogicOperations
     {
         String serverTransform = "mlRunIngest";
         String serverTransformParams = "flow-name," + dataHubOptions.getFlowName() + ",step," + dataHubOptions.getFlowStep();
+        String jobId = dataHubOptions.getJobId();
+        if (jobId != null && !jobId.isEmpty())
+            serverTransformParams += ",job-id," + jobId;
 
         // Get a handle to the Insertion batch manager
         MarkLogicInsertionBatcher batcher = connection.getInsertionBatcher(
@@ -653,20 +656,12 @@ public class MarkLogicOperations
             @ParameterGroup(name = "Data Hub configuration")
             DataHubConfiguration dataHubConfiguration,
             @ParameterGroup(name = "Data Hub flow options")
-            DataHubRunFlowOptions dataHubOptions,
-            @Content
-            String jobId
+            DataHubRunFlowOptions dataHubOptions
     )
     {
-        String sourceQuery = "???"; // <-- given jobId, get uris via v1/mlBatches and construct a query
-
         FlowInputs inputs = new FlowInputs(dataHubOptions.getFlowName());
-        inputs.setJobId(jobId);
+        inputs.setJobId(dataHubOptions.getJobId());
         inputs.setSteps(dataHubOptions.getFlowStepsAsList());
-
-        Map<String, Object> options = new HashMap<>();
-        options.put("sourceQuery", sourceQuery);
-        inputs.setOptions(options);
 
         Map<String, Object> stepConfig = new HashMap<>();
         stepConfig.put("threadCount", dataHubOptions.getThreadCount());
@@ -678,7 +673,7 @@ public class MarkLogicOperations
         RunFlowResponse response = flowRunner.runFlow(inputs);
         flowRunner.awaitCompletion();
 
-        return response.toJson(); // <-- the jobId should be stored here
+        return response.toJson();
     }
 
     private static String generateOutputUri(String outputUriPrefix, String outputUriSuffix, boolean generateOutputUriBasename, String basenameUri) {
