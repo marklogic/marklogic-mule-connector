@@ -51,13 +51,9 @@ import org.slf4j.LoggerFactory;
  */
 public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidationListener
 {
-
     private static final Logger logger = LoggerFactory.getLogger(MarkLogicInsertionBatcher.class);
 
     private static final DateTimeFormatter ISO8601_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-
-    // The single instance of this class
-    private static MarkLogicInsertionBatcher instance;
 
     // If support for multiple connection configs within a flow is required, remove the above and uncomment the below.
     // private static Map<String,MarkLogicInsertionBatcher> instances = new HashMap<>()_
@@ -91,19 +87,15 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
      * @param serverTransform
      * @param serverTransformParams
      */
-    private MarkLogicInsertionBatcher(MarkLogicConfiguration marklogicConfiguration, MarkLogicConnection connection, DataHubConfiguration dataHubConfiguration, DataHubRunFlowOptions dataHubRunFlowOptions, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
+    public MarkLogicInsertionBatcher(MarkLogicConfiguration marklogicConfiguration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
     {
         // get the object handles needed to talk to MarkLogic
-        initializeBatcher(connection, marklogicConfiguration, dataHubConfiguration, dataHubRunFlowOptions, outputCollections, outputPermissions, outputQuality, temporalCollection, serverTransform, serverTransformParams);
+        initializeBatcher(connection, marklogicConfiguration, outputCollections, outputPermissions, outputQuality, temporalCollection, serverTransform, serverTransformParams);
         this.jobName = jobName;
     }
 
-    private void initializeBatcher(MarkLogicConnection connection, MarkLogicConfiguration configuration, DataHubConfiguration dataHubConfiguration, DataHubRunFlowOptions dataHubRunFlowOptions, String outputCollections, String outputPermissions, int outputQuality, String temporalCollection, String serverTransform, String serverTransformParams)
+    private void initializeBatcher(MarkLogicConnection connection, MarkLogicConfiguration configuration, String outputCollections, String outputPermissions, int outputQuality, String temporalCollection, String serverTransform, String serverTransformParams)
     {
-        boolean usingDataHub = dataHubConfiguration != null && dataHubRunFlowOptions != null;
-        if (usingDataHub && !dataHubRunFlowOptions.getIsFirstStepIngestion())
-            throw new MarkLogicConnectorException("No data hub ingestion step indicated in run flow options.");
-
         this.connection = connection;
         connection.addMarkLogicClientInvalidationListener(this);
         DatabaseClient myClient = connection.getClient();
@@ -115,12 +107,6 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
                 .onBatchSuccess((batch) -> logger.info("Writes so far: " + batch.getJobWritesSoFar()))
                 .onBatchFailure((batch, throwable) -> logger.error("Exception thrown by an onBatchSuccess listener", throwable));
 
-        if (usingDataHub) {
-            // run the specified data hub flow step(s) against the documents inserted for each batch
-            DataHubRunFlowBatchListener runFlowBatchListener = new DataHubRunFlowBatchListener(connection, dataHubConfiguration, dataHubRunFlowOptions);
-            batcher.onBatchSuccess(runFlowBatchListener);
-        }
-        
         // Configure the transform to be used, if any
         // ASSUMPTION: The same transform (or lack thereof) will be used for every document to be inserted during the
         // lifetime of this object
@@ -131,9 +117,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
             batcher.withTemporalCollection(temporalCollection);
         }
 
-        // Have to do this if we want to duplicate "standard" DHF ingestion (e.g. wrap data in an envelope)
-        // Will still work w/o a transform, but we won't get header metadata or trigger custom hook(s)
-        ServerTransform transform = usingDataHub ? dataHubRunFlowOptions.getIngestionStepTransform() : configuration.generateServerTransform(serverTransform, serverTransformParams);
+        ServerTransform transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
         if(transform != null)
         {
             batcher.withTransform(transform);
@@ -176,12 +160,6 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
             metadataHandle.withCollections(configCollections);
         }
 
-        // not sure yet, but getting XDMP-INVOPTVAL when used with data hub's "mlIngest" transform; skipping for now
-        if (!usingDataHub) {
-            // Set up quality new docs should have
-            metadataHandle.setQuality(outputQuality);
-        }
-
         // Set up list of permissions that new docs should be granted
         String[] permissions = outputPermissions.split(",");
         for (int i = 0; i < permissions.length - 1; i++)
@@ -212,6 +190,16 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
 
         // start the batcher job
         this.jobTicket = dmm.startJob(batcher);
+    }
+
+    public void release() {
+        if (timer != null)
+            timer.cancel();
+        if (batcher != null) {
+            // finalize all writes
+            batcher.flushAndWait();
+            dmm.stopJob(this.jobTicket);
+        }
     }
 
     /**
@@ -249,40 +237,6 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         obj.put("jobEndTime", jobEndTime.format(ISO8601_DATE_TIME_FORMATTER));
         obj.put("jobReportTime", jobReportTime.format(ISO8601_DATE_TIME_FORMATTER));
         return obj;
-    }
-
-    /**
-     * getInstance-- used in lieu of a public constructor... enforces singleton
-     * pattern
-     *
-     * @param config -- information describing how the insertion process should
-     * work
-     * @param connection -- information describing how to connect to MarkLogic
-     * @param temporalCollection
-     * @return instance of the batcher
-     */
-    static MarkLogicInsertionBatcher getInstance(MarkLogicConfiguration config, MarkLogicConnection connection, DataHubConfiguration dataHubConfiguration, DataHubRunFlowOptions dataHubRunFlowOptions, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
-    {
-        if (instance == null)
-        {
-            instance = new MarkLogicInsertionBatcher(config, connection, dataHubConfiguration, dataHubRunFlowOptions, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
-        }
-        else if ((!(connection == null)) && (!connection.equals(instance.connection)) && (instance.batcherRequiresReinit))
-        {
-            instance.initializeBatcher(connection, config, dataHubConfiguration, dataHubRunFlowOptions, outputCollections, outputPermissions, outputQuality, temporalCollection, serverTransform, serverTransformParams);
-            instance.batcherRequiresReinit = false;
-        }
-        return instance;
-    }
-
-    /**
-     * getInstance method to be used when configuration objects aren't available
-     *
-     * @return instance of the batcher
-     */
-    static MarkLogicInsertionBatcher getInstance()
-    {
-        return instance;
     }
 
     /**

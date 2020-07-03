@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -32,13 +33,16 @@ import com.marklogic.client.io.*;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
 
+import com.marklogic.hub.HubConfig;
 import com.marklogic.hub.flow.FlowInputs;
 import com.marklogic.hub.flow.FlowRunner;
 import com.marklogic.hub.flow.RunFlowResponse;
 import com.marklogic.hub.flow.impl.FlowRunnerImpl;
+import com.marklogic.hub.job.JobDocManager;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
 import com.marklogic.mule.extension.connector.internal.config.DataHubConfiguration;
+import com.marklogic.mule.extension.connector.internal.config.DataHubIngestFlowOptions;
 import com.marklogic.mule.extension.connector.internal.config.DataHubRunFlowOptions;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
@@ -153,10 +157,8 @@ public class MarkLogicOperations
             String serverTransformParams
             )
     {
-
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(markLogicConfiguration, connection, null, null, outputCollections, outputPermissions, outputQuality, markLogicConfiguration.getJobName(), temporalCollection, serverTransform, serverTransformParams);
-
+        MarkLogicInsertionBatcher batcher = connection.getInsertionBatcher(markLogicConfiguration, outputCollections, outputPermissions, outputQuality, markLogicConfiguration.getJobName(), temporalCollection, serverTransform, serverTransformParams);
         String outURI = generateOutputUri(outputUriPrefix, outputUriSuffix, generateOutputUriBasename, basenameUri);
 
         // Actually do the insert and return the result
@@ -182,7 +184,7 @@ public class MarkLogicOperations
 
         ArrayNode exports = jsonFactory.createArrayNode();
         rootObj.set("exportResults", exports);
-        MarkLogicInsertionBatcher insertionBatcher = MarkLogicInsertionBatcher.getInstance();
+        MarkLogicInsertionBatcher insertionBatcher = null; // Note: since MarkLogicInsertionBatcher is no longer a singleton, this will always fail
         if (insertionBatcher != null)
         {
             ArrayNode imports = jsonFactory.createArrayNode();
@@ -589,7 +591,7 @@ public class MarkLogicOperations
             @ParameterGroup(name = "Data Hub configuration")
             DataHubConfiguration dataHubConfiguration,
             @ParameterGroup(name = "Data Hub flow options")
-            DataHubRunFlowOptions dataHubRunFlowOptions,
+            DataHubIngestFlowOptions dataHubOptions,
             @DisplayName("Document payload")
             @Summary("The content of the input files to be used for ingestion into MarkLogic.")
             @Example("#[payload]")
@@ -624,12 +626,56 @@ public class MarkLogicOperations
     )
     {
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, dataHubConfiguration, dataHubRunFlowOptions, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection, null, null);
+        MarkLogicInsertionBatcher batcher = connection.getInsertionBatcher(
+                configuration,
+                outputCollections,
+                outputPermissions,
+                outputQuality,
+                configuration.getJobName(),
+                temporalCollection,
+                "mlRunIngest",
+                "flow-name=" + dataHubOptions.getFlowName() + ",step=" + Integer.toString(dataHubOptions.getFlowStep()));
 
         String outURI = generateOutputUri(outputUriPrefix, outputUriSuffix, generateOutputUriBasename, basenameUri);
 
         // Actually do the insert and return the result
         return batcher.doInsert(outURI, docPayloads);
+    }
+
+    @MediaType(value = APPLICATION_JSON, strict = true)
+    @Throws(MarkLogicExecuteErrorsProvider.class)
+    public String hubProcessDocs(
+            @Config MarkLogicConfiguration configuration,
+            @Connection MarkLogicConnection connection,
+            @ParameterGroup(name = "Data Hub configuration")
+            DataHubConfiguration dataHubConfiguration,
+            @ParameterGroup(name = "Data Hub flow options")
+            DataHubRunFlowOptions dataHubOptions,
+            @Content
+            String jobId
+    )
+    {
+        String sourceQuery = "???"; // <-- given jobId, get uris via v1/mlBatches and construct a query
+
+        FlowInputs inputs = new FlowInputs(dataHubOptions.getFlowName());
+        inputs.setJobId(jobId);
+        inputs.setSteps(dataHubOptions.getFlowStepsAsList());
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("sourceQuery", sourceQuery);
+        inputs.setOptions(options);
+
+        Map<String, Object> stepConfig = new HashMap<>();
+        stepConfig.put("threadCount", dataHubOptions.getThreadCount());
+        stepConfig.put("batchSize", dataHubOptions.getBatchSize());
+        inputs.setStepConfig(stepConfig);
+
+        HubConfig hubConfig = connection.createHubConfig(dataHubConfiguration);
+        FlowRunner flowRunner = new FlowRunnerImpl(hubConfig);
+        RunFlowResponse response = flowRunner.runFlow(inputs);
+        flowRunner.awaitCompletion();
+
+        return response.toJson(); // <-- the jobId should be stored here
     }
 
     private static String generateOutputUri(String outputUriPrefix, String outputUriSuffix, boolean generateOutputUriBasename, String basenameUri) {

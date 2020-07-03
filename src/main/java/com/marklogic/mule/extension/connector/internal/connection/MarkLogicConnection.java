@@ -13,6 +13,10 @@
  */
 package com.marklogic.mule.extension.connector.internal.connection;
 
+import com.marklogic.client.datamovement.DataMovementManager;
+import com.marklogic.client.datamovement.WriteBatcher;
+import com.marklogic.client.document.ServerTransform;
+import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.hub.DatabaseKind;
 import com.marklogic.hub.HubConfig;
 import com.marklogic.hub.impl.HubConfigImpl;
@@ -20,9 +24,7 @@ import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.*;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
@@ -30,9 +32,11 @@ import com.marklogic.client.ext.DatabaseClientConfig;
 import com.marklogic.client.ext.DefaultConfiguredDatabaseClientFactory;
 import com.marklogic.client.ext.SecurityContextType;
 import com.marklogic.mule.extension.connector.internal.config.DataHubConfiguration;
+import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.error.exception.MarkLogicConnectorException;
 
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
+import com.marklogic.mule.extension.connector.internal.operation.MarkLogicInsertionBatcher;
 import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.tls.TlsContextFactory;
@@ -58,6 +62,9 @@ public final class MarkLogicConnection
     private final String kerberosExternalName;
     private final String connectionId;
     private Set<MarkLogicConnectionInvalidationListener> markLogicClientInvalidationListeners = new HashSet<>();
+
+    private MarkLogicInsertionBatcher insertionBatcher;
+    private final Object syncInitInsertionBatcher = new Object();
 
     public MarkLogicConnection(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId)
     {
@@ -97,7 +104,6 @@ public final class MarkLogicConnection
             logger.error(message, e);
             throw new MarkLogicConnectorException(message, e);
         }
-
     }
 
     public DatabaseClient getClient()
@@ -112,8 +118,9 @@ public final class MarkLogicConnection
 
     public void invalidate()
     {
-        client.release();
         markLogicClientInvalidationListeners.forEach((listener) -> listener.markLogicConnectionInvalidated());
+        if (insertionBatcher != null) insertionBatcher.release();
+        client.release();
         logger.info("MarkLogic connection invalidated.");
     }
     
@@ -274,5 +281,27 @@ public final class MarkLogicConnection
         hubConfig.setDbName(DatabaseKind.JOB, dataHubConfiguration.getJobsDbName());
 
         return hubConfig;
+    }
+
+    public MarkLogicInsertionBatcher getInsertionBatcher(MarkLogicConfiguration config, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams) {
+        if (client == null)
+            throw new MarkLogicConnectorException("Cannot initialize WriteBatcher; client is not yet connected.");
+        synchronized (syncInitInsertionBatcher) {
+            if (insertionBatcher == null)
+                initializeInsertionBatcher(config, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
+        }
+        return insertionBatcher;
+    }
+
+    private void initializeInsertionBatcher(MarkLogicConfiguration config, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams) {
+        if (client == null) {
+            logger.warn("initializeInsertionBatcher() called before connect().  Skipping initialization.");
+            return;
+        }
+        if (insertionBatcher != null) {
+            logger.warn("initializeInsertionBatcher() called more than once.  Skipping initialization.");
+            return;
+        }
+        insertionBatcher = new MarkLogicInsertionBatcher(config, this, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
     }
 }
