@@ -17,10 +17,14 @@ import com.marklogic.client.datamovement.DataMovementManager;
 import com.marklogic.client.datamovement.WriteBatcher;
 import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.DocumentMetadataHandle;
+
 import com.marklogic.hub.DatabaseKind;
 import com.marklogic.hub.HubConfig;
 import com.marklogic.hub.impl.HubConfigImpl;
+
 import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
+import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.*;
@@ -57,6 +61,7 @@ public final class MarkLogicConnection
     private final String username;
     private final String password;
     private final AuthenticationType authenticationType;
+    private final MarkLogicConnectionType marklogicConnectionType;
     private final boolean useSSL;
     private final TlsContextFactory sslContext;
     private final String kerberosExternalName;
@@ -66,7 +71,7 @@ public final class MarkLogicConnection
     private MarkLogicInsertionBatcher insertionBatcher;
     private final Object syncInitInsertionBatcher = new Object();
 
-    public MarkLogicConnection(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId)
+    public MarkLogicConnection(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, MarkLogicConnectionType marklogicConnectionType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId)
     {
 
         this.useSSL = sslContext != null;
@@ -86,6 +91,7 @@ public final class MarkLogicConnection
         this.username = username;
         this.password = password;
         this.authenticationType = authenticationType;
+        this.marklogicConnectionType = marklogicConnectionType;
         this.kerberosExternalName = kerberosExternalName;
         this.connectionId = connectionId;
     }
@@ -167,7 +173,8 @@ public final class MarkLogicConnection
         }
         
         setConfigAuthType(config);
-
+        setConfigMLConnectionType(config);
+        
         config.setUsername(username);
         config.setPassword(password);
 
@@ -208,6 +215,22 @@ public final class MarkLogicConnection
                 break;
             default:
                 config.setSecurityContextType(SecurityContextType.DIGEST);
+                break;
+        }
+    }
+    
+    private void setConfigMLConnectionType(DatabaseClientConfig config) throws Exception 
+    {
+        switch (marklogicConnectionType)
+        {
+            case DIRECT:
+                config.setConnectionType(DatabaseClient.ConnectionType.DIRECT);
+                break;
+            case GATEWAY:
+                config.setConnectionType(DatabaseClient.ConnectionType.GATEWAY);
+                break;
+            default:
+                config.setConnectionType(DatabaseClient.ConnectionType.DIRECT);
                 break;
         }
     }

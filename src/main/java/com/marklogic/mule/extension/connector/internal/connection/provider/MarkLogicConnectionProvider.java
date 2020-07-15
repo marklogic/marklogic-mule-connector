@@ -14,6 +14,7 @@
 package com.marklogic.mule.extension.connector.internal.connection.provider;
 
 import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
+import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
 import org.mule.runtime.api.connection.ConnectionException;
@@ -83,7 +84,12 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
     @DisplayName("Authentication Type")
     @Parameter
     @Summary("The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic.")
-    private AuthenticationType authenticationType;
+    private AuthenticationType authenticationType; 
+
+    @DisplayName("Connection Type")
+    @Parameter
+    @Summary("The type of connection used to work with MarkLogic, either DIRECT (non-load balanced) or GATEWAY (load-balanced).")
+    private MarkLogicConnectionType marklogicConnectionType; 
 
     @DisplayName("TLS Context")
     @Placement(tab="Security")
@@ -105,7 +111,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
     private String connectionId;
 
     //Mainly Used for testing
-    MarkLogicConnectionProvider(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, TlsContextFactory tlsContextFactory, String kerberosExternalName, String connectionId)
+    MarkLogicConnectionProvider(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, MarkLogicConnectionType marklogicConnectionType, TlsContextFactory tlsContextFactory, String kerberosExternalName, String connectionId)
     {
         this.hostname = hostname;
         this.port = port;
@@ -113,6 +119,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
         this.username = username;
         this.password = password;
         this.authenticationType = authenticationType;
+        this.marklogicConnectionType = marklogicConnectionType;
         this.tlsContextFactory = tlsContextFactory;
         this.kerberosExternalName = kerberosExternalName;
         this.connectionId = connectionId;
@@ -127,7 +134,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
     public MarkLogicConnection connect() throws ConnectionException
     {
 
-        MarkLogicConnection conn = new MarkLogicConnection(hostname, port, database, username, password, authenticationType, tlsContextFactory, kerberosExternalName, connectionId);
+        MarkLogicConnection conn = new MarkLogicConnection(hostname, port, database, username, password, authenticationType, marklogicConnectionType, tlsContextFactory, kerberosExternalName, connectionId);
         logger.info("MarkLogicConnectionProvider connect() called");
         conn.connect();
         return conn;
