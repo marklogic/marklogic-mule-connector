@@ -89,6 +89,7 @@ public class MarkLogicConnectionProvider implements PoolingConnectionProvider<Ma
     @DisplayName("Connection Type")
     @Parameter
     @Summary("The type of connection used to work with MarkLogic, either DIRECT (non-load balanced) or GATEWAY (load-balanced).")
+    @Optional
     private MarkLogicConnectionType marklogicConnectionType; 
 
     @DisplayName("TLS Context")
