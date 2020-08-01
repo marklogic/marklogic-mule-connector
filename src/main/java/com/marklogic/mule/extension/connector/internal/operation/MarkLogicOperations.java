@@ -24,21 +24,27 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.datamovement.DataMovementManager;
 import com.marklogic.client.datamovement.DeleteListener;
 import com.marklogic.client.datamovement.QueryBatcher;
+import com.marklogic.client.document.DocumentPage;
+import com.marklogic.client.document.DocumentRecord;
+import com.marklogic.client.document.JSONDocumentManager;
 import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.*;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
+import com.marklogic.client.query.StructuredQueryBuilder;
+import com.marklogic.client.query.StructuredQueryDefinition;
 
 import com.marklogic.hub.HubConfig;
 import com.marklogic.hub.flow.FlowInputs;
 import com.marklogic.hub.flow.FlowRunner;
 import com.marklogic.hub.flow.RunFlowResponse;
 import com.marklogic.hub.flow.impl.FlowRunnerImpl;
-import com.marklogic.hub.job.JobDocManager;
+import com.marklogic.hub.impl.FlowManagerImpl;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
 import com.marklogic.mule.extension.connector.internal.config.DataHubConfiguration;
@@ -674,6 +680,65 @@ public class MarkLogicOperations
         flowRunner.awaitCompletion();
 
         return response.toJson();
+    }
+    
+    @MediaType(value = APPLICATION_JSON, strict = true)
+    @Throws(MarkLogicExecuteErrorsProvider.class)
+    public InputStream hubListFlows(
+            @Config MarkLogicConfiguration configuration,
+            @Connection MarkLogicConnection connection
+    )
+    {
+        DatabaseClient client = connection.getClient();
+        QueryManager qm = client.newQueryManager();
+        InputStream targetStream = new ByteArrayInputStream(new byte[0]);
+        JSONDocumentManager jdm = client.newJSONDocumentManager();
+        StructuredQueryBuilder sqb = qm.newStructuredQueryBuilder();
+        StructuredQueryDefinition qdef;
+        qdef = sqb.collection("http://marklogic.com/data-hub/flow");
+        DocumentPage page = jdm.search(qdef, 1);
+        List<String> strs = new ArrayList<String>();
+        ArrayNode returnArr = jsonFactory.createArrayNode();
+
+        try {
+            for (DocumentRecord record : page) {
+                JacksonHandle content = record.getContent(new JacksonHandle());
+                JsonNode flownode = content.get();
+                String flowname = flownode.get("name").asText();
+                strs.add(flowname);
+            }
+        } finally {
+            page.close();
+        }
+        
+        Collections.sort(strs, String.CASE_INSENSITIVE_ORDER);
+        for (int i = 0; i < strs.size(); i++)
+            returnArr.insert(i, strs.get(i));
+        
+        try {
+            byte[] bin = jsonFactory.writeValueAsBytes(returnArr);
+            targetStream = new ByteArrayInputStream(bin);
+        } catch(IOException ex) {
+            logger.error(String.format("Exception was thrown during hubListFlows operation. Error was: %s", ex.getMessage()), ex);
+        }
+        
+        return targetStream;
+    }
+    
+    @MediaType(value = APPLICATION_JSON, strict = true)
+    @Throws(MarkLogicExecuteErrorsProvider.class)
+    public InputStream hubFlowDetail(
+            @Config MarkLogicConfiguration configuration,
+            @Connection MarkLogicConnection connection,
+            @DisplayName("Flow name")
+            @Summary("The flow name to detail")
+            @Example("MyFlow") String flowName
+    )
+    {
+        FlowManagerImpl flowMgr = new FlowManagerImpl();
+        String flowJson = flowMgr.getFlowAsJSON(flowName);
+        InputStream targetStream = new ByteArrayInputStream(flowJson.getBytes());
+        return targetStream;
     }
 
     private static String generateOutputUri(String outputUriPrefix, String outputUriSuffix, boolean generateOutputUriBasename, String basenameUri) {
