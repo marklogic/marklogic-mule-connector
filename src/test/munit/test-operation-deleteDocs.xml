@@ -2,16 +2,17 @@
 <mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
 	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xsi:schemaLocation="
                         http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
                         http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
                         http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
                         http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+                        http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd 
                         http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
     <munit:config name="deleteDocs Suite" minMuleVersion="4.2.0" />
     <configuration-properties file="automation-credentials.properties"/>
     <marklogic:config name="deleteDocsConfig" configId="deleteDocsConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="deleteDocsJob">
-        <marklogic:connection connectionId="deleteDocs1"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" />
+        <marklogic:connection hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" marklogicConnectionType="DIRECT" connectionId="deleteDocs1"/>
     </marklogic:config>
     <flow name="deleteDocsFlow">
         <marklogic:delete-docs config-ref="deleteDocsConfig" queryStrategy="RawStructuredQueryDefinition" useConsistentSnapshot="true" fmt="JSON">

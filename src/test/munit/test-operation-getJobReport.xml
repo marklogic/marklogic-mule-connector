@@ -11,7 +11,7 @@
     <munit:config name="getJobReport Suite" minMuleVersion="4.2.0" />
     <configuration-properties file="automation-credentials.properties"/>
     <marklogic:config name="getJobReportConfig" configId="getJobReportConfig" threadCount="5" batchSize="3" secondsBeforeFlush="2" jobName="getJobReportJob">
-        <marklogic:connection connectionId="getJobReportConfig-223efe" hostname="${config.hostName}" port="8010" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" />
+        <marklogic:connection connectionId="getJobReportConfig-223efe" hostname="${config.hostName}" port="8010" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" marklogicConnectionType="DIRECT"/>
     </marklogic:config>
     <flow name="getJobReportFlow">
         <marklogic:get-job-report/>
