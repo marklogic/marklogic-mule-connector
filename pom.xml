@@ -1,39 +1,59 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+        
+    <parent>
+        <groupId>org.mule.connectors</groupId>
+        <artifactId>mule-certified-parent</artifactId>
+        <version>1.4.1</version>
+    </parent>
+    
+    <name>MarkLogic Connector - Mule 4</name>
+    
     <groupId>com.marklogic</groupId> 
     <artifactId>marklogic-mule-connector</artifactId>
     <version>1.2.0-SNAPSHOT</version>
+    <packaging>mule-extension</packaging>
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <app.runtime>4.2.2</app.runtime>
-        <mule.maven.plugin.version>3.3.9</mule.maven.plugin.version>
-        <munit.version>2.2.5</munit.version>
+        
+        <java.version>11</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        
+        <!-- Compile Dependencies and Plugins Versions -->
+        <marklogic.data.movement.version>1.0</marklogic.data.movement.version>
+        <marklogic.client.api.version>5.2.0</marklogic.client.api.version>
+        <marklogic.javaclient.util.version>3.10.0</marklogic.javaclient.util.version>
+        <marklogic.data.hub.version>5.2.1</marklogic.data.hub.version>
+        <apache.commons-jexl3.version>3.1</apache.commons-jexl3.version>
+        
+        <mule.runtime.version>4.3.0</mule.runtime.version>
+        <mule.maven.plugin.version>3.4.1</mule.maven.plugin.version>
+        <mule.file.connector.version>1.1.3</mule.file.connector.version>
+        
+        <maven.resources.plugin.version>3.1.0</maven.resources.plugin.version>
+        <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
+        
+        <!-- Test Dependencies and Plugins Versions -->
+        <munit.version>2.3.0</munit.version>
+        <munit.extensions.maven.plugin.version>1.0.0</munit.extensions.maven.plugin.version>
+        <munit.mtf.tools.version>1.0.0</munit.mtf.tools.version>
     </properties>
+    
     <build>
         <plugins>
             <plugin>
                 <groupId>org.mule.tools.maven</groupId>
                 <artifactId>mule-maven-plugin</artifactId>
-                <version>3.3.2</version>
-                <extensions>true</extensions> 
+                <version>${mule.maven.plugin.version}</version>
+                <extensions>true</extensions>
             </plugin>
-            <!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>2.5.2</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.2</version>
-            </plugin>
-            -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>${maven.resources.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>copy-munit-resources</id>
@@ -56,7 +76,7 @@
             <plugin>
                 <groupId>com.mulesoft.munit</groupId>
                 <artifactId>munit-extensions-maven-plugin</artifactId>
-                <version>1.0.0</version>
+                <version>${munit.extensions.maven.plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>integration-test</phase>
@@ -66,6 +86,9 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <runtimeVersion>${mule.runtime.version}</runtimeVersion>
+                    <runtimeProduct>MULE_EE</runtimeProduct>
+                    <!-- Keep the following.  It is used to prevent MUnit tests from running against unintended snapshot versions which can fail during certification. -->
                     <runtimeConfiguration>
                         <discoverRuntimes>
                             <product>EE</product>
@@ -73,8 +96,8 @@
                         </discoverRuntimes>
                     </runtimeConfiguration>
                 </configuration>
-                 <!--MUnit Dependencies--> 
-                 <dependencies>
+                <!--MUnit Dependencies--> 
+                <dependencies>
                     <dependency>
                         <groupId>com.mulesoft.munit</groupId>
                         <artifactId>munit-runner</artifactId>
@@ -90,60 +113,47 @@
                     <dependency>
                         <groupId>com.mulesoft.munit</groupId>
                         <artifactId>mtf-tools</artifactId>
-                        <version>1.0.0</version>
+                        <version>${munit.mtf.tools.version}</version>
                         <classifier>mule-plugin</classifier>
                     </dependency>
-                </dependencies>
+                </dependencies> 
             </plugin>
-            <!--
             <plugin>
-                <groupId>com.mulesoft.munit.tools</groupId>
-                <artifactId>munit-maven-plugin</artifactId>
-                <version>${munit.version}</version>
-                <executions>
-                    <execution>
-                        <id>test</id>
-                        <phase>integration-test</phase>
-                        <goals>
-                            <goal>test</goal>
-                            <goal>coverage-report</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <!-- Needed because other dependencies are linking to javadoc source vesrion 8 -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <runtimeProduct>MULE_EE</runtimeProduct>
-                    <runtimeVersion>4.2.2</runtimeVersion>
-                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
-                    <munitTestsDirectory>src/test/munit</munitTestsDirectory>
-                    <coverage>
-                        <runCoverage>true</runCoverage>
-                        <failBuild>false</failBuild>
-                        <requiredApplicationCoverage>50</requiredApplicationCoverage>
-                        <requiredResourceCoverage>50</requiredResourceCoverage>
-                        <requiredFlowCoverage>50</requiredFlowCoverage>
-                        <formats>
-                            <format>console</format>
-                            <format>html</format>
-                            <format>json</format>
-                        </formats>
-                    </coverage>
+                    <source>8</source>
                 </configuration>
             </plugin>
-            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven.enforcer.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>${java.version}</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>           
         </plugins>
     </build>
+    
     <dependencies>
-        <!-- jackson-databind 2.10.1 is needed to replace jackson-databind 2.9.8 that exists in marklogic-client-api 4.2.0.  -->
-        <!-- jackson-databind 2.10.1 exists in marklogic-client-api 5.1.0, but 5.1.0 requires >= Java 9, so adding upgraded jackson-databind dependency outside of ml-client-api --> 
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.10.1</version>
-        </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>ml-javaclient-util</artifactId>
-            <version>3.10.0</version>
+            <version>${marklogic.javaclient.util.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.marklogic</groupId>
@@ -162,58 +172,43 @@
         <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>marklogic-client-api</artifactId>
-            <version>4.2.0</version>
-            <!--<version>5.1.0</version>-->
+            <version>${marklogic.client.api.version}</version>
         </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>marklogic-data-movement-components</artifactId>
-            <version>1.0</version>
+            <version>${marklogic.data.movement.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-jexl3</artifactId>
-            <version>3.1</version>
+            <version>${apache.commons-jexl3.version}</version>
         </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>marklogic-data-hub</artifactId>
-            <version>5.2.1</version>
+            <version>${marklogic.data.hub.version}</version>
             <!--<type>pom</type>-->
-        </dependency>
-        <dependency>
-            <groupId>com.mulesoft.munit</groupId>
-            <artifactId>munit-runner</artifactId>
-            <version>${munit.version}</version>
-            <classifier>mule-plugin</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.mulesoft.munit</groupId>
-            <artifactId>munit-tools</artifactId>
-            <version>${munit.version}</version>
-            <classifier>mule-plugin</classifier>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-file-connector</artifactId>
-            <version>1.1.3</version>
+            <version>${mule.file.connector.version}</version>
             <classifier>mule-plugin</classifier>
         </dependency>
     </dependencies>
-    <packaging>mule-extension</packaging>
-    <name>MarkLogic Connector - Mule 4</name>
-    <parent>
-        <groupId>org.mule.connectors</groupId>
-        <artifactId>mule-certified-parent</artifactId>
-        <version>1.4.1</version>
-    </parent>
+    
     <repositories>
         <repository>
             <id>mule-releases</id>
             <name>Nexus Public Releases</name>
             <url>https://repository-master.mulesoft.org/nexus/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>mulesoft-releases</id>
+            <name>MuleSoft Releases Repository</name>
+            <url>https://repository.mulesoft.org/releases/</url>
+            <layout>default</layout>
         </repository>
         <!-- Needed by marklogic-data-hub (dependency on ml-app-deployer) -->
         <repository>
@@ -225,6 +220,7 @@
             </snapshots>
         </repository>
     </repositories>
+    
     <pluginRepositories>
         <pluginRepository>
             <id>mulesoft-release</id>
@@ -240,6 +236,7 @@
             <url>https://repository.mulesoft.org/nexus/content/repositories/releases</url>
         </pluginRepository>
     </pluginRepositories>
+    
     <scm>
         <connection>scm:git:git://github.com/marklogic-community/marklogic-mule-connector</connection>
         <developerConnection>scm:svn:https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.2.0</developerConnection>
