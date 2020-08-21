@@ -11,10 +11,10 @@
     <munit:config name="importDocs Suite" minMuleVersion="4.2.0" />
     <configuration-properties file="automation-credentials.properties"/>
     <marklogic:config name="importDocsConfig" configId="importDocsConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="importDocsJob">
-        <marklogic:connection connectionId="importDocsConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" />
+        <marklogic:connection connectionId="importDocsConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" marklogicConnectionType="DIRECT"/>
     </marklogic:config>
     <!-- <marklogic:config name="importDocsTransformConfig" configId="importDocsTransformConfig" threadCount="4" batchSize="100" serverTransform="ml:sjsInputFlow" serverTransformParams="entity-name,Employees,flow-name,loadEmployees" secondsBeforeFlush="2" jobName="importDocsTransformJobName" >
-        <marklogic:connection connectionId="importDocsTransformConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" />
+        <marklogic:connection connectionId="importDocsTransformConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" marklogicConnectionType="DIRECT" />
     </marklogic:config> -->
     <flow name="importDocsFlow">
         <set-payload value="#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; {'systemStart': null, 'systemEnd': null, 'validStart': now(), 'validEnd': '2030-12-31T00:00:00Z', 'name': 'test'}]"/>
