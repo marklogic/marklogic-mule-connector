@@ -11,7 +11,7 @@
     <munit:config name="retrieveInfo Suite" minMuleVersion="4.2.0" />
     <configuration-properties file="automation-credentials.properties"/>
     <marklogic:config name="retrieveInfoConfig" configId="retrieveInfoConfig" threadCount="5" batchSize="3" secondsBeforeFlush="2" jobName="retrieveInfoJob">
-        <marklogic:connection connectionId="retrieveInfoConfig-223efe" hostname="${config.hostName}" port="8010" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" />
+        <marklogic:connection connectionId="retrieveInfoConfig-223efe" hostname="${config.hostName}" port="8010" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" marklogicConnectionType="DIRECT"/>
     </marklogic:config>
     <flow name="retrieveInfoFlow">
         <marklogic:retrieve-info config-ref="retrieveInfoConfig"/>
