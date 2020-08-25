@@ -17,8 +17,7 @@
     </marklogic:config>
     <flow name="hubListFlowsFlow">
         <marklogic:hub-list-flows config-ref="DHFPre" />
-        <!--<set-payload value='#[%dw 2.0 output application/json &#x002D;&#x002D;&#x002D; payload]'/>-->
-        <ee:transform doc:name="Transform Message" doc:id="8c0f13e8-d892-4c56-8a5a-18f5fb86ea92">
+        <ee:transform>
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0 output application/json --- payload]]></ee:set-payload>
             </ee:message>
