@@ -44,7 +44,6 @@ import com.marklogic.hub.flow.FlowInputs;
 import com.marklogic.hub.flow.FlowRunner;
 import com.marklogic.hub.flow.RunFlowResponse;
 import com.marklogic.hub.flow.impl.FlowRunnerImpl;
-import com.marklogic.hub.impl.FlowManagerImpl;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
 import com.marklogic.mule.extension.connector.internal.config.DataHubConfiguration;
@@ -95,7 +94,7 @@ public class MarkLogicOperations
 
     private static final Logger logger = LoggerFactory.getLogger(MarkLogicOperations.class);
     private static final String OUTPUT_URI_TEMPLATE = "%s%s%s"; // URI Prefix + basenameUri + URI Suffix
-
+    private static final String datahubFlowCollection = "http://marklogic.com/data-hub/flow";
     private ObjectMapper jsonFactory = new ObjectMapper();
 
  /**
@@ -689,14 +688,8 @@ public class MarkLogicOperations
             @Connection MarkLogicConnection connection
     )
     {
-        DatabaseClient client = connection.getClient();
-        QueryManager qm = client.newQueryManager();
+        DocumentPage page = doFlowSearch(connection, "all");
         InputStream targetStream = new ByteArrayInputStream(new byte[0]);
-        JSONDocumentManager jdm = client.newJSONDocumentManager();
-        StructuredQueryBuilder sqb = qm.newStructuredQueryBuilder();
-        StructuredQueryDefinition qdef;
-        qdef = sqb.collection("http://marklogic.com/data-hub/flow");
-        DocumentPage page = jdm.search(qdef, 1);
         List<String> strs = new ArrayList<String>();
         ArrayNode returnArr = jsonFactory.createArrayNode();
 
@@ -735,9 +728,19 @@ public class MarkLogicOperations
             @Example("MyFlow") String flowName
     )
     {
-        FlowManagerImpl flowMgr = new FlowManagerImpl();
-        String flowJson = flowMgr.getFlowAsJSON(flowName);
-        InputStream targetStream = new ByteArrayInputStream(flowJson.getBytes());
+        InputStream targetStream = new ByteArrayInputStream(new byte[0]);
+        
+        try (DocumentPage page = doFlowSearch(connection, flowName)) {
+            for (DocumentRecord record : page) {
+                JacksonHandle content = record.getContent(new JacksonHandle());
+                JsonNode flownode = content.get();
+                byte[] bin = jsonFactory.writeValueAsBytes(flownode);
+                targetStream = new ByteArrayInputStream(bin);
+            }
+        } catch(IOException ex) {
+            logger.error(String.format("Exception was thrown during hubListFlows operation. Error was: %s", ex.getMessage()), ex);
+        }
+        
         return targetStream;
     }
 
@@ -759,5 +762,20 @@ public class MarkLogicOperations
         String outURI = String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basename, outputUriSuffix);
 
         return outURI;
+    }
+    
+    private DocumentPage doFlowSearch(
+            MarkLogicConnection connection,
+            String flowName
+    )
+    {
+        DatabaseClient client = connection.getClient();
+        QueryManager qm = client.newQueryManager();
+        JSONDocumentManager jdm = client.newJSONDocumentManager();
+        StructuredQueryBuilder sqb = qm.newStructuredQueryBuilder();
+        StructuredQueryDefinition collectionQuery = sqb.collection(datahubFlowCollection);
+        StructuredQueryDefinition qdef = (flowName.equals("all")) ? collectionQuery : sqb.and(collectionQuery, sqb.document("/flows/" + flowName + ".flow.json"));
+        DocumentPage page = jdm.search(qdef, 1);
+        return page;
     }
 }
