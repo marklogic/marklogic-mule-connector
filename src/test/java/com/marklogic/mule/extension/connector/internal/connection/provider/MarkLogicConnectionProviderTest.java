@@ -14,6 +14,7 @@
 package com.marklogic.mule.extension.connector.internal.connection.provider;
 
 import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
+import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -34,6 +35,7 @@ public class MarkLogicConnectionProviderTest
     private static final int PORT = 8000;
     private static final String LOCALHOST = "localhost";
     private static final AuthenticationType AUTHENTICATION_LEVEL = AuthenticationType.digest;
+    private static final MarkLogicConnectionType CONNECTION_TYPE = MarkLogicConnectionType.DIRECT;
 
     /**
      * Test of connect method, of class MarkLogicConnectionProvider.
@@ -41,7 +43,7 @@ public class MarkLogicConnectionProviderTest
     @Test
     public void testConnect() throws ConnectionException
     {
-        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
+        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, CONNECTION_TYPE, null, null, CONNECTION_ID);
         MarkLogicConnection result = instance.connect();
         assertEquals(CONNECTION_ID, result.getId());
     }
@@ -49,7 +51,7 @@ public class MarkLogicConnectionProviderTest
     @Test
     public void testDisconnect() throws ConnectionException
     {
-        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
+        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, CONNECTION_TYPE, null, null, CONNECTION_ID);
         MarkLogicConnection connection = instance.connect();
         instance.disconnect(connection);
     }
@@ -60,9 +62,9 @@ public class MarkLogicConnectionProviderTest
     @Test
     public void testValidatePass()
     {
-        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
+        MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, CONNECTION_TYPE, null, null, CONNECTION_ID);
 
-        MarkLogicConnection connection = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
+        MarkLogicConnection connection = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, CONNECTION_TYPE, null, null, CONNECTION_ID);
         connection.connect();
 
         ConnectionValidationResult result = instance.validate(connection);
@@ -76,7 +78,7 @@ public class MarkLogicConnectionProviderTest
     {
         MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider();
 
-        MarkLogicConnection connection = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, null, null, CONNECTION_ID);
+        MarkLogicConnection connection = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, CONNECTION_TYPE, null, null, CONNECTION_ID);
         ConnectionValidationResult result = instance.validate(connection);
 
         String message = String.format("Connection failed %s", CONNECTION_ID);

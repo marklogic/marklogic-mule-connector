@@ -14,6 +14,7 @@
 package com.marklogic.mule.extension.connector.internal.connection;
 
 import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
+import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.DatabaseClientFactory.BasicAuthContext;
@@ -55,7 +56,7 @@ public class MarkLogicConnectionTest
     @Test
     public void testGetId()
     {
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.digest, null, null, CONNECTION_ID);
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.digest, MarkLogicConnectionType.DIRECT, null, null, CONNECTION_ID);
         String result = instance.getId();
         assertEquals(CONNECTION_ID, result);
     }
@@ -63,7 +64,7 @@ public class MarkLogicConnectionTest
     @Test
     public void testIsConnectedNull()
     {
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.digest, null, null, CONNECTION_ID);
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.digest, MarkLogicConnectionType.DIRECT, null, null, CONNECTION_ID);
         assertFalse(instance.isConnected(PORT));
     }
 
@@ -75,7 +76,7 @@ public class MarkLogicConnectionTest
     {
         MarkLogicConnectionInvalidationListener listener = mock(MarkLogicConnectionInvalidationListener.class);
         
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, NULL_STR_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.digest, null, null, CONNECTION_ID);;
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, NULL_STR_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.digest, MarkLogicConnectionType.DIRECT, null, null, CONNECTION_ID);;
         instance.addMarkLogicClientInvalidationListener(listener);
         instance.connect();
         instance.invalidate();
@@ -91,7 +92,7 @@ public class MarkLogicConnectionTest
     @Test
     public void testIsConnected()
     {
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, EMPTY_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.digest, null, null, CONNECTION_ID);
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, EMPTY_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.digest, MarkLogicConnectionType.DIRECT, null, null, CONNECTION_ID);
         instance.connect();
         boolean result = instance.isConnected(PORT);
         assertEquals(true, result);
@@ -103,7 +104,7 @@ public class MarkLogicConnectionTest
     @Test
     public void testIsNotConnected()
     {
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, NULL_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.digest, null, null, CONNECTION_ID);
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, NULL_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.digest, MarkLogicConnectionType.DIRECT, null, null, CONNECTION_ID);
         instance.connect();
         boolean result = instance.isConnected(8001);
         assertEquals(false, result);
@@ -130,7 +131,7 @@ public class MarkLogicConnectionTest
 
     protected void digestClientTest(String databaseName, AuthenticationType authenticationType)
     {
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, databaseName, USER_NAME, USER_PASSWORD, authenticationType, null, null, CONNECTION_ID);
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, databaseName, USER_NAME, USER_PASSWORD, authenticationType, MarkLogicConnectionType.DIRECT, null, null, CONNECTION_ID);
         instance.connect();
         DatabaseClient result = instance.getClient();
         this.databaseClientAssert(result, !databaseName.equals(EMPTY_DATABASE_NAME));
@@ -159,7 +160,7 @@ public class MarkLogicConnectionTest
 
     protected void basicClientTest(String databaseName)
     {
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, databaseName, USER_NAME, USER_PASSWORD, AuthenticationType.basic, null, null, CONNECTION_ID);
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, databaseName, USER_NAME, USER_PASSWORD, AuthenticationType.basic, MarkLogicConnectionType.DIRECT, null, null, CONNECTION_ID);
         instance.connect();
         DatabaseClient result = instance.getClient();
         this.databaseClientAssert(result, !databaseName.equals(EMPTY_DATABASE_NAME));
@@ -280,7 +281,7 @@ These tests are currently invalid as KERBEROS is not an option at this time
                 return null;
             }
         };
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, EMPTY_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.certificate, tlsContextFactory, null, CONNECTION_ID);
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, EMPTY_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.certificate, MarkLogicConnectionType.DIRECT, tlsContextFactory, null, CONNECTION_ID);
         instance.connect();
     }
 

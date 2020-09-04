@@ -13,22 +13,30 @@
  */
 package com.marklogic.mule.extension.connector.internal.connection;
 
+import com.marklogic.client.datamovement.DataMovementManager;
+import com.marklogic.client.datamovement.WriteBatcher;
+import com.marklogic.client.document.ServerTransform;
+import com.marklogic.client.io.DocumentMetadataHandle;
+
 import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
+import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.*;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.ext.DatabaseClientConfig;
 import com.marklogic.client.ext.DefaultConfiguredDatabaseClientFactory;
 import com.marklogic.client.ext.SecurityContextType;
+import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.error.exception.MarkLogicConnectorException;
 
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
+import com.marklogic.mule.extension.connector.internal.operation.MarkLogicInsertionBatcher;
 import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.tls.TlsContextFactory;
@@ -49,14 +57,20 @@ public final class MarkLogicConnection
     private final String username;
     private final String password;
     private final AuthenticationType authenticationType;
+    private final MarkLogicConnectionType marklogicConnectionType;
     private final boolean useSSL;
     private final TlsContextFactory sslContext;
     private final String kerberosExternalName;
     private final String connectionId;
     private Set<MarkLogicConnectionInvalidationListener> markLogicClientInvalidationListeners = new HashSet<>();
 
-    public MarkLogicConnection(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId)
+    private final HashMap<Integer, MarkLogicInsertionBatcher> insertionBatchers;
+    private final ReentrantLock insertionBatchersLock;
+
+    public MarkLogicConnection(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, MarkLogicConnectionType marklogicConnectionType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId)
     {
+        this.insertionBatchers = new HashMap<>();
+        this.insertionBatchersLock = new ReentrantLock(true);
 
         this.useSSL = sslContext != null;
         if (sslContext instanceof Initialisable) {
@@ -75,6 +89,7 @@ public final class MarkLogicConnection
         this.username = username;
         this.password = password;
         this.authenticationType = authenticationType;
+        this.marklogicConnectionType = marklogicConnectionType;
         this.kerberosExternalName = kerberosExternalName;
         this.connectionId = connectionId;
     }
@@ -93,7 +108,6 @@ public final class MarkLogicConnection
             logger.error(message, e);
             throw new MarkLogicConnectorException(message, e);
         }
-
     }
 
     public DatabaseClient getClient()
@@ -108,9 +122,10 @@ public final class MarkLogicConnection
 
     public void invalidate()
     {
-        client.release();
         markLogicClientInvalidationListeners.forEach((listener) -> listener.markLogicConnectionInvalidated());
-        logger.debug("MarkLogic connection invalidated.");
+        releaseInsertionBatchers();
+        client.release();
+        logger.info("MarkLogic connection invalidated.");
     }
     
     public boolean isConnected(int port)
@@ -156,7 +171,8 @@ public final class MarkLogicConnection
         }
         
         setConfigAuthType(config);
-
+        setConfigMLConnectionType(config);
+        
         config.setUsername(username);
         config.setPassword(password);
 
@@ -197,6 +213,22 @@ public final class MarkLogicConnection
                 break;
             default:
                 config.setSecurityContextType(SecurityContextType.DIGEST);
+                break;
+        }
+    }
+    
+    private void setConfigMLConnectionType(DatabaseClientConfig config) throws Exception 
+    {
+        switch (marklogicConnectionType)
+        {
+            case DIRECT:
+                config.setConnectionType(DatabaseClient.ConnectionType.DIRECT);
+                break;
+            case GATEWAY:
+                config.setConnectionType(DatabaseClient.ConnectionType.GATEWAY);
+                break;
+            default:
+                config.setConnectionType(DatabaseClient.ConnectionType.DIRECT);
                 break;
         }
     }
@@ -252,5 +284,38 @@ public final class MarkLogicConnection
             }
         }
         return KeyStore.getInstance(trustStoreType);
+    }
+	
+	public MarkLogicInsertionBatcher getInsertionBatcher(MarkLogicConfiguration config, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams) {
+        if (client == null)
+            throw new MarkLogicConnectorException("Cannot initialize insertion batcher; client is not yet connected.");
+        int signature = MarkLogicInsertionBatcher.computeSignature(config, this, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
+
+        insertionBatchersLock.lock();
+        try {
+            MarkLogicInsertionBatcher insertionBatcher = insertionBatchers.getOrDefault(signature, null);
+            if (insertionBatcher == null) {
+                insertionBatcher = new MarkLogicInsertionBatcher(config, this, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
+                insertionBatchers.put(insertionBatcher.getSignature(), insertionBatcher);
+                if (insertionBatcher.getSignature() != signature)
+                    logger.warn("Computed batcher signature " + signature + " different than generated by instance " + insertionBatcher.getSignature());
+            }
+            return insertionBatcher;
+        }
+        finally {
+            insertionBatchersLock.unlock();
+        }
+    }
+
+    private void releaseInsertionBatchers() {
+        insertionBatchersLock.lock();
+        try {
+            for (MarkLogicInsertionBatcher insertionBatcher : insertionBatchers.values()) {
+                insertionBatcher.release();
+            }
+        }
+        finally {
+            insertionBatchersLock.unlock();
+        }
     }
 }

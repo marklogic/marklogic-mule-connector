@@ -19,6 +19,7 @@ import com.marklogic.mule.extension.connector.internal.connection.provider.MarkL
 import com.marklogic.mule.extension.connector.internal.error.exception.MarkLogicConnectorException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
@@ -41,7 +42,7 @@ public class MarkLogicConfiguration
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MarkLogicConfiguration.class);
-    
+
     @DisplayName("Connection ID")
     @Parameter
     @Summary("An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic.")
@@ -168,16 +169,16 @@ public class MarkLogicConfiguration
             return null;
         }
     }
-        
-    public static boolean isDefined(String str) 
+
+    public static boolean isDefined(String str)
     {
         return str != null
                 && !str.trim().isEmpty()
                 && !"null".equalsIgnoreCase(str.trim());
 
     }
-    
-    private ServerTransform createServerTransform(String name, String params) 
+
+    private ServerTransform createServerTransform(String name, String params)
     {
 
         ServerTransform transform = new ServerTransform(name);
@@ -187,7 +188,7 @@ public class MarkLogicConfiguration
             List<String> pairs = Arrays.asList(params.split(","));
             int size = pairs.size();
 
-            if (size % 2 != 0 || pairs.stream().anyMatch(it -> !isDefined(it))) 
+            if (size % 2 != 0 || pairs.stream().anyMatch(it -> !isDefined(it)))
             {
                 throw new MarkLogicConnectorException("Cannot create Server Transforms because params do not pair up");
             }
@@ -199,5 +200,26 @@ public class MarkLogicConfiguration
         }
 
         return transform;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        MarkLogicConfiguration that = (MarkLogicConfiguration)o;
+        return threadCount == that.threadCount &&
+                batchSize == that.batchSize &&
+                secondsBeforeFlush == that.secondsBeforeFlush &&
+                Objects.equals(configId, that.configId) &&
+                Objects.equals(serverTransform, that.serverTransform) &&
+                Objects.equals(serverTransformParams, that.serverTransformParams) &&
+                Objects.equals(jobName, that.jobName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(configId, threadCount, batchSize, serverTransform, serverTransformParams, secondsBeforeFlush, jobName);
     }
 }

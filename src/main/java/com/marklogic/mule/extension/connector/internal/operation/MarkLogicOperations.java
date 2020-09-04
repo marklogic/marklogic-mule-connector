@@ -106,7 +106,7 @@ public class MarkLogicOperations
     @MediaType(value = APPLICATION_JSON, strict = true)
     @Throws(MarkLogicExecuteErrorsProvider.class)
     public InputStream importDocs(
-            @Config MarkLogicConfiguration configuration,
+            @Config MarkLogicConfiguration markLogicConfiguration,
             @Connection MarkLogicConnection connection,
             @DisplayName("Document payload")
             @Summary("The content of the input files to be used for ingestion into MarkLogic.")
@@ -148,25 +148,9 @@ public class MarkLogicOperations
             String serverTransformParams
             )
     {
-
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = MarkLogicInsertionBatcher.getInstance(configuration, connection, outputCollections, outputPermissions, outputQuality, configuration.getJobName(), temporalCollection, serverTransform, serverTransformParams);
-
-        // Determine output URI
-        // If the config tells us to generate a new UUID, do that
-        String basename = basenameUri;
-        if (generateOutputUriBasename)
-        {
-            basename = UUID.randomUUID().toString();
-            // Also, if the basenameURI is blank for whatever reason, use a new UUID
-        }
-        else if ((basenameUri == null) || (basenameUri.equals("null")) || (basenameUri.length() < 1))
-        {
-            basename = UUID.randomUUID().toString();
-        }
-
-        // Assemble the output URI components
-        String outURI = String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basename, outputUriSuffix);
+        MarkLogicInsertionBatcher batcher = connection.getInsertionBatcher(markLogicConfiguration, outputCollections, outputPermissions, outputQuality, markLogicConfiguration.getJobName(), temporalCollection, serverTransform, serverTransformParams);
+        String outURI = generateOutputUri(outputUriPrefix, outputUriSuffix, generateOutputUriBasename, basenameUri);
 
         // Actually do the insert and return the result
         return batcher.doInsert(outURI, docPayloads);
@@ -191,7 +175,7 @@ public class MarkLogicOperations
 
         ArrayNode exports = jsonFactory.createArrayNode();
         rootObj.set("exportResults", exports);
-        MarkLogicInsertionBatcher insertionBatcher = MarkLogicInsertionBatcher.getInstance();
+        MarkLogicInsertionBatcher insertionBatcher = null; // Note: since MarkLogicInsertionBatcher is no longer a singleton, this will always fail
         if (insertionBatcher != null)
         {
             ArrayNode imports = jsonFactory.createArrayNode();
@@ -570,5 +554,25 @@ public class MarkLogicOperations
             }
         };
 
+    }
+
+	private static String generateOutputUri(String outputUriPrefix, String outputUriSuffix, boolean generateOutputUriBasename, String basenameUri) {
+        // Determine output URI
+        // If the config tells us to generate a new UUID, do that
+        String basename = basenameUri;
+        if (generateOutputUriBasename)
+        {
+            basename = UUID.randomUUID().toString();
+            // Also, if the basenameURI is blank for whatever reason, use a new UUID
+        }
+        else if ((basenameUri == null) || (basenameUri.equals("null")) || (basenameUri.length() < 1))
+        {
+            basename = UUID.randomUUID().toString();
+        }
+
+        // Assemble the output URI components
+        String outURI = String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basename, outputUriSuffix);
+
+        return outURI;
     }
 }

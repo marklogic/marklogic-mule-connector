@@ -11,10 +11,10 @@
     <munit:config name="exportDocs Suite" minMuleVersion="4.2.0" />
     <configuration-properties file="automation-credentials.properties"/>
     <marklogic:config name="exportDocsConfig" configId="exportDocsConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="exportDocsJob">
-        <marklogic:connection connectionId="exportDocsConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" />
+        <marklogic:connection connectionId="exportDocsConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" marklogicConnectionType="DIRECT"/>
     </marklogic:config>
     <marklogic:config name="exportDocsFinalConfig" configId="exportDocsFinalConfigg" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="exportDocsFinalJob">
-        <marklogic:connection connectionId="exportDocsFinalConfig"  hostname="${config.hostName}" port="8011" username="${config.username}" password="${config.password}" authenticationType="digest" />
+        <marklogic:connection connectionId="exportDocsFinalConfig"  hostname="${config.hostName}" port="8011" username="${config.username}" password="${config.password}" authenticationType="digest" marklogicConnectionType="DIRECT" />
     </marklogic:config>
     <flow name="exportDocsFlow">
         <marklogic:export-docs config-ref="exportDocsConfig" queryStrategy="RawStructuredQueryDefinition" maxResults="12" useConsistentSnapshot="true" fmt="XML">
