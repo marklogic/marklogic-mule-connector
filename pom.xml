@@ -26,7 +26,7 @@
         <!-- Compile Dependencies and Plugins Versions -->
         <marklogic.data.movement.version>1.0</marklogic.data.movement.version>
         <marklogic.client.api.version>5.2.0</marklogic.client.api.version>
-        <marklogic.javaclient.util.version>3.10.0</marklogic.javaclient.util.version>
+        <marklogic.javaclient.util.version>3.13.4</marklogic.javaclient.util.version>
         <marklogic.data.hub.version>5.2.1</marklogic.data.hub.version>
         <apache.commons-jexl3.version>3.1</apache.commons-jexl3.version>
         
@@ -119,7 +119,7 @@
                 </dependencies> 
             </plugin>
             <plugin>
-                <!-- Needed because other dependencies are linking to javadoc source vesrion 8 -->
+                <!-- Needed because other dependencies are linking to javadoc source version 8 -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
@@ -145,7 +145,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>           
+            </plugin>
         </plugins>
     </build>
     
@@ -226,7 +226,7 @@
             <id>mulesoft-release</id>
             <name>mulesoft release repository</name>
             <layout>default</layout>
-            <url>http://repository.mulesoft.org/releases/</url>
+            <url>https://repository.mulesoft.org/releases/</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
