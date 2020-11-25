@@ -7,14 +7,14 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<configuration-properties file="automation-credentials.properties"/>
-	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8b45556d-702c-49c6-bdaf-3943845bdc8e" basePath="/" >
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="ce8a2870-e52f-4ca1-930d-1fbe898a264b" basePath="/" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
-	<marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="70508ab1-c787-485a-9b35-970bbfbf9208" configId="testConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName" >
-		<marklogic:connection hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" connectionId="testConfig" />
+	<marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="12d46d4c-7b06-466a-af3e-d62affcbba37" configId="testConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName" serverTransform="transformTestEgress" serverTransformParams="q,e">
+		<marklogic:connection hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" connectionId="testConfig" marklogicConnectionType="DIRECT"/>
 	</marklogic:config>
-	<flow name="marklogic-demo-1.1.1Flow" doc:id="ee6da7e5-0aa3-4208-9b29-876a30707dab" >
-		<http:listener doc:name="/exportDocs Listener" doc:id="e4850d1f-0bbe-41ea-97f4-ad98042690a8" config-ref="HTTP_Listener_config" path="/exportDocs">
+	<flow name="marklogic-demo-1.1.2Flow" doc:id="a5033397-e46a-4181-bfe2-0f2af0fe5299" >
+		<http:listener doc:name="/exportDocs Listener" doc:id="dade09c3-6db5-499b-88ae-99e3c58e702d" config-ref="HTTP_Listener_config" path="/exportDocs">
 			<http:response >
 				<http:headers ><![CDATA[#[output application/java
 ---
@@ -23,14 +23,14 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 }]]]></http:headers>
 			</http:response>
 		</http:listener>
-		<marklogic:export-docs doc:name="Export employees collection documents" doc:id="d4b0b5d3-0e20-4b84-8894-fb43c1e82c22" config-ref="MarkLogic_Config" queryStrategy="CTSQuery" maxResults="12" useConsistentSnapshot="true" fmt="XML">
+		<marklogic:export-docs doc:name="Export employees collection documents" doc:id="8b37bd44-9364-4855-bdf8-9c582f564c9a" config-ref="MarkLogic_Config" queryStrategy="CTSQuery" maxResults="12" useConsistentSnapshot="true" fmt="XML">
 			<marklogic:query-string >&lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
     &lt;collection-query&gt;
         &lt;uri&gt;employees&lt;/uri&gt;
     &lt;/collection-query&gt;
 &lt;/query&gt;</marklogic:query-string>
 		</marklogic:export-docs>
-		<ee:transform doc:name="Transform to  Response JSON" doc:id="826fe31b-3566-4e83-b23c-ff2c66ae7ac0" >
+		<ee:transform doc:name="Transform to  Response JSON" doc:id="0dd7d812-fb29-44ad-92c9-0eede2e2db5a" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -38,8 +38,7 @@ output application/json
 {
 	"count": sizeOf(payload),
 	"contents": payload
-}
-]]></ee:set-payload>
+}]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>

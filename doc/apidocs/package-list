@@ -1,4 +1,3 @@
-com.marklogic.mule.extension.connector.api
 com.marklogic.mule.extension.connector.api.connection
 com.marklogic.mule.extension.connector.api.operation
 com.marklogic.mule.extension.connector.internal.config

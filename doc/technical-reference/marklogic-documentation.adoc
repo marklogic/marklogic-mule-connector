@@ -59,11 +59,14 @@ Default configuration
 ** digest
 ** certificate
 ** basic |  +++The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic.+++ |  | *x*{nbsp}
+| Connection Type a| Enumeration, one of:
+
+** DIRECT
+** GATEWAY |  +++The type of connection used to work with MarkLogic, either DIRECT (non-load balanced) or GATEWAY (load-balanced).+++ |  | {nbsp}
 | Kerberos External Name (Not Yet Supported) a| String |  +++If "kerberos" is used for the authenticationType parameter, a Kerberos external name value can be supplied if needed.+++ |  +++null+++ | {nbsp}
 | Connection ID a| String |  +++An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic. Also set on the Connector configuration parameters.+++ |  | *x*{nbsp}
 | TLS Context a| <<Tls>> |  |  | {nbsp}
 | Reconnection a| <<Reconnection>> |  +++When the application is deployed, a connectivity test is performed on all connectors. If set to true, deployment will fail if the test doesn't pass after exhausting the associated reconnection strategy+++ |  | {nbsp}
-| Pooling Profile a| <<PoolingProfile>> |  +++Characteristics of the connection pool+++ |  | {nbsp}
 |======================
 
 ==== Associated Operations
@@ -496,30 +499,6 @@ Default configuration
 |======================
 | Field | Type | Description | Default Value | Required
 | Frequency a| Number | How often (in ms) to reconnect |  | 
-|======================
-
-[[PoolingProfile]]
-=== Pooling Profile
-
-[cols=".^20%,.^25%,.^30%,.^15%,.^10%", options="header"]
-|======================
-| Field | Type | Description | Default Value | Required
-| Max Active a| Number | Controls the maximum number of Mule components that can be borrowed from a session at one time. When set to a negative value, there is no limit to the number of components that may be active at one time. When maxActive is exceeded, the pool is said to be exhausted. |  | 
-| Max Idle a| Number | Controls the maximum number of Mule components that can sit idle in the pool at any time. When set to a negative value, there is no limit to the number of Mule components that may be idle at one time. |  | 
-| Max Wait a| Number | Specifies the number of milliseconds to wait for a pooled component to become available when the pool is exhausted and the exhaustedAction is set to WHEN_EXHAUSTED_WAIT. |  | 
-| Min Eviction Millis a| Number | Determines the minimum amount of time an object may sit idle in the pool before it is eligible for eviction. When non-positive, no objects will be evicted from the pool due to idle time alone. |  | 
-| Eviction Check Interval Millis a| Number | Specifies the number of milliseconds between runs of the object evictor. When non-positive, no object evictor is executed. |  | 
-| Exhausted Action a| Enumeration, one of:
-
-** WHEN_EXHAUSTED_GROW
-** WHEN_EXHAUSTED_WAIT
-** WHEN_EXHAUSTED_FAIL | Specifies the behavior of the Mule component pool when the pool is exhausted. Possible values are: "WHEN_EXHAUSTED_FAIL", which will throw a NoSuchElementException, "WHEN_EXHAUSTED_WAIT", which will block by invoking Object.wait(long) until a new or idle object is available, or WHEN_EXHAUSTED_GROW, which will create a new Mule instance and return it, essentially making maxActive meaningless. If a positive maxWait value is supplied, it will block for at most that many milliseconds, after which a NoSuchElementException will be thrown. If maxThreadWait is a negative value, it will block indefinitely. |  | 
-| Initialisation Policy a| Enumeration, one of:
-
-** INITIALISE_NONE
-** INITIALISE_ONE
-** INITIALISE_ALL | Determines how components in a pool should be initialized. The possible values are: INITIALISE_NONE (will not load any components into the pool on startup), INITIALISE_ONE (will load one initial component into the pool on startup), or INITIALISE_ALL (will load all components in the pool on startup) |  | 
-| Disabled a| Boolean | Whether pooling should be disabled |  | 
 |======================
 
 [[ExpirationPolicy]]
