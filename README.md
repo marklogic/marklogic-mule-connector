@@ -11,7 +11,7 @@
 
 * Both Anypoint Studio and Anypoint Design Center offer ease of access to the Anypoint Exchange for direct import of the Connector for use in your flows.
 
-If you wish to install from the source code in this repository, see "<a href="wiki/Building-and-Scaffolding-the-Connector">Building and Scaffolding the Connector</a>" on the Wiki.
+If you wish to install from the source code in this repository, see "<a href="https://github.com/marklogic-community/marklogic-mule-connector/wiki/Building-and-Scaffolding-the-Connector">Building and Scaffolding the Connector</a>" on the Wiki.
 
 ### Learn More ###
 -------------------------
