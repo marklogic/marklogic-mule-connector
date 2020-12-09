@@ -28,7 +28,6 @@ import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConne
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
@@ -36,7 +35,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import com.marklogic.mule.extension.connector.internal.error.exception.MarkLogicConnectorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,21 +67,25 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     // The timestamp of the last write to ML-- used to determine when the pipe to ML should be flushed
     private long lastWriteTime;
 
-    private boolean batcherRequiresReinit = false;
-    private MarkLogicConnection connection;
+    private boolean batcherRequiresReinit;
     private Timer timer = null;
 
     /**
      * Creates a new insertion batcher.
      *
-     * @param marklogicConfiguration -- information describing how the insertion process
-     * should work
-     * @param connection -- information describing how to connect to MarkLogic
-     * @param serverTransform
-     * @param serverTransformParams
+     * @param marklogicConfiguration Information describing how the insertion process should work
+     * @param connection Information describing how to connect to MarkLogic
+     * @param outputCollections A comma-separated list of output collections used during ingestion.
+     * @param outputPermissions A comma-separated list of roles and capabilities used during ingestion.
+     * @param outputQuality A number indicating the quality of the persisted documents.
+     * @param jobName The jobName from the marklogicConfiguration
+     * @param temporalCollection The temporal collection imported documents will be loaded into.
+     * @param serverTransform The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.
+     * @param serverTransformParams A comma-separated list of alternating transform parameter names and values.
      */
     public MarkLogicInsertionBatcher(MarkLogicConfiguration marklogicConfiguration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
     {
+        this.batcherRequiresReinit = false;
         this.signature = computeSignature(marklogicConfiguration, connection, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
 
         // get the object handles needed to talk to MarkLogic
@@ -98,7 +100,6 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
 
     private void initializeBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String temporalCollection, String serverTransform, String serverTransformParams)
     {
-        this.connection = connection;
         connection.addMarkLogicClientInvalidationListener(this);
         DatabaseClient myClient = connection.getClient();
         dmm = myClient.newDataMovementManager();

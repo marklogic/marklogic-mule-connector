@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Closes a {@link MarkLogicConnector} once it has been processed
+ * Closes a {@link MarkLogicConnection} once it has been processed
  *
  * @since 1.0.1
  */

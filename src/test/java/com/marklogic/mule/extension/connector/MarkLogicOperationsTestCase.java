@@ -25,12 +25,9 @@ import org.junit.Test;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
-//import org.mule.runtime.api.streaming.object.CursorIterator;
-//import org.mule.runtime.core.internal.streaming.object.ManagedCursorIteratorProvider;
 
 public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
 {

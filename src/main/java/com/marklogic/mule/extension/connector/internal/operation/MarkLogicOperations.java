@@ -71,21 +71,21 @@ import org.slf4j.LoggerFactory;
 * @author Clay Redding (wattsferry)
 * @author John Shingler (jshingler)
 * @since 1.0.0
-* @version 1.1.1
+* @version 1.1.2
 * @see <a target="_blank" href="https://github.com/marklogic-community/marklogic-mule-connector">MarkLogic MuleSoft Connector GitHub</a>
 * 
 */
 public class MarkLogicOperations
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MarkLogicOperations.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicOperations.class);
     private static final String OUTPUT_URI_TEMPLATE = "%s%s%s"; // URI Prefix + basenameUri + URI Suffix
 
     private ObjectMapper jsonFactory = new ObjectMapper();
 
  /**
  * <p>Loads JSON, XML, text, or binary document content asynchronously into MarkLogic, via the <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a> <a target="_blank" href="https://docs.marklogic.com/guide/java/data-movement">Data Movement SDK (DMSDK)</a> returning the DMSDK <a target="_blank" href="https://docs.marklogic.com/javadoc/client/com/marklogic/client/datamovement/JobTicket.html">JobTicket</a> ID used to insert the contents into MarkLogic.</p>
- * @param configuration The MarkLogic configuration details
+ * @param markLogicConfiguration The MarkLogic configuration details
  * @param connection The MarkLogic connection details
  * @param docPayloads The content of the input files to be used for ingestion into MarkLogic.
  * @param outputCollections A comma-separated list of output collections used during ingestion.
@@ -101,7 +101,6 @@ public class MarkLogicOperations
  * @return java.io.InputStream
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.0.0
- * @version 1.1.1
  */
     @MediaType(value = APPLICATION_JSON, strict = true)
     @Throws(MarkLogicExecuteErrorsProvider.class)
@@ -158,7 +157,6 @@ public class MarkLogicOperations
 
  /**
  * <p>Retrieves a JSON representation of a <a target="_blank" href="https://docs.marklogic.com/guide/java/intro">MarkLogic Java API</a> <a target="_blank" href="https://docs.marklogic.com/guide/java/data-movement">Data Movement SDK (DMSDK)</a> <a target="_blank" href="https://docs.marklogic.com/javadoc/client/com/marklogic/client/datamovement/JobReport.html">JobReport</a> following an importDocs operation.</p>
- * @return java.lang.String
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.0.0
  * @return java.io.InputStream
@@ -183,13 +181,13 @@ public class MarkLogicOperations
             rootObj.set("importResults", imports);
         }
 
-        logger.debug("getJobReport outcome: " + rootObj.asText());
+        LOGGER.debug("getJobReport outcome: " + rootObj.asText());
         
         try {
             byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
             targetStream = new ByteArrayInputStream(bin);
         } catch(IOException ex) {
-            logger.error(String.format("Exception was thrown during getJobReport operation. Error was: %s", ex.getMessage()), ex);
+            LOGGER.error(String.format("Exception was thrown during getJobReport operation. Error was: %s", ex.getMessage()), ex);
         }
         
         return targetStream;
@@ -201,7 +199,6 @@ public class MarkLogicOperations
  * @param connection The MarkLogic connection details
  * @return java.lang.String
  * @since 1.0.0
- * @version 1.1.1
  */
     @MediaType(value = ANY, strict = false)
     public String retrieveInfo(@Config MarkLogicConfiguration configuration, @Connection MarkLogicConnection connection)
@@ -221,7 +218,6 @@ public class MarkLogicOperations
  * @return java.io.InputStream
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.1.0
- * @version 1.1.1
  */
     @MediaType(value = APPLICATION_JSON, strict = true)
     @Throws(MarkLogicExecuteErrorsProvider.class)
@@ -257,7 +253,7 @@ public class MarkLogicOperations
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
                 .onUrisReady(new DeleteListener())
-                .onQueryFailure((throwable) -> logger.error("Exception thrown by an onBatchSuccess listener", throwable));
+                .onQueryFailure((throwable) -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
         dmm.startJob(batcher);
         batcher.awaitCompletion();
         dmm.stopJob(batcher);
@@ -266,14 +262,14 @@ public class MarkLogicOperations
         ObjectNode rootObj = jsonFactory.createObjectNode();
         rootObj.put("deletionResult", String.format("%d document(s) deleted", resultsHandle.getTotalResults()));
         rootObj.put("deletionCount", resultsHandle.getTotalResults());
-        logger.debug("deleteDocs outcome: " + rootObj.asText());
+        LOGGER.debug("deleteDocs outcome: " + rootObj.asText());
         
         try {
             byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
             targetStream = new ByteArrayInputStream(bin);
             targetStream.close();
         } catch(IOException ex) {
-            logger.error(String.format("Exception was thrown during deleteDocs operation. Error was: %s", ex.getMessage()), ex);
+            LOGGER.error(String.format("Exception was thrown during deleteDocs operation. Error was: %s", ex.getMessage()), ex);
         }
         return targetStream;
     }
@@ -341,7 +337,6 @@ public class MarkLogicOperations
  * @return org.mule.runtime.extension.api.runtime.streaming.PagingProvider
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.1.0
- * @version 1.1.1
  */
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicAnyMetadataResolver.class)
@@ -388,14 +383,14 @@ public class MarkLogicOperations
                     resultSetCloser = new MarkLogicResultSetCloser(connection);
                     flowListener.onError(ex ->
                     {
-                        logger.error(String.format("Exception was thrown during select operation. Error was: %s", ex.getMessage()), ex);
+                        LOGGER.error(String.format("Exception was thrown during select operation. Error was: %s", ex.getMessage()), ex);
                         try
                         {
                             close(connection);
                         }
                         catch (MuleException e)
                         {
-                            logger.info(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), e);
+                            LOGGER.info(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), e);
                         }
                     });
 
@@ -458,7 +453,6 @@ public class MarkLogicOperations
  * @return org.mule.runtime.extension.api.runtime.streaming.PagingProvider
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.1.0
- * @version 1.1.1
  */
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicAnyMetadataResolver.class)
@@ -512,7 +506,7 @@ public class MarkLogicOperations
                     
                     ServerTransform transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
                     if (transform != null) {
-                        logger.info("Configuring transform for exportListener: " + transform.getName());
+                        LOGGER.info("Configuring transform for exportListener: " + transform.getName());
                         exportListener.withTransform(transform);
                     }
                     
@@ -524,7 +518,7 @@ public class MarkLogicOperations
                     batcher.withBatchSize(configuration.getBatchSize())
                             .withThreadCount(configuration.getThreadCount())
                             .onUrisReady(exportListener)
-                            .onQueryFailure((throwable) -> logger.error("Exception thrown by an onBatchSuccess listener", throwable));
+                            .onQueryFailure((throwable) -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
                     
                     dmm.startJob(batcher);
                     batcher.awaitCompletion();
@@ -533,7 +527,7 @@ public class MarkLogicOperations
 
                 if (dmm == null)
                 {
-                    logger.warn("Data Movement Manager is null after initialization.");
+                    LOGGER.warn("Data Movement Manager is null after initialization.");
                 }
                 List<Object> results = new ArrayList<>(exportListener.getDocs());
                 exportListener.clearDocs();
@@ -550,7 +544,7 @@ public class MarkLogicOperations
             @Override
             public void close(MarkLogicConnection markLogicConnector) throws MuleException
             {
-                logger.debug("NOT Invalidating ML connection...");
+                LOGGER.debug("NOT Invalidating ML connection...");
             }
         };
 
