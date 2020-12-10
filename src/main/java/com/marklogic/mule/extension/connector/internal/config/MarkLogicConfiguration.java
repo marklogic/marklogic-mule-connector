@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
@@ -209,13 +210,13 @@ public class MarkLogicConfiguration
         if (o == null || getClass() != o.getClass())
             return false;
         MarkLogicConfiguration that = (MarkLogicConfiguration)o;
-        return threadCount == that.threadCount &&
-                batchSize == that.batchSize &&
-                secondsBeforeFlush == that.secondsBeforeFlush &&
-                Objects.equals(configId, that.configId) &&
-                Objects.equals(serverTransform, that.serverTransform) &&
-                Objects.equals(serverTransformParams, that.serverTransformParams) &&
-                Objects.equals(jobName, that.jobName);
+        return new EqualsBuilder().append(threadCount, that.threadCount)
+                .append(batchSize, that.batchSize)
+                .append(secondsBeforeFlush, that.secondsBeforeFlush)
+                .append(configId, that.configId)
+                .append(serverTransform, that.serverTransform)
+                .append(serverTransformParams, that.serverTransformParams)
+                .append(jobName, that.jobName).isEquals();
     }
 
     @Override
