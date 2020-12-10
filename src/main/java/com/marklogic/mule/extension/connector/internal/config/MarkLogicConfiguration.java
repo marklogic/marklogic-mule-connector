@@ -216,7 +216,8 @@ public class MarkLogicConfiguration
                 .append(configId, that.configId)
                 .append(serverTransform, that.serverTransform)
                 .append(serverTransformParams, that.serverTransformParams)
-                .append(jobName, that.jobName).isEquals();
+                .append(jobName, that.jobName)
+                .isEquals();
     }
 
     @Override
