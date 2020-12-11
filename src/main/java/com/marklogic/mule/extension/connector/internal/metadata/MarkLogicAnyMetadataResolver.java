@@ -16,14 +16,9 @@ package com.marklogic.mule.extension.connector.internal.metadata;
 import static org.mule.metadata.api.model.MetadataFormat.JAVA;
 import org.mule.metadata.api.builder.BaseTypeBuilder;
 import org.mule.metadata.api.model.AnyType;
-import org.mule.metadata.api.model.BinaryType;
 import org.mule.metadata.api.model.MetadataType;
-import org.mule.runtime.api.connection.ConnectionException;
-import org.mule.runtime.api.metadata.MetadataContext;
-import org.mule.runtime.api.metadata.MetadataResolvingException;
 import org.mule.runtime.api.metadata.resolving.OutputStaticTypeResolver;
 import org.mule.runtime.api.metadata.resolving.OutputTypeResolver;
-import java.io.InputStream;
 
 /**
  * MarkLogic "Any" {@link OutputTypeResolver} implementation for the basic operations that always return an {@link AnyType}, since MarkLogic

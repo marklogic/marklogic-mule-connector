@@ -33,20 +33,15 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since 1.0.1
  *
  */
-//N.b: Support server-side transforms
+//N.B.: Support server-side transforms
 public class MarkLogicResultSetIterator implements Iterator
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MarkLogicResultSetIterator.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicResultSetIterator.class);
     private DocumentPage documents = null;
-
     private DocumentManager dm;
-
     private QueryDefinition query;
-
     private long maxResults = 0;
-
     private AtomicLong start = new AtomicLong(1);
     private AtomicLong resultCount = new AtomicLong(0);
 
@@ -75,9 +70,9 @@ public class MarkLogicResultSetIterator implements Iterator
     public List<Object> next()
     {
 
-        if (logger.isInfoEnabled())
+        if (LOGGER.isInfoEnabled())
         {
-            logger.info("iterator query: " + query.toString());
+            LOGGER.info("iterator query: {}", query);
         }
 
         long fetchSize = dm.getPageLength();
@@ -86,7 +81,7 @@ public class MarkLogicResultSetIterator implements Iterator
         for (int i = 0; i < fetchSize && documents.hasNext(); i++)
         {
             if ((maxResults > 0) && (resultCount.getAndIncrement() >= maxResults)) {
-                logger.info("Processed the user-supplied maximum number of results, which is " + maxResults);
+                LOGGER.info("Processed the user-supplied maximum number of results, which is {}", maxResults);
                 break;
             }
             DocumentRecord nextRecord = documents.next();
@@ -96,5 +91,4 @@ public class MarkLogicResultSetIterator implements Iterator
         documents.close();
         return page;
     }
-
 }

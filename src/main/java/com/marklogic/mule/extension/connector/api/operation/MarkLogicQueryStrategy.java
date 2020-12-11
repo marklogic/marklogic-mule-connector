@@ -15,7 +15,6 @@ package com.marklogic.mule.extension.connector.api.operation;
 
 import com.marklogic.client.datamovement.DataMovementManager;
 import com.marklogic.client.datamovement.QueryBatcher;
-import com.marklogic.client.io.Format;
 import com.marklogic.client.io.StringHandle;
 import com.marklogic.client.query.*;
 import org.apache.commons.jexl3.*;

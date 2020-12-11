@@ -16,18 +16,16 @@ package com.marklogic.mule.extension.connector.internal.result.resultset;
 import com.marklogic.client.document.DocumentRecord;
 import com.marklogic.client.io.Format;
 import com.marklogic.client.io.StringHandle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by jkrebs on 1/19/2020.
  */
 public class MarkLogicXMLRecordExtractor extends MarkLogicRecordExtractor {
+    private final StringHandle handle;
 
-    private static final Logger logger = LoggerFactory.getLogger(MarkLogicXMLRecordExtractor.class);
-
-    // Objects used for handling XML documents
-    private StringHandle handle = new StringHandle();
+    public MarkLogicXMLRecordExtractor() {
+        this.handle = new StringHandle();
+    }
 
     @Override
     protected Object extractRecord(DocumentRecord record) {

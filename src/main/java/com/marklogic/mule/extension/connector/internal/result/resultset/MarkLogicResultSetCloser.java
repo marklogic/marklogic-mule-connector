@@ -14,7 +14,6 @@
 package com.marklogic.mule.extension.connector.internal.result.resultset;
 
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
-import com.marklogic.mule.extension.connector.internal.operation.MarkLogicOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

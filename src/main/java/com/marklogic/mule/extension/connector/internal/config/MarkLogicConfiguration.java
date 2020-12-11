@@ -156,12 +156,12 @@ public class MarkLogicConfiguration
     {
         if (isDefined(transformName))
         {
-            logger.debug("Transforming query doc payload with operation-defined transform: " + serverTransform);
+            logger.debug("Transforming query doc payload with operation-defined transform: {}", serverTransform);
             return this.createServerTransform(transformName, transformParams);
         }
         else if (isDefined(this.serverTransform))
         {
-            logger.debug("Transforming query doc payload with connection-defined transform: " + this.getServerTransform());
+            logger.debug("Transforming query doc payload with connection-defined transform: {}", this.getServerTransform());
             return createServerTransform(this.serverTransform, this.serverTransformParams);
         }
         else

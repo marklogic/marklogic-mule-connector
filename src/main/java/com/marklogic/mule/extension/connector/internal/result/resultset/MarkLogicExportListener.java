@@ -13,9 +13,7 @@
  */
 package com.marklogic.mule.extension.connector.internal.result.resultset;
 
-import com.marklogic.client.datamovement.DataMovementManager;
 import com.marklogic.client.datamovement.ExportListener;
-import com.marklogic.client.datamovement.QueryBatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +47,7 @@ public class MarkLogicExportListener extends ExportListener {
                 if ((maxDocs > 0) && (resultCount.getAndIncrement() >= maxDocs))
                 {
                     maxDocsReached.set(true);
-                    logger.info("Processed the user-supplied maximum number of results, which is " + maxDocs);
+                    logger.info("Processed the user-supplied maximum number of results, which is {}", maxDocs);
                 }
                 else
                 {

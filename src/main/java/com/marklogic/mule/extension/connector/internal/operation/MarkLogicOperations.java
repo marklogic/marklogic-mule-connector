@@ -165,7 +165,6 @@ public class MarkLogicOperations
     @Deprecated
     @MediaType(value = APPLICATION_JSON, strict = true)
     @DisplayName("Get Job Report (deprecated)")
-//    @org.mule.runtime.extension.api.annotation.deprecated.Deprecated(message = "This operation should no longer be used.  Instead, use the built-in MuleSoft BatchJobResult output.", since = "1.1.0")
     public InputStream getJobReport()
     {
         InputStream targetStream = new ByteArrayInputStream(new byte[0]);
@@ -173,15 +172,16 @@ public class MarkLogicOperations
 
         ArrayNode exports = jsonFactory.createArrayNode();
         rootObj.set("exportResults", exports);
-        MarkLogicInsertionBatcher insertionBatcher = null; // Note: since MarkLogicInsertionBatcher is no longer a singleton, this will always fail
+        // Note: since MarkLogicInsertionBatcher is no longer a singleton, this will always fail
+        /*MarkLogicInsertionBatcher insertionBatcher = null;
         if (insertionBatcher != null)
         {
             ArrayNode imports = jsonFactory.createArrayNode();
             imports.add(insertionBatcher.createJsonJobReport(jsonFactory));
             rootObj.set("importResults", imports);
-        }
+        }*/
 
-        LOGGER.debug("getJobReport outcome: " + rootObj.asText());
+        LOGGER.debug("getJobReport outcome: {}", rootObj.asText());
         
         try {
             byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
@@ -262,7 +262,7 @@ public class MarkLogicOperations
         ObjectNode rootObj = jsonFactory.createObjectNode();
         rootObj.put("deletionResult", String.format("%d document(s) deleted", resultsHandle.getTotalResults()));
         rootObj.put("deletionCount", resultsHandle.getTotalResults());
-        LOGGER.debug("deleteDocs outcome: " + rootObj.asText());
+        LOGGER.debug("deleteDocs outcome: {}", rootObj.asText());
         
         try {
             byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
@@ -506,7 +506,7 @@ public class MarkLogicOperations
                     
                     ServerTransform transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
                     if (transform != null) {
-                        LOGGER.info("Configuring transform for exportListener: " + transform.getName());
+                        LOGGER.info("Configuring transform for exportListener: {}", transform.getName());
                         exportListener.withTransform(transform);
                     }
                     
