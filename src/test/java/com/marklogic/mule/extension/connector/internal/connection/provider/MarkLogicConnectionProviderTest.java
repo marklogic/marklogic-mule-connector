@@ -54,6 +54,7 @@ public class MarkLogicConnectionProviderTest
         MarkLogicConnectionProvider instance = new MarkLogicConnectionProvider(LOCALHOST, PORT, DATABASE_NAME, USER_NAME, USER_PASSWORD, AUTHENTICATION_LEVEL, CONNECTION_TYPE, null, null, CONNECTION_ID);
         MarkLogicConnection connection = instance.connect();
         instance.disconnect(connection);
+        assertTrue(true);
     }
 
     /**

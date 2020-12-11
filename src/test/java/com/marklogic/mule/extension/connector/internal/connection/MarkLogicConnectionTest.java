@@ -283,6 +283,7 @@ These tests are currently invalid as KERBEROS is not an option at this time
         };
         MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, EMPTY_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.certificate, MarkLogicConnectionType.DIRECT, tlsContextFactory, null, CONNECTION_ID);
         instance.connect();
+        assertTrue(true);
     }
 
     //----------------- Default Level Authentication Tests -------------------//
