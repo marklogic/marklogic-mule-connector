@@ -78,7 +78,7 @@ import org.slf4j.LoggerFactory;
 public class MarkLogicOperations
 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicOperations.class);
+    private static final Logger logger = LoggerFactory.getLogger(MarkLogicOperations.class);
     private static final String OUTPUT_URI_TEMPLATE = "%s%s%s"; // URI Prefix + basenameUri + URI Suffix
 
     private ObjectMapper jsonFactory = new ObjectMapper();
@@ -181,13 +181,13 @@ public class MarkLogicOperations
             rootObj.set("importResults", imports);
         }*/
 
-        LOGGER.debug("getJobReport outcome: {}", rootObj.asText());
+        logger.debug("getJobReport outcome: {}", rootObj.asText());
         
         try {
             byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
             targetStream = new ByteArrayInputStream(bin);
         } catch(IOException ex) {
-            LOGGER.error(String.format("Exception was thrown during getJobReport operation. Error was: %s", ex.getMessage()), ex);
+            logger.error(String.format("Exception was thrown during getJobReport operation. Error was: %s", ex.getMessage()), ex);
         }
         
         return targetStream;
@@ -253,7 +253,7 @@ public class MarkLogicOperations
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
                 .onUrisReady(new DeleteListener())
-                .onQueryFailure((throwable) -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
+                .onQueryFailure((throwable) -> logger.error("Exception thrown by an onBatchSuccess listener", throwable));
         dmm.startJob(batcher);
         batcher.awaitCompletion();
         dmm.stopJob(batcher);
@@ -262,14 +262,14 @@ public class MarkLogicOperations
         ObjectNode rootObj = jsonFactory.createObjectNode();
         rootObj.put("deletionResult", String.format("%d document(s) deleted", resultsHandle.getTotalResults()));
         rootObj.put("deletionCount", resultsHandle.getTotalResults());
-        LOGGER.debug("deleteDocs outcome: {}", rootObj.asText());
+        logger.debug("deleteDocs outcome: {}", rootObj.asText());
         
         try {
             byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
             targetStream = new ByteArrayInputStream(bin);
             targetStream.close();
         } catch(IOException ex) {
-            LOGGER.error(String.format("Exception was thrown during deleteDocs operation. Error was: %s", ex.getMessage()), ex);
+            logger.error(String.format("Exception was thrown during deleteDocs operation. Error was: %s", ex.getMessage()), ex);
         }
         return targetStream;
     }
@@ -383,14 +383,14 @@ public class MarkLogicOperations
                     resultSetCloser = new MarkLogicResultSetCloser(connection);
                     flowListener.onError(ex ->
                     {
-                        LOGGER.error(String.format("Exception was thrown during select operation. Error was: %s", ex.getMessage()), ex);
+                        logger.error(String.format("Exception was thrown during select operation. Error was: %s", ex.getMessage()), ex);
                         try
                         {
                             close(connection);
                         }
                         catch (MuleException e)
                         {
-                            LOGGER.info(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), e);
+                            logger.info(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), e);
                         }
                     });
 
@@ -506,7 +506,7 @@ public class MarkLogicOperations
                     
                     ServerTransform transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
                     if (transform != null) {
-                        LOGGER.info("Configuring transform for exportListener: {}", transform.getName());
+                        logger.info("Configuring transform for exportListener: {}", transform.getName());
                         exportListener.withTransform(transform);
                     }
                     
@@ -518,7 +518,7 @@ public class MarkLogicOperations
                     batcher.withBatchSize(configuration.getBatchSize())
                             .withThreadCount(configuration.getThreadCount())
                             .onUrisReady(exportListener)
-                            .onQueryFailure((throwable) -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
+                            .onQueryFailure((throwable) -> logger.error("Exception thrown by an onBatchSuccess listener", throwable));
                     
                     dmm.startJob(batcher);
                     batcher.awaitCompletion();
@@ -527,7 +527,7 @@ public class MarkLogicOperations
 
                 if (dmm == null)
                 {
-                    LOGGER.warn("Data Movement Manager is null after initialization.");
+                    logger.warn("Data Movement Manager is null after initialization.");
                 }
                 List<Object> results = new ArrayList<>(exportListener.getDocs());
                 exportListener.clearDocs();
@@ -544,7 +544,7 @@ public class MarkLogicOperations
             @Override
             public void close(MarkLogicConnection markLogicConnector) throws MuleException
             {
-                LOGGER.debug("NOT Invalidating ML connection...");
+                logger.debug("NOT Invalidating ML connection...");
             }
         };
 

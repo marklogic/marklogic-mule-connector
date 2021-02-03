@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class MarkLogicResultSetIterator implements Iterator
 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicResultSetIterator.class);
+    private static final Logger logger = LoggerFactory.getLogger(MarkLogicResultSetIterator.class);
     private DocumentPage documents = null;
     private DocumentManager dm;
     private QueryDefinition query;
@@ -70,9 +70,9 @@ public class MarkLogicResultSetIterator implements Iterator
     public List<Object> next()
     {
 
-        if (LOGGER.isInfoEnabled())
+        if (logger.isInfoEnabled())
         {
-            LOGGER.info("iterator query: {}", query);
+            logger.info("iterator query: {}", query);
         }
 
         long fetchSize = dm.getPageLength();
@@ -81,7 +81,7 @@ public class MarkLogicResultSetIterator implements Iterator
         for (int i = 0; i < fetchSize && documents.hasNext(); i++)
         {
             if ((maxResults > 0) && (resultCount.getAndIncrement() >= maxResults)) {
-                LOGGER.info("Processed the user-supplied maximum number of results, which is {}", maxResults);
+                logger.info("Processed the user-supplied maximum number of results, which is {}", maxResults);
                 break;
             }
             DocumentRecord nextRecord = documents.next();
