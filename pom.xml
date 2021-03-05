@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.marklogic</groupId> 
     <artifactId>marklogic-mule-connector</artifactId>
-    <version>1.1.2-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -73,8 +73,8 @@
                         </discoverRuntimes>
                     </runtimeConfiguration>
                 </configuration>
-                 <!--MUnit Dependencies--> 
-                 <dependencies>
+                <!--MUnit Dependencies--> 
+                <dependencies>
                     <dependency>
                         <groupId>com.mulesoft.munit</groupId>
                         <artifactId>munit-runner</artifactId>
@@ -133,17 +133,10 @@
         </plugins>
     </build>
     <dependencies>
-        <!-- jackson-databind 2.10.1 is needed to replace jackson-databind 2.9.8 that exists in marklogic-client-api 4.2.0.  -->
-        <!-- jackson-databind 2.10.1 exists in marklogic-client-api 5.1.0, but 5.1.0 requires >= Java 9, so adding upgraded jackson-databind dependency outside of ml-client-api --> 
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.10.1</version>
-        </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>ml-javaclient-util</artifactId>
-            <version>3.10.0</version>
+            <version>4.1.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.marklogic</groupId>
@@ -162,8 +155,7 @@
         <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>marklogic-client-api</artifactId>
-            <version>4.2.0</version>
-            <!--<version>5.1.0</version>-->
+            <version>5.4.0</version>
         </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>
@@ -175,7 +167,8 @@
             <artifactId>commons-jexl3</artifactId>
             <version>3.1</version>
         </dependency>
-        <!--<dependency>
+        <!--
+        <dependency>
             <groupId>com.mulesoft.munit</groupId>
             <artifactId>munit-runner</artifactId>
             <version>${munit.version}</version>
@@ -188,12 +181,56 @@
             <version>${munit.version}</version>
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
-        </dependency>-->
+        </dependency>
+        -->
         <dependency>
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-file-connector</artifactId>
             <version>1.1.3</version>
             <classifier>mule-plugin</classifier>
+        </dependency>
+        
+        <!-- 
+        * See Note below regarding marklogic-client-api 5.4.0 POM dependencies marked as runtime instead of compile *
+        As a result, we use slf4j and jackson-databind directly. Having slf4j defined as a dependency makes sense, but jackson-databind would be nice to pul from marklogic-client-api. 
+        Have to add it directly so that our code compiles. 
+        -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.30</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.11.1</version>
+        </dependency>        
+        <!--        
+        Had to add the 4 below because the MarkLogicOperationsTestCase fail without them being declared. 
+        If you look at the below, you will see all the dependencies are label as runtime and not compile:
+            https://repo1.maven.org/maven2/com/marklogic/marklogic-client-api/5.4.0/marklogic-client-api-5.4.0.pom
+        Earlier version (5.3.2) has them as compile, thus we need to add as dependencies:
+            https://repo1.maven.org/maven2/com/marklogic/marklogic-client-api/5.3.2/marklogic-client-api-5.3.2.pom        
+        -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>logging-interceptor</artifactId>
+            <version>4.7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.burgstaller</groupId>
+            <artifactId>okhttp-digest</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.1.1</version>
         </dependency>
     </dependencies>
     <packaging>mule-extension</packaging>
@@ -227,8 +264,8 @@
     </pluginRepositories>
     <scm>
         <connection>scm:git:git://github.com/marklogic-community/marklogic-mule-connector</connection>
-        <developerConnection>scm:svn:https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.1.2</developerConnection>
-        <tag>marklogic-mule-connector-1.1.2</tag>
-        <url>https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.1.2</url>
+        <developerConnection>scm:svn:https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.2.0</developerConnection>
+        <tag>marklogic-mule-connector-1.2.0</tag>
+        <url>https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.2.0</url>
     </scm>
 </project>
