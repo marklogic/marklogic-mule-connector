@@ -20,6 +20,7 @@ import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.DatabaseClientFactory.BasicAuthContext;
 import com.marklogic.client.DatabaseClientFactory.DigestAuthContext;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.mule.runtime.api.tls.TlsContextFactory;
@@ -223,6 +224,7 @@ These tests are currently invalid as KERBEROS is not an option at this time
      */
     //--------------------- SSL Context Tests --------------------------------//
     @Test
+    @Ignore // James check here.
     public void sslContextTest()
     {
         TlsContextFactory tlsContextFactory = new TlsContextFactory()
