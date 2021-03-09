@@ -7,7 +7,7 @@
 
 ### Get the Connector directly from MuleSoft Anypoint Exchange ###
 
-* <a href="https://www.anypoint.mulesoft.com/exchange/com.marklogic/marklogic-mule-connector/">The latest version (1.1.2) is available directly from Anypoint Exchange</a>.  See the <a href="doc/release-notes.adoc">release notes</a> and <a href="doc/user-manual.adoc">user manual</a> for more details.
+* <a href="https://www.anypoint.mulesoft.com/exchange/com.marklogic/marklogic-mule-connector/">The latest version (1.2.0) is available directly from Anypoint Exchange</a>.  See the <a href="doc/release-notes.adoc">release notes</a> and <a href="doc/user-manual.adoc">user manual</a> for more details.
 
 * Both Anypoint Studio and Anypoint Design Center offer ease of access to the Anypoint Exchange for direct import of the Connector for use in your flows.
 

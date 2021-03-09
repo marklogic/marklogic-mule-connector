@@ -13,7 +13,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	<marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="12d46d4c-7b06-466a-af3e-d62affcbba37" configId="testConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName" serverTransform="transformTestEgress" serverTransformParams="q,e">
 		<marklogic:connection hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" connectionId="testConfig" marklogicConnectionType="DIRECT"/>
 	</marklogic:config>
-	<flow name="marklogic-demo-1.1.2Flow" doc:id="a5033397-e46a-4181-bfe2-0f2af0fe5299" >
+	<flow name="marklogic-demo-1.2.0Flow" doc:id="a5033397-e46a-4181-bfe2-0f2af0fe5299" >
 		<http:listener doc:name="/exportDocs Listener" doc:id="dade09c3-6db5-499b-88ae-99e3c58e702d" config-ref="HTTP_Listener_config" path="/exportDocs">
 			<http:response >
 				<http:headers ><![CDATA[#[output application/java

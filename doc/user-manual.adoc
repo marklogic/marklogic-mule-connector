@@ -14,12 +14,12 @@ See the Release Notes for compatibility information listed in the See Also secti
 
 == What's New in this Connector
 
-=== Version 1.1.2 - 2020-10-31
+=== Version 1.2.0 - 2021-03-08
 
-Release 1.1.2 provides:
+Release 1.2.0 provides:
 
-* A hotfix, to allow MarkLogic connectivity through load balancers by adding MarkLogic Java Client API support via `DatabaseClient.ConnectionType.GATEWAY`.
-* A performance hotfix by moving away from using a pool of under-utilized pooled MarkLogic database connections. Instead, it now uses a cached connection strategy to optimize connections and improve throughput.
+* Allowing MarkLogic connectivity through load balancers by adding MarkLogic Java Client API support via `DatabaseClient.ConnectionType.GATEWAY`.
+* A performance improvement by moving away from using a pool of under-utilized pooled MarkLogic database connections. Instead, it now uses a cached connection strategy to optimize connections and improve throughput.
 
 === Version 1.1.1 - 2020-05-11
 
@@ -61,14 +61,14 @@ There are two options for installing and running the 1.1.1 demo flow in Design C
 
 === Deploying from Anypoint Studio Directly to CloudHub and Design Center
 
-. After installing the 1.1.2 demo in Anypoint Studio, deploy the application directly to CloudHub by selecting the 1.1.2 demo in the Project Explorer.  Then, right-click, and select "Anypoint Platform&rarr;Deploy to CloudHub".
+. After installing the 1.2.0 demo in Anypoint Studio, deploy the application directly to CloudHub by selecting the 1.2.0 demo in the Project Explorer.  Then, right-click, and select "Anypoint Platform&rarr;Deploy to CloudHub".
 . Continue to authenticate to Design Center and CloudHub, and follow the steps.
 
 image::deploy-to-cloudhub.png[Deploy to CloudHub]
 
 === Importing a JAR to Design Center
 
-. From Anypoint Studio, export a JAR of the demo 1.1.2 application by right-clicking the application name in Project Explorer, and selecting "Export".
+. From Anypoint Studio, export a JAR of the demo 1.2.0 application by right-clicking the application name in Project Explorer, and selecting "Export".
 . Keep the default selections.
 . Choose the filesystem location to save the JAR and click "Finish".  The JAR should now reside on your filesystem at the chosen location.
 . Login to Anypoint Design Center.
@@ -125,7 +125,7 @@ You can optionally or alternatively add this dependency as an Artifact Definitio
 <dependency>
  <groupId>com.marklogic</groupId>
   <artifactId>marklogic-mule-connector</artifactId>
-  <version>1.1.2</version>
+  <version>1.2.0</version>
 </dependency>
 ----
 
@@ -575,19 +575,19 @@ This example demonstrates the use of the MarkLogic Mule Connector, doing the fol
 }
 ----
 
-image::marklogic-demo-1.1.2.png[Demo Flow]
+image::marklogic-demo-1.2.0.png[Demo Flow]
 
 === To Configure this Example
 
 The MarkLogic exportDocs operation connection configuration is pre-populated.  However, should you need to tweak any settings, select the importDocs icon in the flow, and change any necessary settings.
 
-image::exportDocs-config-demo-1.1.2.png[exportDocs Configuration]
+image::exportDocs-config-demo-1.2.0.png[exportDocs Configuration]
 
 === To Test the Example
 
 . Click File &rarr; Import
 . On the next screen, click "Anypoint Studio project from File System" &rarr; Next.
-. You can now import the demo from the file system on the next screen.  Locate the demo/ directory from the codebase, and find the 1.1.2 demo.  
+. You can now import the demo from the file system on the next screen.  Locate the demo/ directory from the codebase, and find the 1.2.0 demo.  
 . Provide a project name. Use "Server Runtime 4.3.0 EE". 
 . The project will be imported and begin to build automatically.
 . Run the project by right- or Ctrl-clicking the project name at left, the Run As &rarr; Mule Application.
@@ -595,7 +595,7 @@ image::exportDocs-config-demo-1.1.2.png[exportDocs Configuration]
 
 image::import-demo-fs-1.png[Import project from file system]
 
-image::import-demo-fs-2-1.1.2.png[Import Mule Project]
+image::import-demo-fs-2-1.2.0.png[Import Mule Project]
 
 image::run-as-mule-application.png[Run Mule Application]
 
