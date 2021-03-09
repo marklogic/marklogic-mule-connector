@@ -12,10 +12,10 @@ The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users
 [%header%autowidth.spread]
 |===
 |Software |Version
-|Anypoint Studio |7.5.0 and later
+|Anypoint Studio |7.8.0 and later
 |Mule SDK|4.3.0 and later
 |JDK |1.8.x
-|MarkLogic Java Client API |4.2.0 and later
+|MarkLogic Java Client API |5.4.0 and later
 |MarkLogic|9.0-6.2 and later
 |===
 
@@ -24,16 +24,19 @@ This release of the Connector includes the following hotfixes:
 
 * Allow MarkLogic connectivity through load balancers by adding MarkLogic Java Client API support via `DatabaseClient.ConnectionType.GATEWAY`.
 * Provides a performance improvement by moving away from using a pool of under-utilized pooled MarkLogic database connections. Instead, it now uses a cached connection strategy to optimize connections and improve throughput.
+* Upgraded MarkLogic Java Client API to 5.4.0.
 
 === Version 1.2.0 - Required Libraries
 
-* MarkLogic Java Client API v.4.2.0
+* MarkLogic Java Client API v.5.4.0
+* MarkLogic Java Client Utilities v.4.1.1
 * MarkLogic Data Movement Components v.1.0
 
 === Version 1.2.0 - Improvements
 
 * Allow MarkLogic connectivity through load balancers by adding MarkLogic Java Client API support via `DatabaseClient.ConnectionType.GATEWAY`.
 * Improve performance by moving away from using a pool of under-utilized pooled MarkLogic database connections. Instead, it now uses a cached connection strategy to optimize connections and improve throughput.
+* Upgraded MarkLogic Java Client API to 5.4.0.
 
 === Version 1.2.0 - Bugs Fixed
 
