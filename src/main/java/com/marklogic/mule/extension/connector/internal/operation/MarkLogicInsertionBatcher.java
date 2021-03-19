@@ -149,7 +149,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
                     lastWriteTime = System.currentTimeMillis() + 900000;
                 }
             }
-        }, secondsBeforeFlush * 1000, secondsBeforeFlush * 1000);
+        }, secondsBeforeFlush * (long) 1000, secondsBeforeFlush * (long) 1000);
 
         // Set up the metadata to be used for the documents that will be inserted
         // ASSUMPTION: The same metadata will be used for every document to be inserted during the lifetime of this
