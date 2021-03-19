@@ -7,16 +7,16 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <app.runtime>4.2.2</app.runtime>
-        <mule.maven.plugin.version>3.3.9</mule.maven.plugin.version>
-        <munit.version>2.2.5</munit.version>
+        <app.runtime>4.3.0</app.runtime>
+        <mule.maven.plugin.version>3.5.1</mule.maven.plugin.version>
+        <munit.version>2.3.2</munit.version>
     </properties>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.mule.tools.maven</groupId>
                 <artifactId>mule-maven-plugin</artifactId>
-                <version>3.3.2</version>
+                <version>${mule.maven.plugin.version}</version>
                 <extensions>true</extensions> 
             </plugin>
             <!--
@@ -56,7 +56,7 @@
             <plugin>
                 <groupId>com.mulesoft.munit</groupId>
                 <artifactId>munit-extensions-maven-plugin</artifactId>
-                <version>1.0.0</version>
+                <version>1.1.0</version>
                 <executions>
                     <execution>
                         <phase>integration-test</phase>
@@ -90,12 +90,11 @@
                     <dependency>
                         <groupId>com.mulesoft.munit</groupId>
                         <artifactId>mtf-tools</artifactId>
-                        <version>1.0.0</version>
+                        <version>1.1.0</version>
                         <classifier>mule-plugin</classifier>
                     </dependency>
                 </dependencies>
             </plugin>
-            <!--
             <plugin>
                 <groupId>com.mulesoft.munit.tools</groupId>
                 <artifactId>munit-maven-plugin</artifactId>
@@ -103,17 +102,17 @@
                 <executions>
                     <execution>
                         <id>test</id>
-                        <phase>integration-test</phase>
+                        <phase>test</phase>
                         <goals>
-                            <goal>test</goal>
+                            <!--<goal>test</goal>-->
                             <goal>coverage-report</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
                     <runtimeProduct>MULE_EE</runtimeProduct>
-                    <runtimeVersion>4.2.2</runtimeVersion>
-                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
+                    <runtimeVersion>${app.runtime}</runtimeVersion>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <munitTestsDirectory>src/test/munit</munitTestsDirectory>
                     <coverage>
                         <runCoverage>true</runCoverage>
@@ -125,11 +124,31 @@
                             <format>console</format>
                             <format>html</format>
                             <format>json</format>
+                            <format>sonar</format>
                         </formats>
                     </coverage>
                 </configuration>
             </plugin>
-            -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.6</version>
+                <executions>
+                    <execution>
+                        <id>jacoco-initialize</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-report</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
@@ -173,7 +192,6 @@
             <artifactId>commons-io</artifactId>
             <version>2.7</version>
         </dependency>
-        <!--
         <dependency>
             <groupId>com.mulesoft.munit</groupId>
             <artifactId>munit-runner</artifactId>
@@ -188,7 +206,6 @@
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
-        -->
         <dependency>
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-file-connector</artifactId>
