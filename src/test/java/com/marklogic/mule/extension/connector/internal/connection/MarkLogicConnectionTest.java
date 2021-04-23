@@ -18,12 +18,15 @@ import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnection
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.DatabaseClientFactory.BasicAuthContext;
+import com.marklogic.client.DatabaseClientFactory.CertificateAuthContext;
 import com.marklogic.client.DatabaseClientFactory.DigestAuthContext;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
 import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.mule.runtime.api.lifecycle.CreateException;
 import org.mule.runtime.api.tls.TlsContextFactory;
+import org.mule.runtime.api.tls.TlsContextFactoryBuilder;
 import org.mule.runtime.api.tls.TlsContextKeyStoreConfiguration;
 import org.mule.runtime.api.tls.TlsContextTrustStoreConfiguration;
 
@@ -173,6 +176,39 @@ public class MarkLogicConnectionTest
 
         assertEquals(USER_NAME, digest.getUser());
         assertEquals(USER_PASSWORD, digest.getPassword());
+    }
+
+    //----------------- Keystore Authentication Tests ------------------------//
+    @Test
+    public void testCertificateClientWithDbName() throws CreateException
+    {
+        certificateClientTest(DATABASE_NAME);
+    }
+
+    @Test
+    public void testCertificateClientWithoutDbName() throws CreateException
+    {
+        certificateClientTest(EMPTY_DATABASE_NAME);
+    }
+
+    protected void certificateClientTest(String databaseName) throws CreateException
+    {
+        TlsContextFactoryBuilder tcfb = TlsContextFactory.builder();
+        tcfb.trustStorePath("src/test/resources/demo.jks");
+        tcfb.trustStorePassword("P@$$w0rd1");
+        TlsContextFactory sslContext = tcfb.build();
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, databaseName, USER_NAME, USER_PASSWORD, AuthenticationType.certificate, MarkLogicConnectionType.DIRECT, sslContext, null, CONNECTION_ID);
+        instance.connect();
+        DatabaseClient result = instance.getClient();
+        this.databaseClientAssert(result, !databaseName.equals(EMPTY_DATABASE_NAME));
+
+        DatabaseClientFactory.SecurityContext securityContext = result.getSecurityContext();
+
+        assertTrue(securityContext instanceof CertificateAuthContext);
+        /*CertificateAuthContext digest = (CertificateAuthContext) securityContext;
+
+        assertEquals(USER_NAME, digest.getUser());
+        assertEquals(USER_PASSWORD, digest.getPassword());*/
     }
 
     //----------------- Kerberos Authentication Tests ------------------------//

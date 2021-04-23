@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
     
     <configuration-properties file="automation-credentials.properties"/>
-    
+
+    <tls:context name="markLogicSSLContext">
+        <tls:trust-store path="src/test/resources/demo.jks" password="P@$$w0rd1"/>
+    </tls:context>
+
     <marklogic:config name="config" configId="configId" threadCount="5" batchSize="3" secondsBeforeFlush="2" jobName="import">
         <marklogic:connection connectionId="testConfig-223efe" hostname="${config.hostName}" port="8011" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" kerberosExternalName="null" marklogicConnectionType="DIRECT"/>
     </marklogic:config>
     <marklogic:config name="transform_config" configId="transformConfig" threadCount="4" batchSize="100" serverTransform="ml:sjsInputFlow" serverTransformParams="entity-name,Employees,flow-name,loadEmployees" secondsBeforeFlush="2" jobName="myJobName" >
         <marklogic:connection connectionId="transformConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" marklogicConnectionType="DIRECT"/>
+    </marklogic:config>
+    <marklogic:config name="ssl_config" configId="configId" threadCount="5" batchSize="3" secondsBeforeFlush="2" jobName="import">
+        <marklogic:connection connectionId="ssl_config" hostname="${config.hostName}" port="8011" database="null" username="${config.username}" password="${config.password}" authenticationType="certificate" kerberosExternalName="null" marklogicConnectionType="DIRECT"/>
     </marklogic:config>
     
     <flow name="retrieveInfoFlow">
@@ -49,6 +56,13 @@
     </flow>
     <flow name="queryDocsMaxResultsFlow">
         <marklogic:query-docs queryStrategy="CTSQuery" fmt="XML" config-ref="config" maxResults="5">
+            <marklogic:query-string>
+                &lt;cts:true-query xmlns:cts=&quot;http://marklogic.com/cts&quot;&gt;&lt;/cts:true-query&gt;
+            </marklogic:query-string>
+        </marklogic:query-docs>
+    </flow>
+    <flow name="sslConnectionFlow">
+        <marklogic:query-docs config-ref="ssl_config" queryStrategy="CTSQuery" fmt="XML" maxResults="5">
             <marklogic:query-string>
                 &lt;cts:true-query xmlns:cts=&quot;http://marklogic.com/cts&quot;&gt;&lt;/cts:true-query&gt;
             </marklogic:query-string>
