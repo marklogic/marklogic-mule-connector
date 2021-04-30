@@ -28,11 +28,13 @@ public class MarkLogicConfigurationTest
 {
 
     MarkLogicConfiguration instance;
+    MarkLogicConfiguration instance2;
 
     @Before
     public void setUp() throws Exception
     {
         instance = new MarkLogicConfiguration();
+        instance2 = new MarkLogicConfiguration();
     }
 
     /**
@@ -156,6 +158,20 @@ public class MarkLogicConfigurationTest
     public void testIsDefinedNullCapString()
     {
         assertFalse(MarkLogicConfiguration.isDefined("NULL"));
+    }
+
+    @Test
+    public void testConfigEquals()
+    {
+        assertEquals(instance,instance);
+        assertEquals(instance,instance2);
+    }
+
+    @Test
+    public void testConfigNotEquals()
+    {
+        assertNotEquals(instance,null);
+        assertNotEquals(instance, instance.generateServerTransform("TestTransform", null));
     }
 
     /**
