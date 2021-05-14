@@ -33,8 +33,13 @@ import org.mule.runtime.api.tls.TlsContextTrustStoreConfiguration;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
 import static org.mockito.Mockito.*;
 
 /**
@@ -53,6 +58,7 @@ public class MarkLogicConnectionTest
     private static final String NULL_STR_DATABASE_NAME = "null";
     private static final int PORT = 8000;
     private static final String LOCALHOST = "localhost";
+    private static final String PROPERTIES_FILE = "automation-credentials.properties";
 
     /**
      * Test of getId method, of class MarkLogicConnection.
@@ -180,22 +186,35 @@ public class MarkLogicConnectionTest
 
     //----------------- Keystore Authentication Tests ------------------------//
     @Test
-    public void testCertificateClientWithDbName() throws CreateException
+    public void testCertificateClientWithDbName() throws CreateException, FileNotFoundException, IOException
     {
         certificateClientTest(DATABASE_NAME);
     }
 
     @Test
-    public void testCertificateClientWithoutDbName() throws CreateException
+    public void testCertificateClientWithoutDbName() throws CreateException, FileNotFoundException, IOException
     {
         certificateClientTest(EMPTY_DATABASE_NAME);
     }
 
-    protected void certificateClientTest(String databaseName) throws CreateException
+    protected void certificateClientTest(String databaseName) throws CreateException, FileNotFoundException, IOException
     {
+        Properties properties = new Properties();
+        try {
+            InputStream is = getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE);
+
+            if (is != null) {
+                properties.load(is);
+            }
+        } catch (FileNotFoundException ex) {
+            throw ex;
+        } catch (IOException ex) {
+            throw ex;
+        }
+        
         TlsContextFactoryBuilder tcfb = TlsContextFactory.builder();
-        tcfb.trustStorePath("src/test/resources/demo.jks");
-        tcfb.trustStorePassword("P@$$w0rd1");
+        tcfb.trustStorePath(properties.getProperty("keystore.filepath"));
+        tcfb.trustStorePassword(properties.getProperty("keystore.password"));
         TlsContextFactory sslContext = tcfb.build();
         MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, databaseName, USER_NAME, USER_PASSWORD, AuthenticationType.certificate, MarkLogicConnectionType.DIRECT, sslContext, null, CONNECTION_ID);
         instance.connect();
