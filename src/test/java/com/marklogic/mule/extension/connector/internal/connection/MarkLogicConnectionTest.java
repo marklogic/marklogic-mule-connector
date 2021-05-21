@@ -18,20 +18,28 @@ import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnection
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.DatabaseClientFactory.BasicAuthContext;
+import com.marklogic.client.DatabaseClientFactory.CertificateAuthContext;
 import com.marklogic.client.DatabaseClientFactory.DigestAuthContext;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
 import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.mule.runtime.api.lifecycle.CreateException;
 import org.mule.runtime.api.tls.TlsContextFactory;
+import org.mule.runtime.api.tls.TlsContextFactoryBuilder;
 import org.mule.runtime.api.tls.TlsContextKeyStoreConfiguration;
 import org.mule.runtime.api.tls.TlsContextTrustStoreConfiguration;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
 import static org.mockito.Mockito.*;
 
 /**
@@ -49,7 +57,9 @@ public class MarkLogicConnectionTest
     private static final String EMPTY_DATABASE_NAME = "";
     private static final String NULL_STR_DATABASE_NAME = "null";
     private static final int PORT = 8000;
+    private static final int SSL_PORT = 8021;
     private static final String LOCALHOST = "localhost";
+    private static final String PROPERTIES_FILE = "automation-credentials.properties";
 
     /**
      * Test of getId method, of class MarkLogicConnection.
@@ -173,6 +183,52 @@ public class MarkLogicConnectionTest
 
         assertEquals(USER_NAME, digest.getUser());
         assertEquals(USER_PASSWORD, digest.getPassword());
+    }
+
+    //----------------- Keystore Authentication Tests ------------------------//
+    @Test
+    public void testCertificateClientWithDbName() throws CreateException, FileNotFoundException, IOException
+    {
+        certificateClientTest(DATABASE_NAME);
+    }
+
+    @Test
+    public void testCertificateClientWithoutDbName() throws CreateException, FileNotFoundException, IOException
+    {
+        certificateClientTest(EMPTY_DATABASE_NAME);
+    }
+
+    protected void certificateClientTest(String databaseName) throws CreateException, FileNotFoundException, IOException
+    {
+        Properties properties = new Properties();
+        try {
+            InputStream is = getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE);
+
+            if (is != null) {
+                properties.load(is);
+            }
+        } catch (FileNotFoundException ex) {
+            throw ex;
+        } catch (IOException ex) {
+            throw ex;
+        }
+        
+        TlsContextFactoryBuilder tcfb = TlsContextFactory.builder();
+        tcfb.trustStorePath(properties.getProperty("keystore.filepath"));
+        tcfb.trustStorePassword(properties.getProperty("keystore.password"));
+        TlsContextFactory sslContext = tcfb.build();
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, SSL_PORT, databaseName, USER_NAME, USER_PASSWORD, AuthenticationType.certificate, MarkLogicConnectionType.DIRECT, sslContext, null, CONNECTION_ID);
+        instance.connect();
+        DatabaseClient result = instance.getClient();
+        this.sslDatabaseClientAssert(result, !databaseName.equals(EMPTY_DATABASE_NAME));
+
+        DatabaseClientFactory.SecurityContext securityContext = result.getSecurityContext();
+
+        assertTrue(securityContext instanceof CertificateAuthContext);
+        /*CertificateAuthContext digest = (CertificateAuthContext) securityContext;
+
+        assertEquals(USER_NAME, digest.getUser());
+        assertEquals(USER_PASSWORD, digest.getPassword());*/
     }
 
     //----------------- Kerberos Authentication Tests ------------------------//
@@ -332,4 +388,13 @@ These tests are currently invalid as KERBEROS is not an option at this time
         }
     }
 
+    protected void sslDatabaseClientAssert(DatabaseClient client, boolean compareDbName)
+    {
+        assertEquals(LOCALHOST, client.getHost());
+        assertEquals(SSL_PORT, client.getPort());
+        if (compareDbName)
+        {
+            assertEquals(DATABASE_NAME, client.getDatabase());
+        }
+    }
 }
