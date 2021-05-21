@@ -217,7 +217,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
      * @return Job results report
      * @param jsonFactory
      */
-    ObjectNode createJsonJobReport(ObjectMapper jsonFactory)
+    /*ObjectNode createJsonJobReport(ObjectMapper jsonFactory)
     {
         JobReport jr = dmm.getJobReport(jobTicket);
         ObjectNode obj = jsonFactory.createObjectNode();
@@ -246,7 +246,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         obj.put("jobEndTime", jobEndTime.format(ISO8601_DATE_TIME_FORMATTER));
         obj.put("jobReportTime", jobReportTime.format(ISO8601_DATE_TIME_FORMATTER));
         return obj;
-    }
+    }*/
 
     /**
      * Actually does the work of passing the document on to DMSDK to do its
@@ -271,7 +271,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         return new ByteArrayInputStream(jsonout.getBytes(cs));
     }
 
-    private ZonedDateTime toZonedDateTime(Calendar calendar)
+    /*public ZonedDateTime toZonedDateTime(Calendar calendar)
     {
         if (calendar == null)
         {
@@ -280,7 +280,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         TimeZone tz = calendar.getTimeZone();
         ZoneId zid = tz == null ? ZoneId.systemDefault() : tz.toZoneId();
         return ZonedDateTime.ofInstant(calendar.toInstant(), zid);
-    }
+    }*/
 
     @Override
     public void markLogicConnectionInvalidated()

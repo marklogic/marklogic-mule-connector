@@ -57,6 +57,7 @@ public class MarkLogicConnectionTest
     private static final String EMPTY_DATABASE_NAME = "";
     private static final String NULL_STR_DATABASE_NAME = "null";
     private static final int PORT = 8000;
+    private static final int SSL_PORT = 8021;
     private static final String LOCALHOST = "localhost";
     private static final String PROPERTIES_FILE = "automation-credentials.properties";
 
@@ -216,10 +217,10 @@ public class MarkLogicConnectionTest
         tcfb.trustStorePath(properties.getProperty("keystore.filepath"));
         tcfb.trustStorePassword(properties.getProperty("keystore.password"));
         TlsContextFactory sslContext = tcfb.build();
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, databaseName, USER_NAME, USER_PASSWORD, AuthenticationType.certificate, MarkLogicConnectionType.DIRECT, sslContext, null, CONNECTION_ID);
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, SSL_PORT, databaseName, USER_NAME, USER_PASSWORD, AuthenticationType.certificate, MarkLogicConnectionType.DIRECT, sslContext, null, CONNECTION_ID);
         instance.connect();
         DatabaseClient result = instance.getClient();
-        this.databaseClientAssert(result, !databaseName.equals(EMPTY_DATABASE_NAME));
+        this.sslDatabaseClientAssert(result, !databaseName.equals(EMPTY_DATABASE_NAME));
 
         DatabaseClientFactory.SecurityContext securityContext = result.getSecurityContext();
 
@@ -387,4 +388,13 @@ These tests are currently invalid as KERBEROS is not an option at this time
         }
     }
 
+    protected void sslDatabaseClientAssert(DatabaseClient client, boolean compareDbName)
+    {
+        assertEquals(LOCALHOST, client.getHost());
+        assertEquals(SSL_PORT, client.getPort());
+        if (compareDbName)
+        {
+            assertEquals(DATABASE_NAME, client.getDatabase());
+        }
+    }
 }
