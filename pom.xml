@@ -129,7 +129,8 @@
                     </coverage>
                 </configuration>
             </plugin>
-            <plugin>
+            <!-- Uncomment Jacoco for testing, but comment for pushing to MuleSoft for CAM build -->
+            <!--<plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.6</version>
@@ -153,7 +154,7 @@
                         <exclude>*</exclude>
                     </excludes>
                 </configuration>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
     <dependencies>
