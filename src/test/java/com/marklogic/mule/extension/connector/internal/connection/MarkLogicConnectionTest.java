@@ -280,7 +280,6 @@ These tests are currently invalid as KERBEROS is not an option at this time
      */
     //--------------------- SSL Context Tests --------------------------------//
     @Test
-    @Ignore // James check here.
     public void sslContextTest()
     {
         TlsContextFactory tlsContextFactory = new TlsContextFactory()
@@ -339,7 +338,7 @@ These tests are currently invalid as KERBEROS is not an option at this time
                 return null;
             }
         };
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, EMPTY_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.certificate, MarkLogicConnectionType.DIRECT, tlsContextFactory, null, CONNECTION_ID);
+        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, EMPTY_DATABASE_NAME, USER_NAME, USER_PASSWORD, AuthenticationType.basic, MarkLogicConnectionType.DIRECT, tlsContextFactory, null, CONNECTION_ID);
         instance.connect();
         assertTrue(true);
     }

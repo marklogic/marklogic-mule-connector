@@ -46,7 +46,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
 {
     private static final Logger logger = LoggerFactory.getLogger(MarkLogicInsertionBatcher.class);
 
-    private static final DateTimeFormatter ISO8601_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+    //private static final DateTimeFormatter ISO8601_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
     // a hash used internally to uniquely identify the batcher based on its current configuration
     private final int signature;
@@ -86,11 +86,12 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     public MarkLogicInsertionBatcher(MarkLogicConfiguration marklogicConfiguration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
     {
         this.batcherRequiresReinit = false;
+        logger.debug("MarkLogicInsertionBatcher batcherRequiresReinit {}", batcherRequiresReinit);
         this.signature = computeSignature(marklogicConfiguration, connection, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
 
         // get the object handles needed to talk to MarkLogic
         initializeBatcher(marklogicConfiguration, connection, outputCollections, outputPermissions, outputQuality, temporalCollection, serverTransform, serverTransformParams);
-
+        logger.info("MarkLogicInsertionBatcher with job name: {}", jobName);
         this.jobName = jobName;
     }
 

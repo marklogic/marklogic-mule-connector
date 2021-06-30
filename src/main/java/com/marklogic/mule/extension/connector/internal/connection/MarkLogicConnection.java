@@ -130,7 +130,7 @@ public final class MarkLogicConnection
         }
         else
         {
-            logger.warn("Could not determine MarkLogicConnection port");
+            logger.warn("Could not determine MarkLogicConnection port or client is null");
             return false;
         }
     }
