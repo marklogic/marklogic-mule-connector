@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidationListener
 {
-    private static final Logger logger = LoggerFactory.getLogger(MarkLogicInsertionBatcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicInsertionBatcher.class);
 
     //private static final DateTimeFormatter ISO8601_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
@@ -86,12 +86,12 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     public MarkLogicInsertionBatcher(MarkLogicConfiguration marklogicConfiguration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
     {
         this.batcherRequiresReinit = false;
-        logger.debug("MarkLogicInsertionBatcher batcherRequiresReinit {}", batcherRequiresReinit);
+        LOGGER.debug("MarkLogicInsertionBatcher batcherRequiresReinit {}", batcherRequiresReinit);
         this.signature = computeSignature(marklogicConfiguration, connection, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
 
         // get the object handles needed to talk to MarkLogic
         initializeBatcher(marklogicConfiguration, connection, outputCollections, outputPermissions, outputQuality, temporalCollection, serverTransform, serverTransformParams);
-        logger.info("MarkLogicInsertionBatcher with job name: {}", jobName);
+        LOGGER.info("MarkLogicInsertionBatcher with job name: {}", jobName);
         this.jobName = jobName;
     }
 
@@ -108,8 +108,8 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         // Configure the batcher's behavior
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
-                .onBatchSuccess((batch) -> logger.info("Batcher with signature " + getSignature() + " on connection ID " + connection.getId() + " writes so far: " + batch.getJobWritesSoFar()))
-                .onBatchFailure((batch, throwable) -> logger.error("Exception thrown by an onBatchSuccess listener", throwable));
+                .onBatchSuccess((batch) -> LOGGER.info("Batcher with signature " + getSignature() + " on connection ID " + connection.getId() + " writes so far: " + batch.getJobWritesSoFar()))
+                .onBatchFailure((batch, throwable) -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
 
         // Configure the transform to be used, if any
         // ASSUMPTION: The same transform (or lack thereof) will be used for every document to be inserted during the
@@ -117,7 +117,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
 
         if ((temporalCollection != null) && !"null".equalsIgnoreCase(temporalCollection))
         {
-            logger.info("TEMPORAL COLLECTION: {}", temporalCollection);
+            LOGGER.info("TEMPORAL COLLECTION: {}", temporalCollection);
             batcher.withTemporalCollection(temporalCollection);
         }
 
@@ -190,7 +190,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
                     metadataHandle.getPermissions().add(role, DocumentMetadataHandle.Capability.NODE_UPDATE);
                     break;
                 default:
-                    logger.info("No additive permissions assigned");
+                    LOGGER.info("No additive permissions assigned");
             }
         }
 
@@ -266,7 +266,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
 
         // Return the job ticket ID so it can be used to retrieve the document in the future
         String jsonout = "\"" + jobTicket.getJobId() + "\"";
-        logger.debug("importDocs getJobId outcome: {}", jsonout);
+        LOGGER.debug("importDocs getJobId outcome: {}", jsonout);
         
         Charset cs = StandardCharsets.UTF_8;
         return new ByteArrayInputStream(jsonout.getBytes(cs));
@@ -286,7 +286,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     @Override
     public void markLogicConnectionInvalidated()
     {
-        logger.info("MarkLogic connection invalidated... reinitializing insertion batcher...");
+        LOGGER.info("MarkLogic connection invalidated... reinitializing insertion batcher...");
         batcherRequiresReinit = true;
     }
 }

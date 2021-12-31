@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 public class MarkLogicConfiguration
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MarkLogicConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicConfiguration.class);
 
     @DisplayName("Connection ID")
     @Parameter
@@ -156,17 +156,17 @@ public class MarkLogicConfiguration
     {
         if (isDefined(transformName))
         {
-            logger.debug("Transforming query doc payload with operation-defined transform: {}", serverTransform);
+            LOGGER.debug("Transforming query doc payload with operation-defined transform: {}", serverTransform);
             return this.createServerTransform(transformName, transformParams);
         }
         else if (isDefined(this.serverTransform))
         {
-            logger.debug("Transforming query doc payload with connection-defined transform: {}", this.getServerTransform());
+            LOGGER.debug("Transforming query doc payload with connection-defined transform: {}", this.getServerTransform());
             return createServerTransform(this.serverTransform, this.serverTransformParams);
         }
         else
         {
-            logger.debug("Querying docs without a transform");
+            LOGGER.debug("Querying docs without a transform");
             return null;
         }
     }

@@ -78,7 +78,7 @@ import org.slf4j.LoggerFactory;
 public class MarkLogicOperations
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MarkLogicOperations.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicOperations.class);
     private static final String OUTPUT_URI_TEMPLATE = "%s%s%s"; // URI Prefix + basenameUri + URI Suffix
 
     private ObjectMapper jsonFactory = new ObjectMapper();
@@ -181,13 +181,13 @@ public class MarkLogicOperations
             rootObj.set("importResults", imports);
         }*/
 
-        logger.debug("getJobReport outcome: {}", rootObj.asText());
+        LOGGER.debug("getJobReport outcome: {}", rootObj.asText());
         
         try {
             byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
             targetStream = new ByteArrayInputStream(bin);
         } catch(IOException ex) {
-            logger.error(String.format("Exception was thrown during getJobReport operation. Error was: %s", ex.getMessage()), ex);
+            LOGGER.error(String.format("Exception was thrown during getJobReport operation. Error was: %s", ex.getMessage()), ex);
         }
         
         return targetStream;
@@ -241,8 +241,8 @@ public class MarkLogicOperations
         DatabaseClient client = connection.getClient();
         QueryManager qm = client.newQueryManager();
         DataMovementManager dmm = client.newDataMovementManager();
-        QueryDefinition query = queryStrategy.getQueryDefinition(qm,queryString,fmt,optionsName);
-        QueryBatcher batcher = queryStrategy.newQueryBatcher(dmm,query);
+        QueryDefinition query = queryStrategy.getQueryDefinition(qm, queryString, fmt, optionsName);
+        QueryBatcher batcher = queryStrategy.newQueryBatcher(dmm, query);
         SearchHandle resultsHandle = qm.search(query, new SearchHandle());
         
         if (useConsistentSnapshot)
@@ -253,7 +253,7 @@ public class MarkLogicOperations
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
                 .onUrisReady(new DeleteListener())
-                .onQueryFailure((throwable) -> logger.error("Exception thrown by an onBatchSuccess listener", throwable));
+                .onQueryFailure((throwable) -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
         dmm.startJob(batcher);
         batcher.awaitCompletion();
         dmm.stopJob(batcher);
@@ -262,14 +262,14 @@ public class MarkLogicOperations
         ObjectNode rootObj = jsonFactory.createObjectNode();
         rootObj.put("deletionResult", String.format("%d document(s) deleted", resultsHandle.getTotalResults()));
         rootObj.put("deletionCount", resultsHandle.getTotalResults());
-        logger.debug("deleteDocs outcome: {}", rootObj.asText());
+        LOGGER.debug("deleteDocs outcome: {}", rootObj.asText());
         
         try {
             byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
             targetStream = new ByteArrayInputStream(bin);
             targetStream.close();
         } catch(IOException ex) {
-            logger.error(String.format("Exception was thrown during deleteDocs operation. Error was: %s", ex.getMessage()), ex);
+            LOGGER.error(String.format("Exception was thrown during deleteDocs operation. Error was: %s", ex.getMessage()), ex);
         }
         return targetStream;
     }
@@ -383,14 +383,14 @@ public class MarkLogicOperations
                     resultSetCloser = new MarkLogicResultSetCloser(connection);
                     flowListener.onError(ex ->
                     {
-                        logger.error(String.format("Exception was thrown during select operation. Error was: %s", ex.getMessage()), ex);
+                        LOGGER.error(String.format("Exception was thrown during select operation. Error was: %s", ex.getMessage()), ex);
                         try
                         {
                             close(connection);
                         }
                         catch (MuleException e)
                         {
-                            logger.info(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), e);
+                            LOGGER.info(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), e);
                         }
                     });
 
@@ -500,13 +500,13 @@ public class MarkLogicOperations
                     QueryManager qm = client.newQueryManager();
                     dmm = client.newDataMovementManager();
 
-                    QueryDefinition query = queryStrategy.getQueryDefinition(qm,queryString,fmt,optionsName);
+                    QueryDefinition query = queryStrategy.getQueryDefinition(qm, queryString, fmt, optionsName);
                     
-                    batcher = queryStrategy.newQueryBatcher(dmm,query);
+                    batcher = queryStrategy.newQueryBatcher(dmm, query);
                     
                     ServerTransform transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
                     if (transform != null) {
-                        logger.info("Configuring transform for exportListener: {}", transform.getName());
+                        LOGGER.info("Configuring transform for exportListener: {}", transform.getName());
                         exportListener.withTransform(transform);
                     }
                     
@@ -518,7 +518,7 @@ public class MarkLogicOperations
                     batcher.withBatchSize(configuration.getBatchSize())
                             .withThreadCount(configuration.getThreadCount())
                             .onUrisReady(exportListener)
-                            .onQueryFailure((throwable) -> logger.error("Exception thrown by an onBatchSuccess listener", throwable));
+                            .onQueryFailure((throwable) -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
                     
                     dmm.startJob(batcher);
                     batcher.awaitCompletion();
@@ -527,7 +527,7 @@ public class MarkLogicOperations
 
                 if (dmm == null)
                 {
-                    logger.warn("Data Movement Manager is null after initialization.");
+                    LOGGER.warn("Data Movement Manager is null after initialization.");
                 }
                 List<Object> results = new ArrayList<>(exportListener.getDocs());
                 exportListener.clearDocs();
@@ -544,29 +544,21 @@ public class MarkLogicOperations
             @Override
             public void close(MarkLogicConnection markLogicConnector) throws MuleException
             {
-                logger.debug("NOT Invalidating ML connection...");
+                LOGGER.debug("NOT Invalidating ML connection...");
             }
         };
-
     }
 
-	private static String generateOutputUri(String outputUriPrefix, String outputUriSuffix, boolean generateOutputUriBasename, String basenameUri) {
+    private static String generateOutputUri(String outputUriPrefix, String outputUriSuffix, boolean generateOutputUriBasename, String basenameUri) {
         // Determine output URI
         // If the config tells us to generate a new UUID, do that
         String basename = basenameUri;
-        if (generateOutputUriBasename)
+        if (generateOutputUriBasename || basenameUri == null || basenameUri.equals("null") || basenameUri.length() < 1)
         {
             basename = UUID.randomUUID().toString();
             // Also, if the basenameURI is blank for whatever reason, use a new UUID
         }
-        else if ((basenameUri == null) || (basenameUri.equals("null")) || (basenameUri.length() < 1))
-        {
-            basename = UUID.randomUUID().toString();
-        }
-
         // Assemble the output URI components
-        String outURI = String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basename, outputUriSuffix);
-
-        return outURI;
+        return String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basename, outputUriSuffix);
     }
 }
