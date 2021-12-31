@@ -161,8 +161,8 @@
         <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>ml-javaclient-util</artifactId>
-            <version>4.1.1</version>
-            <exclusions>
+            <version>4.2.0</version>
+            <!-- <exclusions>
                 <exclusion>
                     <groupId>com.marklogic</groupId>
                     <artifactId>marklogic-xcc</artifactId>
@@ -175,7 +175,7 @@
                     <groupId>org.jdom</groupId>
                     <artifactId>jdom2</artifactId>
                 </exclusion>
-            </exclusions>
+            </exclusions> -->
         </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>
@@ -221,7 +221,7 @@
         
         <!-- 
         * See Note below regarding marklogic-client-api 5.4.0 POM dependencies marked as runtime instead of compile *
-        As a result, we use slf4j and jackson-databind directly. Having slf4j defined as a dependency makes sense, but jackson-databind would be nice to pul from marklogic-client-api. 
+        As a result, we use slf4j and jackson-databind directly. Having slf4j defined as a dependency makes sense, but jackson-databind would be nice to pull from marklogic-client-api. 
         Have to add it directly so that our code compiles. 
         -->
         <dependency>
@@ -233,7 +233,7 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.11.1</version>
-        </dependency>        
+        </dependency>
         <!--        
         Had to add the 4 below because the MarkLogicOperationsTestCase fail without them being declared. 
         If you look at the below, you will see all the dependencies are label as runtime and not compile:
