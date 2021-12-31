@@ -181,6 +181,13 @@
             <groupId>com.marklogic</groupId>
             <artifactId>marklogic-client-api</artifactId>
             <version>5.4.0</version>
+            <scope>compile</scope>
+            <exclusions>
+              <exclusion>
+                <artifactId>okhttp-digest</artifactId>
+                <groupId>*</groupId>
+              </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>
