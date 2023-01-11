@@ -4,10 +4,10 @@
     <configuration-properties file="automation-credentials.properties"/>
     
     <marklogic:config name="config" configId="configId" threadCount="5" batchSize="3" secondsBeforeFlush="2" jobName="import">
-        <marklogic:connection connectionId="testConfig-223efe" hostname="${config.hostName}" port="8011" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" kerberosExternalName="null" marklogicConnectionType="DIRECT"/>
+        <marklogic:connection connectionId="testConfig-223efe" hostname="${config.hostName}" port="8007" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" kerberosExternalName="null" marklogicConnectionType="DIRECT"/>
     </marklogic:config>
     <marklogic:config name="transform_config" configId="transformConfig" threadCount="4" batchSize="100" serverTransform="ml:sjsInputFlow" serverTransformParams="entity-name,Employees,flow-name,loadEmployees" secondsBeforeFlush="2" jobName="myJobName" >
-        <marklogic:connection connectionId="transformConfig"  hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" marklogicConnectionType="DIRECT"/>
+        <marklogic:connection connectionId="transformConfig"  hostname="${config.hostName}" port="8007" username="${config.username}" password="${config.password}" authenticationType="digest" marklogicConnectionType="DIRECT"/>
     </marklogic:config>
     
     <flow name="retrieveInfoFlow">

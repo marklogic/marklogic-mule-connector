@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright © 2021 MarkLogic Corporation.
+ * Copyright ï¿½ 2021 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -48,8 +48,7 @@ public class MarkLogicOperationTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicOperations.class);
     
     private static final String CONNECTION_ID = "test-connection-id";
-    private static final String DATABASE_NAME = "data-hub-FINAL";
-    private static final int PORT = 8011;
+    private static final int PORT = 8007;
     private static final String PROPERTIES_FILE = "src/test/resources/automation-credentials.properties";
     private static final String CONFIG_ID = "testConfig-223efe";
     private static final int THREAD_COUNT = 1;
@@ -88,7 +87,7 @@ public class MarkLogicOperationTest {
         configuration.setServerTransformParams(TRANSFORM_PARAMS.toString());
         configuration.setSecondsBeforeFlush(FLUSH_SECONDS);
         configuration.setJobName(JOB_NAME);
-        connection = new MarkLogicConnection(prop.getProperty("config.hostName"), PORT, DATABASE_NAME, prop.getProperty("config.username"), prop.getProperty("config.password"), AuthenticationType.digest, MarkLogicConnectionType.DIRECT, null, null, CONNECTION_ID);
+        connection = new MarkLogicConnection(prop.getProperty("config.hostName"), PORT, null, prop.getProperty("config.username"), prop.getProperty("config.password"), AuthenticationType.digest, MarkLogicConnectionType.DIRECT, null, null, CONNECTION_ID);
         operation = new MarkLogicOperations();
     }
    

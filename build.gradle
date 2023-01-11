@@ -1,0 +1,6 @@
+// This is only used for deploying an application for test purposes.
+// See the Maven pom.xml file for project information.
+plugins {
+    id "net.saliman.properties" version "1.5.1"
+    id "com.marklogic.ml-gradle" version "4.4.0"
+}

@@ -1,0 +1,37 @@
+<search:options xmlns:search="http://marklogic.com/appservices/search">
+    <search:constraint name="Collection">
+        <search:collection/>
+    </search:constraint>
+    <search:constraint name="entity-type">
+        <search:value>
+            <search:element ns="http://marklogic.com/entity-services" name="title"/>
+        </search:value>
+    </search:constraint>
+    <search:constraint name="gender">
+        <search:range type="xs:string" facet="true" collation="http://marklogic.com/collation/codepoint">
+            <search:facet-option>frequency-order</search:facet-option>
+            <search:facet-option>descending</search:facet-option>
+            <search:json-property>employeeGender</search:json-property>
+        </search:range>
+    </search:constraint>
+    <search:constraint name="hireDate">
+        <search:range type="xs:dateTime" facet="true">
+            <search:facet-option>frequency-order</search:facet-option>
+            <search:facet-option>descending</search:facet-option>
+            <search:json-property>employeeOriginalHireDate</search:json-property>
+        </search:range>
+    </search:constraint>
+    <search:constraint name="department">
+        <search:range type="xs:string" facet="true" collation="http://marklogic.com/collation/codepoint">
+            <search:facet-option>frequency-order</search:facet-option>
+            <search:facet-option>descending</search:facet-option>
+            <search:json-property>employeeDepartmentName</search:json-property>
+        </search:range>
+    </search:constraint>
+    <search:values name="uris">
+        <search:uri/>
+    </search:values>
+    <search:search-option>unfiltered</search:search-option>
+    <search:return-facets>true</search:return-facets>
+    <search:transform-results apply="empty-snippet"/>
+</search:options>
