@@ -1,0 +1,21 @@
+To run the tests in this project, you'll first need to deploy a test application to your MarkLogic instance. 
+
+To do so, first download the deployer-4.4.0.jar file from https://github.com/marklogic-community/ml-app-deployer/releases/tag/4.4.0,
+which effectively allows you to deploy an app in the same fashion that ml-gradle (https://github.com/marklogic-community/ml-gradle)
+does, but without Gradle involved.
+
+Put that jar in the root directory of this project and then run the following command (you should first ensure that 
+port 8011 is available in your MarkLogic instance; note that you may have a DHF app server installed already there):
+
+    java -jar deployer-4.4.0.jar -PmlAppName=marklogic-mule-test -PmlRestPort=8011 -PmlConfigPaths=src/test/ml-config -PmlModulePaths=src/test/ml-modules
+
+This currently assumes that admin/admin will work for authentication; this will be improved in the near future. If 
+those credentials do not work, you can override them by adding `-PmlUsername=` and `-PmlPassword=` to the arguments
+in the call above. 
+
+You should now have a "marklogic-mule-test" app server on port 8011 in your MarkLogic instance. You can then run the
+tests via:
+
+    mvn clean test
+
+Instructions on running sonar tests coming soon!
