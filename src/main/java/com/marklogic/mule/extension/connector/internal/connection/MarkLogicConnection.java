@@ -30,8 +30,10 @@ import com.marklogic.client.ext.DatabaseClientConfig;
 import com.marklogic.client.ext.DefaultConfiguredDatabaseClientFactory;
 import com.marklogic.client.ext.SecurityContextType;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
+import com.marklogic.mule.extension.connector.internal.connection.provider.MarkLogicConnectionProvider;
 import com.marklogic.mule.extension.connector.internal.error.exception.MarkLogicConnectorException;
 
+import com.marklogic.mule.extension.connector.internal.operation.InsertionBatcherContext;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicInsertionBatcher;
 import org.mule.runtime.api.lifecycle.Initialisable;
@@ -64,30 +66,30 @@ public final class MarkLogicConnection
     private final HashMap<Integer, MarkLogicInsertionBatcher> insertionBatchers;
     private final ReentrantLock insertionBatchersLock;
 
-    public MarkLogicConnection(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, MarkLogicConnectionType marklogicConnectionType, TlsContextFactory sslContext, String kerberosExternalName, String connectionId)
-    {
+    public MarkLogicConnection(MarkLogicConnectionProvider provider) {
         this.insertionBatchers = new HashMap<>();
         this.insertionBatchersLock = new ReentrantLock(true);
 
-        this.useSSL = sslContext != null;
-        if (sslContext instanceof Initialisable) {
+        this.useSSL = provider.getTlsContextFactory() != null;
+        if (provider.getTlsContextFactory() instanceof Initialisable) {
             try {
-                ((Initialisable) sslContext).initialise();
+                ((Initialisable) provider.getTlsContextFactory()).initialise();
             } catch (InitialisationException e) {
                 String message = "Error initializing SSL Context.";
                 throw new MarkLogicConnectorException(message, e);
             }
         }
-        this.sslContext = sslContext;
-        this.hostname = hostname;
-        this.port = port;
-        this.database = database;
-        this.username = username;
-        this.password = password;
-        this.authenticationType = authenticationType;
-        this.marklogicConnectionType = marklogicConnectionType;
-        this.kerberosExternalName = kerberosExternalName;
-        this.connectionId = connectionId;
+        this.sslContext = provider.getTlsContextFactory();
+
+        this.hostname = provider.getHostname();
+        this.port = provider.getPort();
+        this.database = provider.getDatabase();
+        this.username = provider.getUsername();
+        this.password = provider.getPassword();
+        this.authenticationType = provider.getAuthenticationType();
+        this.marklogicConnectionType = provider.getMarklogicConnectionType();
+        this.kerberosExternalName = provider.getKerberosExternalName();
+        this.connectionId = provider.getConnectionId();
     }
 
     public void connect() throws MarkLogicConnectorException
@@ -269,14 +271,24 @@ public final class MarkLogicConnection
                                                          String serverTransform, String serverTransformParams) {
         if (client == null)
             throw new MarkLogicConnectorException("Cannot initialize insertion batcher; client is not yet connected.");
-        String jobName = config.getJobName();
-        int signature = MarkLogicInsertionBatcher.computeSignature(config, this, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
+
+        InsertionBatcherContext context = new InsertionBatcherContext();
+        context.setConfiguration(config);
+        context.setConnection(this);
+        context.setOutputCollections(outputCollections);
+        context.setOutputPermissions(outputPermissions);
+        context.setOutputQuality(outputQuality);
+        context.setJobName(config.getJobName());
+        context.setTemporalCollection(temporalCollection);
+        context.setServerTransform(serverTransform);
+        context.setServerTransformParams(serverTransformParams);
+        final int signature = context.computeSignature();
 
         insertionBatchersLock.lock();
         try {
             MarkLogicInsertionBatcher insertionBatcher = insertionBatchers.getOrDefault(signature, null);
             if (insertionBatcher == null) {
-                insertionBatcher = new MarkLogicInsertionBatcher(config, this, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
+                insertionBatcher = new MarkLogicInsertionBatcher(context);
                 insertionBatchers.put(insertionBatcher.getSignature(), insertionBatcher);
                 if (insertionBatcher.getSignature() != signature) {
                     logger.warn("Computed batcher signature {} different than generated by instance {}", signature, insertionBatcher.getSignature());

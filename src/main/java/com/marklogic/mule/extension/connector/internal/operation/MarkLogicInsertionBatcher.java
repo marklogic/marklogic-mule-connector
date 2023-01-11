@@ -20,8 +20,6 @@ import com.marklogic.client.datamovement.WriteBatcher;
 import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.InputStreamHandle;
-import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
-import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +27,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -66,60 +63,51 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     /**
      * Creates a new insertion batcher.
      *
-     * @param marklogicConfiguration Information describing how the insertion process should work
-     * @param connection Information describing how to connect to MarkLogic
-     * @param outputCollections A comma-separated list of output collections used during ingestion.
-     * @param outputPermissions A comma-separated list of roles and capabilities used during ingestion.
-     * @param outputQuality A number indicating the quality of the persisted documents.
-     * @param temporalCollection The temporal collection imported documents will be loaded into.
-     * @param serverTransform The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.
-     * @param serverTransformParams A comma-separated list of alternating transform parameter names and values.
+     * @param context captures inputs and context for the insertion process
      */
-    public MarkLogicInsertionBatcher(MarkLogicConfiguration marklogicConfiguration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams)
+    public MarkLogicInsertionBatcher(InsertionBatcherContext context)
     {
         this.batcherRequiresReinit = false;
         LOGGER.debug("MarkLogicInsertionBatcher batcherRequiresReinit {}", batcherRequiresReinit);
-        this.signature = computeSignature(marklogicConfiguration, connection, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
+        this.signature = context.computeSignature();
 
         // get the object handles needed to talk to MarkLogic
-        initializeBatcher(marklogicConfiguration, connection, outputCollections, outputPermissions, outputQuality, temporalCollection, serverTransform, serverTransformParams);
-        LOGGER.info("MarkLogicInsertionBatcher with job name: {}", jobName);
+        initializeBatcher(context);
+        LOGGER.info("MarkLogicInsertionBatcher with job name: {}", context.getJobName());
     }
 
-    public static int computeSignature(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams) {
-        return Objects.hash(configuration, connection, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
-    }
-
-    private void initializeBatcher(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String temporalCollection, String serverTransform, String serverTransformParams)
+    private void initializeBatcher(InsertionBatcherContext context)
     {
-        connection.addMarkLogicClientInvalidationListener(this);
-        DatabaseClient myClient = connection.getClient();
+        context.getConnection().addMarkLogicClientInvalidationListener(this);
+        DatabaseClient myClient = context.getConnection().getClient();
         dmm = myClient.newDataMovementManager();
         batcher = dmm.newWriteBatcher();
-        batcher.withBatchSize(configuration.getBatchSize())
-                .withThreadCount(configuration.getThreadCount())
+        batcher.withBatchSize(context.getConfiguration().getBatchSize())
+                .withThreadCount(context.getConfiguration().getThreadCount())
                 .onBatchSuccess(batch -> LOGGER.info("Batcher with signature {} on connection ID {} writes so far: {}",
-                    getSignature(), connection.getId(), batch.getJobWritesSoFar()))
+                    getSignature(), context.getConnection().getId(), batch.getJobWritesSoFar()))
                 .onBatchFailure((batch, throwable) -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
 
         // Configure the transform to be used, if any
         // ASSUMPTION: The same transform (or lack thereof) will be used for every document to be inserted during the
         // lifetime of this object
 
-        if ((temporalCollection != null) && !"null".equalsIgnoreCase(temporalCollection))
+        final String temporalCollection = context.getTemporalCollection();
+        if (temporalCollection != null && !"null".equalsIgnoreCase(temporalCollection))
         {
             LOGGER.info("TEMPORAL COLLECTION: {}", temporalCollection);
             batcher.withTemporalCollection(temporalCollection);
         }
 
-        Optional<ServerTransform> transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
+        Optional<ServerTransform> transform = context.getConfiguration().generateServerTransform(
+            context.getServerTransform(), context.getServerTransformParams());
         if(transform.isPresent())
         {
             batcher.withTransform(transform.get());
         }
 
         // Set up the timer to flush the pipe to MarkLogic if it's waiting to long
-        int secondsBeforeFlush = configuration.getSecondsBeforeFlush();
+        int secondsBeforeFlush = context.getConfiguration().getSecondsBeforeFlush();
 
         if (timer != null)
         {
@@ -147,7 +135,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         // ASSUMPTION: The same metadata will be used for every document to be inserted during the lifetime of this
         // object
         this.metadataHandle = new DocumentMetadataHandle();
-        String[] configCollections = outputCollections.split(",");
+        String[] configCollections = context.getOutputCollections().split(",");
 
         // Set up list of collections that new docs should be put into
         if (!configCollections[0].equals("null"))
@@ -155,10 +143,10 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
             metadataHandle.withCollections(configCollections);
         }
         // Set up quality new docs should have
-        metadataHandle.setQuality(outputQuality);
+        metadataHandle.setQuality(context.getOutputQuality());
 
         // Set up list of permissions that new docs should be granted
-        String[] permissions = outputPermissions.split(",");
+        String[] permissions = context.getOutputPermissions().split(",");
         for (int i = 0; i < permissions.length - 1; i++)
         {
             String role = permissions[i];

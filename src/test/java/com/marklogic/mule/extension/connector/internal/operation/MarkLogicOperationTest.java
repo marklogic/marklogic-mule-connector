@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright © 2021 MarkLogic Corporation.
+ * Copyright ï¿½ 2021 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -29,6 +29,7 @@ import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrate
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
+import com.marklogic.mule.extension.connector.internal.connection.provider.MarkLogicConnectionProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,7 +87,16 @@ public class MarkLogicOperationTest {
         configuration.setServerTransformParams(TRANSFORM_PARAMS.toString());
         configuration.setSecondsBeforeFlush(FLUSH_SECONDS);
         configuration.setJobName(JOB_NAME);
-        connection = new MarkLogicConnection(prop.getProperty("config.hostName"), PORT, DATABASE_NAME, prop.getProperty("config.username"), prop.getProperty("config.password"), AuthenticationType.digest, MarkLogicConnectionType.DIRECT, null, null, CONNECTION_ID);
+
+        connection = new MarkLogicConnection(new MarkLogicConnectionProvider()
+            .withHostname(prop.getProperty("config.hostName"))
+            .withPort(PORT)
+            .withUsername(prop.getProperty("config.username"))
+            .withPassword(prop.getProperty("config.password"))
+            .withAuthenticationType(AuthenticationType.digest)
+            .withMarklogicConnectionType(MarkLogicConnectionType.DIRECT)
+            .withConnectionId(CONNECTION_ID));
+
         operation = new MarkLogicOperations();
     }
    
