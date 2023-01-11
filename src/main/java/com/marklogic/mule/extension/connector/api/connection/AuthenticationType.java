@@ -13,9 +13,9 @@
  */
 package com.marklogic.mule.extension.connector.api.connection;
 
-/**
- * Created by jkrebs on 4/11/2019.
- */
+// sonarqube wants these to be uppercase, but cannot change them in the 1.x timeline since they're part of the
+// public API
+@SuppressWarnings("java:S115")
 public enum AuthenticationType
 {
     digest("digest"),

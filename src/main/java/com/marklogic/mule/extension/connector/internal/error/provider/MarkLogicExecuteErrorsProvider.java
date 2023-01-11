@@ -14,10 +14,11 @@
 package com.marklogic.mule.extension.connector.internal.error.provider;
 
 import com.marklogic.mule.extension.connector.internal.error.MarkLogicConnectorSimpleErrorType;
-import java.util.Set;
-import java.util.HashSet;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class MarkLogicExecuteErrorsProvider implements ErrorTypeProvider
 {
@@ -25,7 +26,10 @@ public class MarkLogicExecuteErrorsProvider implements ErrorTypeProvider
     @Override
     public Set<ErrorTypeDefinition> getErrorTypes()
     {
-        HashSet<ErrorTypeDefinition> errors = new HashSet<>();
+        // sonarqube doesn't like this, but the Mulesoft interface requires Set<ErrorTypeDefinition> instead of
+        // Set<ErrorTypeDefinition<E extends Enum<E>>
+        @SuppressWarnings("java:S3740")
+        Set<ErrorTypeDefinition> errors = new HashSet<>();
         errors.add(MarkLogicConnectorSimpleErrorType.DATA_MOVEMENT_ERROR);
         return errors;
     }

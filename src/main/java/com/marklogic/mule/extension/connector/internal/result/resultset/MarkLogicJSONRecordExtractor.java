@@ -27,14 +27,12 @@ import java.util.Map;
  */
 public class MarkLogicJSONRecordExtractor extends MarkLogicRecordExtractor {
 
-    // Objects used for handling JSON documents
-    private JacksonHandle jacksonHandle = new JacksonHandle();
-    private ObjectMapper jsonMapper = new ObjectMapper();
+    private static ObjectMapper jsonMapper = new ObjectMapper();
 
     @Override
-    protected Object extractRecord(DocumentRecord record) {
+    protected Object extractRecord(DocumentRecord documentRecord) {
         Object content;
-        JsonNode jsonNode = record.getContent(jacksonHandle).get();
+        JsonNode jsonNode = documentRecord.getContent(new JacksonHandle()).get();
         JsonNodeType nodeType = jsonNode.getNodeType();
         if (null == nodeType) {
             content = jsonMapper.convertValue(jsonNode, Map.class);

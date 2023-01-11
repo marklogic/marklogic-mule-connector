@@ -19,9 +19,9 @@ import com.marklogic.client.io.StringHandle;
 import com.marklogic.client.query.*;
 import org.apache.commons.jexl3.*;
 
-/**
- * Created by jkrebs on 4/9/2019.
- */
+// sonarqube wants these to be uppercase, but cannot change them in the 1.x timeline since they're part of the
+// public API
+@SuppressWarnings("java:S115")
 public enum MarkLogicQueryStrategy
 {
     RawStructuredQueryDefinition {
@@ -35,7 +35,7 @@ public enum MarkLogicQueryStrategy
             return dmm.newQueryBatcher((RawStructuredQueryDefinition) query);
         }
     },
-    StructuredQueryBuilder{
+    StructuredQueryBuilder {
         @Override
         public QueryDefinition getQueryDefinition(QueryManager queryManager, String queryString, MarkLogicQueryFormat fmt, String optionsName) {
             return createStructuredQuery(queryManager,queryString,optionsName);

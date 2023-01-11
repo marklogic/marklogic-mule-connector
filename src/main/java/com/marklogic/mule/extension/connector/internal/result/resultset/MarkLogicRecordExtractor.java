@@ -21,10 +21,9 @@ import com.marklogic.mule.extension.connector.api.operation.MarkLogicMimeType;
  */
 public abstract class MarkLogicRecordExtractor {
 
-    protected abstract Object extractRecord(DocumentRecord record);
+    protected abstract Object extractRecord(DocumentRecord documentRecord);
 
-    public static Object extractSingleRecord(DocumentRecord record) {
-        MarkLogicRecordExtractor re = MarkLogicMimeType.fromString(record.getMimetype()).getRecordExtractor();
-        return re.extractRecord(record);
+    public static Object extractSingleRecord(DocumentRecord documentRecord) {
+        return MarkLogicMimeType.fromString(documentRecord.getMimetype()).getRecordExtractor().extractRecord(documentRecord);
     }
 }

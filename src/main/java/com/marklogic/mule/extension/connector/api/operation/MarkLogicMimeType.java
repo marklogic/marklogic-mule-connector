@@ -18,51 +18,42 @@ import com.marklogic.mule.extension.connector.internal.result.resultset.*;
 import java.util.Arrays;
 import java.util.List;
 
+// sonarqube wants these to be uppercase, but cannot change them in the 1.x timeline since they're part of the
+// public API
+@SuppressWarnings("java:S115")
 public enum MarkLogicMimeType {
 
-    xml{
+    xml {
         @Override
         public MarkLogicRecordExtractor getRecordExtractor() {
-            if (xmlRecordExtractor == null) {
-                xmlRecordExtractor = new MarkLogicXMLRecordExtractor();
-            }
             return xmlRecordExtractor;
         }
     },
-    json{
+    json {
         @Override
         public MarkLogicRecordExtractor getRecordExtractor() {
-            if (jsonRecordExtractor == null) {
-                jsonRecordExtractor = new MarkLogicJSONRecordExtractor();
-            }
             return jsonRecordExtractor;
         }
     },
-    text{
+    text {
         @Override
         public MarkLogicRecordExtractor getRecordExtractor() {
-            if (textRecordExtractor == null) {
-                textRecordExtractor = new MarkLogicTextRecordExtractor();
-            }
             return textRecordExtractor;
         }
     },
-    binary{
+    binary {
         @Override
         public MarkLogicRecordExtractor getRecordExtractor() {
-            if (binaryRecordExtractor == null) {
-                binaryRecordExtractor = new MarkLogicBinaryRecordExtractor();
-            }
             return binaryRecordExtractor;
         }
 
 
     };
 
-    private static MarkLogicBinaryRecordExtractor binaryRecordExtractor;
-    private static MarkLogicXMLRecordExtractor xmlRecordExtractor;
-    private static MarkLogicJSONRecordExtractor jsonRecordExtractor;
-    private static MarkLogicTextRecordExtractor textRecordExtractor;
+    private static MarkLogicBinaryRecordExtractor binaryRecordExtractor = new MarkLogicBinaryRecordExtractor();
+    private static MarkLogicXMLRecordExtractor xmlRecordExtractor = new MarkLogicXMLRecordExtractor();
+    private static MarkLogicJSONRecordExtractor jsonRecordExtractor = new MarkLogicJSONRecordExtractor();
+    private static MarkLogicTextRecordExtractor textRecordExtractor = new MarkLogicTextRecordExtractor();
 
     public static MarkLogicMimeType fromString(String mimeString)
     {

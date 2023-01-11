@@ -110,7 +110,6 @@
                         <id>test</id>
                         <phase>test</phase>
                         <goals>
-                            <!--<goal>test</goal>-->
                             <goal>coverage-report</goal>
                         </goals>
                     </execution>
@@ -168,20 +167,6 @@
             <groupId>com.marklogic</groupId>
             <artifactId>ml-javaclient-util</artifactId>
             <version>4.4.0</version>
-            <!-- <exclusions>
-                <exclusion>
-                    <groupId>com.marklogic</groupId>
-                    <artifactId>marklogic-xcc</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-context</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jdom</groupId>
-                    <artifactId>jdom2</artifactId>
-                </exclusion>
-            </exclusions> -->
         </dependency>
         <dependency>
             <groupId>com.marklogic</groupId>

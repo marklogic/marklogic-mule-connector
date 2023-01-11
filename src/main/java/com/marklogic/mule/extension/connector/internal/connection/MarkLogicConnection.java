@@ -17,8 +17,10 @@ import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
+import java.security.cert.CertificateException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -115,7 +117,7 @@ public final class MarkLogicConnection
 
     public void invalidate()
     {
-        markLogicClientInvalidationListeners.forEach((listener) -> listener.markLogicConnectionInvalidated());
+        markLogicClientInvalidationListeners.forEach(MarkLogicConnectionInvalidationListener::markLogicConnectionInvalidated);
         releaseInsertionBatchers();
         client.release();
         logger.info("MarkLogic connection invalidated.");
@@ -150,7 +152,7 @@ public final class MarkLogicConnection
         return str != null && !str.trim().isEmpty() && !"null".equalsIgnoreCase(str.trim());
     }
     
-    private void createClient() throws Exception
+    private void createClient() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException
     {
 
         DatabaseClientConfig config = new DatabaseClientConfig();
@@ -175,9 +177,7 @@ public final class MarkLogicConnection
             {
                 logger.debug(String.format("Creating connection using SSL connection with SSL Context: '%s'.", sslContext));
             }
-            
-            SSLContext context = sslContext.createSslContext();
-            config.setSslContext(context);
+            config.setSslContext(sslContext.createSslContext());
         }
         else
         {
@@ -190,7 +190,7 @@ public final class MarkLogicConnection
         client = new DefaultConfiguredDatabaseClientFactory().newDatabaseClient(config);
     }
 
-    private void setConfigAuthType(DatabaseClientConfig config) throws Exception 
+    private void setConfigAuthType(DatabaseClientConfig config) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException
     {
         switch (authenticationType)
         {
@@ -210,43 +210,31 @@ public final class MarkLogicConnection
         }
     }
     
-    private void setConfigMLConnectionType(DatabaseClientConfig config) throws Exception 
+    private void setConfigMLConnectionType(DatabaseClientConfig config)
     {
-        switch (marklogicConnectionType)
-        {
-            case DIRECT:
-                config.setConnectionType(DatabaseClient.ConnectionType.DIRECT);
-                break;
-            case GATEWAY:
-                config.setConnectionType(DatabaseClient.ConnectionType.GATEWAY);
-                break;
-            default:
-                config.setConnectionType(DatabaseClient.ConnectionType.DIRECT);
-                break;
-        }
+        config.setConnectionType(MarkLogicConnectionType.GATEWAY.equals(marklogicConnectionType) ?
+            DatabaseClient.ConnectionType.GATEWAY :
+            DatabaseClient.ConnectionType.DIRECT);
     }
         
-    private void setTrustManager(DatabaseClientConfig config) throws Exception
+    private void setTrustManager(DatabaseClientConfig config) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException
     {
         if (sslContext.isTrustStoreConfigured())
         {
             String defaultAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(defaultAlgorithm);
             final KeyStore trustStore = getTrustStore(sslContext.getTrustStoreConfiguration().getType());
-            
-            try (final InputStream is = new FileInputStream(sslContext.getTrustStoreConfiguration().getPath()))
-            {
+
+            try (final InputStream is = new FileInputStream(sslContext.getTrustStoreConfiguration().getPath())) {
                 trustStore.load(is, sslContext.getTrustStoreConfiguration().getPassword().toCharArray());
             }
-            
+
             trustManagerFactory.init(trustStore);
             X509TrustManager tm = (X509TrustManager) trustManagerFactory.getTrustManagers()[0];
-            
-            if (logger.isDebugEnabled())
-            {
+
+            if (logger.isDebugEnabled()) {
                 Enumeration<String> enumera = trustStore.aliases();
-                while (enumera.hasMoreElements())
-                {
+                while (enumera.hasMoreElements()) {
                     logger.debug("Found cert with alias: {}", enumera.nextElement());
                 }
             }
@@ -264,24 +252,24 @@ public final class MarkLogicConnection
             keyStoreProvider = "BC";
         }
 
-        if (keyStoreProvider != null && keyStoreProvider.equals(""))
+        try
         {
-            try
-            {
-                return KeyStore.getInstance(trustStoreType, keyStoreProvider);
-            }
-            catch (KeyStoreException | NoSuchProviderException e)
-            {
-                logger.error("Unable to load " + keyStoreProvider + " " + trustStoreType
-                        + " keystore.  This may cause issues getting trusted CA certificates as well as Certificate Chains for use in TLS.", e);
-            }
+            return KeyStore.getInstance(trustStoreType, keyStoreProvider);
+        }
+        catch (KeyStoreException | NoSuchProviderException e)
+        {
+            logger.error("Unable to load " + keyStoreProvider + " " + trustStoreType
+                    + " keystore.  This may cause issues getting trusted CA certificates as well as Certificate Chains for use in TLS.", e);
         }
         return KeyStore.getInstance(trustStoreType);
     }
 	
-	public MarkLogicInsertionBatcher getInsertionBatcher(MarkLogicConfiguration config, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams) {
+	public MarkLogicInsertionBatcher getInsertionBatcher(MarkLogicConfiguration config, String outputCollections, String outputPermissions,
+                                                         int outputQuality, String temporalCollection,
+                                                         String serverTransform, String serverTransformParams) {
         if (client == null)
             throw new MarkLogicConnectorException("Cannot initialize insertion batcher; client is not yet connected.");
+        String jobName = config.getJobName();
         int signature = MarkLogicInsertionBatcher.computeSignature(config, this, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
 
         insertionBatchersLock.lock();
@@ -290,8 +278,9 @@ public final class MarkLogicConnection
             if (insertionBatcher == null) {
                 insertionBatcher = new MarkLogicInsertionBatcher(config, this, outputCollections, outputPermissions, outputQuality, jobName, temporalCollection, serverTransform, serverTransformParams);
                 insertionBatchers.put(insertionBatcher.getSignature(), insertionBatcher);
-                if (insertionBatcher.getSignature() != signature)
-                    logger.warn("Computed batcher signature " + signature + " different than generated by instance " + insertionBatcher.getSignature());
+                if (insertionBatcher.getSignature() != signature) {
+                    logger.warn("Computed batcher signature {} different than generated by instance {}", signature, insertionBatcher.getSignature());
+                }
             }
             return insertionBatcher;
         }

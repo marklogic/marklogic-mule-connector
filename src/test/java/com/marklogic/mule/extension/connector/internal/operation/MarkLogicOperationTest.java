@@ -30,9 +30,7 @@ import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfigura
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;

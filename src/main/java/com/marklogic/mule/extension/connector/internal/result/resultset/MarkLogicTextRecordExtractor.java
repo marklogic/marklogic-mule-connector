@@ -21,13 +21,8 @@ import com.marklogic.client.io.StringHandle;
  */
 public class MarkLogicTextRecordExtractor extends MarkLogicRecordExtractor {
 
-    // Objects used for handling text documents
-    private StringHandle stringHandle = new StringHandle();
-
     @Override
-    protected Object extractRecord(DocumentRecord record) {
-        Object content;
-        content = record.getContent(stringHandle).get();
-        return content;
+    protected Object extractRecord(DocumentRecord documentRecord) {
+        return documentRecord.getContent(new StringHandle()).get();
     }
 }
