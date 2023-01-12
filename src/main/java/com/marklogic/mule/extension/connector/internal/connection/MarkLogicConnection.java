@@ -92,7 +92,7 @@ public final class MarkLogicConnection
         this.connectionId = provider.getConnectionId();
     }
 
-    public void connect() throws MarkLogicConnectorException
+    public void connect()
     {
         logger.debug("Kerberos external name: {}", this.kerberosExternalName);
         logger.info("MarkLogic connection id = {}", this.getId());
@@ -260,8 +260,8 @@ public final class MarkLogicConnection
         }
         catch (KeyStoreException | NoSuchProviderException e)
         {
-            logger.error("Unable to load " + keyStoreProvider + " " + trustStoreType
-                    + " keystore.  This may cause issues getting trusted CA certificates as well as Certificate Chains for use in TLS.", e);
+            logger.error(String.format("Unable to load %s %s keystore. This may cause issues getting trusted CA " +
+                "certificates as well as Certificate Chains for use in TLS.", keyStoreProvider, trustStoreType), e);
         }
         return KeyStore.getInstance(trustStoreType);
     }
