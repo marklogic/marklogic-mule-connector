@@ -67,6 +67,9 @@ public class MarkLogicResultSetIterator implements Iterator<Object>
         return isFirstPageHasNext && notAtEnd;
     }
 
+    // sonarqube is concerned about a NoSuchElementException not being thrown at some point, but that doesn't fit
+    // with how this iterator works; it returns an empty DocumentPage instead
+    @SuppressWarnings("java:S2272")
     @Override
     public List<Object> next()
     {

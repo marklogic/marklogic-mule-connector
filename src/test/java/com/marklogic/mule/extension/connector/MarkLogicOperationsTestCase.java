@@ -75,28 +75,6 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
     }
 
     @Test
-    public void executeQueryTemporalOperation() throws Exception
-    {
-        Object payloadValue = (flowRunner("querytemporalFlow")
-                .run()
-                .getMessage()
-                .getPayload()
-                .getValue());
-        assertThat(payloadValue, notNullValue());
-    }
-
-    @Test
-    public void executeExportDocsOperation() throws Exception
-    {
-        Object payloadValue = (flowRunner("exportDocsFlow")
-                .run()
-                .getMessage()
-                .getPayload()
-                .getValue());
-        assertThat(payloadValue, notNullValue());
-    }
-
-    @Test
     public void executeGetJobReportOperation() throws Exception
     {
         Object isValue = (flowRunner("getJobReportFlow")
@@ -129,16 +107,27 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
         }
     }
 
+    /**
+     * Combined 4 tests that were identical except for the name of the flow that they tested. This made sonarqube
+     * happy, as it was complaining about the duplication and suggesting that a parameterized test be used instead.
+     * But since it seems that these tests really ought to make flow-specific assertions at some point, a parameterized
+     * test wouldn't have been a good fit.
+     *
+     * @throws Exception
+     */
     @Test
     public void executeQueryDocsTransformFlow() throws Exception
     {
-        Object payloadValue = (flowRunner("queryDocsTransformFlow")
+        for (String flowName : new String[]{"queryDocsTransformFlow", "queryDocsMaxResultsFlow", "querytemporalFlow", "exportDocsFlow"}) {
+            Object payloadValue = (flowRunner(flowName)
                 .run()
                 .getMessage()
                 .getPayload()
                 .getValue());
 
-        assertThat(payloadValue, notNullValue());
+            assertThat(payloadValue, notNullValue());
+        }
+
 
         // At some point in the future this test should actually test the results.  For whatever reason the following lines
         // throw java.lang.NoClassDefFoundError: org/mule/runtime/core/internal/streaming/object/ManagedCursorIteratorProvider
@@ -149,21 +138,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
         //}
         //isA(ManagedCursorIteratorProvider.class);
     }
-    
-    @Test
-    public void executeQueryDocsMaxResults() throws Exception
-    {
-        Object payloadValue = (flowRunner("queryDocsMaxResultsFlow")
-                .run()
-                .getMessage()
-                .getPayload()
-                .getValue());
 
-        //logger.info("Returned from flow - " + payloadValue);
-        //assertThat(payloadValue, containsString("mlw: 5"));
-        assertThat(payloadValue, notNullValue());
-    }
-    
     private String inputStreamToString(InputStream inputStream) {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         String out = null;

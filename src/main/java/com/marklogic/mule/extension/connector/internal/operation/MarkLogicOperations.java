@@ -104,6 +104,9 @@ public class MarkLogicOperations
  */
     @MediaType(value = APPLICATION_JSON, strict = true)
     @Throws(MarkLogicExecuteErrorsProvider.class)
+    // sonarqube flags this because of the number of args, but not certain that it can be safely modified without
+    // causing a breaking change
+    @SuppressWarnings("java:S107")
     public InputStream importDocs(
             @Config MarkLogicConfiguration markLogicConfiguration,
             @Connection MarkLogicConnection connection,
@@ -286,7 +289,10 @@ public class MarkLogicOperations
  * @deprecated Deprecated in v.1.1.0, use queryDocs instead
  * @since 1.1.0
  */
- @SuppressWarnings("java:S1133")
+    // S1133 = reminder to remove this because it's deprecated
+    // S107 = sonarqube flags this because of the number of args, but not certain that it can be safely modified without
+    // causing a breaking change
+    @SuppressWarnings({"java:S1133", "java:S107"})
     @Deprecated
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
@@ -338,6 +344,9 @@ public class MarkLogicOperations
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicAnyMetadataResolver.class)
     @Throws(MarkLogicExecuteErrorsProvider.class)
+    // sonarqube flags this because of the number of args, but not certain that it can be safely modified without
+    // causing a breaking change
+    @SuppressWarnings("java:S107")
     public PagingProvider<MarkLogicConnection, Object> queryDocs(
             @Config MarkLogicConfiguration configuration,
             @DisplayName("Serialized Query String")
@@ -367,53 +376,46 @@ public class MarkLogicOperations
     {
         return new PagingProvider<MarkLogicConnection, Object>()
         {
-
             private final AtomicBoolean initialised = new AtomicBoolean(false);
             private MarkLogicResultSetCloser resultSetCloser;
-            MarkLogicResultSetIterator iterator;
+            private MarkLogicResultSetIterator iterator;
 
             @Override
             public List<Object> getPage(MarkLogicConnection connection)
             {
-                if (initialised.compareAndSet(false, true))
-                {
-                    resultSetCloser = new MarkLogicResultSetCloser(connection);
-                    flowListener.onError(ex ->
-                    {
-                        LOGGER.error(String.format("Exception was thrown during select operation. Error was: %s", ex.getMessage()), ex);
-                        try
-                        {
-                            close(connection);
-                        }
-                        catch (MuleException e)
-                        {
-                            LOGGER.info(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), e);
-                        }
-                    });
-
-                    DatabaseClient client = connection.getClient();
-                    QueryManager qm = client.newQueryManager();
-
-                    String options = MarkLogicConfiguration.isDefined(optionsName) ? optionsName : null;
-                    QueryDefinition query = queryStrategy.getQueryDefinition(qm,queryString,fmt,options);
-
-                    java.util.Optional<ServerTransform> transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
-                    if(transform.isPresent())
-                    {
-                        query.setResponseTransform(transform.get());
-                    }
-                    
-                    if ((pageLength != null) && (pageLength < 1))
-                    {
-                        iterator = new MarkLogicResultSetIterator(connection, query, configuration.getBatchSize(), maxResults);
-                    }
-                    else
-                    {
-                        iterator = new MarkLogicResultSetIterator(connection, query, pageLength, maxResults);
-                    }
-
+                if (initialised.compareAndSet(false, true)) {
+                    initializeIterator(connection);
                 }
                 return iterator.next();
+            }
+
+            private void initializeIterator(MarkLogicConnection connection) {
+                resultSetCloser = new MarkLogicResultSetCloser(connection);
+                flowListener.onError(ex ->
+                {
+                    LOGGER.error(String.format("Exception was thrown during select operation. Error was: %s", ex.getMessage()), ex);
+                    try
+                    {
+                        close(connection);
+                    }
+                    catch (MuleException e)
+                    {
+                        LOGGER.info(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), e);
+                    }
+                });
+
+                String options = MarkLogicConfiguration.isDefined(optionsName) ? optionsName : null;
+                QueryDefinition query = queryStrategy.getQueryDefinition(connection.getClient().newQueryManager(),queryString,fmt,options);
+
+                java.util.Optional<ServerTransform> transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
+                if(transform.isPresent())
+                {
+                    query.setResponseTransform(transform.get());
+                }
+
+                iterator = pageLength != null && pageLength < 1 ?
+                    new MarkLogicResultSetIterator(connection, query, configuration.getBatchSize(), maxResults) :
+                    new MarkLogicResultSetIterator(connection, query, pageLength, maxResults);
             }
 
             @Override
@@ -454,6 +456,9 @@ public class MarkLogicOperations
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicAnyMetadataResolver.class)
     @Throws(MarkLogicExecuteErrorsProvider.class)
+    // sonarqube flags this because of the number of args, but not certain that it can be safely modified without
+    // causing a breaking change
+    @SuppressWarnings("java:S107")
     public PagingProvider<MarkLogicConnection, Object> exportDocs(
             @Config MarkLogicConfiguration configuration,
             @DisplayName("Serialized Query String")

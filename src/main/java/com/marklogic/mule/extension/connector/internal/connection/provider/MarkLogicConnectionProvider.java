@@ -110,31 +110,10 @@ public class MarkLogicConnectionProvider implements CachedConnectionProvider<Mar
     @Example("testConfig-223efe")
     private String connectionId;
 
-    //Mainly Used for testing
-    MarkLogicConnectionProvider(String hostname, int port, String database, String username, String password, AuthenticationType authenticationType, MarkLogicConnectionType marklogicConnectionType, TlsContextFactory tlsContextFactory, String kerberosExternalName, String connectionId)
-    {
-        this.hostname = hostname;
-        this.port = port;
-        this.database = database;
-        this.username = username;
-        this.password = password;
-        this.authenticationType = authenticationType;
-        this.marklogicConnectionType = marklogicConnectionType;
-        this.tlsContextFactory = tlsContextFactory;
-        this.kerberosExternalName = kerberosExternalName;
-        this.connectionId = connectionId;
-    }
-
-    public MarkLogicConnectionProvider()
-    {
-        logger.debug("MarkLogicConnectionProvider() constructor");
-    }
-
     @Override
     public MarkLogicConnection connect() throws ConnectionException
     {
-
-        MarkLogicConnection conn = new MarkLogicConnection(hostname, port, database, username, password, authenticationType, marklogicConnectionType, tlsContextFactory, kerberosExternalName, connectionId);
+        MarkLogicConnection conn = new MarkLogicConnection(this);
         logger.info("MarkLogicConnectionProvider connect() called");
         conn.connect();
         return conn;
@@ -162,5 +141,95 @@ public class MarkLogicConnectionProvider implements CachedConnectionProvider<Mar
             logger.info("MarkLogicConnectionProvider validate() result failed");
         }
         return result;
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public MarkLogicConnectionProvider withHostname(String hostname) {
+        this.hostname = hostname;
+        return this;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public MarkLogicConnectionProvider withPort(int port) {
+        this.port = port;
+        return this;
+    }
+
+    public String getDatabase() {
+        return database;
+    }
+
+    public MarkLogicConnectionProvider withDatabase(String database) {
+        this.database = database;
+        return this;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public MarkLogicConnectionProvider withUsername(String username) {
+        this.username = username;
+        return this;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public MarkLogicConnectionProvider withPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
+    public AuthenticationType getAuthenticationType() {
+        return authenticationType;
+    }
+
+    public MarkLogicConnectionProvider withAuthenticationType(AuthenticationType type) {
+        this.authenticationType = type;
+        return this;
+    }
+
+    public MarkLogicConnectionType getMarklogicConnectionType() {
+        return marklogicConnectionType;
+    }
+
+    public MarkLogicConnectionProvider withMarklogicConnectionType(MarkLogicConnectionType type) {
+        this.marklogicConnectionType = type;
+        return this;
+    }
+
+    public TlsContextFactory getTlsContextFactory() {
+        return tlsContextFactory;
+    }
+
+    public MarkLogicConnectionProvider withTlsContextFactory(TlsContextFactory factory) {
+        this.tlsContextFactory = factory;
+        return this;
+    }
+
+    public String getKerberosExternalName() {
+        return kerberosExternalName;
+    }
+
+    public MarkLogicConnectionProvider withKerberosExternalName(String name) {
+        this.kerberosExternalName = name;
+        return this;
+    }
+
+    public String getConnectionId() {
+        return connectionId;
+    }
+
+    public MarkLogicConnectionProvider withConnectionId(String id) {
+        this.connectionId = id;
+        return this;
     }
 }
