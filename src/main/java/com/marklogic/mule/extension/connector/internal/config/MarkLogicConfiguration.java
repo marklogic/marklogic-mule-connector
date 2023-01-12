@@ -152,22 +152,28 @@ public class MarkLogicConfiguration
         this.jobName = jobName;
     }
 
-    public ServerTransform generateServerTransform(String transformName, String transformParams)
+    /**
+     *
+     * @param transformName
+     * @param transformParams
+     * @return an Optional, as sonarqube was not pleased about null being returned
+     */
+    public java.util.Optional<ServerTransform> generateServerTransform(String transformName, String transformParams)
     {
         if (isDefined(transformName))
         {
             LOGGER.debug("Transforming query doc payload with operation-defined transform: {}", serverTransform);
-            return this.createServerTransform(transformName, transformParams);
+            return java.util.Optional.of(this.createServerTransform(transformName, transformParams));
         }
         else if (isDefined(this.serverTransform))
         {
             LOGGER.debug("Transforming query doc payload with connection-defined transform: {}", this.getServerTransform());
-            return createServerTransform(this.serverTransform, this.serverTransformParams);
+            return java.util.Optional.of(createServerTransform(this.serverTransform, this.serverTransformParams));
         }
         else
         {
             LOGGER.debug("Querying docs without a transform");
-            return null;
+            return java.util.Optional.empty();
         }
     }
 

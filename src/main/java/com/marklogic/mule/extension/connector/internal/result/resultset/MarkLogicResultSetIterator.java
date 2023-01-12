@@ -14,16 +14,17 @@
 package com.marklogic.mule.extension.connector.internal.result.resultset;
 
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.client.document.DocumentManager;
 import com.marklogic.client.document.DocumentPage;
 import com.marklogic.client.document.DocumentRecord;
+import com.marklogic.client.document.GenericDocumentManager;
 import com.marklogic.client.query.QueryDefinition;
-import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -34,24 +35,24 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  */
 //N.B.: Support server-side transforms
-public class MarkLogicResultSetIterator implements Iterator
+public class MarkLogicResultSetIterator implements Iterator<Object>
 {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicResultSetIterator.class);
-    private DocumentPage documents = null;
-    private DocumentManager dm;
-    private QueryDefinition query;
+    private DocumentPage documentPage = null;
+    private final GenericDocumentManager documentManager;
+    private final QueryDefinition query;
     private long maxResults = 0;
-    private AtomicLong start = new AtomicLong(1);
-    private AtomicLong resultCount = new AtomicLong(0);
+    private final AtomicLong start = new AtomicLong(1);
+    private final AtomicLong resultCount = new AtomicLong(0);
 
-    public MarkLogicResultSetIterator(MarkLogicConnection connection, MarkLogicConfiguration configuration, QueryDefinition query, Integer pageLength, Long maxResults)
+    public MarkLogicResultSetIterator(MarkLogicConnection connection, QueryDefinition query, Integer pageLength, Long maxResults)
     {
         this.query = query;
         DatabaseClient client = connection.getClient();
-        dm = client.newDocumentManager();
+        documentManager = client.newDocumentManager();
         if (pageLength != null) {
-            dm.setPageLength(pageLength);
+            documentManager.setPageLength(pageLength);
         }
         if (maxResults != null)  {
             this.maxResults = maxResults;
@@ -61,7 +62,7 @@ public class MarkLogicResultSetIterator implements Iterator
     @Override
     public boolean hasNext()
     {
-        boolean isFirstPageHasNext = start.longValue() == 1 || documents.hasNextPage();
+        boolean isFirstPageHasNext = start.longValue() == 1 || documentPage.hasNextPage();
         boolean notAtEnd = maxResults == 0 || resultCount.get() < maxResults;
         return isFirstPageHasNext && notAtEnd;
     }
@@ -69,26 +70,24 @@ public class MarkLogicResultSetIterator implements Iterator
     @Override
     public List<Object> next()
     {
-
-        if (LOGGER.isInfoEnabled())
-        {
+        if (LOGGER.isInfoEnabled()) {
             LOGGER.info("iterator query: {}", query);
         }
 
-        long fetchSize = dm.getPageLength();
-        documents = dm.search(query, start.getAndAdd(fetchSize));
+        long fetchSize = documentManager.getPageLength();
+        documentPage = documentManager.search(query, start.getAndAdd(fetchSize));
         final List<Object> page = new ArrayList<>((int)fetchSize);
-        for (int i = 0; i < fetchSize && documents.hasNext(); i++)
+        for (int i = 0; i < fetchSize && documentPage.hasNext(); i++)
         {
             if ((maxResults > 0) && (resultCount.getAndIncrement() >= maxResults)) {
                 LOGGER.info("Processed the user-supplied maximum number of results, which is {}", maxResults);
                 break;
             }
-            DocumentRecord nextRecord = documents.next();
+            DocumentRecord nextRecord = documentPage.next();
             Object content = MarkLogicRecordExtractor.extractSingleRecord(nextRecord);
             page.add(content);
         }
-        documents.close();
+        documentPage.close();
         return page;
     }
 }

@@ -148,7 +148,7 @@ public class MarkLogicOperations
             )
     {
         // Get a handle to the Insertion batch manager
-        MarkLogicInsertionBatcher batcher = connection.getInsertionBatcher(markLogicConfiguration, outputCollections, outputPermissions, outputQuality, markLogicConfiguration.getJobName(), temporalCollection, serverTransform, serverTransformParams);
+        MarkLogicInsertionBatcher batcher = connection.getInsertionBatcher(markLogicConfiguration, outputCollections, outputPermissions, outputQuality, temporalCollection, serverTransform, serverTransformParams);
         String outURI = generateOutputUri(outputUriPrefix, outputUriSuffix, generateOutputUriBasename, basenameUri);
 
         // Actually do the insert and return the result
@@ -162,6 +162,7 @@ public class MarkLogicOperations
  * @return java.io.InputStream
  * @deprecated Deprecated in v.1.1.1
  */
+ @SuppressWarnings("java:S1133")
     @Deprecated
     @MediaType(value = APPLICATION_JSON, strict = true)
     @DisplayName("Get Job Report (deprecated)")
@@ -172,17 +173,10 @@ public class MarkLogicOperations
 
         ArrayNode exports = jsonFactory.createArrayNode();
         rootObj.set("exportResults", exports);
-        // Note: since MarkLogicInsertionBatcher is no longer a singleton, this will always fail
-        /*MarkLogicInsertionBatcher insertionBatcher = null;
-        if (insertionBatcher != null)
-        {
-            ArrayNode imports = jsonFactory.createArrayNode();
-            imports.add(insertionBatcher.createJsonJobReport(jsonFactory));
-            rootObj.set("importResults", imports);
-        }*/
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("getJobReport outcome: {}", rootObj.asText());
+        }
 
-        LOGGER.debug("getJobReport outcome: {}", rootObj.asText());
-        
         try {
             byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
             targetStream = new ByteArrayInputStream(bin);
@@ -253,7 +247,7 @@ public class MarkLogicOperations
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
                 .onUrisReady(new DeleteListener())
-                .onQueryFailure((throwable) -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
+                .onQueryFailure(throwable -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
         dmm.startJob(batcher);
         batcher.awaitCompletion();
         dmm.stopJob(batcher);
@@ -262,8 +256,10 @@ public class MarkLogicOperations
         ObjectNode rootObj = jsonFactory.createObjectNode();
         rootObj.put("deletionResult", String.format("%d document(s) deleted", resultsHandle.getTotalResults()));
         rootObj.put("deletionCount", resultsHandle.getTotalResults());
-        LOGGER.debug("deleteDocs outcome: {}", rootObj.asText());
-        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("deleteDocs outcome: {}", rootObj.asText());
+        }
+
         try {
             byte[] bin = jsonFactory.writeValueAsBytes(rootObj);
             targetStream = new ByteArrayInputStream(bin);
@@ -290,6 +286,7 @@ public class MarkLogicOperations
  * @deprecated Deprecated in v.1.1.0, use queryDocs instead
  * @since 1.1.0
  */
+ @SuppressWarnings("java:S1133")
     @Deprecated
     @MediaType(value = ANY, strict = false)
     @OutputResolver(output = MarkLogicSelectMetadataResolver.class)
@@ -400,19 +397,19 @@ public class MarkLogicOperations
                     String options = MarkLogicConfiguration.isDefined(optionsName) ? optionsName : null;
                     QueryDefinition query = queryStrategy.getQueryDefinition(qm,queryString,fmt,options);
 
-                    ServerTransform transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
-                    if(transform != null)
+                    java.util.Optional<ServerTransform> transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
+                    if(transform.isPresent())
                     {
-                        query.setResponseTransform(transform);
+                        query.setResponseTransform(transform.get());
                     }
                     
                     if ((pageLength != null) && (pageLength < 1))
                     {
-                        iterator = new MarkLogicResultSetIterator(connection, configuration, query, configuration.getBatchSize(), maxResults);
+                        iterator = new MarkLogicResultSetIterator(connection, query, configuration.getBatchSize(), maxResults);
                     }
                     else
                     {
-                        iterator = new MarkLogicResultSetIterator(connection, configuration, query, pageLength, maxResults);
+                        iterator = new MarkLogicResultSetIterator(connection, query, pageLength, maxResults);
                     }
 
                 }
@@ -488,7 +485,6 @@ public class MarkLogicOperations
         return new PagingProvider<MarkLogicConnection, Object>()
         {
             private final AtomicBoolean initialised = new AtomicBoolean(false);
-            private QueryBatcher batcher;
             private DataMovementManager dmm = null;
 
             @Override
@@ -502,12 +498,12 @@ public class MarkLogicOperations
 
                     QueryDefinition query = queryStrategy.getQueryDefinition(qm, queryString, fmt, optionsName);
                     
-                    batcher = queryStrategy.newQueryBatcher(dmm, query);
+                    QueryBatcher batcher = queryStrategy.newQueryBatcher(dmm, query);
                     
-                    ServerTransform transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
-                    if (transform != null) {
-                        LOGGER.info("Configuring transform for exportListener: {}", transform.getName());
-                        exportListener.withTransform(transform);
+                    java.util.Optional<ServerTransform> transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
+                    if (transform.isPresent()) {
+                        LOGGER.info("Configuring transform for exportListener: {}", transform.get().getName());
+                        exportListener.withTransform(transform.get());
                     }
                     
                     if (useConsistentSnapshot)
@@ -518,7 +514,7 @@ public class MarkLogicOperations
                     batcher.withBatchSize(configuration.getBatchSize())
                             .withThreadCount(configuration.getThreadCount())
                             .onUrisReady(exportListener)
-                            .onQueryFailure((throwable) -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
+                            .onQueryFailure(throwable -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
                     
                     dmm.startJob(batcher);
                     batcher.awaitCompletion();
@@ -542,7 +538,7 @@ public class MarkLogicOperations
             }
 
             @Override
-            public void close(MarkLogicConnection markLogicConnector) throws MuleException
+            public void close(MarkLogicConnection markLogicConnector)
             {
                 LOGGER.debug("NOT Invalidating ML connection...");
             }

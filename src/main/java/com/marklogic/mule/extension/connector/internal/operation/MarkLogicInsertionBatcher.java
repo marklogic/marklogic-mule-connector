@@ -13,11 +13,8 @@
  */
 package com.marklogic.mule.extension.connector.internal.operation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.datamovement.DataMovementManager;
-import com.marklogic.client.datamovement.JobReport;
 import com.marklogic.client.datamovement.JobTicket;
 import com.marklogic.client.datamovement.WriteBatcher;
 import com.marklogic.client.document.ServerTransform;
@@ -25,18 +22,17 @@ import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by jkrebs on 9/12/2018. Singleton class that manages inserting
@@ -46,8 +42,6 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicInsertionBatcher.class);
 
-    //private static final DateTimeFormatter ISO8601_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-
     // a hash used internally to uniquely identify the batcher based on its current configuration
     private final int signature;
 
@@ -56,7 +50,6 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
 
     // How will we know when the resources are ready to be freed up and provide the results report?
     private JobTicket jobTicket;
-    private final String jobName;
 
     // The object that actually write record to ML
     private WriteBatcher batcher;
@@ -78,7 +71,6 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
      * @param outputCollections A comma-separated list of output collections used during ingestion.
      * @param outputPermissions A comma-separated list of roles and capabilities used during ingestion.
      * @param outputQuality A number indicating the quality of the persisted documents.
-     * @param jobName The jobName from the marklogicConfiguration
      * @param temporalCollection The temporal collection imported documents will be loaded into.
      * @param serverTransform The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.
      * @param serverTransformParams A comma-separated list of alternating transform parameter names and values.
@@ -92,7 +84,6 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         // get the object handles needed to talk to MarkLogic
         initializeBatcher(marklogicConfiguration, connection, outputCollections, outputPermissions, outputQuality, temporalCollection, serverTransform, serverTransformParams);
         LOGGER.info("MarkLogicInsertionBatcher with job name: {}", jobName);
-        this.jobName = jobName;
     }
 
     public static int computeSignature(MarkLogicConfiguration configuration, MarkLogicConnection connection, String outputCollections, String outputPermissions, int outputQuality, String jobName, String temporalCollection, String serverTransform, String serverTransformParams) {
@@ -105,10 +96,10 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         DatabaseClient myClient = connection.getClient();
         dmm = myClient.newDataMovementManager();
         batcher = dmm.newWriteBatcher();
-        // Configure the batcher's behavior
         batcher.withBatchSize(configuration.getBatchSize())
                 .withThreadCount(configuration.getThreadCount())
-                .onBatchSuccess((batch) -> LOGGER.info("Batcher with signature " + getSignature() + " on connection ID " + connection.getId() + " writes so far: " + batch.getJobWritesSoFar()))
+                .onBatchSuccess(batch -> LOGGER.info("Batcher with signature {} on connection ID {} writes so far: {}",
+                    getSignature(), connection.getId(), batch.getJobWritesSoFar()))
                 .onBatchFailure((batch, throwable) -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
 
         // Configure the transform to be used, if any
@@ -121,10 +112,10 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
             batcher.withTemporalCollection(temporalCollection);
         }
 
-        ServerTransform transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
-        if(transform != null)
+        Optional<ServerTransform> transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
+        if(transform.isPresent())
         {
-            batcher.withTransform(transform);
+            batcher.withTransform(transform.get());
         }
 
         // Set up the timer to flush the pipe to MarkLogic if it's waiting to long
@@ -213,43 +204,6 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     }
 
     /**
-     * Creates a JSON object containing details about the batcher job
-     *
-     * @return Job results report
-     * @param jsonFactory
-     */
-    /*ObjectNode createJsonJobReport(ObjectMapper jsonFactory)
-    {
-        JobReport jr = dmm.getJobReport(jobTicket);
-        ObjectNode obj = jsonFactory.createObjectNode();
-        obj.put("jobID", jobTicket.getJobId());
-        ZonedDateTime jobStartTime = toZonedDateTime(jr.getJobStartTime());
-        ZonedDateTime jobEndTime = toZonedDateTime(jr.getJobEndTime());
-        ZonedDateTime jobReportTime = toZonedDateTime(jr.getReportTimestamp());
-        long successBatches = jr.getSuccessBatchesCount();
-        long successEvents = jr.getSuccessEventsCount();
-        long failBatches = jr.getFailureBatchesCount();
-        long failEvents = jr.getFailureEventsCount();
-        if (failEvents > 0)
-        {
-            obj.put("jobOutcome", "failed");
-        }
-        else
-        {
-            obj.put("jobOutcome", "successful");
-        }
-        obj.put("successfulBatches", successBatches);
-        obj.put("successfulEvents", successEvents);
-        obj.put("failedBatches", failBatches);
-        obj.put("failedEvents", failEvents);
-        obj.put("jobName", jobName);
-        obj.put("jobStartTime", jobStartTime.format(ISO8601_DATE_TIME_FORMATTER));
-        obj.put("jobEndTime", jobEndTime.format(ISO8601_DATE_TIME_FORMATTER));
-        obj.put("jobReportTime", jobReportTime.format(ISO8601_DATE_TIME_FORMATTER));
-        return obj;
-    }*/
-
-    /**
      * Actually does the work of passing the document on to DMSDK to do its
      * thing
      *
@@ -271,17 +225,6 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         Charset cs = StandardCharsets.UTF_8;
         return new ByteArrayInputStream(jsonout.getBytes(cs));
     }
-
-    /*public ZonedDateTime toZonedDateTime(Calendar calendar)
-    {
-        if (calendar == null)
-        {
-            return ZonedDateTime.now();
-        }
-        TimeZone tz = calendar.getTimeZone();
-        ZoneId zid = tz == null ? ZoneId.systemDefault() : tz.toZoneId();
-        return ZonedDateTime.ofInstant(calendar.toInstant(), zid);
-    }*/
 
     @Override
     public void markLogicConnectionInvalidated()

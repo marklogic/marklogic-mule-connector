@@ -21,11 +21,8 @@ import com.marklogic.client.io.BytesHandle;
  */
 public class MarkLogicBinaryRecordExtractor extends MarkLogicRecordExtractor {
 
-    // Objects used for handling binary documents
-    private BytesHandle binaryHandle = new BytesHandle();
-
     @Override
-    protected Object extractRecord(DocumentRecord record) {
-        return record.getContent(binaryHandle).get();
+    protected Object extractRecord(DocumentRecord documentRecord) {
+        return documentRecord.getContent(new BytesHandle()).get();
     }
 }

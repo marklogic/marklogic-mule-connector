@@ -21,15 +21,9 @@ import com.marklogic.client.io.StringHandle;
  * Created by jkrebs on 1/19/2020.
  */
 public class MarkLogicXMLRecordExtractor extends MarkLogicRecordExtractor {
-    private final StringHandle handle;
-
-    public MarkLogicXMLRecordExtractor() {
-        this.handle = new StringHandle();
-    }
 
     @Override
-    protected Object extractRecord(DocumentRecord record) {
-        StringHandle retVal = record.getContent(handle).withMimetype("application/xml").withFormat(Format.XML);
-        return retVal.get();
+    protected Object extractRecord(DocumentRecord documentRecord) {
+        return documentRecord.getContent(new StringHandle()).withMimetype("application/xml").withFormat(Format.XML).get();
     }
 }

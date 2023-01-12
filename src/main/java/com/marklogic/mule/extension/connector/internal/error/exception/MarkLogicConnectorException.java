@@ -16,6 +16,9 @@ package com.marklogic.mule.extension.connector.internal.error.exception;
 import com.marklogic.mule.extension.connector.internal.error.MarkLogicConnectorSimpleErrorType;
 import org.mule.runtime.extension.api.exception.ModuleException;
 
+// sonarqube is disappointed that this has 6 parent classes instead of the max of 5, but that is due to ModuleException's
+// hierarchy and does not seem avoidable if a class needs to extend ModuleException
+@SuppressWarnings("java:S110")
 public class MarkLogicConnectorException extends ModuleException
 {
 

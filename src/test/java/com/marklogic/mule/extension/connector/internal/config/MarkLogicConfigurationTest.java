@@ -174,19 +174,16 @@ public class MarkLogicConfigurationTest
         assertNotEquals(instance, instance.generateServerTransform("TestTransform", null));
     }
 
-    /**
-     * Test of createServerTransform method, of class MarkLogicConfiguration.
-     */
     @Test
     public void testGenerateServerTransformWithoutName()
     {
-        assertNull(instance.generateServerTransform(null, null));
+        assertFalse(instance.generateServerTransform(null, null).isPresent());
     }
 
     @Test
     public void testGenerateServerTransformNameWithoutParams()
     {
-        ServerTransform transform = instance.generateServerTransform("TestTransform", null);
+        ServerTransform transform = instance.generateServerTransform("TestTransform", null).get();
         assertEquals("TestTransform", transform.getName());
         assertEquals(0, transform.size());
     }
@@ -195,7 +192,7 @@ public class MarkLogicConfigurationTest
     public void testGenerateServerTransformConfigNameWithoutParams()
     {
         instance.setServerTransform("TestTransform");
-        ServerTransform transform = instance.generateServerTransform(null, null);
+        ServerTransform transform = instance.generateServerTransform(null, null).get();
         assertEquals("TestTransform", transform.getName());
         assertEquals(0, transform.size());
     }
@@ -204,7 +201,7 @@ public class MarkLogicConfigurationTest
     public void testGenerateServerTransformNameAndConfigNameWithoutParams()
     {
         instance.setServerTransform("TestTransform-Not-Used");
-        ServerTransform transform = instance.generateServerTransform("TestTransform", null);
+        ServerTransform transform = instance.generateServerTransform("TestTransform", null).get();
         assertEquals("TestTransform", transform.getName());
         assertEquals(0, transform.size());
     }
@@ -212,7 +209,7 @@ public class MarkLogicConfigurationTest
     @Test
     public void testGenerateServerTransformWithEmptyParams()
     {
-        ServerTransform transform = instance.generateServerTransform("TestTransform", "   ");
+        ServerTransform transform = instance.generateServerTransform("TestTransform", "   ").get();
         assertEquals("TestTransform", transform.getName());
         assertEquals(0, transform.size());
     }
@@ -222,7 +219,7 @@ public class MarkLogicConfigurationTest
     {
         instance.setServerTransform("TestTransform");
         instance.setServerTransformParams("null");
-        ServerTransform transform = instance.generateServerTransform(null, "not-used");
+        ServerTransform transform = instance.generateServerTransform(null, "not-used").get();
         assertEquals("TestTransform", transform.getName());
         assertEquals(0, transform.size());
     }
@@ -256,14 +253,14 @@ public class MarkLogicConfigurationTest
         ServerTransform transform;
         if(useVars)
         {
-            transform = instance.generateServerTransform(name, params);
+            transform = instance.generateServerTransform(name, params).get();
         }
         else
         {
             instance.setServerTransform(name);
             instance.setServerTransformParams(params);
             
-            transform = instance.generateServerTransform(null, null);
+            transform = instance.generateServerTransform(null, null).get();
         }
         
         assertEquals(name, transform.getName());
