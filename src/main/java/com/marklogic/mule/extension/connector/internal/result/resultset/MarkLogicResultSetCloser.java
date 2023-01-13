@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MarkLogicResultSetCloser
 {
-    private static final Logger logger = LoggerFactory.getLogger(MarkLogicResultSetCloser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicResultSetCloser.class);
     private final MarkLogicConnection connection;
 
     public MarkLogicResultSetCloser(MarkLogicConnection connection)
@@ -36,6 +36,6 @@ public class MarkLogicResultSetCloser
     {
         /* It appears nothing should happen here, as the connection is automatically closed when the query has
            returned all of its results. */
-        logger.debug("Closing results in MarkLogicResultSetCloser");
+        LOGGER.debug("Closing results in MarkLogicResultSetCloser");
     }
 }

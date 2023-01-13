@@ -13,26 +13,16 @@
  */
 package com.marklogic.mule.extension.connector.internal.connection;
 
-import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
-import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.*;
-import java.security.cert.CertificateException;
-import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
-
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.ext.DatabaseClientConfig;
 import com.marklogic.client.ext.DefaultConfiguredDatabaseClientFactory;
 import com.marklogic.client.ext.SecurityContextType;
+import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
+import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.provider.MarkLogicConnectionProvider;
 import com.marklogic.mule.extension.connector.internal.error.exception.MarkLogicConnectorException;
-
 import com.marklogic.mule.extension.connector.internal.operation.InsertionBatcherContext;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicInsertionBatcher;
@@ -42,12 +32,27 @@ import org.mule.runtime.api.tls.TlsContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.*;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.cert.CertificateException;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 public final class MarkLogicConnection
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnection.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicConnection.class);
 
     private DatabaseClient client;
     private final String hostname;
@@ -94,8 +99,8 @@ public final class MarkLogicConnection
 
     public void connect()
     {
-        logger.debug("Kerberos external name: {}", this.kerberosExternalName);
-        logger.info("MarkLogic connection id = {}", this.getId());
+        LOGGER.debug("Kerberos external name: {}", this.kerberosExternalName);
+        LOGGER.info("MarkLogic connection id = {}", this.getId());
         try
         {
             this.createClient();
@@ -122,7 +127,7 @@ public final class MarkLogicConnection
         markLogicClientInvalidationListeners.forEach(MarkLogicConnectionInvalidationListener::markLogicConnectionInvalidated);
         releaseInsertionBatchers();
         client.release();
-        logger.info("MarkLogic connection invalidated.");
+        LOGGER.info("MarkLogic connection invalidated.");
     }
     
     public boolean isConnected(int port)
@@ -134,7 +139,7 @@ public final class MarkLogicConnection
         }
         else
         {
-            logger.warn("Could not determine MarkLogicConnection port or client is null");
+            LOGGER.warn("Could not determine MarkLogicConnection port or client is null");
             return false;
         }
     }
@@ -175,15 +180,15 @@ public final class MarkLogicConnection
 
         if (useSSL)
         {
-            if (logger.isDebugEnabled())
+            if (LOGGER.isDebugEnabled())
             {
-                logger.debug(String.format("Creating connection using SSL connection with SSL Context: '%s'.", sslContext));
+                LOGGER.debug(String.format("Creating connection using SSL connection with SSL Context: '%s'.", sslContext));
             }
             config.setSslContext(sslContext.createSslContext());
         }
         else
         {
-            logger.debug("Creating connection without using SSL.");
+            LOGGER.debug("Creating connection without using SSL.");
         }
 
         config.setSslHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.ANY);
@@ -234,10 +239,10 @@ public final class MarkLogicConnection
             trustManagerFactory.init(trustStore);
             X509TrustManager tm = (X509TrustManager) trustManagerFactory.getTrustManagers()[0];
 
-            if (logger.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 Enumeration<String> enumera = trustStore.aliases();
                 while (enumera.hasMoreElements()) {
-                    logger.debug("Found cert with alias: {}", enumera.nextElement());
+                    LOGGER.debug("Found cert with alias: {}", enumera.nextElement());
                 }
             }
             config.setTrustManager(tm);
@@ -250,7 +255,7 @@ public final class MarkLogicConnection
         String keyStoreProvider = "SUN";
         if ("PKCS12".equals(trustStoreType))
         {
-            logger.warn("{} truststores are deprecated. JKS is preferred.", trustStoreType);
+            LOGGER.warn("{} truststores are deprecated. JKS is preferred.", trustStoreType);
             keyStoreProvider = "BC";
         }
 
@@ -260,7 +265,7 @@ public final class MarkLogicConnection
         }
         catch (KeyStoreException | NoSuchProviderException e)
         {
-            logger.error(String.format("Unable to load %s %s keystore. This may cause issues getting trusted CA " +
+            LOGGER.error(String.format("Unable to load %s %s keystore. This may cause issues getting trusted CA " +
                 "certificates as well as Certificate Chains for use in TLS.", keyStoreProvider, trustStoreType), e);
         }
         return KeyStore.getInstance(trustStoreType);
@@ -291,7 +296,7 @@ public final class MarkLogicConnection
                 insertionBatcher = new MarkLogicInsertionBatcher(context);
                 insertionBatchers.put(insertionBatcher.getSignature(), insertionBatcher);
                 if (insertionBatcher.getSignature() != signature) {
-                    logger.warn("Computed batcher signature {} different than generated by instance {}", signature, insertionBatcher.getSignature());
+                    LOGGER.warn("Computed batcher signature {} different than generated by instance {}", signature, insertionBatcher.getSignature());
                 }
             }
             return insertionBatcher;

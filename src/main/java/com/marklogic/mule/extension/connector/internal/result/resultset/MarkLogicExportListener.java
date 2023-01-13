@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class MarkLogicExportListener extends ExportListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(MarkLogicExportListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicExportListener.class);
 
     private List<Object> docs = new ArrayList<>();
 
@@ -47,7 +47,7 @@ public class MarkLogicExportListener extends ExportListener {
                 if ((maxDocs > 0) && (resultCount.getAndIncrement() >= maxDocs))
                 {
                     maxDocsReached.set(true);
-                    logger.info("Processed the user-supplied maximum number of results, which is {}", maxDocs);
+                    LOGGER.info("Processed the user-supplied maximum number of results, which is {}", maxDocs);
                 }
                 else
                 {

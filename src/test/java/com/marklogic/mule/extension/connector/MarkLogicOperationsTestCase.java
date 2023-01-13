@@ -34,7 +34,7 @@ import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
     "even when they've been added to the pom file")
 public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
 {
-    private static final Logger logger = Logger.getLogger(MarkLogicOperationsTestCase.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MarkLogicOperationsTestCase.class.getName());
     private static final String UUID_REGEX = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
     private static final String CURRENT_DATE = new SimpleDateFormat("yyyy-MM-dd").format(new GregorianCalendar().getTime());
 
@@ -150,7 +150,7 @@ public class MarkLogicOperationsTestCase extends MuleArtifactFunctionalTestCase
             }
             out = result.toString("UTF-8");
         } catch(IOException ex) {
-            logger.info(String.format("Exception was thrown during MarkLogicOperationsTestCase. Error was: %s", ex));
+            LOGGER.info(String.format("Exception was thrown during MarkLogicOperationsTestCase. Error was: %s", ex));
         }
         return out;    
     }

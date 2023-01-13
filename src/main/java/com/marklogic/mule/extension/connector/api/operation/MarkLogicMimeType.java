@@ -13,7 +13,11 @@
  */
 package com.marklogic.mule.extension.connector.api.operation;
 
-import com.marklogic.mule.extension.connector.internal.result.resultset.*;
+import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicBinaryRecordExtractor;
+import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicJSONRecordExtractor;
+import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicRecordExtractor;
+import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicTextRecordExtractor;
+import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicXMLRecordExtractor;
 
 import java.util.Arrays;
 import java.util.List;

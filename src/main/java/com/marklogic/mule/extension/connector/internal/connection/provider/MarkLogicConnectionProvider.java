@@ -16,17 +16,19 @@ package com.marklogic.mule.extension.connector.internal.connection.provider;
 import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
-
+import org.mule.runtime.api.connection.CachedConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionException;
-import org.mule.runtime.api.tls.TlsContextFactory;
-import org.mule.runtime.extension.api.annotation.param.Parameter;
-import org.mule.runtime.extension.api.annotation.param.Optional;
-import org.mule.runtime.extension.api.annotation.param.display.*;
+import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
-import org.mule.runtime.api.connection.ConnectionProvider;
-import org.mule.runtime.api.connection.CachedConnectionProvider;
-
+import org.mule.runtime.api.tls.TlsContextFactory;
+import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
+import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
+import org.mule.runtime.extension.api.annotation.param.display.Example;
+import org.mule.runtime.extension.api.annotation.param.display.Password;
+import org.mule.runtime.extension.api.annotation.param.display.Placement;
+import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,7 @@ import org.slf4j.LoggerFactory;
 public class MarkLogicConnectionProvider implements CachedConnectionProvider<MarkLogicConnection>
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MarkLogicConnectionProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicConnectionProvider.class);
 
     @DisplayName("Host name")
     @Parameter
@@ -114,7 +116,7 @@ public class MarkLogicConnectionProvider implements CachedConnectionProvider<Mar
     public MarkLogicConnection connect() throws ConnectionException
     {
         MarkLogicConnection conn = new MarkLogicConnection(this);
-        logger.info("MarkLogicConnectionProvider connect() called");
+        LOGGER.info("MarkLogicConnectionProvider connect() called");
         conn.connect();
         return conn;
     }
@@ -122,7 +124,7 @@ public class MarkLogicConnectionProvider implements CachedConnectionProvider<Mar
     @Override
     public void disconnect(MarkLogicConnection connection)
     {
-        logger.info("MarkLogicConnectionProvider disconnect() called, connection invalidated");
+        LOGGER.info("MarkLogicConnectionProvider disconnect() called, connection invalidated");
         connection.invalidate();
     }
 
@@ -133,12 +135,12 @@ public class MarkLogicConnectionProvider implements CachedConnectionProvider<Mar
         if (connection.isConnected(port))
         {
             result = ConnectionValidationResult.success();
-            logger.info("MarkLogicConnectionProvider validate() result succeeded");
+            LOGGER.info("MarkLogicConnectionProvider validate() result succeeded");
         }
         else
         {
             result = ConnectionValidationResult.failure("Connection failed " + connection.getId(), new Exception());
-            logger.info("MarkLogicConnectionProvider validate() result failed");
+            LOGGER.info("MarkLogicConnectionProvider validate() result failed");
         }
         return result;
     }

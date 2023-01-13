@@ -16,8 +16,16 @@ package com.marklogic.mule.extension.connector.api.operation;
 import com.marklogic.client.datamovement.DataMovementManager;
 import com.marklogic.client.datamovement.QueryBatcher;
 import com.marklogic.client.io.StringHandle;
-import com.marklogic.client.query.*;
-import org.apache.commons.jexl3.*;
+import com.marklogic.client.query.QueryDefinition;
+import com.marklogic.client.query.QueryManager;
+import com.marklogic.client.query.RawCtsQueryDefinition;
+import com.marklogic.client.query.RawStructuredQueryDefinition;
+import com.marklogic.client.query.StructuredQueryDefinition;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.MapContext;
 
 // sonarqube wants these to be uppercase, but cannot change them in the 1.x timeline since they're part of the
 // public API
