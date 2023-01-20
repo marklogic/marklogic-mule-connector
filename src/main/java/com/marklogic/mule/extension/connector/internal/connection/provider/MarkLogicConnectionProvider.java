@@ -54,12 +54,14 @@ public class MarkLogicConnectionProvider implements CachedConnectionProvider<Mar
     @Parameter
     @Summary("The hostname against which operations should run.")
     @Example("localhost")
+    @Placement(tab = Placement.DEFAULT_TAB)
     private String hostname;
 
     @DisplayName("Port")
     @Parameter
     @Summary("The app server port against which operations should run.")
     @Example("8010")
+    @Placement(tab = Placement.DEFAULT_TAB)
     private int port;
 
     @DisplayName("Database")
@@ -73,6 +75,7 @@ public class MarkLogicConnectionProvider implements CachedConnectionProvider<Mar
     @Parameter
     @Summary("The named user.")
     @Example("admin")
+    @Placement(tab = Placement.DEFAULT_TAB)
     private String username;
 
     @DisplayName("Password")
@@ -80,11 +83,13 @@ public class MarkLogicConnectionProvider implements CachedConnectionProvider<Mar
     @Summary("The named user's password.")
     @Password
     @Example("admin")
+    @Placement(tab = Placement.DEFAULT_TAB)
     private String password;
 
     @DisplayName("Authentication Type")
     @Parameter
     @Summary("The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic.")
+    @Placement(tab = Placement.DEFAULT_TAB)
     private AuthenticationType authenticationType; 
 
     @DisplayName("Connection Type")
@@ -110,6 +115,7 @@ public class MarkLogicConnectionProvider implements CachedConnectionProvider<Mar
     @Parameter
     @Summary("An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic. Also set on the Connector configuration parameters.")
     @Example("testConfig-223efe")
+    @Placement(tab = Placement.DEFAULT_TAB)
     private String connectionId;
 
     @Override

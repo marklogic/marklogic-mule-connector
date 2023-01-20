@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class MarkLogicJSONRecordExtractor extends MarkLogicRecordExtractor {
 
-    private static ObjectMapper jsonMapper = new ObjectMapper();
+    private ObjectMapper jsonMapper = new ObjectMapper();
 
     @Override
     protected Object extractRecord(DocumentRecord documentRecord) {

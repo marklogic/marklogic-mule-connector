@@ -28,6 +28,7 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
+import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,16 +49,19 @@ public class MarkLogicConfiguration
     @Parameter
     @Summary("An identifier used for the Mulesoft Connector to keep state of its connection to MarkLogic.")
     @Example("testConfig-223efe")
+    @Placement(tab = Placement.DEFAULT_TAB)
     private String configId;
 
     @Parameter
     @Summary("The thread count passed to DMSDK, representing the number of parallel processing threads.")
     @Example("4")
+    @Placement(tab = Placement.DEFAULT_TAB)
     private int threadCount;
 
     @Parameter
     @Summary("The batch size passed to DMSDK, representing the number of documents processed within a batch.")
     @Example("100")
+    @Placement(tab = Placement.DEFAULT_TAB)
     private int batchSize;
 
     @Parameter
@@ -75,11 +79,13 @@ public class MarkLogicConfiguration
     @Parameter
     @Summary("The number of seconds before DMSDK automatically flushes the current batch if not yet filled to the specified batchSize configurable.")
     @Example("2")
+    @Placement(tab = Placement.DEFAULT_TAB)
     private int secondsBeforeFlush;
 
     @Parameter
     @Summary("The job name used by DMSDK to track the job.")
     @Example("myJobName")
+    @Placement(tab = Placement.DEFAULT_TAB)
     private String jobName;
 
     public String getConfigId()
