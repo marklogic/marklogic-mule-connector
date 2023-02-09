@@ -13,14 +13,18 @@
  */
 package com.marklogic.mule.extension.connector.api.operation;
 
-import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicBinaryRecordExtractor;
-import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicJSONRecordExtractor;
-import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicRecordExtractor;
-import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicTextRecordExtractor;
-import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicXMLRecordExtractor;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.marklogic.client.document.DocumentRecord;
+import com.marklogic.client.io.BytesHandle;
+import com.marklogic.client.io.Format;
+import com.marklogic.client.io.JacksonHandle;
+import com.marklogic.client.io.StringHandle;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 // sonarqube wants these to be uppercase, but cannot change them in the 1.x timeline since they're part of the
 // public API
@@ -30,34 +34,31 @@ public enum MarkLogicMimeType {
     xml {
         @Override
         public MarkLogicRecordExtractor getRecordExtractor() {
-            return xmlRecordExtractor;
+            return doc -> doc.getContent(new StringHandle()).withMimetype("application/xml").withFormat(Format.XML).get();
         }
     },
     json {
         @Override
         public MarkLogicRecordExtractor getRecordExtractor() {
-            return jsonRecordExtractor;
+            return new JSONRecordExtractor();
         }
     },
     text {
         @Override
         public MarkLogicRecordExtractor getRecordExtractor() {
-            return textRecordExtractor;
+            return doc -> doc.getContent(new StringHandle()).get();
         }
     },
     binary {
         @Override
         public MarkLogicRecordExtractor getRecordExtractor() {
-            return binaryRecordExtractor;
+            return doc -> doc.getContent(new BytesHandle()).get();
         }
-
-
     };
 
-    private static MarkLogicBinaryRecordExtractor binaryRecordExtractor = new MarkLogicBinaryRecordExtractor();
-    private static MarkLogicXMLRecordExtractor xmlRecordExtractor = new MarkLogicXMLRecordExtractor();
-    private static MarkLogicJSONRecordExtractor jsonRecordExtractor = new MarkLogicJSONRecordExtractor();
-    private static MarkLogicTextRecordExtractor textRecordExtractor = new MarkLogicTextRecordExtractor();
+    public static Object extractSingleRecord(DocumentRecord documentRecord) {
+        return MarkLogicMimeType.fromString(documentRecord.getMimetype()).getRecordExtractor().extractRecord(documentRecord);
+    }
 
     public static MarkLogicMimeType fromString(String mimeString)
     {
@@ -81,5 +82,33 @@ public enum MarkLogicMimeType {
     }
 
     public abstract MarkLogicRecordExtractor getRecordExtractor();
+
+    private static class JSONRecordExtractor implements MarkLogicRecordExtractor {
+        private static ObjectMapper jsonMapper = new ObjectMapper();
+
+        @Override
+        public Object extractRecord(DocumentRecord documentRecord) {
+            Object content;
+            JsonNode jsonNode = documentRecord.getContent(new JacksonHandle()).get();
+            JsonNodeType nodeType = jsonNode.getNodeType();
+            if (null == nodeType) {
+                content = jsonMapper.convertValue(jsonNode, Map.class);
+            } else switch (nodeType) {
+                case ARRAY:
+                    content = jsonMapper.convertValue(jsonNode, List.class);
+                    break;
+                case STRING:
+                    content = jsonMapper.convertValue(jsonNode, String.class);
+                    break;
+                case NUMBER:
+                    content = jsonMapper.convertValue(jsonNode, Number.class);
+                    break;
+                default:
+                    content = jsonMapper.convertValue(jsonNode, Map.class);
+                    break;
+            }
+            return content;
+        }
+    }
 
 }

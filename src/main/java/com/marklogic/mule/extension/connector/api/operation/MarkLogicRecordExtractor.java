@@ -11,7 +11,7 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-package com.marklogic.mule.extension.connector.internal.result.resultset;
+package com.marklogic.mule.extension.connector.api.operation;
 
 import com.marklogic.client.document.DocumentRecord;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicMimeType;
@@ -19,11 +19,8 @@ import com.marklogic.mule.extension.connector.api.operation.MarkLogicMimeType;
 /**
  * Created by jkrebs on 9/25/2019.
  */
-public abstract class MarkLogicRecordExtractor {
+public interface MarkLogicRecordExtractor {
 
-    protected abstract Object extractRecord(DocumentRecord documentRecord);
+    Object extractRecord(DocumentRecord documentRecord);
 
-    public static Object extractSingleRecord(DocumentRecord documentRecord) {
-        return MarkLogicMimeType.fromString(documentRecord.getMimetype()).getRecordExtractor().extractRecord(documentRecord);
-    }
 }

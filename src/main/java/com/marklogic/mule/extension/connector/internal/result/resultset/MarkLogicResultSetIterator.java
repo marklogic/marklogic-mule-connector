@@ -18,6 +18,7 @@ import com.marklogic.client.document.DocumentPage;
 import com.marklogic.client.document.DocumentRecord;
 import com.marklogic.client.document.GenericDocumentManager;
 import com.marklogic.client.query.QueryDefinition;
+import com.marklogic.mule.extension.connector.api.operation.MarkLogicMimeType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +88,7 @@ public class MarkLogicResultSetIterator implements Iterator<Object>
                 break;
             }
             DocumentRecord nextRecord = documentPage.next();
-            Object content = MarkLogicRecordExtractor.extractSingleRecord(nextRecord);
+            Object content = MarkLogicMimeType.extractSingleRecord(nextRecord);
             page.add(content);
         }
         documentPage.close();

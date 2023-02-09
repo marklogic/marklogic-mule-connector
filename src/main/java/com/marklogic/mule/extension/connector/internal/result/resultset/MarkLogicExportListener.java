@@ -14,6 +14,8 @@
 package com.marklogic.mule.extension.connector.internal.result.resultset;
 
 import com.marklogic.client.datamovement.ExportListener;
+import com.marklogic.mule.extension.connector.api.operation.MarkLogicMimeType;
+import com.marklogic.mule.extension.connector.api.operation.MarkLogicRecordExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +53,7 @@ public class MarkLogicExportListener extends ExportListener {
                 }
                 else
                 {
-                    docs.add(MarkLogicRecordExtractor.extractSingleRecord(doc));
+                    docs.add(MarkLogicMimeType.extractSingleRecord(doc));
                 }
             }
         });
