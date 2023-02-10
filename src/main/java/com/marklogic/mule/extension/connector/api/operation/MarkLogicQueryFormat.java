@@ -20,29 +20,8 @@ import com.marklogic.client.io.Format;
 @SuppressWarnings("java:S115")
 public enum MarkLogicQueryFormat
 {
-    XML{
-        @Override
-        public Format getMlClientFormat() {
-            return Format.XML;
-        }
-    },
-    JSON {
-        @Override
-        public Format getMlClientFormat() {
-            return Format.JSON;
-        }
-    },
-    Binary {
-        @Override
-        public Format getMlClientFormat() {
-            return Format.BINARY;
-        }
-    },
-    Text {
-        @Override
-        public Format getMlClientFormat() {
-            return Format.TEXT;
-        }
-    };
-    public abstract Format getMlClientFormat();
+    XML,
+    JSON,
+    Binary,
+    Text;
 }

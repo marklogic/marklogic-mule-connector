@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  * Intent is for a dependent to hold onto an instance of this to avoid re-instantiation of the Jackson ObjectMapper.
- * Mulesoft does not want static instances. 
+ * Mulesoft does not want static instances.
  */
 public class RecordExtractor {
 

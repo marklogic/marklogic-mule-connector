@@ -21,9 +21,14 @@ import com.marklogic.client.datamovement.DataMovementManager;
 import com.marklogic.client.datamovement.DeleteListener;
 import com.marklogic.client.datamovement.QueryBatcher;
 import com.marklogic.client.document.ServerTransform;
+import com.marklogic.client.io.Format;
 import com.marklogic.client.io.SearchHandle;
+import com.marklogic.client.io.StringHandle;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
+import com.marklogic.client.query.RawCtsQueryDefinition;
+import com.marklogic.client.query.RawStructuredQueryDefinition;
+import com.marklogic.client.query.StructuredQueryDefinition;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
@@ -34,6 +39,11 @@ import com.marklogic.mule.extension.connector.internal.metadata.MarkLogicSelectM
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicExportListener;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetCloser;
 import com.marklogic.mule.extension.connector.internal.result.resultset.MarkLogicResultSetIterator;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.MapContext;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
@@ -237,8 +247,8 @@ public class MarkLogicOperations
         DatabaseClient client = connection.getClient();
         QueryManager qm = client.newQueryManager();
         DataMovementManager dmm = client.newDataMovementManager();
-        QueryDefinition query = queryStrategy.getQueryDefinition(qm, queryString, fmt, optionsName);
-        QueryBatcher batcher = queryStrategy.newQueryBatcher(dmm, query);
+        QueryDefinition query = getQueryDefinition(qm, queryString, fmt, optionsName, queryStrategy);
+        QueryBatcher batcher = newQueryBatcher(dmm, query, queryStrategy);
         SearchHandle resultsHandle = qm.search(query, new SearchHandle());
         
         if (useConsistentSnapshot)
@@ -404,7 +414,7 @@ public class MarkLogicOperations
                 });
 
                 String options = MarkLogicConfiguration.isDefined(optionsName) ? optionsName : null;
-                QueryDefinition query = queryStrategy.getQueryDefinition(connection.getClient().newQueryManager(),queryString,fmt,options);
+                QueryDefinition query = getQueryDefinition(connection.getClient().newQueryManager(),queryString,fmt,options, queryStrategy);
 
                 java.util.Optional<ServerTransform> transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
                 if(transform.isPresent())
@@ -500,9 +510,9 @@ public class MarkLogicOperations
                     QueryManager qm = client.newQueryManager();
                     dmm = client.newDataMovementManager();
 
-                    QueryDefinition query = queryStrategy.getQueryDefinition(qm, queryString, fmt, optionsName);
+                    QueryDefinition query = getQueryDefinition(qm, queryString, fmt, optionsName, queryStrategy);
                     
-                    QueryBatcher batcher = queryStrategy.newQueryBatcher(dmm, query);
+                    QueryBatcher batcher = newQueryBatcher(dmm, query, queryStrategy);
                     
                     java.util.Optional<ServerTransform> transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
                     if (transform.isPresent()) {
@@ -560,5 +570,51 @@ public class MarkLogicOperations
         }
         // Assemble the output URI components
         return String.format(OUTPUT_URI_TEMPLATE, outputUriPrefix, basename, outputUriSuffix);
+    }
+
+    private QueryDefinition getQueryDefinition(QueryManager queryManager, String queryString, MarkLogicQueryFormat format,
+                                               String optionsName, MarkLogicQueryStrategy strategy) {
+        if (MarkLogicQueryStrategy.RawStructuredQueryDefinition.equals(strategy)) {
+            return queryManager.newRawStructuredQueryDefinition(
+                new StringHandle().withFormat(getClientFormat(format)).with(queryString), optionsName);
+        }
+        if (MarkLogicQueryStrategy.StructuredQueryBuilder.equals(strategy)) {
+            JexlEngine jexl = new JexlBuilder().create();
+            JexlExpression e = jexl.createExpression(queryString);
+            JexlContext jc = new MapContext();
+            if (optionsName == null) {
+                jc.set("sb", queryManager.newStructuredQueryBuilder());
+            }
+            else {
+                jc.set("sb", queryManager.newStructuredQueryBuilder(optionsName));
+            }
+            Object o = e.evaluate(jc);
+            return (StructuredQueryDefinition) o;
+        }
+        // CTS query
+        return queryManager.newRawCtsQueryDefinitionAs(getClientFormat(format), queryString, optionsName);
+    }
+
+    private Format getClientFormat(MarkLogicQueryFormat queryFormat) {
+        if (MarkLogicQueryFormat.JSON.equals(queryFormat)) {
+            return Format.JSON;
+        }
+        if (MarkLogicQueryFormat.XML.equals(queryFormat)) {
+            return Format.XML;
+        }
+        if (MarkLogicQueryFormat.Text.equals(queryFormat)) {
+            return Format.TEXT;
+        }
+        return Format.BINARY;
+    }
+
+    private QueryBatcher newQueryBatcher(DataMovementManager dmm, QueryDefinition query, MarkLogicQueryStrategy strategy) {
+        if (MarkLogicQueryStrategy.RawStructuredQueryDefinition.equals(strategy)) {
+            return dmm.newQueryBatcher((RawStructuredQueryDefinition) query);
+        }
+        if (MarkLogicQueryStrategy.StructuredQueryBuilder.equals(strategy)) {
+            return dmm.newQueryBatcher((StructuredQueryDefinition) query);
+        }
+        return dmm.newQueryBatcher((RawCtsQueryDefinition) query);
     }
 }
