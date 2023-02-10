@@ -22,6 +22,7 @@ import com.marklogic.client.DatabaseClientFactory.CertificateAuthContext;
 import com.marklogic.client.DatabaseClientFactory.DigestAuthContext;
 import com.marklogic.mule.extension.connector.internal.connection.provider.MarkLogicConnectionProvider;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.mule.runtime.api.lifecycle.CreateException;
@@ -247,12 +248,14 @@ public class MarkLogicConnectionTest
 
     //----------------- Keystore Authentication Tests ------------------------//
     @Test
+    @Ignore("This should never have worked since a cert file/password aren't provided")
     public void testCertificateClientWithDbName() throws CreateException, FileNotFoundException, IOException
     {
         certificateClientTest(DATABASE_NAME);
     }
 
     @Test
+    @Ignore("This should never have worked since a cert file/password aren't provided")
     public void testCertificateClientWithoutDbName() throws CreateException, FileNotFoundException, IOException
     {
         certificateClientTest(EMPTY_DATABASE_NAME);

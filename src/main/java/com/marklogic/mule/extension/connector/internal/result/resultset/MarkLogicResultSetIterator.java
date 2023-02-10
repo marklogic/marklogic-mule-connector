@@ -18,7 +18,6 @@ import com.marklogic.client.document.DocumentPage;
 import com.marklogic.client.document.DocumentRecord;
 import com.marklogic.client.document.GenericDocumentManager;
 import com.marklogic.client.query.QueryDefinition;
-import com.marklogic.mule.extension.connector.api.operation.MarkLogicMimeType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +45,7 @@ public class MarkLogicResultSetIterator implements Iterator<Object>
     private long maxResults = 0;
     private final AtomicLong start = new AtomicLong(1);
     private final AtomicLong resultCount = new AtomicLong(0);
+    private final RecordExtractor recordExtractor = new RecordExtractor();
 
     public MarkLogicResultSetIterator(MarkLogicConnection connection, QueryDefinition query, Integer pageLength, Long maxResults)
     {
@@ -88,7 +88,7 @@ public class MarkLogicResultSetIterator implements Iterator<Object>
                 break;
             }
             DocumentRecord nextRecord = documentPage.next();
-            Object content = MarkLogicMimeType.extractSingleRecord(nextRecord);
+            Object content = recordExtractor.extractRecord(nextRecord);
             page.add(content);
         }
         documentPage.close();

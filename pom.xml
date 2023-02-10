@@ -201,6 +201,21 @@
             <url>https://repository-master.mulesoft.org/nexus/content/repositories/releases/</url>
         </repository>
     </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>mulesoft-release</id>
+            <name>mulesoft release repository</name>
+            <layout>default</layout>
+            <url>http://repository.mulesoft.org/releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>mule-public</id>
+            <url>https://repository.mulesoft.org/nexus/content/repositories/releases</url>
+        </pluginRepository>
+    </pluginRepositories>
     <scm>
         <connection>scm:git:git://github.com/marklogic-community/marklogic-mule-connector</connection>
         <developerConnection>scm:svn:https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.2.0</developerConnection>

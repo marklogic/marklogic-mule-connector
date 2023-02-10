@@ -14,8 +14,6 @@
 package com.marklogic.mule.extension.connector.internal.result.resultset;
 
 import com.marklogic.client.datamovement.ExportListener;
-import com.marklogic.mule.extension.connector.api.operation.MarkLogicMimeType;
-import com.marklogic.mule.extension.connector.api.operation.MarkLogicRecordExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +35,7 @@ public class MarkLogicExportListener extends ExportListener {
     private long maxDocs = 0;
     private AtomicLong resultCount = new AtomicLong(0);
     private AtomicBoolean maxDocsReached = new AtomicBoolean(false);
+    private final RecordExtractor recordExtractor = new RecordExtractor();
 
     public MarkLogicExportListener(long maxDocs)
     {
@@ -53,7 +52,7 @@ public class MarkLogicExportListener extends ExportListener {
                 }
                 else
                 {
-                    docs.add(MarkLogicMimeType.extractSingleRecord(doc));
+                    docs.add(recordExtractor.extractRecord(doc));
                 }
             }
         });

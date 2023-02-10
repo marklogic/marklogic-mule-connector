@@ -22,51 +22,40 @@ import com.marklogic.client.io.JacksonHandle;
 import com.marklogic.client.io.StringHandle;
 import com.marklogic.client.io.marker.AbstractReadHandle;
 import com.marklogic.client.io.marker.DocumentMetadataReadHandle;
-import com.marklogic.mule.extension.connector.api.operation.MarkLogicMimeType;
+import com.marklogic.mule.extension.connector.internal.result.resultset.RecordExtractor;
 import org.junit.Test;
 
 import java.util.LinkedHashMap;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class MarkLogicMimeTypeTestCase {
 
+    private RecordExtractor recordExtractor = new RecordExtractor();
+
     @Test
     public void testXml() {
-        MarkLogicMimeType type = MarkLogicMimeType.fromString("application/xml");
-        assertEquals(MarkLogicMimeType.xml, type);
-        assertNotNull(type.getRecordExtractor());
-        Object obj = type.getRecordExtractor().extractRecord(new TestRecord(new StringHandle("<test/>")));
+        Object obj = recordExtractor.extractRecord(new TestRecord(new StringHandle("<test/>"), "application/xml"));
         assertEquals("<test/>", obj);
     }
 
     @Test
     public void testJson() {
-        MarkLogicMimeType type = MarkLogicMimeType.fromString("application/json");
-        assertEquals(MarkLogicMimeType.json, type);
-        assertNotNull(type.getRecordExtractor());
-        Object obj = type.getRecordExtractor().extractRecord(new TestRecord(new JacksonHandle(
-            new ObjectMapper().createObjectNode().put("hello", "world"))));
+        Object obj = recordExtractor.extractRecord(new TestRecord(new JacksonHandle(
+            new ObjectMapper().createObjectNode().put("hello", "world")), "application/json"));
         LinkedHashMap map = (LinkedHashMap) obj;
         assertEquals("world", map.get("hello"));
     }
 
     @Test
     public void testText() {
-        MarkLogicMimeType type = MarkLogicMimeType.fromString("application/text");
-        assertEquals(MarkLogicMimeType.text, type);
-        assertNotNull(type.getRecordExtractor());
-        Object obj = type.getRecordExtractor().extractRecord(new TestRecord(new StringHandle("any text")));
+        Object obj = recordExtractor.extractRecord(new TestRecord(new StringHandle("any text"), "text/plain"));
         assertEquals("any text", obj);
     }
 
     @Test
     public void testBinary() {
-        MarkLogicMimeType type = MarkLogicMimeType.fromString(null);
-        assertEquals(MarkLogicMimeType.binary, type);
-        assertNotNull(type.getRecordExtractor());
-        Object obj = type.getRecordExtractor().extractRecord(new TestRecord(new BytesHandle("any text".getBytes())));
+        Object obj = recordExtractor.extractRecord(new TestRecord(new BytesHandle("any text".getBytes()), null));
         assertEquals("any text", new String((byte[]) obj));
     }
 }
@@ -74,9 +63,11 @@ public class MarkLogicMimeTypeTestCase {
 class TestRecord implements DocumentRecord {
 
     private AbstractReadHandle fakeContent;
+    private String mimetype;
 
-    public TestRecord(AbstractReadHandle fakeContent) {
+    public TestRecord(AbstractReadHandle fakeContent, String mimetype) {
         this.fakeContent = fakeContent;
+        this.mimetype = mimetype;
     }
 
     @Override
@@ -96,7 +87,7 @@ class TestRecord implements DocumentRecord {
 
     @Override
     public String getMimetype() {
-        return null;
+        return mimetype;
     }
 
     @Override
