@@ -56,9 +56,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.annotation.param.display.Text;
-import org.mule.runtime.extension.api.runtime.operation.FlowListener;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
-import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -292,7 +290,6 @@ public class MarkLogicOperations
  * @param serverTransform The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.
  * @param serverTransformParams A comma-separated list of alternating transform parameter names and values.
  * @param streamingHelper The streaming helper.
- * @param flowListener The flow listener.
  * @return org.mule.runtime.extension.api.runtime.streaming.PagingProvider
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @deprecated Deprecated in v.1.1.0, use queryDocs instead
@@ -325,12 +322,10 @@ public class MarkLogicOperations
             @Example("ml:sjsInputFlow") String serverTransform,
             @Summary("A comma-separated list of alternating transform parameter names and values.")
             @Optional(defaultValue = "null")
-            @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams,
-            StreamingHelper streamingHelper,
-            FlowListener flowListener
+            @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams
     )
     {
-        return queryDocs(configuration, structuredQuery, optionsName, null, null, structuredQueryStrategy, fmt, serverTransform, serverTransformParams, streamingHelper, flowListener);
+        return queryDocs(configuration, structuredQuery, optionsName, null, null, structuredQueryStrategy, fmt, serverTransform, serverTransformParams);
     }
 
  /**
@@ -344,8 +339,6 @@ public class MarkLogicOperations
  * @param fmt The format of the serialized query.
  * @param serverTransform The name of a deployed MarkLogic server-side Javascript, XQuery, or XSLT.
  * @param serverTransformParams A comma-separated list of alternating transform parameter names and values.
- * @param streamingHelper The streaming helper.
- * @param flowListener The flow listener.
  * @return org.mule.runtime.extension.api.runtime.streaming.PagingProvider
  * @throws com.marklogic.mule.extension.connector.internal.error.provider.MarkLogicExecuteErrorsProvider
  * @since 1.1.0
@@ -379,9 +372,7 @@ public class MarkLogicOperations
             @Example("ml:sjsInputFlow") String serverTransform,
             @Summary("A comma-separated list of alternating transform parameter names and values.")
             @Optional(defaultValue = "null")
-            @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams,
-            StreamingHelper streamingHelper,
-            FlowListener flowListener)
+            @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams)
     {
         return new PagingProvider<MarkLogicConnection, Object>()
         {
@@ -400,18 +391,6 @@ public class MarkLogicOperations
 
             private void initializeIterator(MarkLogicConnection connection) {
                 resultSetCloser = new MarkLogicResultSetCloser(connection);
-                flowListener.onError(ex ->
-                {
-                    LOGGER.error(String.format("Exception was thrown during select operation. Error was: %s", ex.getMessage()), ex);
-                    try
-                    {
-                        close(connection);
-                    }
-                    catch (MuleException e)
-                    {
-                        LOGGER.info(String.format("Exception was found closing connection for select operation. Error was: %s", e.getMessage()), e);
-                    }
-                });
 
                 String options = MarkLogicConfiguration.isDefined(optionsName) ? optionsName : null;
                 QueryDefinition query = getQueryDefinition(connection.getClient().newQueryManager(),queryString,fmt,options, queryStrategy);

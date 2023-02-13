@@ -13,8 +13,6 @@
  */
 package com.marklogic.mule.extension.connector.api.operation;
 
-import com.marklogic.client.io.Format;
-
 // sonarqube wants these to be uppercase, but cannot change them in the 1.x timeline since they're part of the
 // public API
 @SuppressWarnings("java:S115")
