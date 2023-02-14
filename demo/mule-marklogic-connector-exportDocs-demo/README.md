@@ -13,18 +13,6 @@ This example demonstrates the query capabilities of MarkLogic Mule Connector ver
 
 ### To Configure this Example ###
 
-#### Adding Dependencies ####
-
-*Important Note*: For the demo application, everything should be in place to run the flow.  If you experience issues with missing dependencies, you might need to add the JCenter repository to the demo pom.xml file for fetching the MarkLogic Java API and Data Movement SDK.
-
-```
-<repository>
-  <id>jcenter</id>
-  <url>http://jcenter.bintray.com</url>
-</repository>
-```
-#### Flow Operation Configuration ####
-
 The MarkLogic exportDocs operation is pre-populated with the needed configuration.  However, should you need to tweak any settings, select the exportDocs icon in the flow, and change any necessary settings.
 
 ![exportDocs Configuration](../../images/exportDocs-config-demo-1.2.0.png)
