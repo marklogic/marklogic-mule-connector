@@ -27,7 +27,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mule.runtime.api.connection.ConnectionException;
-import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,6 @@ public class MarkLogicOperationTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicOperations.class);
     
     private static final String CONNECTION_ID = "test-connection-id";
-    private static final String DATABASE_NAME = "data-hub-FINAL";
     private static final int PORT = 8011;
     private static final String PROPERTIES_FILE = "src/test/resources/automation-credentials.properties";
     private static final String CONFIG_ID = "testConfig-223efe";
@@ -65,7 +63,7 @@ public class MarkLogicOperationTest {
     Properties prop;
     
     @Before
-    public void setUp() throws InitialisationException {
+    public void setUp() {
         try (InputStream input = new FileInputStream(PROPERTIES_FILE)) {
             prop = new Properties();
             prop.load(input);

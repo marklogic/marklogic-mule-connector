@@ -94,7 +94,7 @@ public class MarkLogicConnectionProviderTest {
     }
 
     @Test
-    public void testValidateFail() throws InitialisationException
+    public void testValidateFail()
     {
         MarkLogicConnectionProvider provider = new MarkLogicConnectionProvider()
             .withHostname(LOCALHOST)

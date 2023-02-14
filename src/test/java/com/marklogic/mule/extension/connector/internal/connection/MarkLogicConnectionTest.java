@@ -44,19 +44,16 @@ public class MarkLogicConnectionTest {
     private static final String USER_PASSWORD = "test-password";
     private static final String USER_NAME = "test-user";
     private static final String DATABASE_NAME = "test";
-    private static final String NULL_DATABASE_NAME = null;
     private static final String EMPTY_DATABASE_NAME = "";
-    private static final String NULL_STR_DATABASE_NAME = "null";
     private static final int PORT = 8000;
     private static final int SSL_PORT = 8021;
     private static final String LOCALHOST = "localhost";
-    private static final String PROPERTIES_FILE = "automation-credentials.properties";
 
     /**
      * Test of getId method, of class MarkLogicConnection.
      */
     @Test
-    public void testGetId() throws InitialisationException
+    public void testGetId()
     {
         MarkLogicConnection instance = new MarkLogicConnection(new MarkLogicConnectionProvider()
             .withHostname(LOCALHOST)
@@ -72,8 +69,7 @@ public class MarkLogicConnectionTest {
     }
     
     @Test
-    public void testIsConnectedNull() throws InitialisationException
-    {
+    public void testIsConnectedNull() {
         MarkLogicConnection instance = new MarkLogicConnection(new MarkLogicConnectionProvider()
             .withHostname(LOCALHOST)
             .withPort(PORT)

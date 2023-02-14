@@ -21,6 +21,7 @@ import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
+import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.runtime.api.tls.TlsContextFactory;
@@ -49,7 +50,7 @@ import javax.inject.Inject;
  * creates and caches connections or simply {@link ConnectionProvider} if you
  * want a new connection each time something requires one.
  */
-public class MarkLogicConnectionProvider implements CachedConnectionProvider<MarkLogicConnection>
+public class MarkLogicConnectionProvider implements CachedConnectionProvider<MarkLogicConnection>, Initialisable
 {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicConnectionProvider.class);
@@ -126,14 +127,15 @@ public class MarkLogicConnectionProvider implements CachedConnectionProvider<Mar
     private SchedulerService schedulerService;
 
     @Override
-    public MarkLogicConnection connect() throws ConnectionException
-    {
-        MarkLogicConnection conn;
-        try {
-            conn = new MarkLogicConnection(this, this.schedulerService);
-        } catch (InitialisationException e) {
-            throw new ConnectionException("Unable to initialize connection to MarkLogic", e);
+    public void initialise() throws InitialisationException {
+        if (tlsContextFactory instanceof Initialisable) {
+            ((Initialisable)tlsContextFactory).initialise();
         }
+    }
+
+    @Override
+    public MarkLogicConnection connect() throws ConnectionException {
+        MarkLogicConnection conn = new MarkLogicConnection(this, this.schedulerService);
         LOGGER.info("MarkLogicConnectionProvider connect() called");
         conn.connect();
         return conn;

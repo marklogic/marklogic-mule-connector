@@ -26,8 +26,6 @@ import com.marklogic.mule.extension.connector.internal.operation.InsertionBatche
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicInsertionBatcher;
 import org.mule.runtime.api.connection.ConnectionException;
-import org.mule.runtime.api.lifecycle.Initialisable;
-import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.slf4j.Logger;
@@ -63,30 +61,23 @@ public final class MarkLogicConnection
     private final String password;
     private final AuthenticationType authenticationType;
     private final MarkLogicConnectionType marklogicConnectionType;
-    private final boolean useSSL;
-    private final TlsContextFactory sslContext;
     private final String kerberosExternalName;
     private final String connectionId;
     private Set<MarkLogicConnectionInvalidationListener> markLogicClientInvalidationListeners = new HashSet<>();
-
     private final HashMap<Integer, MarkLogicInsertionBatcher> insertionBatchers;
     private final ReentrantLock insertionBatchersLock;
     private final SchedulerService schedulerService;
+    private final MarkLogicConnectionProvider connectionProvider;
 
-    public MarkLogicConnection(MarkLogicConnectionProvider provider) throws InitialisationException {
+    public MarkLogicConnection(MarkLogicConnectionProvider provider) {
         this(provider, null);
     }
 
-    public MarkLogicConnection(MarkLogicConnectionProvider provider, SchedulerService schedulerService) throws InitialisationException {
+    public MarkLogicConnection(MarkLogicConnectionProvider provider, SchedulerService schedulerService) {
+        this.connectionProvider = provider;
         this.schedulerService = schedulerService;
         this.insertionBatchers = new HashMap<>();
         this.insertionBatchersLock = new ReentrantLock(true);
-
-        this.useSSL = provider.getTlsContextFactory() != null;
-        if (provider.getTlsContextFactory() instanceof Initialisable) {
-            ((Initialisable) provider.getTlsContextFactory()).initialise();
-        }
-        this.sslContext = provider.getTlsContextFactory();
 
         this.hostname = provider.getHostname();
         this.port = provider.getPort();
@@ -175,22 +166,14 @@ public final class MarkLogicConnection
         config.setUsername(username);
         config.setPassword(password);
 
-        if (useSSL)
-        {
-            if (LOGGER.isDebugEnabled())
-            {
-                LOGGER.debug(String.format("Creating connection using SSL connection with SSL Context: '%s'.", sslContext));
+        if (connectionProvider.getTlsContextFactory() != null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Creating connection using SSL connection with SSL Context: {}", connectionProvider.getTlsContextFactory());
             }
-            config.setSslContext(sslContext.createSslContext());
+            config.setSslContext(connectionProvider.getTlsContextFactory().createSslContext());
         }
-        else
-        {
-            LOGGER.debug("Creating connection without using SSL.");
-        }
-
         config.setSslHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.ANY);
 
-        
         client = new DefaultConfiguredDatabaseClientFactory().newDatabaseClient(config);
     }
 
@@ -223,7 +206,8 @@ public final class MarkLogicConnection
         
     private void setTrustManager(DatabaseClientConfig config) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException
     {
-        if (sslContext.isTrustStoreConfigured())
+        TlsContextFactory sslContext = this.connectionProvider.getTlsContextFactory();
+        if (sslContext != null && sslContext.isTrustStoreConfigured())
         {
             String defaultAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(defaultAlgorithm);
@@ -237,9 +221,9 @@ public final class MarkLogicConnection
             X509TrustManager tm = (X509TrustManager) trustManagerFactory.getTrustManagers()[0];
 
             if (LOGGER.isDebugEnabled()) {
-                Enumeration<String> enumera = trustStore.aliases();
-                while (enumera.hasMoreElements()) {
-                    LOGGER.debug("Found cert with alias: {}", enumera.nextElement());
+                Enumeration<String> aliases = trustStore.aliases();
+                while (aliases.hasMoreElements()) {
+                    LOGGER.debug("Found cert with alias: {}", aliases.nextElement());
                 }
             }
             config.setTrustManager(tm);
