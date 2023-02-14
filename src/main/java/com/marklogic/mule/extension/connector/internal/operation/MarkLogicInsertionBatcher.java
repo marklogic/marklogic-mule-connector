@@ -20,6 +20,7 @@ import com.marklogic.client.datamovement.WriteBatcher;
 import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.InputStreamHandle;
+import org.mule.runtime.api.scheduler.SchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by jkrebs on 9/12/2018. Singleton class that manages inserting
@@ -48,25 +50,22 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     // How will we know when the resources are ready to be freed up and provide the results report?
     private JobTicket jobTicket;
 
-    // The object that actually write record to ML
     private WriteBatcher batcher;
 
-    // Handle for DMSDK Data Movement Manager
     private DataMovementManager dmm;
 
-    // The timestamp of the last write to ML-- used to determine when the pipe to ML should be flushed
-    private long lastWriteTime;
-
     private boolean batcherRequiresReinit;
-    private Timer timer = null;
+
+    private SchedulerService schedulerService;
 
     /**
      * Creates a new insertion batcher.
      *
      * @param context captures inputs and context for the insertion process
      */
-    public MarkLogicInsertionBatcher(InsertionBatcherContext context)
+    public MarkLogicInsertionBatcher(InsertionBatcherContext context, SchedulerService schedulerService)
     {
+        this.schedulerService = schedulerService;
         this.batcherRequiresReinit = false;
         LOGGER.debug("MarkLogicInsertionBatcher batcherRequiresReinit {}", batcherRequiresReinit);
         this.signature = context.computeSignature();
@@ -106,30 +105,7 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
             batcher.withTransform(transform.get());
         }
 
-        // Set up the timer to flush the pipe to MarkLogic if it's waiting to long
-        int secondsBeforeFlush = context.getConfiguration().getSecondsBeforeFlush();
-
-        if (timer != null)
-        {
-            timer.cancel();
-        }
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                // Check to see if the pipe has been inactive longer than the wait time
-                if ((System.currentTimeMillis() - lastWriteTime) >= secondsBeforeFlush * 1000)
-                {
-                    // if it has, flush the pipe
-                    batcher.flushAndWait();
-                    // Set the last write time to be something well into the future, so that we don't needlessly,
-                    // repeatedly flush the queue
-                    lastWriteTime = System.currentTimeMillis() + 900000;
-                }
-            }
-        }, secondsBeforeFlush * (long) 1000, secondsBeforeFlush * (long) 1000);
+        scheduleThreadToFlushBatcher(context);
 
         // Set up the metadata to be used for the documents that will be inserted
         // ASSUMPTION: The same metadata will be used for every document to be inserted during the lifetime of this
@@ -177,9 +153,26 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
         this.jobTicket = dmm.startJob(batcher);
     }
 
+    /**
+     * Documents can get "stuck" in the WriteBatcher when not enough are received to meet the batch size.
+     *
+     * @param context
+     */
+    private void scheduleThreadToFlushBatcher(InsertionBatcherContext context) {
+        // The service will be null in unit tests that don't inject a SchedulerService
+        if (this.schedulerService != null) {
+            int secondsBeforeFlush = context.getConfiguration().getSecondsBeforeFlush();
+            // There's no real penalty to calling flushAsync repeatedly; if there are no documents waiting to be
+            // written, the cost of calling flushAsync is negligible.
+            this.schedulerService.ioScheduler().scheduleAtFixedRate(() -> {
+                if (batcher != null && !batcher.isStopped()) {
+                    batcher.flushAsync();
+                }
+            }, secondsBeforeFlush, secondsBeforeFlush, TimeUnit.SECONDS);
+        }
+    }
+
     public void release() {
-        if (timer != null)
-            timer.cancel();
         if (batcher != null) {
             // finalize all writes
             batcher.flushAndWait();
@@ -203,8 +196,6 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
     {
         // Add the InputStream to the DMSDK WriteBatcher object
         batcher.addAs(outURI, metadataHandle, new InputStreamHandle(documentStream));
-        // Update the most recent insert's timestamp
-        lastWriteTime = System.currentTimeMillis();
 
         // Return the job ticket ID so it can be used to retrieve the document in the future
         String jsonout = "\"" + jobTicket.getJobId() + "\"";
