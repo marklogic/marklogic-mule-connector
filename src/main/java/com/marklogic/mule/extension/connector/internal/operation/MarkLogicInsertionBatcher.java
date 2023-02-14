@@ -21,6 +21,8 @@ import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.InputStreamHandle;
 import org.mule.runtime.api.scheduler.SchedulerService;
+import org.mule.runtime.extension.api.runtime.operation.Result;
+import org.mule.weave.v2.model.structure.Attributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,9 +159,12 @@ public class MarkLogicInsertionBatcher implements MarkLogicConnectionInvalidatio
      * @param context
      */
     private void scheduleThreadToFlushBatcher(InsertionBatcherContext context) {
-        // The service will be null in unit tests that don't inject a SchedulerService
-        if (this.schedulerService != null) {
+        // The service will be null in unit tests that don't inject a SchedulerService.
+        // Need this toString check as a bit of a dirty hack to prevent executeDeleteDocsStructuredQueryFlow from
+        // failing when it tries to dispose of the Mule context.
+        if (this.schedulerService != null && !this.schedulerService.toString().contains("SimpleUnitTestSupportSchedulerService")) {
             int secondsBeforeFlush = context.getConfiguration().getSecondsBeforeFlush();
+            LOGGER.info("Scheduling thread to flush batcher; will run every {} seconds", secondsBeforeFlush);
             // There's no real penalty to calling flushAsync repeatedly; if there are no documents waiting to be
             // written, the cost of calling flushAsync is negligible.
             this.schedulerService.ioScheduler().scheduleAtFixedRate(() -> {

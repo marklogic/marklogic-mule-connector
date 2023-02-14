@@ -204,17 +204,15 @@ public final class MarkLogicConnection
             DatabaseClient.ConnectionType.DIRECT);
     }
         
-    private void setTrustManager(DatabaseClientConfig config) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException
-    {
-        TlsContextFactory sslContext = this.connectionProvider.getTlsContextFactory();
-        if (sslContext != null && sslContext.isTrustStoreConfigured())
-        {
+    private void setTrustManager(DatabaseClientConfig config) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
+        // Not declaring an instance of TLSContextFactory as that triggers a code smell
+        if (connectionProvider.getTlsContextFactory() != null && connectionProvider.getTlsContextFactory().isTrustStoreConfigured()) {
             String defaultAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(defaultAlgorithm);
-            final KeyStore trustStore = getTrustStore(sslContext.getTrustStoreConfiguration().getType());
+            final KeyStore trustStore = getTrustStore(connectionProvider.getTlsContextFactory().getTrustStoreConfiguration().getType());
 
-            try (final InputStream is = new FileInputStream(sslContext.getTrustStoreConfiguration().getPath())) {
-                trustStore.load(is, sslContext.getTrustStoreConfiguration().getPassword().toCharArray());
+            try (final InputStream is = new FileInputStream(connectionProvider.getTlsContextFactory().getTrustStoreConfiguration().getPath())) {
+                trustStore.load(is, connectionProvider.getTlsContextFactory().getTrustStoreConfiguration().getPassword().toCharArray());
             }
 
             trustManagerFactory.init(trustStore);
