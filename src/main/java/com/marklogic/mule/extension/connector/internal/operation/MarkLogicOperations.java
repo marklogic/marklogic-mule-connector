@@ -472,68 +472,56 @@ public class MarkLogicOperations
             @Example("entity-name,MyEntity,flow-name,loadMyEntity") String serverTransformParams
     )
     {
-        Long max = maxResults != null ? maxResults : 0;
-        MarkLogicExportListener exportListener = new MarkLogicExportListener(max);
-
-        return new PagingProvider<MarkLogicConnection, Object>()
-        {
-            private final AtomicBoolean initialised = new AtomicBoolean(false);
-            private DataMovementManager dmm = null;
+        return new PagingProvider<MarkLogicConnection, Object>() {
+            private final AtomicBoolean pageReturned = new AtomicBoolean(false);
 
             @Override
             public List<Object> getPage(MarkLogicConnection markLogicConnector)
             {
-                if (initialised.compareAndSet(false, true))
-                {
-                    DatabaseClient client = markLogicConnector.getClient();
-                    QueryManager qm = client.newQueryManager();
-                    dmm = client.newDataMovementManager();
-
-                    QueryDefinition query = getQueryDefinition(qm, queryString, fmt, optionsName, queryStrategy);
-                    
-                    QueryBatcher batcher = newQueryBatcher(dmm, query, queryStrategy);
-                    
-                    java.util.Optional<ServerTransform> transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
-                    if (transform.isPresent()) {
-                        LOGGER.info("Configuring transform for exportListener: {}", transform.get().getName());
-                        exportListener.withTransform(transform.get());
-                    }
-                    
-                    if (useConsistentSnapshot)
-                    {
-                        batcher.withConsistentSnapshot();
-                    }
-                    
-                    batcher.withBatchSize(configuration.getBatchSize())
-                            .withThreadCount(configuration.getThreadCount())
-                            .onUrisReady(exportListener)
-                            .onQueryFailure(throwable -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
-                    
-                    dmm.startJob(batcher);
-                    batcher.awaitCompletion();
-                    dmm.stopJob(batcher);
+                if (pageReturned.get()) {
+                    return new ArrayList<>();
                 }
 
-                if (dmm == null)
-                {
-                    LOGGER.warn("Data Movement Manager is null after initialization.");
-                }
-                List<Object> results = new ArrayList<>(exportListener.getDocs());
-                exportListener.clearDocs();
+                DatabaseClient client = markLogicConnector.getClient();
+                QueryManager qm = client.newQueryManager();
+                DataMovementManager dmm = client.newDataMovementManager();
 
-                return results;
+                QueryDefinition query = getQueryDefinition(qm, queryString, fmt, optionsName, queryStrategy);
+                QueryBatcher batcher = newQueryBatcher(dmm, query, queryStrategy);
+
+                MarkLogicExportListener exportListener = new MarkLogicExportListener(maxResults != null ? maxResults : 0);
+
+                java.util.Optional<ServerTransform> transform = configuration.generateServerTransform(serverTransform, serverTransformParams);
+                if (transform.isPresent()) {
+                    LOGGER.info("Configuring transform for exportListener: {}", transform.get().getName());
+                    exportListener.withTransform(transform.get());
+                }
+
+                if (useConsistentSnapshot) {
+                    batcher.withConsistentSnapshot();
+                    exportListener.withConsistentSnapshot();
+                }
+
+                batcher.withBatchSize(configuration.getBatchSize())
+                        .withThreadCount(configuration.getThreadCount())
+                        .onUrisReady(exportListener)
+                        .onQueryFailure(throwable -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
+
+                dmm.startJob(batcher);
+                batcher.awaitCompletion();
+                dmm.stopJob(batcher);
+                pageReturned.set(true);
+                return exportListener.getDocs();
             }
 
             @Override
-            public java.util.Optional<Integer> getTotalResults(MarkLogicConnection markLogicConnector)
-            {
+            public java.util.Optional<Integer> getTotalResults(MarkLogicConnection markLogicConnector) {
                 return java.util.Optional.empty();
             }
 
             @Override
-            public void close(MarkLogicConnection markLogicConnector)
-            {
-                LOGGER.debug("NOT Invalidating ML connection...");
+            public void close(MarkLogicConnection markLogicConnector) {
+                LOGGER.debug("No action on close");
             }
         };
     }
