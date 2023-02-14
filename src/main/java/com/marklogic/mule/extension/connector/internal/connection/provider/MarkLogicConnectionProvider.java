@@ -17,10 +17,10 @@ import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import org.mule.runtime.api.connection.CachedConnectionProvider;
-import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
+import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
@@ -31,6 +31,8 @@ import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 /**
  * This class (as it's name implies) provides connection instances and the
@@ -118,10 +120,13 @@ public class MarkLogicConnectionProvider implements CachedConnectionProvider<Mar
     @Placement(tab = Placement.DEFAULT_TAB)
     private String connectionId;
 
+    @Inject
+    private SchedulerService schedulerService;
+
     @Override
-    public MarkLogicConnection connect() throws ConnectionException
+    public MarkLogicConnection connect()
     {
-        MarkLogicConnection conn = new MarkLogicConnection(this);
+        MarkLogicConnection conn = new MarkLogicConnection(this, this.schedulerService);
         LOGGER.info("MarkLogicConnectionProvider connect() called");
         conn.connect();
         return conn;
