@@ -224,13 +224,13 @@ public class MarkLogicConfigurationTest
         assertEquals(0, transform.size());
     }
 
-    @Test(expected = MarkLogicConnectorException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testGenerateServerTransformUnequalPairs()
     {
         createServerTransformTester("TestTransform", "entity-name,MyEntity,flow-name", true);
     }
 
-    @Test(expected = MarkLogicConnectorException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testGenerateServerTransformUnequalPairs2()
     {
         createServerTransformTester("TestTransform", "entity-name,MyEntity,flow-name, ", false);

@@ -14,29 +14,30 @@
 
 package com.marklogic.mule.extension.connector.internal.operation;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.util.Properties;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryFormat;
 import com.marklogic.mule.extension.connector.api.operation.MarkLogicQueryStrategy;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
-
 import com.marklogic.mule.extension.connector.internal.connection.provider.MarkLogicConnectionProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.mule.runtime.api.connection.ConnectionException;
+import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -63,16 +64,8 @@ public class MarkLogicOperationTest {
     MarkLogicOperations operation;
     Properties prop;
     
-//    @BeforeClass
-//    public static void setUpClass() {
-//    }
-//    
-//    @AfterClass
-//    public static void tearDownClass() {
-//    }
-
     @Before
-    public void setUp() {
+    public void setUp() throws InitialisationException {
         try (InputStream input = new FileInputStream(PROPERTIES_FILE)) {
             prop = new Properties();
             prop.load(input);
@@ -106,7 +99,7 @@ public class MarkLogicOperationTest {
     }
 
     @Test
-    public void testDeleteDocs() throws IOException {
+    public void testDeleteDocs() throws IOException, ConnectionException {
         String queryString = "{ \"query\": { \"queries\": [{ \"document-query\": {\"uri\": [ \"/mulesoft/delete-junit.json\" ] } }] } }";
         String optionsName = "default";
         MarkLogicQueryStrategy queryStrategy = MarkLogicQueryStrategy.RawStructuredQueryDefinition;
@@ -128,7 +121,7 @@ public class MarkLogicOperationTest {
     }
     
     @Test
-    public void testExportDocs() throws IOException {
+    public void testExportDocs() throws ConnectionException {
         Long resultCount = new Long("3");
         boolean useConsistentSnapshot = true;
         String optionsName = "employeeTest";

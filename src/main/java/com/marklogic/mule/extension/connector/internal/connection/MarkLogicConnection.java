@@ -22,10 +22,10 @@ import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
 import com.marklogic.mule.extension.connector.internal.connection.provider.MarkLogicConnectionProvider;
-import com.marklogic.mule.extension.connector.internal.error.exception.MarkLogicConnectorException;
 import com.marklogic.mule.extension.connector.internal.operation.InsertionBatcherContext;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicInsertionBatcher;
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.scheduler.SchedulerService;
@@ -73,23 +73,18 @@ public final class MarkLogicConnection
     private final ReentrantLock insertionBatchersLock;
     private final SchedulerService schedulerService;
 
-    public MarkLogicConnection(MarkLogicConnectionProvider provider) {
+    public MarkLogicConnection(MarkLogicConnectionProvider provider) throws InitialisationException {
         this(provider, null);
     }
 
-    public MarkLogicConnection(MarkLogicConnectionProvider provider, SchedulerService schedulerService) {
+    public MarkLogicConnection(MarkLogicConnectionProvider provider, SchedulerService schedulerService) throws InitialisationException {
         this.schedulerService = schedulerService;
         this.insertionBatchers = new HashMap<>();
         this.insertionBatchersLock = new ReentrantLock(true);
 
         this.useSSL = provider.getTlsContextFactory() != null;
         if (provider.getTlsContextFactory() instanceof Initialisable) {
-            try {
-                ((Initialisable) provider.getTlsContextFactory()).initialise();
-            } catch (InitialisationException e) {
-                String message = "Error initializing SSL Context.";
-                throw new MarkLogicConnectorException(message, e);
-            }
+            ((Initialisable) provider.getTlsContextFactory()).initialise();
         }
         this.sslContext = provider.getTlsContextFactory();
 
@@ -104,18 +99,14 @@ public final class MarkLogicConnection
         this.connectionId = provider.getConnectionId();
     }
 
-    public void connect()
+    public void connect() throws ConnectionException
     {
         LOGGER.debug("Kerberos external name: {}", this.kerberosExternalName);
         LOGGER.info("MarkLogic connection id = {}", this.getId());
-        try
-        {
+        try {
             this.createClient();
-        }
-        catch (Exception e)
-        {
-            String message = "Error creating MarkLogic connection";
-            throw new MarkLogicConnectorException(message, e);
+        } catch (Exception e) {
+            throw new ConnectionException("Could not create connection to MarkLogic", e);
         }
     }
 
@@ -280,9 +271,6 @@ public final class MarkLogicConnection
 	public MarkLogicInsertionBatcher getInsertionBatcher(MarkLogicConfiguration config, String outputCollections, String outputPermissions,
                                                          int outputQuality, String temporalCollection,
                                                          String serverTransform, String serverTransformParams) {
-        if (client == null)
-            throw new MarkLogicConnectorException("Cannot initialize insertion batcher; client is not yet connected.");
-
         InsertionBatcherContext context = new InsertionBatcherContext();
         context.setConfiguration(config);
         context.setConnection(this);

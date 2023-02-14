@@ -20,13 +20,9 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
+import org.mule.runtime.api.lifecycle.InitialisationException;
 
-/**
- *
- * @author jshingle
- */
-public class MarkLogicConnectionProviderTest
-{
+public class MarkLogicConnectionProviderTest {
 
     private static final String CONNECTION_ID = "test-connection-id";
     private static final String USER_PASSWORD = "test-password";
@@ -76,7 +72,7 @@ public class MarkLogicConnectionProviderTest
      * Tests of validate method, of class MarkLogicConnectionProvider.
      */
     @Test
-    public void testValidatePass()
+    public void testValidatePass() throws ConnectionException, InitialisationException
     {
         MarkLogicConnectionProvider provider = new MarkLogicConnectionProvider()
             .withHostname(LOCALHOST)
@@ -98,7 +94,7 @@ public class MarkLogicConnectionProviderTest
     }
 
     @Test
-    public void testValidateFail()
+    public void testValidateFail() throws InitialisationException
     {
         MarkLogicConnectionProvider provider = new MarkLogicConnectionProvider()
             .withHostname(LOCALHOST)

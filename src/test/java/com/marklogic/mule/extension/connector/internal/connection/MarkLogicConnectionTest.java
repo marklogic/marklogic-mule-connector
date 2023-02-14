@@ -13,21 +13,18 @@
  */
 package com.marklogic.mule.extension.connector.internal.connection;
 
-import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
-import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.DatabaseClientFactory.BasicAuthContext;
-import com.marklogic.client.DatabaseClientFactory.CertificateAuthContext;
 import com.marklogic.client.DatabaseClientFactory.DigestAuthContext;
+import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
+import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
 import com.marklogic.mule.extension.connector.internal.connection.provider.MarkLogicConnectionProvider;
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnectionInvalidationListener;
-import org.junit.Ignore;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.mule.runtime.api.lifecycle.CreateException;
+import org.mule.runtime.api.connection.ConnectionException;
+import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.tls.TlsContextFactory;
-import org.mule.runtime.api.tls.TlsContextFactoryBuilder;
 import org.mule.runtime.api.tls.TlsContextKeyStoreConfiguration;
 import org.mule.runtime.api.tls.TlsContextTrustStoreConfiguration;
 
@@ -35,20 +32,13 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Properties;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-/**
- *
- * @author jshingler
- */
-public class MarkLogicConnectionTest
-{
+public class MarkLogicConnectionTest {
 
     private static final String CONNECTION_ID = "test-connection-id";
     private static final String USER_PASSWORD = "test-password";
@@ -66,7 +56,7 @@ public class MarkLogicConnectionTest
      * Test of getId method, of class MarkLogicConnection.
      */
     @Test
-    public void testGetId()
+    public void testGetId() throws InitialisationException
     {
         MarkLogicConnection instance = new MarkLogicConnection(new MarkLogicConnectionProvider()
             .withHostname(LOCALHOST)
@@ -82,7 +72,7 @@ public class MarkLogicConnectionTest
     }
     
     @Test
-    public void testIsConnectedNull()
+    public void testIsConnectedNull() throws InitialisationException
     {
         MarkLogicConnection instance = new MarkLogicConnection(new MarkLogicConnectionProvider()
             .withHostname(LOCALHOST)
@@ -101,7 +91,7 @@ public class MarkLogicConnectionTest
      * Test of invalidate method, of class MarkLogicConnection.
      */
     @Test
-    public void testInvalidate()
+    public void testInvalidate() throws ConnectionException, InitialisationException
     {
         MarkLogicConnectionInvalidationListener listener = mock(MarkLogicConnectionInvalidationListener.class);
 
@@ -127,7 +117,7 @@ public class MarkLogicConnectionTest
      * Test of isConnected method, of class MarkLogicConnection.
      */
     @Test
-    public void testIsConnected()
+    public void testIsConnected() throws ConnectionException, InitialisationException
     {
         MarkLogicConnection instance = new MarkLogicConnection(new MarkLogicConnectionProvider()
             .withHostname(LOCALHOST)
@@ -148,7 +138,7 @@ public class MarkLogicConnectionTest
      * Negative Test of isConnected method, of class MarkLogicConnection.
      */
     @Test
-    public void testIsNotConnected()
+    public void testIsNotConnected() throws ConnectionException, InitialisationException
     {
         MarkLogicConnection instance = new MarkLogicConnection(new MarkLogicConnectionProvider()
             .withHostname(LOCALHOST)
@@ -166,24 +156,19 @@ public class MarkLogicConnectionTest
 
     //----------------- Digest & Default Authentication Tests ----------------//
     @Test
-    public void testDigestClientWithDbName()
+    public void testDigestClientWithDbName() throws ConnectionException, InitialisationException
     {
         digestClientTest(DATABASE_NAME);
     }
 
     //Should have used paramatized test 
     @Test
-    public void testDigestClientWithoutDbName()
+    public void testDigestClientWithoutDbName() throws ConnectionException, InitialisationException
     {
         digestClientTest(EMPTY_DATABASE_NAME);
     }
 
-    protected void digestClientTest(String databaseName)
-    {
-        digestClientTest(databaseName, AuthenticationType.digest);
-    }
-
-    protected void digestClientTest(String databaseName, AuthenticationType authenticationType)
+    protected void digestClientTest(String databaseName) throws ConnectionException, InitialisationException
     {
         MarkLogicConnection instance = new MarkLogicConnection(new MarkLogicConnectionProvider()
             .withHostname(LOCALHOST)
@@ -210,18 +195,18 @@ public class MarkLogicConnectionTest
 
     //----------------- Basic Authentication Tests ---------------------------//
     @Test
-    public void testBasicClientWithDbName()
+    public void testBasicClientWithDbName() throws ConnectionException, InitialisationException
     {
         basicClientTest(DATABASE_NAME);
     }
 
     @Test
-    public void testBasicClientWithoutDbName()
+    public void testBasicClientWithoutDbName() throws ConnectionException, InitialisationException
     {
         basicClientTest(EMPTY_DATABASE_NAME);
     }
 
-    protected void basicClientTest(String databaseName)
+    protected void basicClientTest(String databaseName) throws ConnectionException, InitialisationException
     {
         MarkLogicConnection instance = new MarkLogicConnection(new MarkLogicConnectionProvider()
             .withHostname(LOCALHOST)
@@ -246,115 +231,9 @@ public class MarkLogicConnectionTest
         assertEquals(USER_PASSWORD, digest.getPassword());
     }
 
-    //----------------- Keystore Authentication Tests ------------------------//
-    @Test
-    @Ignore("This should never have worked since a cert file/password aren't provided")
-    public void testCertificateClientWithDbName() throws CreateException, FileNotFoundException, IOException
-    {
-        certificateClientTest(DATABASE_NAME);
-    }
-
-    @Test
-    @Ignore("This should never have worked since a cert file/password aren't provided")
-    public void testCertificateClientWithoutDbName() throws CreateException, FileNotFoundException, IOException
-    {
-        certificateClientTest(EMPTY_DATABASE_NAME);
-    }
-
-    protected void certificateClientTest(String databaseName) throws CreateException, FileNotFoundException, IOException
-    {
-        Properties properties = new Properties();
-        try {
-            InputStream is = getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE);
-
-            if (is != null) {
-                properties.load(is);
-            }
-        } catch (FileNotFoundException ex) {
-            throw ex;
-        } catch (IOException ex) {
-            throw ex;
-        }
-        
-        TlsContextFactoryBuilder tcfb = TlsContextFactory.builder();
-        tcfb.trustStorePath(properties.getProperty("keystore.filepath"));
-        tcfb.trustStorePassword(properties.getProperty("keystore.password"));
-        TlsContextFactory sslContext = tcfb.build();
-
-        MarkLogicConnection instance = new MarkLogicConnection(new MarkLogicConnectionProvider()
-            .withHostname(LOCALHOST)
-            .withPort(SSL_PORT)
-            .withDatabase(databaseName)
-            .withUsername(USER_NAME)
-            .withPassword(USER_PASSWORD)
-            .withAuthenticationType(AuthenticationType.certificate)
-            .withMarklogicConnectionType(MarkLogicConnectionType.DIRECT)
-            .withTlsContextFactory(sslContext)
-            .withConnectionId(CONNECTION_ID));
-
-        instance.connect();
-        DatabaseClient result = instance.getClient();
-        this.sslDatabaseClientAssert(result, !databaseName.equals(EMPTY_DATABASE_NAME));
-
-        DatabaseClientFactory.SecurityContext securityContext = result.getSecurityContext();
-
-        assertTrue(securityContext instanceof CertificateAuthContext);
-        /*CertificateAuthContext digest = (CertificateAuthContext) securityContext;
-
-        assertEquals(USER_NAME, digest.getUser());
-        assertEquals(USER_PASSWORD, digest.getPassword());*/
-    }
-
-    //----------------- Kerberos Authentication Tests ------------------------//
-    /**
-     * The following two test throw an error
-     * <p>
-     * Underlying Exception is: com.marklogic.client.FailedRequestException:
-     * Unable to obtain Principal Name for authentication
-    *
-     */
-    /*
-These tests are currently invalid as KERBEROS is not an option at this time
-    @Test(expected = MarkLogicConnectorException.class)
-    public void testKerberosClientWithDbName()
-    {
-        kerberosClientTest(DATABASE_NAME, "null");
-    }
-    
-    @Test(expected = MarkLogicConnectorException.class)
-    public void testKerberosClientWithoutDbName()
-    {
-        kerberosClientTest(NULL_DATABASE_NAME, "null");
-    }
-    
-    /**
-     * The following two test throw an error
-     * 
-     * Underlying Exception is: com.marklogic.client.FailedRequestException: KrbException: Cannot locate default realm
-    **/
- /*
-These tests are currently invalid as KERBEROS is not an option at this time
-
-    @Test(expected = MarkLogicConnectorException.class)
-    public void testKerberosExternalClientWithDbName()
-    {
-        kerberosClientTest(DATABASE_NAME, "test");
-    }
-    
-    @Test(expected = MarkLogicConnectorException.class)
-    public void testKerberosExternalClientWithoutDbName()
-    {
-        kerberosClientTest(NULL_DATABASE_NAME, "test");
-    }
-    protected void kerberosClientTest(String databaseName, String kerberosExternalName)
-    {
-        MarkLogicConnection instance = new MarkLogicConnection(LOCALHOST, PORT, databaseName, USER_NAME, USER_PASSWORD, AuthenticationType.KERBEROS, null, kerberosExternalName, CONNECTION_ID);
-        instance.connect();  
-    }
-     */
     //--------------------- SSL Context Tests --------------------------------//
     @Test
-    public void sslContextTest()
+    public void sslContextTest() throws ConnectionException, InitialisationException
     {
         TlsContextFactory tlsContextFactory = new TlsContextFactory()
         {
@@ -462,16 +341,6 @@ These tests are currently invalid as KERBEROS is not an option at this time
     {
         assertEquals(LOCALHOST, client.getHost());
         assertEquals(PORT, client.getPort());
-        if (compareDbName)
-        {
-            assertEquals(DATABASE_NAME, client.getDatabase());
-        }
-    }
-
-    protected void sslDatabaseClientAssert(DatabaseClient client, boolean compareDbName)
-    {
-        assertEquals(LOCALHOST, client.getHost());
-        assertEquals(SSL_PORT, client.getPort());
         if (compareDbName)
         {
             assertEquals(DATABASE_NAME, client.getDatabase());

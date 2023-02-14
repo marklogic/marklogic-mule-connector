@@ -17,9 +17,11 @@ import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
 import com.marklogic.mule.extension.connector.internal.connection.MarkLogicConnection;
 import org.mule.runtime.api.connection.CachedConnectionProvider;
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
+import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -124,9 +126,14 @@ public class MarkLogicConnectionProvider implements CachedConnectionProvider<Mar
     private SchedulerService schedulerService;
 
     @Override
-    public MarkLogicConnection connect()
+    public MarkLogicConnection connect() throws ConnectionException
     {
-        MarkLogicConnection conn = new MarkLogicConnection(this, this.schedulerService);
+        MarkLogicConnection conn;
+        try {
+            conn = new MarkLogicConnection(this, this.schedulerService);
+        } catch (InitialisationException e) {
+            throw new ConnectionException("Unable to initialize connection to MarkLogic", e);
+        }
         LOGGER.info("MarkLogicConnectionProvider connect() called");
         conn.connect();
         return conn;
