@@ -6,7 +6,7 @@ _MuleSoft Certified_
 
 The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users (via the MuleSoft Anypoint Exchange) with easy integration to MarkLogic, delivering data movement and transformation pipelines via MuleSoft AnypointStudio and Design Center flows. The MuleSoft Connector is built atop MarkLogic’s https://developer.marklogic.com/learn/data-movement-sdk/[Data Movement SDK] (DMSDK), which is a Java API library for applications that need to move data into, out of, or within a MarkLogic cluster.  For those familiar with the existing MarkLogic ecosystem, it provides the core capabilities of MarkLogic Content Pump in the vernacular of the MarkLogic Java Client API.
 
-== Version 1.2.0 - 2021-03-08
+== Version 1.2.0 - 2023-02-21
 
 === Version 1.2.0 - Compatibility
 [%header%autowidth.spread]
@@ -15,7 +15,6 @@ The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users
 |Anypoint Studio |7.8.0 and later
 |Mule SDK|4.3.0 and later
 |JDK |1.8.x
-|MarkLogic Java Client API |5.4.0 and later
 |MarkLogic|9.0-6.2 and later
 |===
 
@@ -24,19 +23,19 @@ This release of the Connector includes the following hotfixes:
 
 * Allow MarkLogic connectivity through load balancers by adding MarkLogic Java Client API support via `DatabaseClient.ConnectionType.GATEWAY`.
 * Provides a performance improvement by moving away from using a pool of under-utilized pooled MarkLogic database connections. Instead, it now uses a cached connection strategy to optimize connections and improve throughput.
-* Upgraded MarkLogic Java Client API to 5.4.0.
+* Upgraded MarkLogic Java Client API to 6.0.0.
 
 === Version 1.2.0 - Required Libraries
 
-* MarkLogic Java Client API v.5.4.0
-* MarkLogic Java Client Utilities v.4.1.1
-* MarkLogic Data Movement Components v.1.0
+* MarkLogic Java Client API v.6.0.0
+* MarkLogic Java Client Utilities v.4.4.0
+* MarkLogic Data Movement Components v2.5.0
 
 === Version 1.2.0 - Improvements
 
 * Allow MarkLogic connectivity through load balancers by adding MarkLogic Java Client API support via `DatabaseClient.ConnectionType.GATEWAY`.
 * Improve performance by moving away from using a pool of under-utilized pooled MarkLogic database connections. Instead, it now uses a cached connection strategy to optimize connections and improve throughput.
-* Upgraded MarkLogic Java Client API to 5.4.0.
+* Upgraded MarkLogic Java Client API to 6.0.0.
 
 === Version 1.2.0 - Bugs Fixed
 

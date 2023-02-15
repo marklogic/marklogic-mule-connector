@@ -14,13 +14,13 @@ See the Release Notes for compatibility information listed in the See Also secti
 
 == What's New in this Connector
 
-=== Version 1.2.0 - 2021-03-08
+=== Version 1.2.0 - 2023-02-21
 
 Release 1.2.0 provides:
 
 * Allowing MarkLogic connectivity through load balancers by adding MarkLogic Java Client API support via `DatabaseClient.ConnectionType.GATEWAY`.
 * A performance improvement by moving away from using a pool of under-utilized pooled MarkLogic database connections. Instead, it now uses a cached connection strategy to optimize connections and improve throughput.
-* Upgraded MarkLogic Java Client API to 5.4.0.
+* Upgraded MarkLogic Java Client API to 6.0.0.
 
 === Version 1.1.1 - 2020-05-11
 
