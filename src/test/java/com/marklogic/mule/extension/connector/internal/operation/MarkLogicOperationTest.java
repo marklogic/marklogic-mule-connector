@@ -1,7 +1,7 @@
 /**
  * MarkLogic Mule Connector
  *
- * Copyright � 2021 MarkLogic Corporation.
+ * Copyright © 2023 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +11,6 @@
  *
  * This project and its code and functionality is not representative of MarkLogic Server and is not supported by MarkLogic.
  */
-
 package com.marklogic.mule.extension.connector.internal.operation;
 
 import com.fasterxml.jackson.databind.JsonNode;
