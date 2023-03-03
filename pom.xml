@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.marklogic</groupId> 
+    <groupId>${deployGroupId}</groupId>
     <artifactId>marklogic-mule-connector</artifactId>
     <version>1.2.0</version>
     <properties>
+        <deployGroupId>com.marklogic</deployGroupId>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <app.runtime>4.4.0</app.runtime>
@@ -21,7 +22,7 @@
                 <groupId>org.mule.tools.maven</groupId>
                 <artifactId>mule-maven-plugin</artifactId>
                 <version>${mule.maven.plugin.version}</version>
-                <extensions>true</extensions> 
+                <extensions>true</extensions>
             </plugin>
             <plugin>
                 <groupId>org.mule.tools.maven</groupId>
@@ -247,6 +248,14 @@
             <url>https://repository.mulesoft.org/nexus/content/repositories/releases</url>
         </pluginRepository>
     </pluginRepositories>
+    <distributionManagement>
+        <repository>
+            <id>anypoint-exchange-v3</id>
+            <name>Corporate Repository</name>
+            <url>https://maven.anypoint.mulesoft.com/api/v3/organizations/${deployGroupId}/maven</url>
+            <layout>default</layout>
+        </repository>
+    </distributionManagement>
     <scm>
         <connection>scm:git:git://github.com/marklogic-community/marklogic-mule-connector</connection>
         <developerConnection>scm:svn:https://github.com/marklogic-community/marklogic-mule-connector/tree/release/v1.2.0</developerConnection>
