@@ -10,7 +10,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="ce8a2870-e52f-4ca1-930d-1fbe898a264b" basePath="/" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
-	<marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="12d46d4c-7b06-466a-af3e-d62affcbba37" configId="testConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName" serverTransform="transformTestEgress" serverTransformParams="q,e">
+	<marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="12d46d4c-7b06-466a-af3e-d62affcbba37" configId="testConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName">
 		<marklogic:connection hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" connectionId="testConfig" marklogicConnectionType="DIRECT"/>
 	</marklogic:config>
 	<flow name="marklogic-demo-1.2.0Flow" doc:id="a5033397-e46a-4181-bfe2-0f2af0fe5299" >
