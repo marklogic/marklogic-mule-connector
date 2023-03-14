@@ -507,11 +507,16 @@ public class MarkLogicOperations
                         .onUrisReady(exportListener)
                         .onQueryFailure(throwable -> LOGGER.error("Exception thrown by an onBatchSuccess listener", throwable));
 
+                long start = System.currentTimeMillis();
+                LOGGER.info("Starting job");
                 dmm.startJob(batcher);
                 batcher.awaitCompletion();
                 dmm.stopJob(batcher);
+                LOGGER.info("Finished job, duration in ms: {}", System.currentTimeMillis() - start);
                 pageReturned.set(true);
-                return exportListener.getDocs();
+                List<Object> docs = exportListener.getDocs();
+                LOGGER.info("Document count: {}", docs.size());
+                return docs;
             }
 
             @Override
