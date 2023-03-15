@@ -19,35 +19,49 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class MarkLogicExportListener extends ExportListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkLogicExportListener.class);
 
-    private List<Object> docs = new ArrayList<>();
+    private List<Object> docs;
 
-    private AtomicLong resultCount = new AtomicLong(0);
-    private AtomicBoolean maxDocsReached = new AtomicBoolean(false);
     private final RecordExtractor recordExtractor = new RecordExtractor();
+
+    private int resultCount;
 
     public MarkLogicExportListener(long maxDocs) {
         super();
+        if (maxDocs > 0) {
+            addDocsToListUntilMax(maxDocs);
+        } else {
+            addAllDocsToList();
+        }
+        this.onFailure((batch, throwable) -> LOGGER.error("Unable to process batch; URIs: {}; cause: {}",
+            Arrays.asList(batch.getItems()), throwable.getMessage())
+        );
+    }
+
+    private void addDocsToListUntilMax(long maxDocs) {
+        this.docs = new ArrayList<>();
+        // Must synchronize entire operation so that both the check on the number of documents and the addition to
+        // the list are threadsafe.
         this.onDocumentReady(doc -> {
-            if (!maxDocsReached.get()) {
-                if ((maxDocs > 0) && (resultCount.getAndIncrement() >= maxDocs)) {
-                    maxDocsReached.set(true);
-                    LOGGER.info("Processed the user-supplied maximum number of results, which is {}", maxDocs);
-                } else {
+            synchronized (docs) {
+                if (resultCount < maxDocs) {
+                    resultCount++;
                     docs.add(recordExtractor.extractRecord(doc));
                 }
             }
         });
-        this.onFailure((batch, throwable) -> LOGGER.error("Unable to process batch; URIs: {}; cause: {}",
-            Arrays.asList(batch.getItems()), throwable.getMessage())
-        );
+    }
+
+    private void addAllDocsToList() {
+        // If no limit is set, just need threadsafe access to the list.
+        this.docs = Collections.synchronizedList(new ArrayList<>());
+        this.onDocumentReady(doc -> docs.add(recordExtractor.extractRecord(doc)));
     }
 
     public List<Object> getDocs() {
