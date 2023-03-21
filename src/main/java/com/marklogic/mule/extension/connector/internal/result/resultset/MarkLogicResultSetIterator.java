@@ -74,10 +74,6 @@ public class MarkLogicResultSetIterator implements Iterator<Object>
     @Override
     public List<Object> next()
     {
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("iterator query: {}", query);
-        }
-
         long fetchSize = documentManager.getPageLength();
         documentPage = documentManager.search(query, start.getAndAdd(fetchSize));
         final List<Object> page = new ArrayList<>((int)fetchSize);

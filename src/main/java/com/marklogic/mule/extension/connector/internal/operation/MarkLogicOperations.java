@@ -379,11 +379,14 @@ public class MarkLogicOperations
             private final AtomicBoolean initialised = new AtomicBoolean(false);
             private MarkLogicResultSetCloser resultSetCloser;
             private MarkLogicResultSetIterator iterator;
+            private long startTime;
 
             @Override
             public List<Object> getPage(MarkLogicConnection connection)
             {
                 if (initialised.compareAndSet(false, true)) {
+                    LOGGER.info("Initializing queryDocs operation");
+                    startTime = System.currentTimeMillis();
                     initializeIterator(connection);
                 }
                 return iterator.next();
@@ -413,8 +416,9 @@ public class MarkLogicOperations
             }
 
             @Override
-            public void close(MarkLogicConnection connection) throws MuleException
+            public void close(MarkLogicConnection connection)
             {
+                LOGGER.info("Finished queryDocs operation; duration: {}", (System.currentTimeMillis() - startTime));
                 resultSetCloser.closeResultSets();
             }
 
