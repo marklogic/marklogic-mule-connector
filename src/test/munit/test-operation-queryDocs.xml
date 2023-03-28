@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
-	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
-                  xsi:schemaLocation="
-                        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-                        http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
-                        http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
-                        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
-                        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+    xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+    xmlns:tls="http://www.mulesoft.org/schema/mule/tls" 
+    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+    xsi:schemaLocation="
+    http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+    http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+    http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+    http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+    http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd 
+    http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
     <munit:config name="queryDocs Suite" minMuleVersion="4.2.2" />
     <configuration-properties file="automation-credentials.properties"/>
     <marklogic:config name="transform_config" configId="transformConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myQueryDocsTransformJob" serverTransform="transformTestEgress" serverTransformParams="q,e">
@@ -17,6 +19,12 @@
     <marklogic:config name="config" configId="configId" threadCount="5" batchSize="3" secondsBeforeFlush="2" jobName="myQueryDocsJob">
         <marklogic:connection connectionId="testConfig-223efe" hostname="${config.hostName}" port="8010" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" kerberosExternalName="null" marklogicConnectionType="DIRECT"/>
     </marklogic:config>
+    <marklogic:config name="sslconfig" configId="sslConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="sslQueryDocsJob" >
+        <marklogic:connection connectionId="sslTestConfig" hostname="${config.hostName}" port="8021" database="null" username="${config.username}" password="${config.password}" authenticationType="digest" kerberosExternalName="null" marklogicConnectionType="DIRECT" tlsContext="TLS_Context" />
+    </marklogic:config>
+    <tls:context name="TLS_Context" doc:name="TLS Context">
+        <tls:trust-store path="${keystore.filepath}" password="${keystore.password}" type="jks" />
+    </tls:context>
     <flow name="queryDocsTemporalFlow">
         <marklogic:query-docs config-ref="config" queryStrategy="CTSQuery" fmt="XML">
             <marklogic:query-string>
@@ -70,7 +78,7 @@
         <set-payload value="#[%dw 2.0 import * from dw::core::Binaries output application/json &#x002D;&#x002D;&#x002D; readLinesWith(payload[0], 'ISO-8859-1')[0]]"/>
     </flow>
     <flow name="queryDocsTextFlow">
-        <marklogic:query-docs config-ref="config" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
+        <marklogic:query-docs config-ref="sslconfig" queryStrategy="RawStructuredQueryDefinition" fmt="XML">
             <marklogic:query-string>
                 &lt;query xmlns=&quot;http://marklogic.com/appservices/search&quot;&gt;
                     &lt;document-query&gt;
