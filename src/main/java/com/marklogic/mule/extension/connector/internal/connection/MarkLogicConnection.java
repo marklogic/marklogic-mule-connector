@@ -18,6 +18,7 @@ import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.ext.DatabaseClientConfig;
 import com.marklogic.client.ext.DefaultConfiguredDatabaseClientFactory;
 import com.marklogic.client.ext.SecurityContextType;
+import com.marklogic.client.impl.SSLUtil;
 import com.marklogic.mule.extension.connector.api.connection.AuthenticationType;
 import com.marklogic.mule.extension.connector.api.connection.MarkLogicConnectionType;
 import com.marklogic.mule.extension.connector.internal.config.MarkLogicConfiguration;
@@ -27,7 +28,6 @@ import com.marklogic.mule.extension.connector.internal.operation.MarkLogicConnec
 import com.marklogic.mule.extension.connector.internal.operation.MarkLogicInsertionBatcher;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.scheduler.SchedulerService;
-import org.mule.runtime.api.tls.TlsContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,6 +171,10 @@ public final class MarkLogicConnection
                 LOGGER.debug("Creating connection using SSL connection with SSL Context: {}", connectionProvider.getTlsContextFactory());
             }
             config.setSslContext(connectionProvider.getTlsContextFactory().createSslContext());
+            LOGGER.info("Attempting to get JVM default trust manager");
+            X509TrustManager tm = SSLUtil.getDefaultTrustManager();
+            LOGGER.info("Using default JVM trust manager; accepted issuer count: {}", tm.getAcceptedIssuers().length);
+            config.setTrustManager(tm);
         }
         config.setSslHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.ANY);
 
