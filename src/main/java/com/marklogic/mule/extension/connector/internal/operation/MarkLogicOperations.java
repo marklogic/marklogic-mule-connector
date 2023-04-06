@@ -385,7 +385,7 @@ public class MarkLogicOperations
             public List<Object> getPage(MarkLogicConnection connection)
             {
                 if (initialised.compareAndSet(false, true)) {
-                    LOGGER.info("Initializing queryDocs operation; query: " + queryString);
+                    LOGGER.info("Initializing queryDocs operation; query: {}", queryString);
                     startTime = System.currentTimeMillis();
                     initializeIterator(connection);
                 }
