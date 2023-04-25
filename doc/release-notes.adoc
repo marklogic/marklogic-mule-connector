@@ -1,12 +1,12 @@
 = MarkLogic Connector Release Notes 
 
-March 2021
+April 2023
 
 _MuleSoft Certified_
 
 The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users (via the MuleSoft Anypoint Exchange) with easy integration to MarkLogic, delivering data movement and transformation pipelines via MuleSoft AnypointStudio and Design Center flows. The MuleSoft Connector is built atop MarkLogic’s https://developer.marklogic.com/learn/data-movement-sdk/[Data Movement SDK] (DMSDK), which is a Java API library for applications that need to move data into, out of, or within a MarkLogic cluster.  For those familiar with the existing MarkLogic ecosystem, it provides the core capabilities of MarkLogic Content Pump in the vernacular of the MarkLogic Java Client API.
 
-== Version 1.2.0 - 2023-02-21
+== Version 1.2.0 - 2023-04-25
 
 === Version 1.2.0 - Compatibility
 [%header%autowidth.spread]
@@ -14,7 +14,7 @@ The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users
 |Software |Version
 |Anypoint Studio |7.8.0 and later
 |Mule SDK|4.3.0 and later
-|JDK |1.8.x
+|JDK |1.8.x or Java 11 and later
 |MarkLogic|9.0-6.2 and later
 |===
 
@@ -40,7 +40,8 @@ This release of the Connector includes the following hotfixes:
 === Version 1.2.0 - Bugs Fixed
 
 * Allow MarkLogic connectivity through load balancers by adding MarkLogic Java Client API support via `DatabaseClient.ConnectionType.GATEWAY`.
-* Provides a performance improvements by moving away from using a pool of under-utilized pooled MarkLogic database connections. Instead, it now uses a cached connection strategy to optimize connections and improve throughput.
+* Provide performance improvements by moving away from using a pool of under-utilized pooled MarkLogic database connections. Instead, it now uses a cached connection strategy to optimize connections and improve throughput.
+* Improvements on serialized Structured Query handling.
 
 === Version 1.2.0 - Operations
 
