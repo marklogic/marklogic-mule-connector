@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Implementation-Title: Mule Core
+Build-Date: 2018-Mar-20 17:59:46
+Implementation-Version: 4.1.1
+Built-By: ec2-user
+Specification-Vendor: MuleSoft, Inc.
+Specification-Title: Mule Core
+Implementation-Vendor-Id: org.mule.runtime
+Supported-Jdks: [1.8.0,1.9)
+Description: Mule Runtime and Integration Platform
+Recommended-Jdks: [1.8.0_60,1.9)
+Implementation-Vendor: MuleSoft, Inc.
+License: CPAL v1.0 http://www.mulesoft.com/CPAL/
+Product-Url: https://developer.mulesoft.com/
+Build-Revision: c15acfb8
+More-Info: For more information go to https://developer.mulesoft.com/
+Dev-List-Email: mule-esb@mulesoft.com
+Vendor-Url: http://www.mulesoft.com
+Support: Get commercial support: http://www.mulesoft.com/support
+Created-By: Apache Maven 3.3.9
+Build-Jdk: 1.8.0_152
+Specification-Version: 4.1
+Implementation-URL: https://developer.mulesoft.com/mule-core/
+
