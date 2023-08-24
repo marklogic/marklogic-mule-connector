@@ -4,6 +4,7 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
+import com.marklogic.client.document.DocumentRecord;
 import com.marklogic.client.document.DocumentWriteSet;
 import com.marklogic.client.document.TextDocumentManager;
 import com.marklogic.client.io.Format;
@@ -56,10 +57,13 @@ public class BasicOperations {
   public String readDocs() {
     DatabaseClientFactory.SecurityContext securityContext = new DatabaseClientFactory.DigestAuthContext("admin", "admin");
     DatabaseClient databaseClient = DatabaseClientFactory.newClient("localhost",8000, securityContext);
-    TextDocumentManager textDocumentManager = databaseClient.newTextDocumentManager();
-
-    return textDocumentManager.read("doc1.txt", "doc2.txt").toString();
-
+    TextDocumentManager textDocumentManager = databaseClient.newTextDocumentManager();StringBuffer str = new StringBuffer();
+    for (DocumentRecord record : textDocumentManager.read("doc1.txt","doc2.txt")) {
+      String content = record.getContentAs(String.class);
+      str.append(content);
+      str.append("\n");
+    }
+    return str.toString();
   }
   /**
    * Private Methods are not exposed as operations
