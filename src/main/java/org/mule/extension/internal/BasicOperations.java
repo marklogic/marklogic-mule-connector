@@ -81,6 +81,23 @@ public class BasicOperations {
     return str.toString();
   }
   /**
+   * Example of a simple operation that reads a single document from MarkLogic database.
+   */
+  @MediaType(value = ANY, strict = false)
+  public String readSingleDoc(@Connection BasicConnection connection, String uri) {
+    DatabaseClientFactory.SecurityContext securityContext = new DatabaseClientFactory.DigestAuthContext(connection.getUsername(),
+            connection.getPassword());
+    DatabaseClient databaseClient = DatabaseClientFactory.newClient(connection.getHost(), connection.getPort(), securityContext);
+    TextDocumentManager textDocumentManager = databaseClient.newTextDocumentManager();
+    StringBuffer str = new StringBuffer();
+    for (DocumentRecord record : textDocumentManager.read(uri)) {
+      String content = record.getContentAs(String.class);
+      str.append(content);
+      str.append("\n");
+    }
+    return str.toString();
+  }
+  /**
    * Private Methods are not exposed as operations
    */
   private String buildHelloMessage(String person) {
