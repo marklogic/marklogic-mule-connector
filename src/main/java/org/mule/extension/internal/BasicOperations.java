@@ -51,6 +51,21 @@ public class BasicOperations {
   }
 
   /**
+   * Example of a simple operation that writes a single text document to MarkLogic database.
+   */
+  @MediaType(value = ANY, strict = false)
+  public void writeSingledoc(@Connection BasicConnection connection, String content, String uri) {
+    DatabaseClientFactory.SecurityContext securityContext = new DatabaseClientFactory.DigestAuthContext(connection.getUsername(),
+            connection.getPassword());
+    DatabaseClient databaseClient = DatabaseClientFactory.newClient(connection.getHost(), connection.getPort(), securityContext);
+    TextDocumentManager textDocumentManager = databaseClient.newTextDocumentManager();
+    DocumentWriteSet batch = textDocumentManager.newWriteSet();
+
+    batch.add(uri, new StringHandle(content).withFormat(Format.TEXT));
+    textDocumentManager.write(batch);
+  }
+
+  /**
    * Example of a simple operation that reads documents from MarkLogic Documents database.
    */
   @MediaType(value = ANY, strict = false)

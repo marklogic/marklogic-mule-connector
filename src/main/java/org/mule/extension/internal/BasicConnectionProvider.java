@@ -42,9 +42,29 @@ public class BasicConnectionProvider implements PoolingConnectionProvider<BasicC
   @Optional(defaultValue = "100")
   private int optionalParameter;
 
+    @DisplayName("Host")
+    @Parameter
+    @Optional(defaultValue = "0.0.0.0")
+    private String host;
+
+    @DisplayName("Username")
+    @Parameter
+    @Optional(defaultValue = "admin")
+    private String username;
+
+    @DisplayName("Password")
+    @Parameter
+    @Optional(defaultValue = "admin")
+    private String password;
+
+    @DisplayName("Port")
+    @Parameter
+    @Optional(defaultValue = "8000")
+    private Integer port;
+
   @Override
   public BasicConnection connect() throws ConnectionException {
-    return new BasicConnection(requiredParameter + ":" + optionalParameter);
+    return new BasicConnection(requiredParameter + ":" + optionalParameter, host, username,password, 8000);
   }
 
   @Override
