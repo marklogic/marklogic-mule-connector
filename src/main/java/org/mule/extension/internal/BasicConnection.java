@@ -1,6 +1,9 @@
 package org.mule.extension.internal;
 
 
+import com.marklogic.client.DatabaseClient;
+import com.marklogic.client.DatabaseClientFactory;
+
 /**
  * This class represents an extension connection just as example (there is no real connection with anything here c:).
  */
@@ -46,5 +49,10 @@ public final class BasicConnection {
 
   public String getPassword() {
     return password;
+  }
+
+  public DatabaseClient createClient(){
+    return DatabaseClientFactory.newClient(getHost(), getPort(),
+            new DatabaseClientFactory.DigestAuthContext(getUsername(), getPassword()));
   }
 }
