@@ -55,13 +55,25 @@ public class BasicOperations {
    */
   @MediaType(value = ANY, strict = false)
   public void writeSingledoc(@Connection BasicConnection connection, String content, String uri) {
-    DatabaseClientFactory.SecurityContext securityContext = new DatabaseClientFactory.DigestAuthContext(connection.getUsername(),
-            connection.getPassword());
-    DatabaseClient databaseClient = DatabaseClientFactory.newClient(connection.getHost(), connection.getPort(), securityContext);
+    DatabaseClient databaseClient = connection.createClient();
     TextDocumentManager textDocumentManager = databaseClient.newTextDocumentManager();
     DocumentWriteSet batch = textDocumentManager.newWriteSet();
 
     batch.add(uri, new StringHandle(content).withFormat(Format.TEXT));
+    textDocumentManager.write(batch);
+  }
+
+  /**
+   * Example of a simple operation that writes text documents to MarkLogic database when given content.
+   */
+  @MediaType(value = ANY, strict = false)
+  public void writeDocuments(@Connection BasicConnection connection, String[] contents, String uriPrefix) {
+    DatabaseClient databaseClient = connection.createClient();
+    TextDocumentManager textDocumentManager = databaseClient.newTextDocumentManager();
+    DocumentWriteSet batch = textDocumentManager.newWriteSet();
+    for(int i=0; i<contents.length;i++){
+      batch.add(uriPrefix+Math.random()+"_i_value_is_"+i+".txt", new StringHandle(contents[i]).withFormat(Format.TEXT));
+    }
     textDocumentManager.write(batch);
   }
 
@@ -72,7 +84,8 @@ public class BasicOperations {
   public String readDocs() {
     DatabaseClientFactory.SecurityContext securityContext = new DatabaseClientFactory.DigestAuthContext("admin", "admin");
     DatabaseClient databaseClient = DatabaseClientFactory.newClient("localhost",8000, securityContext);
-    TextDocumentManager textDocumentManager = databaseClient.newTextDocumentManager();StringBuffer str = new StringBuffer();
+    TextDocumentManager textDocumentManager = databaseClient.newTextDocumentManager();
+    StringBuffer str = new StringBuffer();
     for (DocumentRecord record : textDocumentManager.read("doc1.txt","doc2.txt")) {
       String content = record.getContentAs(String.class);
       str.append(content);
@@ -85,9 +98,7 @@ public class BasicOperations {
    */
   @MediaType(value = ANY, strict = false)
   public String readSingleDoc(@Connection BasicConnection connection, String uri) {
-    DatabaseClientFactory.SecurityContext securityContext = new DatabaseClientFactory.DigestAuthContext(connection.getUsername(),
-            connection.getPassword());
-    DatabaseClient databaseClient = DatabaseClientFactory.newClient(connection.getHost(), connection.getPort(), securityContext);
+    DatabaseClient databaseClient = connection.createClient();
     TextDocumentManager textDocumentManager = databaseClient.newTextDocumentManager();
     StringBuffer str = new StringBuffer();
     for (DocumentRecord record : textDocumentManager.read(uri)) {
