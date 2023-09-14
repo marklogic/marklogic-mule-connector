@@ -1,0 +1,22 @@
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+          http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd">
+
+  <basic:config name="config" configId="configId">
+    <basic:connection requiredParameter="aValue"
+                      host="localhost"
+                      port="8022"
+                      username="mule2-test-user"
+                      password="password"/>
+  </basic:config>
+
+  <flow name="writeDocument">
+    <basic:write-singledoc uri="/test1.txt" content="this is text" config-ref="config"/>
+  </flow>
+
+  <flow name="readDocument">
+    <basic:read-single-doc uri="/test1.txt" config-ref="config"/>
+  </flow>
+</mule>

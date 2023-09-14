@@ -64,7 +64,7 @@ public class BasicConnectionProvider implements PoolingConnectionProvider<BasicC
 
   @Override
   public BasicConnection connect() throws ConnectionException {
-    return new BasicConnection(requiredParameter + ":" + optionalParameter, host, username,password, 8000);
+    return new BasicConnection(requiredParameter + ":" + optionalParameter, host, username,password, port);
   }
 
   @Override

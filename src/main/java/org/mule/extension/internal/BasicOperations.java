@@ -7,6 +7,7 @@ import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.document.DocumentRecord;
 import com.marklogic.client.document.DocumentWriteSet;
 import com.marklogic.client.document.TextDocumentManager;
+import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
 import com.marklogic.client.io.StringHandle;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
@@ -55,12 +56,12 @@ public class BasicOperations {
    */
   @MediaType(value = ANY, strict = false)
   public void writeSingledoc(@Connection BasicConnection connection, String content, String uri) {
-    DatabaseClient databaseClient = connection.createClient();
-    TextDocumentManager textDocumentManager = databaseClient.newTextDocumentManager();
-    DocumentWriteSet batch = textDocumentManager.newWriteSet();
-
-    batch.add(uri, new StringHandle(content).withFormat(Format.TEXT));
-    textDocumentManager.write(batch);
+      connection.createClient()
+          .newTextDocumentManager()
+          .write(uri,
+              new DocumentMetadataHandle().withPermission("rest-reader", DocumentMetadataHandle.Capability.READ, DocumentMetadataHandle.Capability.UPDATE),
+              new StringHandle(content)
+          );
   }
 
   /**
@@ -98,15 +99,9 @@ public class BasicOperations {
    */
   @MediaType(value = ANY, strict = false)
   public String readSingleDoc(@Connection BasicConnection connection, String uri) {
-    DatabaseClient databaseClient = connection.createClient();
-    TextDocumentManager textDocumentManager = databaseClient.newTextDocumentManager();
-    StringBuffer str = new StringBuffer();
-    for (DocumentRecord record : textDocumentManager.read(uri)) {
-      String content = record.getContentAs(String.class);
-      str.append(content);
-      str.append("\n");
-    }
-    return str.toString();
+      return connection.createClient()
+          .newTextDocumentManager()
+          .readAs(uri, String.class);
   }
   /**
    * Private Methods are not exposed as operations
