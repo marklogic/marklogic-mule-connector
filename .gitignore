@@ -2,4 +2,4 @@
 target
 .classpath
 .project
-.iml
+*.iml
