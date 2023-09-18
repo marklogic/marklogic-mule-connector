@@ -1,16 +1,14 @@
 package org.mule.extension.internal;
 
-import org.mule.runtime.api.connection.ConnectionException;
-import org.mule.runtime.extension.api.annotation.param.Parameter;
-import org.mule.runtime.extension.api.annotation.param.Optional;
+import com.marklogic.client.DatabaseClient;
+import com.marklogic.client.DatabaseClientBuilder;
+import org.mule.runtime.api.connection.CachedConnectionProvider;
+import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
-import org.mule.runtime.api.connection.ConnectionProvider;
-import org.mule.runtime.api.connection.CachedConnectionProvider;
+import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -24,23 +22,7 @@ import org.slf4j.LoggerFactory;
  * will be pooled and reused. There are other implementations like {@link CachedConnectionProvider} which lazily creates and
  * caches connections or simply {@link ConnectionProvider} if you want a new connection each time something requires one.
  */
-public class BasicConnectionProvider implements PoolingConnectionProvider<BasicConnection> {
-
-  private final Logger LOGGER = LoggerFactory.getLogger(BasicConnectionProvider.class);
-
- /**
-  * A parameter that is always required to be configured.
-  */
-  @Parameter
-  private String requiredParameter;
-
- /**
-  * A parameter that is not required to be configured by the user.
-  */
-  @DisplayName("Friendly Name")
-  @Parameter
-  @Optional(defaultValue = "100")
-  private int optionalParameter;
+public class BasicConnectionProvider implements PoolingConnectionProvider<DatabaseClient> {
 
     @DisplayName("Host")
     @Parameter
@@ -62,22 +44,25 @@ public class BasicConnectionProvider implements PoolingConnectionProvider<BasicC
     @Optional(defaultValue = "8000")
     private Integer port;
 
-  @Override
-  public BasicConnection connect() throws ConnectionException {
-    return new BasicConnection(requiredParameter + ":" + optionalParameter, host, username,password, port);
-  }
-
-  @Override
-  public void disconnect(BasicConnection connection) {
-    try {
-      connection.invalidate();
-    } catch (Exception e) {
-      LOGGER.error("Error while disconnecting [" + connection.getId() + "]: " + e.getMessage(), e);
+    @Override
+    public DatabaseClient connect() {
+        return new DatabaseClientBuilder()
+            .withHost(host)
+            .withPort(port)
+            .withDigestAuth(username, password)
+            .build();
     }
-  }
 
-  @Override
-  public ConnectionValidationResult validate(BasicConnection connection) {
-    return ConnectionValidationResult.success();
-  }
+    @Override
+    public void disconnect(DatabaseClient client) {
+        client.release();
+    }
+
+    @Override
+    public ConnectionValidationResult validate(DatabaseClient client) {
+        DatabaseClient.ConnectionResult result = client.checkConnection();
+        return result.isConnected() ?
+            ConnectionValidationResult.success() :
+            ConnectionValidationResult.failure(result.getErrorMessage(), new RuntimeException(result.getErrorMessage()));
+    }
 }
