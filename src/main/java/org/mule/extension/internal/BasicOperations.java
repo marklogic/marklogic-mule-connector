@@ -4,15 +4,19 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
+import com.marklogic.client.document.DocumentPage;
 import com.marklogic.client.document.DocumentRecord;
 import com.marklogic.client.document.DocumentWriteSet;
 import com.marklogic.client.document.TextDocumentManager;
 import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
 import com.marklogic.client.io.StringHandle;
+import com.marklogic.client.query.QueryManager;
+import com.marklogic.client.query.StringQueryDefinition;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
+import java.util.ArrayList;
 
 /**
  * This class is a container for operations, every public method in this class will be taken as an extension operation.
@@ -102,6 +106,26 @@ public class BasicOperations {
       return connection.createClient()
           .newTextDocumentManager()
           .readAs(uri, String.class);
+  }
+
+  /**
+   * Example of a simple operation that searches document(s) from a directory in MarkLogic database and returns the content(s).
+   */
+  @MediaType(value = ANY, strict = false)
+  public String[] searchDocs(@Connection BasicConnection connection, String directory, int pageLength) {
+    DatabaseClient databaseClient = connection.createClient();
+    QueryManager queryMgr = databaseClient.newQueryManager();
+      TextDocumentManager textDocumentManager = databaseClient.newTextDocumentManager();
+    queryMgr.setPageLength(pageLength);
+    ArrayList<String> arrayList = new ArrayList<>();
+    StringQueryDefinition qdef = queryMgr.newStringDefinition();
+    qdef.setDirectory(directory);
+      try ( DocumentPage page = textDocumentManager.search(qdef, 1) ) {
+          while(page.hasNext()){
+              arrayList.add(page.next().getContent(new StringHandle()).toString());
+          }
+      }
+    return arrayList.toArray(new String[arrayList.size()]);
   }
   /**
    * Private Methods are not exposed as operations
