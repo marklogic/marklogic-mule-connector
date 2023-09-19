@@ -5,11 +5,11 @@
           http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd">
 
   <basic:config name="config" configId="configId">
-    <basic:connection requiredParameter="aValue"
-                      host="localhost"
-                      port="8022"
-                      username="mule2-test-user"
-                      password="password"/>
+    <basic:connection
+      host="localhost"
+      port="8022"
+      username="mule2-test-user"
+      password="password"/>
   </basic:config>
 
   <flow name="writeDocument">
