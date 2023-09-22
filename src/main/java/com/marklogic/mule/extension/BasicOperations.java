@@ -1,4 +1,4 @@
-package org.mule.extension.internal;
+package com.marklogic.mule.extension;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.document.DocumentPage;
