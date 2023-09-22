@@ -1,4 +1,4 @@
-package org.mule.extension.internal;
+package com.marklogic.mule.extension;
 
 import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;

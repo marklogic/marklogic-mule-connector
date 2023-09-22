@@ -9,7 +9,8 @@
       host="localhost"
       port="8022"
       username="mule2-test-user"
-      password="password"/>
+      password="password"
+      authenticationType="DIGEST"/>
   </basic:config>
 
   <flow name="writeDocument">
