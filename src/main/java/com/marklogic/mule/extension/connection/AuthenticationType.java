@@ -15,16 +15,10 @@ package com.marklogic.mule.extension.connection;
 
 public enum AuthenticationType
 {
-    DIGEST("DIGEST"),
-    CERTIFICATE("CERTIFICATE"),
-    BASIC("BASIC"),
+    DIGEST,
+    CERTIFICATE,
+    BASIC,
 
-    CLOUD("CLOUD");
+    CLOUD;
 
-    String value;
-
-    AuthenticationType(String value)
-    {
-        this.value = value;
-    }
 }
