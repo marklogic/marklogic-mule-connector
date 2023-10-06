@@ -12,3 +12,6 @@
 /nbproject/
 installer.log
 .DS_Store
+.project
+.classpath
+.vscode
