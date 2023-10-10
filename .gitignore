@@ -3,3 +3,6 @@ target
 .classpath
 .project
 *.iml
+.gradle
+.vscode
+gradle-local.properties
