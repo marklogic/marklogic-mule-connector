@@ -6,3 +6,8 @@ target
 .gradle
 .vscode
 gradle-local.properties
+
+.DS_Store
+src/test/studio-workspace/.metadata/
+src/test/studio-workspace/.mule/
+src/test/studio-workspace/.DS_Store

@@ -1,0 +1,28 @@
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
+      xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd
+        http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+
+  <basic:config name="marklogicConfig" configId="configId">
+    <basic:connection
+      host="localhost"
+      port="8022"
+      username="mule2-test-user"
+      password="password"
+      authenticationType="DIGEST"/>
+  </basic:config>
+
+  <flow name="writeTimestampDocument">
+    <scheduler doc:name="Scheduler" doc:id="907d3d0b-ecc6-4d87-a364-3e6ef3829849" >
+      <scheduling-strategy >
+        <fixed-frequency frequency="10" timeUnit="SECONDS"/>
+      </scheduling-strategy>
+    </scheduler>
+    <basic:write-singledoc uri='#["/" ++ uuid() ++ ".json"]' content='#["{\"timestamp\": \"" ++ now() ++ "\" }"]' config-ref="marklogicConfig"/>
+  </flow>
+
+</mule>
