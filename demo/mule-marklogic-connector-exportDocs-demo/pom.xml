@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mulesoft.connectors.examples</groupId>
     <artifactId>mule-marklogic-connector-exportDocs-demo</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <packaging>mule-application</packaging>
 
     <name>mule-marklogic-connector-exportDocs-demo</name>
@@ -48,7 +48,7 @@
         <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>marklogic-mule-connector</artifactId>
-            <version>1.2.0</version>
+            <version>1.2.1</version>
             <classifier>mule-plugin</classifier>
         </dependency>
     </dependencies>
