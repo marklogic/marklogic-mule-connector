@@ -2,9 +2,14 @@ package com.marklogic.mule.extension;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientBuilder;
+import com.marklogic.client.DatabaseClientFactory;
+import com.marklogic.client.impl.SSLUtil;
 import com.marklogic.mule.extension.connection.AuthenticationType;
 import com.marklogic.mule.extension.connection.ConnectionType;
-import org.mule.runtime.api.connection.*;
+import org.mule.runtime.api.connection.CachedConnectionProvider;
+import org.mule.runtime.api.connection.ConnectionProvider;
+import org.mule.runtime.api.connection.ConnectionValidationResult;
+import org.mule.runtime.api.connection.PoolingConnectionProvider;
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
@@ -79,14 +84,14 @@ public class BasicConnectionProvider implements PoolingConnectionProvider<Databa
     private String cloudBasePath;
 
     @DisplayName("TLS Context")
-    @Placement(tab="Security")
+    @Placement(tab = "Security")
     @Parameter
     @Optional
     private TlsContextFactory tlsContextFactory;
 
     @Override
     public DatabaseClient connect() {
-        return new DatabaseClientBuilder()
+        DatabaseClientBuilder builder = new DatabaseClientBuilder()
             .withHost(host)
             .withPort(port)
             .withBasePath(cloudBasePath)
@@ -95,8 +100,34 @@ public class BasicConnectionProvider implements PoolingConnectionProvider<Databa
             .withConnectionType(connectionType.getMarkLogicConnectionType())
             .withUsername(username)
             .withPassword(password)
-            .withCloudApiKey(cloudApiKey)
-            .build();
+            .withCloudApiKey(cloudApiKey);
+
+        if (tlsContextFactory != null) {
+            // TODO With Java Client 6.4, I think we may be better off handing the keystore config over to the Java
+            // Client and letting it construct the SSLContext itself. That allows for constructing a TrustManager from
+            // the keystore as well. Mule's TlsContextFactory doesn't have a facility for creating a TrustManager,
+            // which our Java Client requires.
+            // However, if the user doesn't provide a key path, we'll need to call createSslContext as we're doing
+            // below. And we'll still need to honor a truststore path if one is provided.
+            try {
+                builder.withSSLContext(tlsContextFactory.createSslContext());
+            } catch (Exception e) {
+                throw new RuntimeException(String.format(
+                    "Unable to create SSL context; key store path: %s; cause: %s",
+                    tlsContextFactory.getKeyStoreConfiguration().getPath(), e.getMessage()
+                ), e);
+            }
+
+            // TODO Make this configurable.
+            builder.withSSLHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.ANY);
+
+            // This is what the 1.x connector is doing. I think we need to be a bit better - i.e. if the user provides
+            // a truststore path, we need to use that instead. Otherwise, we can default to the JVM's default trust
+            // manager. Java Client 6.4 also allows for this being constructed based on the keystore.
+            builder.withTrustManager(SSLUtil.getDefaultTrustManager());
+        }
+
+        return builder.build();
     }
 
     @Override
