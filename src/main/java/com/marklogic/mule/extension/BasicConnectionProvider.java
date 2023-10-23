@@ -5,6 +5,7 @@ import com.marklogic.client.DatabaseClientBuilder;
 import com.marklogic.mule.extension.connection.AuthenticationType;
 import com.marklogic.mule.extension.connection.ConnectionType;
 import org.mule.runtime.api.connection.*;
+import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
@@ -76,6 +77,12 @@ public class BasicConnectionProvider implements PoolingConnectionProvider<Databa
     @Summary("The MarkLogic cloud Base Path.")
     @Optional
     private String cloudBasePath;
+
+    @DisplayName("TLS Context")
+    @Placement(tab="Security")
+    @Parameter
+    @Optional
+    private TlsContextFactory tlsContextFactory;
 
     @Override
     public DatabaseClient connect() {
