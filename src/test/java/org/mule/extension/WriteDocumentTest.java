@@ -1,7 +1,6 @@
 package org.mule.extension;
 
 import org.junit.Test;
-import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.runtime.api.message.Message;
 
 import static org.junit.Assert.assertEquals;
@@ -14,7 +13,7 @@ import static org.junit.Assert.assertNull;
  * the Java Client. So for now, the approach to testing what's written to MarkLogic will be to run a flow to read
  * what was written.
  */
-public class WriteDocumentTest extends MuleArtifactFunctionalTestCase {
+public class WriteDocumentTest extends AbstractFlowTester {
 
     @Override
     protected String getConfigFile() {
@@ -23,7 +22,7 @@ public class WriteDocumentTest extends MuleArtifactFunctionalTestCase {
 
     @Test
     public void test() throws Exception {
-        Message message = flowRunner("writeDocument").run().getMessage();
+        Message message = runFlowGetMessage("writeDocument");
         assertNull("Not expecting any payload value to be returned", message.getPayload().getValue());
 
         message = flowRunner("readDocument").run().getMessage();

@@ -2,3 +2,18 @@ plugins {
   id "net.saliman.properties" version "1.5.2"
   id "com.marklogic.ml-gradle" version "4.6.0"
 }
+
+task addQuality(type: com.marklogic.gradle.task.ServerEvalTask) {
+  javascript =
+    """
+'use strict';
+declareUpdate();
+xdmp.documentSetQuality('/metadataSamples/json/hello.json', 17);
+xdmp.documentSetQuality('/metadataSamples/xml/hello.xml', 27);
+xdmp.documentSetQuality('/metadataSamples/text/hello.text', 95);
+xdmp.documentSetProperty('/metadataSamples/text/hello.text', fn.head(xdmp.unquote('<priority>2</priority>')).root);
+xdmp.documentSetMetadata('/metadataSamples/binary/logo.png', {"name":"value"});
+    """
+}
+mlLoadData.finalizedBy addQuality
+mlDeploy.finalizedBy addQuality
