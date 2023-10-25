@@ -10,36 +10,50 @@ import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
 import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.client.io.StringHandle;
+import com.marklogic.client.io.marker.JSONReadHandle;
+import com.marklogic.client.io.marker.JSONWriteHandle;
 import com.marklogic.client.query.StringQueryDefinition;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;
+import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
+import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 
 /**
- * This class is a container for operations, every public method in this class will be taken as an extension operation.
+ * This class is a container for operations, every public method in this class
+ * will be taken as an extension operation.
  */
 public class BasicOperations {
 
-    /**
-     * Read a single document as a Result object.
-     *
-     * @param databaseClient
-     * @param uri
-     * @return
-     */
     @MediaType(value = ANY, strict = false)
-    public Result<InputStream, DocumentAttributes> readDocument(@Connection DatabaseClient databaseClient, String uri) {
+    @DisplayName("Read document")
+    public Result<InputStream, DocumentAttributes> readDocument(
+        @Connection DatabaseClient databaseClient,
+        @DisplayName("Document URI") @Example("/data/customer.json") String uri,
+        @DisplayName("Metadata Category List") @Optional(defaultValue = "ALL") @Example("COLLECTIONS,PERMISSIONS") String categories
+    ) {
         InputStreamHandle handle = new InputStreamHandle();
         DocumentMetadataHandle metadataHandle = new DocumentMetadataHandle();
-        InputStream content = databaseClient.newJSONDocumentManager().read(uri, metadataHandle, handle).get();
+        DocumentManager<JSONReadHandle, JSONWriteHandle> documentManager = databaseClient.newJSONDocumentManager();
+
+        if ((categories != null) && (!categories.isEmpty())) {
+            String[] categoriesArray = categories.split(",");
+            DocumentManager.Metadata[] transformedCategories = new DocumentManager.Metadata[categoriesArray.length];
+            int index = 0;
+            for (String category : categoriesArray) {
+                transformedCategories[index++] = DocumentManager.Metadata.valueOf(category.toUpperCase());
+            }
+            documentManager.setMetadataCategories(transformedCategories);
+        }
+
+        InputStream content = ((InputStreamHandle) documentManager.read(uri, metadataHandle, handle)).get();
         return Result.<InputStream, DocumentAttributes>builder()
             .output(content)
             .attributes(new DocumentAttributes(uri, metadataHandle))
@@ -56,20 +70,20 @@ public class BasicOperations {
      * @param uri
      */
     public void writeDocument(
-        @Connection DatabaseClient databaseClient,
-        @Content InputStream myContent,
-        String uri
-    ) {
+            @Connection DatabaseClient databaseClient,
+            @Content InputStream myContent,
+            String uri) {
         databaseClient
-            .newDocumentManager()
-            .write(uri,
-                new DocumentMetadataHandle().withPermission("rest-reader", DocumentMetadataHandle.Capability.READ, DocumentMetadataHandle.Capability.UPDATE),
-                new InputStreamHandle(myContent)
-            );
+                .newDocumentManager()
+                .write(uri,
+                        new DocumentMetadataHandle().withPermission("rest-reader",
+                                DocumentMetadataHandle.Capability.READ, DocumentMetadataHandle.Capability.UPDATE),
+                        new InputStreamHandle(myContent));
     }
 
     /**
-     * Search for documents, returning the documents but not yet any metadata for them.
+     * Search for documents, returning the documents but not yet any metadata for
+     * them.
      * <p>
      * Will eventually support many parameters here for searching.
      *
@@ -78,18 +92,18 @@ public class BasicOperations {
      * @return
      */
     @MediaType(value = ANY, strict = false)
-    public List<Result<InputStream, Void>> searchDocuments(@Connection DatabaseClient databaseClient, String collection) {
+    public List<Result<InputStream, Void>> searchDocuments(@Connection DatabaseClient databaseClient,
+            String collection) {
         DocumentPage page = databaseClient.newDocumentManager().search(
-            databaseClient.newQueryManager().newStructuredQueryBuilder().collection(collection), 1
-        );
+                databaseClient.newQueryManager().newStructuredQueryBuilder().collection(collection), 1);
         List<Result<InputStream, Void>> results = new ArrayList<>();
         while (page.hasNext()) {
             InputStreamHandle handle = new InputStreamHandle();
             InputStream content = page.nextContent(handle).get();
             results.add(Result.<InputStream, Void>builder()
-                .output(content)
-                .mediaType(org.mule.runtime.api.metadata.MediaType.APPLICATION_JSON)
-                .build());
+                    .output(content)
+                    .mediaType(org.mule.runtime.api.metadata.MediaType.APPLICATION_JSON)
+                    .build());
         }
         return results;
     }
@@ -97,21 +111,22 @@ public class BasicOperations {
     /**
      * Write a batch of documents.
      * <p>
-     * TODO This will eventually have parameters for controlling how each document is written.
+     * TODO This will eventually have parameters for controlling how each document
+     * is written.
      *
      * @param databaseClient
      * @param myContents
      */
     public void writeBatch(
-        @Connection DatabaseClient databaseClient,
-        @Content InputStream[] myContents
-    ) {
+            @Connection DatabaseClient databaseClient,
+            @Content InputStream[] myContents) {
         System.out.println("CONTENT COUNT: " + myContents.length);
         DocumentManager mgr = databaseClient.newDocumentManager();
         DocumentWriteSet writeSet = mgr.newWriteSet();
         DocumentMetadataHandle metadata = new DocumentMetadataHandle()
-            .withPermission("rest-reader", DocumentMetadataHandle.Capability.READ, DocumentMetadataHandle.Capability.UPDATE)
-            .withCollections("batch-output");
+                .withPermission("rest-reader", DocumentMetadataHandle.Capability.READ,
+                        DocumentMetadataHandle.Capability.UPDATE)
+                .withCollections("batch-output");
         for (InputStream content : myContents) {
             String uri = "/batch-output/" + UUID.randomUUID().toString() + ".json";
             writeSet.add(uri, metadata, new InputStreamHandle(content));
@@ -132,7 +147,8 @@ public class BasicOperations {
     }
 
     /**
-     * Example of a simple operation that writes documents to MarkLogic Documents database.
+     * Example of a simple operation that writes documents to MarkLogic Documents
+     * database.
      */
     @MediaType(value = ANY, strict = false)
     @Deprecated
@@ -141,28 +157,30 @@ public class BasicOperations {
         DocumentWriteSet batch = textDocumentManager.newWriteSet();
 
         batch.add("doc1.txt", new StringHandle(
-            "Document - 1").withFormat(Format.TEXT));
+                "Document - 1").withFormat(Format.TEXT));
         batch.add("doc2.txt", new StringHandle(
-            "Document - 2").withFormat(Format.TEXT));
+                "Document - 2").withFormat(Format.TEXT));
         textDocumentManager.write(batch);
     }
 
     /**
-     * Example of a simple operation that writes a single text document to MarkLogic database.
+     * Example of a simple operation that writes a single text document to MarkLogic
+     * database.
      */
     @MediaType(value = ANY, strict = false)
     @Deprecated
     public void writeSingledoc(@Connection DatabaseClient databaseClient, String content, String uri) {
         databaseClient
-            .newTextDocumentManager()
-            .write(uri,
-                new DocumentMetadataHandle().withPermission("rest-reader", DocumentMetadataHandle.Capability.READ, DocumentMetadataHandle.Capability.UPDATE),
-                new StringHandle(content)
-            );
+                .newTextDocumentManager()
+                .write(uri,
+                        new DocumentMetadataHandle().withPermission("rest-reader",
+                                DocumentMetadataHandle.Capability.READ, DocumentMetadataHandle.Capability.UPDATE),
+                        new StringHandle(content));
     }
 
     /**
-     * Example of a simple operation that writes text documents to MarkLogic database when given content.
+     * Example of a simple operation that writes text documents to MarkLogic
+     * database when given content.
      */
     @MediaType(value = ANY, strict = false)
     @Deprecated
@@ -170,13 +188,15 @@ public class BasicOperations {
         TextDocumentManager textDocumentManager = databaseClient.newTextDocumentManager();
         DocumentWriteSet batch = textDocumentManager.newWriteSet();
         for (int i = 0; i < contents.length; i++) {
-            batch.add(uriPrefix + Math.random() + "_i_value_is_" + i + ".txt", new StringHandle(contents[i]).withFormat(Format.TEXT));
+            batch.add(uriPrefix + Math.random() + "_i_value_is_" + i + ".txt",
+                    new StringHandle(contents[i]).withFormat(Format.TEXT));
         }
         textDocumentManager.write(batch);
     }
 
     /**
-     * Example of a simple operation that reads documents from MarkLogic Documents database.
+     * Example of a simple operation that reads documents from MarkLogic Documents
+     * database.
      */
     @MediaType(value = ANY, strict = false)
     @Deprecated
@@ -192,18 +212,20 @@ public class BasicOperations {
     }
 
     /**
-     * Example of a simple operation that reads a single document from MarkLogic database.
+     * Example of a simple operation that reads a single document from MarkLogic
+     * database.
      */
     @MediaType(value = ANY, strict = false)
     @Deprecated
     public String readSingleDoc(@Connection DatabaseClient databaseClient, String uri) {
         return databaseClient
-            .newTextDocumentManager()
-            .readAs(uri, String.class);
+                .newTextDocumentManager()
+                .readAs(uri, String.class);
     }
 
     /**
-     * Example of a simple operation that searches document(s) from a directory in MarkLogic database and returns the content(s).
+     * Example of a simple operation that searches document(s) from a directory in
+     * MarkLogic database and returns the content(s).
      */
     @MediaType(value = ANY, strict = false)
     @Deprecated

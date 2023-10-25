@@ -16,9 +16,9 @@
   </basic:config>
 
   <flow name="read-and-write-document">
-    <basic:read-document config-ref="config" uri="/hello.json"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
     <basic:write-document config-ref="config" uri='#["/test" ++ attributes.uri]'/>
-    <basic:read-document config-ref="config" uri="/test/hello.json"/>
+    <basic:read-document config-ref="config" uri="/test/metadataSamples/json/hello.json"/>
   </flow>
 
 </mule>
