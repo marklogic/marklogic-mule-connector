@@ -6,6 +6,7 @@ target
 .gradle
 .vscode
 gradle-local.properties
+docker/marklogic/logs
 
 .DS_Store
 src/test/studio-workspace/.metadata/

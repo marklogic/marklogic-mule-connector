@@ -1,3 +1,31 @@
+This guide describes how to develop and test the connector, which includes both running the project's JUnit tests and
+manually testing the connector via Anypoint Studio. It also includes instructions for generating SonarQube code quality
+reports.
+
+## Initial Setup
+
+To run any of the steps below, first verify that you have the following available;
+[sdkman](https://sdkman.io/) is recommended for installing both of these:
+* Java 8.x
+* Maven 3.9.x
+
+If you want to generate SonarQube code quality reports, you will also need Java 11 installed. 
+Using sdkman will make it simply to install and switch between multiple versions of Java. 
+
+[Docker Desktop](https://www.docker.com/products/docker-desktop/) is recommended for automating and simplifying the 
+setup for developing and testing the connector. Without it, you can still deploy the test app to your local MarkLogic
+instance and run the tests, but you will not be able to run SonarQube code quality reports.
+
+If you are not using Docker, you can skip to the next section, the assumption being that you have a MarkLogic 
+instance available for testing.
+
+If you are able to use Docker, run the following:
+
+    docker-compose up -d --build
+
+This will create a MarkLogic service along with SonarQube and Postgres service. See the SonarQube section below for 
+information on using SonarQube to generate code quality reports.
+
 ## Connector Testing
 Tests are an important part of the development process for this connector. For automated testing,
 we use Java/JUnit. Instructions for running those tests are just below. However, it is
@@ -14,17 +42,54 @@ So, the first step is to deploy that application. Follow these steps to deploy t
 4. Run: `./gradlew -i mlDeploy` to deploy the test application to MarkLogic.
 5. Use `cd ..` to return to the root directory of the repository.
 
-### Environment Requirements
-Verify that you have the required tools installed.
-* Java 8 or higher
-* Maven 3.x
-
 ### Run the Java tests
 To run the tests from the command-line, ensure you are in the root directory of the project
 and use the Maven command with the "test" goal.
 ```
 mvn clean test
 ```
+
+### Generating code quality reports with SonarQube
+
+In order to use SonarQube, you must have used Docker to run this project's `docker-compose.yml` file and you must
+have the services in that file running.
+
+To configure the SonarQube service, perform the following steps:
+
+1. Go to http://localhost:9000 .
+2. Login as admin/admin. SonarQube will ask you to change this password; you can choose whatever you want ("password" works).
+3. Click on "Create project manually".
+4. Enter "marklogic-mule-connector" for the Project Name; use that as the Project Key too.
+5. Enter "master" as the main branch name.
+6. Click on "Next".
+7. Click on "Use the global setting" and then "Create project".
+8. On the "Analysis Method" page, click on "Locally".
+9. In the "Provide a token" panel, click on "Generate". Copy the token to a safe place (although you can always generate a new one).
+
+You now have a SonarQube project and a token to use for authentication. If you'd like, you can continue on the 
+"Analyze your project" page in SonarQube to the "Run analysis" step, but this project's `pom.xml` file already has most 
+of that configuration captured in it. You'll only need the token that you just generated for the following steps.
+
+Because the connector needs to be built with Java 8, but SonarQube requires Java 11, you must first build and test the
+code with Java 8 and then use Java 11 to run SonarQube. Annoying, yes, but there's not yet a way around this. 
+
+So with Java 8, run `package` to build and test the code, which produces the output that SonarQube needs to generate
+its report:
+
+    mvn clean package
+
+After that completes, switch to Java 11 and run the following, using the token you obtained above:
+
+    mvn sonar:sonar -Dsonar.token=your-token-pasted-here
+
+When that completes, you will see a line like this near the end of the logging:
+
+    [INFO] ANALYSIS SUCCESSFUL, you can find the results at: http://localhost:9000/dashboard?id=marklogic-mule-connector
+
+Click on that link. If it's the first time you've run the report, you'll see all issues. If you've run the report 
+before, then SonarQube will show "New Code" by default. That's handy, as you can use that to quickly see any issues 
+you've introduced on the feature branch you're working on. You can then click on "Overall Code" to see all issues. 
+
 
 ### Using Anypoint Studio
 You can also use Anypoint Studio for testing flows using this connector. Follow either
