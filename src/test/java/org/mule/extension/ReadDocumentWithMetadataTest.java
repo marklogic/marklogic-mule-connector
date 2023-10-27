@@ -1,8 +1,6 @@
 package org.mule.extension;
 
-import com.marklogic.mule.extension.DocumentAttributes;
 import org.junit.Test;
-import org.mule.runtime.api.message.Message;
 
 import static org.junit.Assert.*;
 
@@ -22,11 +20,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readJsonDocument_OnlyPermissionsAndCollections() throws Exception {
-        Message message = runFlowGetMessage("read-json-document-with-metadata-permissions-collections");
-        verifyDocumentContents(JSON_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, JSON_URI)
+    public void readJsonDocument_OnlyPermissionsAndCollections() {
+        DocumentData documentData = runFlowGetDocumentData("read-json-document-with-metadata-permissions-collections");
+        verifyDocumentContents(JSON_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, JSON_URI)
             .collections(2, "test-data", "json-data")
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(0)
@@ -35,11 +32,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readJsonDocument_OnlyCollections() throws Exception {
-        Message message = runFlowGetMessage("read-json-document-with-metadata-collections");
-        verifyDocumentContents(JSON_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, JSON_URI)
+    public void readJsonDocument_OnlyCollections() {
+        DocumentData documentData = runFlowGetDocumentData("read-json-document-with-metadata-collections");
+        verifyDocumentContents(JSON_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, JSON_URI)
             .collections(2, "test-data", "json-data")
             .permissions(0)
             .quality(0)
@@ -48,11 +44,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readJsonQualityDocument_OnlyPermissions() throws Exception {
-        Message message = runFlowGetMessage("read-json-document-with-metadata-permissions");
-        verifyDocumentContents(JSON_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, JSON_URI)
+    public void readJsonQualityDocument_OnlyPermissions() {
+        DocumentData documentData = runFlowGetDocumentData("read-json-document-with-metadata-permissions");
+        verifyDocumentContents(JSON_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, JSON_URI)
             .collections(0)
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(0)
@@ -61,11 +56,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readJsonQualityDocument_OnlyQuality() throws Exception {
-        Message message = runFlowGetMessage("read-json-document-with-metadata-quality");
-        verifyDocumentContents(JSON_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, JSON_URI)
+    public void readJsonQualityDocument_OnlyQuality() {
+        DocumentData documentData = runFlowGetDocumentData("read-json-document-with-metadata-quality");
+        verifyDocumentContents(JSON_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, JSON_URI)
             .collections(0)
             .permissions(0)
             .quality(17)
@@ -74,11 +68,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readJsonQualityDocument_All() throws Exception {
-        Message message = runFlowGetMessage("read-json-document-with-metadata-all");
-        verifyDocumentContents(JSON_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, JSON_URI)
+    public void readJsonQualityDocument_All() {
+        DocumentData documentData = runFlowGetDocumentData("read-json-document-with-metadata-all");
+        verifyDocumentContents(JSON_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, JSON_URI)
             .collections(2, "test-data", "json-data")
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(17)
@@ -88,11 +81,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
 
 
     @Test
-    public void readXmlDocument_OnlyPermissionsAndCollections() throws Exception {
-        Message message = runFlowGetMessage("read-xml-document-with-metadata-permissions-collections");
-        verifyDocumentContents(XML_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, XML_URI)
+    public void readXmlDocument_OnlyPermissionsAndCollections() {
+        DocumentData documentData = runFlowGetDocumentData("read-xml-document-with-metadata-permissions-collections");
+        verifyDocumentContents(XML_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, XML_URI)
             .collections(2, "test-data", "xml-data")
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(0)
@@ -101,11 +93,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readXmlDocument_OnlyCollections() throws Exception {
-        Message message = runFlowGetMessage("read-xml-document-with-metadata-collections");
-        verifyDocumentContents(XML_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, XML_URI)
+    public void readXmlDocument_OnlyCollections() {
+        DocumentData documentData = runFlowGetDocumentData("read-xml-document-with-metadata-collections");
+        verifyDocumentContents(XML_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, XML_URI)
             .collections(2, "test-data", "xml-data")
             .permissions(0)
             .quality(0)
@@ -114,11 +105,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readXmlQualityDocument_OnlyPermissions() throws Exception {
-        Message message = runFlowGetMessage("read-xml-document-with-metadata-permissions");
-        verifyDocumentContents(XML_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, XML_URI)
+    public void readXmlQualityDocument_OnlyPermissions() {
+        DocumentData documentData = runFlowGetDocumentData("read-xml-document-with-metadata-permissions");
+        verifyDocumentContents(XML_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, XML_URI)
             .collections(0)
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(0)
@@ -127,11 +117,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readXmlQualityDocument_OnlyQuality() throws Exception {
-        Message message = runFlowGetMessage("read-xml-document-with-metadata-quality");
-        verifyDocumentContents(XML_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, XML_URI)
+    public void readXmlQualityDocument_OnlyQuality() {
+        DocumentData documentData = runFlowGetDocumentData("read-xml-document-with-metadata-quality");
+        verifyDocumentContents(XML_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, XML_URI)
             .collections(0)
             .permissions(0)
             .quality(27)
@@ -140,11 +129,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readXmlQualityDocument_All() throws Exception {
-        Message message = runFlowGetMessage("read-xml-document-with-metadata-all");
-        verifyDocumentContents(XML_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, XML_URI)
+    public void readXmlQualityDocument_All() {
+        DocumentData documentData = runFlowGetDocumentData("read-xml-document-with-metadata-all");
+        verifyDocumentContents(XML_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, XML_URI)
             .collections(2, "test-data", "xml-data")
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(27)
@@ -153,11 +141,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readTextQualityDocument_All() throws Exception {
-        Message message = runFlowGetMessage("read-text-document-with-metadata-all");
-        verifyDocumentContents(TEXT_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, TEXT_URI)
+    public void readTextQualityDocument_All() {
+        DocumentData documentData = runFlowGetDocumentData("read-text-document-with-metadata-all");
+        verifyDocumentContents(TEXT_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, TEXT_URI)
             .collections(1, "text-data")
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(95)
@@ -166,11 +153,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readTextQualityDocument_Metadata() throws Exception {
-        Message message = runFlowGetMessage("read-text-document-with-metadata-metadata");
-        verifyDocumentContents(TEXT_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, TEXT_URI)
+    public void readTextQualityDocument_Metadata() {
+        DocumentData documentData = runFlowGetDocumentData("read-text-document-with-metadata-metadata");
+        verifyDocumentContents(TEXT_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, TEXT_URI)
             .collections(1, "text-data")
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(95)
@@ -179,11 +165,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readTextQualityDocument_Properties() throws Exception {
-        Message message = runFlowGetMessage("read-text-document-with-metadata-properties");
-        verifyDocumentContents(TEXT_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, TEXT_URI)
+    public void readTextQualityDocument_Properties() {
+        DocumentData documentData = runFlowGetDocumentData("read-text-document-with-metadata-properties");
+        verifyDocumentContents(TEXT_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, TEXT_URI)
             .collections(0)
             .permissions(0)
             .quality(0)
@@ -193,11 +178,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
 
     @Test
     // Not passing in a category parameter seems to default to "ALL"
-    public void readTextQualityDocument_Content() throws Exception {
-        Message message = runFlowGetMessage("read-text-document-with-metadata-content");
-        verifyDocumentContents(TEXT_CONTENTS, getPayloadAsString(message));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, TEXT_URI)
+    public void readTextQualityDocument_Content() {
+        DocumentData documentData = runFlowGetDocumentData("read-text-document-with-metadata-content");
+        verifyDocumentContents(TEXT_CONTENTS, documentData.documentContents);
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, TEXT_URI)
             .collections(1, "text-data")
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(95)
@@ -206,11 +190,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readBinaryQualityDocument_All() throws Exception {
-        Message message = runFlowGetMessage("read-binary-document-with-metadata-all");
-        assertTrue(getPayloadAsString(message).contains("PNG"));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, BINARY_URI)
+    public void readBinaryQualityDocument_All() {
+        DocumentData documentData = runFlowGetDocumentData("read-binary-document-with-metadata-all");
+        assertTrue(documentData.documentContents.contains("PNG"));
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, BINARY_URI)
             .collections(2, "test-data", "binary-data")
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(0)
@@ -219,11 +202,10 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void readBinaryQualityDocument_Content() throws Exception {
-        Message message = runFlowGetMessage("read-binary-document-with-metadata-content");
-        assertTrue(getPayloadAsString(message).contains("PNG"));
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
-        MetadataVerifier.assertMetadata(attributes, BINARY_URI)
+    public void readBinaryQualityDocument_Content() {
+        DocumentData documentData = runFlowGetDocumentData("read-binary-document-with-metadata-content");
+        assertTrue(documentData.documentContents.contains("PNG"));
+        MetadataVerifier.assertMetadata(documentData.documentAttributes, BINARY_URI)
             .collections(2, "test-data", "binary-data")
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(0)

@@ -15,7 +15,7 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void searchBatchInputDocuments_DefaultMetadata() throws Exception {
+    public void searchBatchInputDocuments_DefaultMetadata() {
         Message outerMessage = runFlowGetMessage("search-batch-input-documents-with-metadata-default");
         List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
         for (Message docMessage : innerMessages) {
@@ -30,7 +30,7 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void searchTestDataDocuments_AllMetadata() throws Exception {
+    public void searchTestDataDocuments_AllMetadata() {
         Message outerMessage = runFlowGetMessage("search-test-data-documents-with-metadata-all");
         List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
         for (Message docMessage : innerMessages) {
@@ -43,7 +43,7 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void searchBinaryDataDocuments_CollectionsMetadata() throws Exception {
+    public void searchBinaryDataDocuments_CollectionsMetadata() {
         Message outerMessage = runFlowGetMessage("search-binary-documents-with-metadata-collections");
         List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
         for (Message docMessage : innerMessages) {
@@ -57,7 +57,7 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void searchTextDataDocuments_PermissionsMetadata() throws Exception {
+    public void searchTextDataDocuments_PermissionsMetadata() {
         Message outerMessage = runFlowGetMessage("search-text-documents-with-metadata-permissions");
         List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
         for (Message docMessage : innerMessages) {
@@ -72,7 +72,7 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void searchTextDataDocuments_PermissionsPropertiesMetadata() throws Exception {
+    public void searchTextDataDocuments_PermissionsPropertiesMetadata() {
         Message outerMessage = runFlowGetMessage("search-text-documents-with-metadata-permissionsProperties");
         List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
         for (Message docMessage : innerMessages) {
