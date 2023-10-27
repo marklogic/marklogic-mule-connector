@@ -1,6 +1,7 @@
 package org.mule.extension;
 
 import com.marklogic.mule.extension.DocumentAttributes;
+import org.junit.Assert;
 
 import javax.xml.namespace.QName;
 
@@ -28,9 +29,19 @@ public class MetadataVerifier {
         return new MetadataVerifier(attributes, jsonUri);
     }
 
+    public MetadataVerifier includesCollections(String... expectedCollections) {
+        this.expectedCollections = expectedCollections;
+        return this;
+    }
+
     public MetadataVerifier collections(int expectedCollectionCount, String... expectedCollections) {
         this.expectedCollectionCount = expectedCollectionCount;
         this.expectedCollections = expectedCollections;
+        return this;
+    }
+
+    public MetadataVerifier includesPermissions(String... expectedPermissions) {
+        this.expectedPermissions = expectedPermissions;
         return this;
     }
 
@@ -52,7 +63,9 @@ public class MetadataVerifier {
     }
 
     public void verify() {
-        assertEquals("The expected uri should be returned in the attributes.", expectedUri, attributes.getUri());
+        if (expectedUri != null) {
+            assertEquals("The expected uri should be returned in the attributes.", expectedUri, attributes.getUri());
+        }
         verifyCollections();
         verifyProperties();
         verifyPermissions();
@@ -80,18 +93,22 @@ public class MetadataVerifier {
     private void verifyPermissions() {
         if (expectedPermissionCount != null) {
             assertEquals(((long) expectedPermissionCount), attributes.getPermissions().size());
-            if (expectedPermissionCount > 0) {
-                for (int i=0; i<expectedPermissions.length; i = i + 2) {
-                    String expectedPermission = expectedPermissions[i+1].toUpperCase();
-                    boolean wasFound = false;
+        }
+        if (expectedPermissions != null) {
+            for (int i=0; i<expectedPermissions.length; i = i + 2) {
+                String expectedPermission = expectedPermissions[i+1].toUpperCase();
+                boolean wasFound = false;
+                if (attributes.getPermissions().get(expectedPermissions[i]) != null) {
                     Object[] permissions = attributes.getPermissions().get(expectedPermissions[i]).toArray();
-                    for (int j = 0; j < expectedPermissionCount; j++) {
-                        wasFound = (permissions[j].toString().equals(expectedPermission));
+                    for (Object permission : permissions) {
+                        wasFound = (permission.toString().equals(expectedPermission));
                         if (wasFound) {
                             break;
                         }
                     }
                     assertTrue(wasFound);
+                } else {
+                    Assert.fail("Expected permission was not found");
                 }
             }
         }
@@ -100,10 +117,10 @@ public class MetadataVerifier {
     private void verifyCollections() {
         if (expectedCollectionCount != null) {
             assertEquals(((long) expectedCollectionCount), attributes.getCollections().size());
-            if (expectedCollections != null) {
-                for (String collection : expectedCollections) {
-                    assertTrue(attributes.getCollections().contains(collection));
-                }
+        }
+        if (expectedCollections != null) {
+            for (String collection : expectedCollections) {
+                assertTrue(attributes.getCollections().contains(collection));
             }
         }
     }

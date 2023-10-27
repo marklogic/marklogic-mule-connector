@@ -1,0 +1,38 @@
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd
+        http://www.mulesoft.org/schema/mule/batch https://www.mulesoft.org/schema/mule/ee/batch/3.9/mule-batch.xsd">
+
+  <basic:config name="config" configId="configId">
+    <basic:connection
+      host="localhost"
+      port="8022"
+      username="mule2-test-user"
+      password="password"
+      authenticationType="DIGEST"/>
+  </basic:config>
+
+
+  <flow name="search-batch-input-documents-with-metadata-default">
+    <basic:search-documents config-ref="config" collection="batch-input"/>
+  </flow>
+
+  <flow name="search-test-data-documents-with-metadata-all">
+    <basic:search-documents config-ref="config" collection="test-data" categories="all"/>
+  </flow>
+
+  <flow name="search-binary-documents-with-metadata-collections">
+    <basic:search-documents config-ref="config" collection="binary-data" categories="collections"/>
+  </flow>
+
+  <flow name="search-text-documents-with-metadata-permissions">
+    <basic:search-documents config-ref="config" collection="text-data" categories="permissions"/>
+  </flow>
+
+  <flow name="search-text-documents-with-metadata-permissionsProperties">
+    <basic:search-documents config-ref="config" collection="text-data" categories="permissions,properties"/>
+  </flow>
+
+</mule>
