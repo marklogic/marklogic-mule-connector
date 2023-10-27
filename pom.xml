@@ -67,8 +67,8 @@
 
   </dependencies>
 
-  <!-- 
-  Added based on 
+  <!--
+  Added based on
   https://help.mulesoft.com/s/article/Could-not-find-artifact-org-mule-runtime-plugins-mule-extensions-maven-plugin-while-trying-to-create-an-XML-SDK-custom-module .
   -->
   <pluginRepositories>
@@ -82,5 +82,18 @@
       </snapshots>
     </pluginRepository>
   </pluginRepositories>
-  
+
+  <profiles>
+    <profile>
+      <id>sonar</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <sonar.projectKey>marklogic-mule-connector</sonar.projectKey>
+      </properties>
+    </profile>
+  </profiles>
+
 </project>
