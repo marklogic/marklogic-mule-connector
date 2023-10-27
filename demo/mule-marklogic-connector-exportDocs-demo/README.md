@@ -1,6 +1,6 @@
 ## Example: MarkLogic Mule Connector ##
 
-This example demonstrates the query capabilities of MarkLogic Mule Connector version 1.2.0, doing the following:
+This example demonstrates the query capabilities of MarkLogic Mule Connector version 1.2.1, doing the following:
 
 * Creating a MuleSoft HTTP listener on port 8081, accepting GET requests at /exportDocs, that returns a custom JSON response payload with custom response header "X-MarKLogic-ResultCount".
 * Using the MarkLogic exportDocs operation to perform a consistent snapshot query for documents within the "employees" collection, via a Structured Query.  The count of returned documents from exportDocs is limited to 12 documents.
@@ -9,31 +9,31 @@ This example demonstrates the query capabilities of MarkLogic Mule Connector ver
 
 #### Flow Depiction ####
 
-![Demo Flow](../../images/marklogic-demo-1.2.0.png)
+![Demo Flow](../../images/marklogic-demo-1.2.1.png)
 
 ### To Configure this Example ###
 
-The MarkLogic exportDocs operation is pre-populated with the needed configuration.  However, should you need to tweak any settings, select the exportDocs icon in the flow, and change any necessary settings.
+The MarkLogic exportDocs operation is pre-populated with the necessary configuration.  However, should you need to tweak any settings, select the exportDocs icon in the flow, and change any necessary settings.
 
-![exportDocs Configuration](../../images/exportDocs-config-demo-1.2.0.png)
+![exportDocs Configuration](../../images/exportDocs-config-demo-1.2.1.png)
 
 Also, update the automation-credentials.properties to populate username, password, host, and the file sytem location for the job report file output.
 
-![automation-credentials.properties Configuration](../../images/automation-credentials-demo-1.2.0.png)
+![automation-credentials.properties Configuration](../../images/automation-credentials-demo-1.2.1.png)
 
 ### To Test the Example ###
 
 * Click File &rarr; Import
 * On the next screen, click "Anypoint Studio project from File System" &rarr; Next.
-* You can now import the demo from the file system on the next screen.  Locate the demo/ directory from the codebase, and find the 1.2.0 demo.  
-* Provide a project name. Use ""Server Runtime 4.3.0 EE". 
+* You can now import the demo from the file system on the next screen.  Locate the demo/ directory from the codebase, and find the 1.2.1 demo.  
+* Provide a project name. Use ""Server Runtime 4.4.0 EE". 
 * The project will be imported and begin to build automatically. 
 * Run the project by right- or Ctrl-clicking the project name at left, the Run As &rarr; Mule Application.
 * If you experience any dependency issues, you might need to add the JCenter repository to the demo project pom.xml file, as described above in "Adding Dependencies".
 
 ![Import Packaged Mule Application](../../images/import-demo-fs-1.png)
 
-![Import Mule Project](../../images/import-demo-fs-2-1.2.0.png)
+![Import Mule Project](../../images/import-demo-fs-2-1.2.1.png)
 
 ![Run Mule Application](../../images/run-as-mule-application.png)
 
@@ -45,7 +45,7 @@ Create a new Mule Project and install the MarkLogic Mule Connector dependency in
     <dependency>
             <groupId>com.marklogic</groupId>
             <artifactId>marklogic-mule-connector</artifactId>
-            <version>1.2.0</version>
+            <version>1.2.1</version>
             <classifier>mule-plugin</classifier>
     </dependency>
 ```
@@ -81,7 +81,7 @@ Also, update the automation-credentials.properties to populate username, and pas
     <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="70508ab1-c787-485a-9b35-970bbfbf9208" configId="testConfig" threadCount="4" batchSize="100" secondsBeforeFlush="2" jobName="myJobName" >
         <marklogic:connection hostname="${config.hostName}" port="8010" username="${config.username}" password="${config.password}" authenticationType="digest" connectionId="testConfig" marklogicConnectionType="DIRECT"/>
     </marklogic:config>
-    <flow name="marklogic-demo-1.2.0Flow" doc:id="ee6da7e5-0aa3-4208-9b29-876a30707dab" >
+    <flow name="marklogic-demo-1.2.1Flow" doc:id="ee6da7e5-0aa3-4208-9b29-876a30707dab" >
         <http:listener doc:name="/exportDocs Listener" doc:id="e4850d1f-0bbe-41ea-97f4-ad98042690a8" config-ref="HTTP_Listener_config" path="/exportDocs">
             <http:response>
                 <http:headers>
