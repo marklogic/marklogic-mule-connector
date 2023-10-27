@@ -6,13 +6,11 @@ import com.marklogic.client.document.DocumentPage;
 import com.marklogic.client.document.DocumentRecord;
 import com.marklogic.client.document.DocumentWriteSet;
 import com.marklogic.client.document.TextDocumentManager;
-import com.marklogic.client.io.DocumentMetadataHandle;
-import com.marklogic.client.io.Format;
-import com.marklogic.client.io.InputStreamHandle;
-import com.marklogic.client.io.StringHandle;
+import com.marklogic.client.io.*;
 import com.marklogic.client.io.marker.JSONReadHandle;
 import com.marklogic.client.io.marker.JSONWriteHandle;
 import com.marklogic.client.query.StringQueryDefinition;
+
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -92,18 +90,37 @@ public class BasicOperations {
      * @return
      */
     @MediaType(value = ANY, strict = false)
-    public List<Result<InputStream, Void>> searchDocuments(@Connection DatabaseClient databaseClient,
-            String collection) {
-        DocumentPage page = databaseClient.newDocumentManager().search(
+    public List<Result<InputStream, DocumentAttributes>> searchDocuments(
+        @Connection DatabaseClient databaseClient,
+        String collection,
+        @DisplayName("Metadata Category List") @Optional(defaultValue = "all") @Example("collections,permissions") String categories
+    ) {
+        DocumentManager<JSONReadHandle, JSONWriteHandle> documentManager = databaseClient.newJSONDocumentManager();
+        if ((categories != null) && (!categories.isEmpty())) {
+            String[] categoriesArray = categories.split(",");
+            DocumentManager.Metadata[] transformedCategories = new DocumentManager.Metadata[categoriesArray.length];
+            int index = 0;
+            for (String category : categoriesArray) {
+                transformedCategories[index++] = DocumentManager.Metadata.valueOf(category.toUpperCase());
+            }
+            documentManager.setMetadataCategories(transformedCategories);
+        }
+
+        DocumentPage page = documentManager.search(
                 databaseClient.newQueryManager().newStructuredQueryBuilder().collection(collection), 1);
-        List<Result<InputStream, Void>> results = new ArrayList<>();
+        List<Result<InputStream, DocumentAttributes>> results = new ArrayList<>();
         while (page.hasNext()) {
             InputStreamHandle handle = new InputStreamHandle();
-            InputStream content = page.nextContent(handle).get();
-            results.add(Result.<InputStream, Void>builder()
-                    .output(content)
-                    .mediaType(org.mule.runtime.api.metadata.MediaType.APPLICATION_JSON)
-                    .build());
+            DocumentRecord documentRecord = page.next();
+            InputStream content = documentRecord.getContent(handle).get();
+            DocumentMetadataHandle metadataHandle = new DocumentMetadataHandle();
+            documentRecord.getMetadata(metadataHandle);
+            Result<InputStream, DocumentAttributes> resultDoc = Result.<InputStream, DocumentAttributes>builder()
+                .output(content)
+                .attributes(new DocumentAttributes(documentRecord.getUri(), metadataHandle))
+                .mediaType(org.mule.runtime.api.metadata.MediaType.APPLICATION_JSON)
+                .build();
+            results.add(resultDoc);
         }
         return results;
     }

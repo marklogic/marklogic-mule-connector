@@ -13,6 +13,12 @@ xdmp.documentSetQuality('/metadataSamples/xml/hello.xml', 27);
 xdmp.documentSetQuality('/metadataSamples/text/hello.text', 95);
 xdmp.documentSetProperty('/metadataSamples/text/hello.text', fn.head(xdmp.unquote('<priority>2</priority>')).root);
 xdmp.documentSetMetadata('/metadataSamples/binary/logo.png', {"name":"value"});
+const uris = cts.uris("", null, cts.collectionQuery("batch-input")).toArray();
+for (var i in uris) {
+  xdmp.documentSetQuality(uris[i],42);
+  xdmp.documentSetProperty(uris[i], fn.head(xdmp.unquote('<uriProperty>'+uris[i]+'</uriProperty>')).root);
+  xdmp.documentAddProperties(uris[i], fn.head(xdmp.unquote('<widgets>2</widgets>')).root);
+}
     """
 }
 mlLoadData.finalizedBy addQuality
