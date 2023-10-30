@@ -1,0 +1,14 @@
+{
+  "role-name": "mule2-test-role",
+  "role": [
+    "rest-extension-user",
+    "rest-reader"
+  ],
+  "privilege": [
+    {
+      "privilege-name": "rest-writer",
+      "action": "http://marklogic.com/xdmp/privileges/rest-writer",
+      "kind": "execute"
+    }
+  ]
+}
