@@ -5,6 +5,8 @@ import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.runtime.api.event.Event;
 import org.mule.runtime.api.message.Message;
 
+import static org.junit.Assert.assertEquals;
+
 public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase {
 
     Message runFlowGetMessage(String flowName) throws RuntimeException {
@@ -26,6 +28,11 @@ public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    void verifyContents(String expectedContents, String messageContents) {
+        assertEquals("The contents of the message should match the contents of the original document",
+            expectedContents, messageContents);
     }
 
 }
