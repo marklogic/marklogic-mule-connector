@@ -3,6 +3,7 @@ package org.mule.extension;
 import org.junit.Test;
 import com.marklogic.mule.extension.DocumentAttributes;
 import org.mule.runtime.api.message.Message;
+import org.mule.runtime.api.metadata.DataType;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,6 +17,9 @@ public class ReadAndWriteDocumentTest extends AbstractFlowTester {
     @Test
     public void readAndWriteDocument() throws Exception {
         Message message = runFlowGetMessage("read-and-write-document");
+        DataType dataType = message.getPayload().getDataType();
+        assertEquals("application/json; charset=UTF-8", dataType.getMediaType().toString());
+
         String messageString = getPayloadAsString(message);
         assertEquals("The contents of the message should match the contents of the original document",
                 "{\"hello\":\"world\"}", messageString);
