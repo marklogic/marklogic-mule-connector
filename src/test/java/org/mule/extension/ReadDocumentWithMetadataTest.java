@@ -22,6 +22,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     @Test
     public void readJsonDocument_OnlyPermissionsAndCollections() {
         DocumentData documentData = runFlowGetDocumentData("read-json-document-with-metadata-permissions-collections");
+        assertEquals("application/json; charset=UTF-8", documentData.getMimeType());
         verifyContents(JSON_CONTENTS, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), JSON_URI)
             .collections(2, "test-data", "json-data")
@@ -83,6 +84,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     @Test
     public void readXmlDocument_OnlyPermissionsAndCollections() {
         DocumentData documentData = runFlowGetDocumentData("read-xml-document-with-metadata-permissions-collections");
+        assertEquals("application/xml; charset=UTF-8", documentData.getMimeType());
         verifyContents(XML_CONTENTS, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), XML_URI)
             .collections(2, "test-data", "xml-data")
@@ -143,6 +145,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     @Test
     public void readTextQualityDocument_All() {
         DocumentData documentData = runFlowGetDocumentData("read-text-document-with-metadata-all");
+        assertEquals("text/plain; charset=UTF-8", documentData.getMimeType());
         verifyContents(TEXT_CONTENTS, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), TEXT_URI)
             .collections(1, "text-data")
@@ -192,6 +195,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     @Test
     public void readBinaryQualityDocument_All() {
         DocumentData documentData = runFlowGetDocumentData("read-binary-document-with-metadata-all");
+        assertEquals("application/octet-stream; charset=UTF-8", documentData.getMimeType());
         assertTrue(documentData.getContents().contains("PNG"));
         MetadataVerifier.assertMetadata(documentData.getAttributes(), BINARY_URI)
             .collections(2, "test-data", "binary-data")

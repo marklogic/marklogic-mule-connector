@@ -9,25 +9,27 @@ import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase {
 
-    Message runFlowGetMessage(String flowName) throws RuntimeException {
+    Message runFlowGetMessage(String flowName) {
         try {
-            Event event = flowRunner(flowName).keepStreamsOpen().run();
-            return event.getMessage();
+            return flowRunner(flowName).keepStreamsOpen().run().getMessage();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    DocumentData runFlowGetDocumentData(String flowName) throws RuntimeException {
+    DocumentData runFlowGetDocumentData(String flowName) {
+        Message message = runFlowGetMessage(flowName);
+        String content;
         try {
-            Event event = flowRunner(flowName).keepStreamsOpen().run();
-            return new DocumentData(
-                getPayloadAsString(event.getMessage()),
-                (DocumentAttributes) event.getMessage().getAttributes().getValue()
-            );
+            content = getPayloadAsString(message);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Unable to get payload as string", e);
         }
+        return new DocumentData(
+            content,
+            (DocumentAttributes) message.getAttributes().getValue(),
+            message.getPayload().getDataType().getMediaType().toRfcString()
+        );
     }
 
     void verifyContents(String expectedContents, String messageContents) {

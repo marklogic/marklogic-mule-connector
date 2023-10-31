@@ -1,11 +1,7 @@
 package com.marklogic.mule.extension;
 
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.client.document.DocumentManager;
-import com.marklogic.client.document.DocumentPage;
-import com.marklogic.client.document.DocumentRecord;
-import com.marklogic.client.document.DocumentWriteSet;
-import com.marklogic.client.document.TextDocumentManager;
+import com.marklogic.client.document.*;
 import com.marklogic.client.io.*;
 import com.marklogic.client.io.marker.JSONReadHandle;
 import com.marklogic.client.io.marker.JSONWriteHandle;
@@ -37,11 +33,10 @@ public class BasicOperations {
         @DisplayName("Document URI") @Example("/data/customer.json") String uri,
         @DisplayName("Metadata Category List") @Optional(defaultValue = "ALL") @Example("COLLECTIONS,PERMISSIONS") String categories
     ) {
-        InputStreamHandle handle = new InputStreamHandle();
         DocumentMetadataHandle metadataHandle = new DocumentMetadataHandle();
-        DocumentManager<JSONReadHandle, JSONWriteHandle> documentManager = databaseClient.newJSONDocumentManager();
+        GenericDocumentManager documentManager = databaseClient.newDocumentManager();
 
-        if ((categories != null) && (!categories.isEmpty())) {
+        if (categories != null && !categories.isEmpty()) {
             String[] categoriesArray = categories.split(",");
             DocumentManager.Metadata[] transformedCategories = new DocumentManager.Metadata[categoriesArray.length];
             int index = 0;
@@ -51,11 +46,11 @@ public class BasicOperations {
             documentManager.setMetadataCategories(transformedCategories);
         }
 
-        InputStream content = ((InputStreamHandle) documentManager.read(uri, metadataHandle, handle)).get();
+        InputStreamHandle handle = documentManager.read(uri, metadataHandle, new InputStreamHandle());
         return Result.<InputStream, DocumentAttributes>builder()
-            .output(content)
+            .output(handle.get())
             .attributes(new DocumentAttributes(uri, metadataHandle))
-            .mediaType(makeMediaType(handle.getMimetype()))
+            .mediaType(makeMediaType(handle.getFormat()))
             .attributesMediaType(org.mule.runtime.api.metadata.MediaType.APPLICATION_JAVA)
             .build();
     }
@@ -151,13 +146,12 @@ public class BasicOperations {
         mgr.write(writeSet);
     }
 
-    private org.mule.runtime.api.metadata.MediaType makeMediaType(String mimetype) {
-        // This is likely not comprehensive and may need to handle more scenarios.
-        if (mimetype.contains("json")) {
+    private org.mule.runtime.api.metadata.MediaType makeMediaType(Format format) {
+        if (Format.JSON.equals(format)) {
             return org.mule.runtime.api.metadata.MediaType.APPLICATION_JSON;
-        } else if (mimetype.contains("xml")) {
+        } else if (Format.XML.equals(format)) {
             return org.mule.runtime.api.metadata.MediaType.APPLICATION_XML;
-        } else if (mimetype.contains("text")) {
+        } else if (Format.TEXT.equals(format)) {
             return org.mule.runtime.api.metadata.MediaType.TEXT;
         }
         return org.mule.runtime.api.metadata.MediaType.BINARY;
