@@ -57,7 +57,7 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void searchTextDataDocuments_PermissionsMetadata() {
+    public void queryDataDocuments_PermissionsMetadata() {
         Message outerMessage = runFlowGetMessage("search-text-documents-with-metadata-permissions");
         List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
         for (Message docMessage : innerMessages) {
@@ -72,7 +72,7 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    public void searchTextDataDocuments_PermissionsPropertiesMetadata() {
+    public void queryDataDocuments_PermissionsPropertiesMetadata() {
         Message outerMessage = runFlowGetMessage("search-text-documents-with-metadata-permissionsProperties");
         List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
         for (Message docMessage : innerMessages) {

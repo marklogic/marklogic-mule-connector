@@ -5,6 +5,7 @@ import com.marklogic.client.document.*;
 import com.marklogic.client.io.*;
 import com.marklogic.client.io.marker.JSONReadHandle;
 import com.marklogic.client.io.marker.JSONWriteHandle;
+import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.StringQueryDefinition;
 
 import org.mule.runtime.extension.api.annotation.param.Connection;
@@ -13,6 +14,7 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
+import org.mule.runtime.extension.api.annotation.param.display.Text;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
@@ -36,14 +38,8 @@ public class BasicOperations {
         DocumentMetadataHandle metadataHandle = new DocumentMetadataHandle();
         GenericDocumentManager documentManager = databaseClient.newDocumentManager();
 
-        if (categories != null && !categories.isEmpty()) {
-            String[] categoriesArray = categories.split(",");
-            DocumentManager.Metadata[] transformedCategories = new DocumentManager.Metadata[categoriesArray.length];
-            int index = 0;
-            for (String category : categoriesArray) {
-                transformedCategories[index++] = DocumentManager.Metadata.valueOf(category.toUpperCase());
-            }
-            documentManager.setMetadataCategories(transformedCategories);
+        if ((categories != null) && (!categories.isEmpty())) {
+            documentManager.setMetadataCategories(buildMetadataCategories(categories));
         }
 
         InputStreamHandle handle = documentManager.read(uri, metadataHandle, new InputStreamHandle());
@@ -63,46 +59,42 @@ public class BasicOperations {
      * @param uri
      */
     public void writeDocument(
-            @Connection DatabaseClient databaseClient,
-            @Content InputStream myContent,
-            String uri) {
+        @Connection DatabaseClient databaseClient,
+        @Content InputStream myContent,
+        String uri) {
         databaseClient
-                .newDocumentManager()
-                .write(uri,
-                        new DocumentMetadataHandle().withPermission("rest-reader",
-                                DocumentMetadataHandle.Capability.READ, DocumentMetadataHandle.Capability.UPDATE),
-                        new InputStreamHandle(myContent));
+            .newDocumentManager()
+            .write(uri,
+                new DocumentMetadataHandle().withPermission("rest-reader",
+                    DocumentMetadataHandle.Capability.READ, DocumentMetadataHandle.Capability.UPDATE),
+                new InputStreamHandle(myContent));
     }
 
     /**
-     * Search for documents, returning the documents but not yet any metadata for
-     * them.
-     * <p>
+     * Search for documents, returning the documents but not yet any metadata for them.
      * Will eventually support many parameters here for searching.
-     *
-     * @param databaseClient
-     * @param collection
-     * @return
      */
     @MediaType(value = ANY, strict = false)
+    @DisplayName("Search Documents")
     public List<Result<InputStream, DocumentAttributes>> searchDocuments(
         @Connection DatabaseClient databaseClient,
-        String collection,
-        @DisplayName("Metadata Category List") @Optional(defaultValue = "all") @Example("collections,permissions") String categories
+        @DisplayName("Collection") @Optional(defaultValue = "") @Example("myCollection") String collection,
+        @DisplayName("Query") @Text @Optional @Example("searchTerm") String query,
+        @DisplayName("Query Type") @Optional QueryType queryType,
+        @DisplayName("Query Format") @Optional QueryFormat queryFormat,
+        @DisplayName("Metadata Category List") @Optional(defaultValue = "all") @Example("COLLECTIONS,PERMISSIONS") String categories
     ) {
         DocumentManager<JSONReadHandle, JSONWriteHandle> documentManager = databaseClient.newJSONDocumentManager();
-        if ((categories != null) && (!categories.isEmpty())) {
-            String[] categoriesArray = categories.split(",");
-            DocumentManager.Metadata[] transformedCategories = new DocumentManager.Metadata[categoriesArray.length];
-            int index = 0;
-            for (String category : categoriesArray) {
-                transformedCategories[index++] = DocumentManager.Metadata.valueOf(category.toUpperCase());
-            }
-            documentManager.setMetadataCategories(transformedCategories);
+        if ((categories != null) && !categories.isEmpty()) {
+            documentManager.setMetadataCategories(buildMetadataCategories(categories));
         }
 
-        DocumentPage page = documentManager.search(
-                databaseClient.newQueryManager().newStructuredQueryBuilder().collection(collection), 1);
+        QueryDefinition structuredQueryDefinition = ReadUtil.buildQueryDefinitionFromParams(databaseClient, query, queryType, queryFormat);
+        if (!collection.isEmpty()) {
+            structuredQueryDefinition.setCollections(collection);
+        }
+
+        DocumentPage page = documentManager.search(structuredQueryDefinition, 1);
         List<Result<InputStream, DocumentAttributes>> results = new ArrayList<>();
         while (page.hasNext()) {
             InputStreamHandle handle = new InputStreamHandle();
@@ -113,7 +105,8 @@ public class BasicOperations {
             Result<InputStream, DocumentAttributes> resultDoc = Result.<InputStream, DocumentAttributes>builder()
                 .output(content)
                 .attributes(new DocumentAttributes(documentRecord.getUri(), metadataHandle))
-                .mediaType(org.mule.runtime.api.metadata.MediaType.APPLICATION_JSON)
+                .mediaType(makeMediaType(handle.getFormat()))
+                .attributesMediaType(org.mule.runtime.api.metadata.MediaType.APPLICATION_JAVA)
                 .build();
             results.add(resultDoc);
         }
@@ -130,15 +123,15 @@ public class BasicOperations {
      * @param myContents
      */
     public void writeBatch(
-            @Connection DatabaseClient databaseClient,
-            @Content InputStream[] myContents) {
+        @Connection DatabaseClient databaseClient,
+        @Content InputStream[] myContents) {
         System.out.println("CONTENT COUNT: " + myContents.length);
         DocumentManager mgr = databaseClient.newDocumentManager();
         DocumentWriteSet writeSet = mgr.newWriteSet();
         DocumentMetadataHandle metadata = new DocumentMetadataHandle()
-                .withPermission("rest-reader", DocumentMetadataHandle.Capability.READ,
-                        DocumentMetadataHandle.Capability.UPDATE)
-                .withCollections("batch-output");
+            .withPermission("rest-reader", DocumentMetadataHandle.Capability.READ,
+                DocumentMetadataHandle.Capability.UPDATE)
+            .withCollections("batch-output");
         for (InputStream content : myContents) {
             String uri = "/batch-output/" + UUID.randomUUID().toString() + ".json";
             writeSet.add(uri, metadata, new InputStreamHandle(content));
@@ -168,9 +161,9 @@ public class BasicOperations {
         DocumentWriteSet batch = textDocumentManager.newWriteSet();
 
         batch.add("doc1.txt", new StringHandle(
-                "Document - 1").withFormat(Format.TEXT));
+            "Document - 1").withFormat(Format.TEXT));
         batch.add("doc2.txt", new StringHandle(
-                "Document - 2").withFormat(Format.TEXT));
+            "Document - 2").withFormat(Format.TEXT));
         textDocumentManager.write(batch);
     }
 
@@ -182,11 +175,11 @@ public class BasicOperations {
     @Deprecated
     public void writeSingledoc(@Connection DatabaseClient databaseClient, String content, String uri) {
         databaseClient
-                .newTextDocumentManager()
-                .write(uri,
-                        new DocumentMetadataHandle().withPermission("rest-reader",
-                                DocumentMetadataHandle.Capability.READ, DocumentMetadataHandle.Capability.UPDATE),
-                        new StringHandle(content));
+            .newTextDocumentManager()
+            .write(uri,
+                new DocumentMetadataHandle().withPermission("rest-reader",
+                    DocumentMetadataHandle.Capability.READ, DocumentMetadataHandle.Capability.UPDATE),
+                new StringHandle(content));
     }
 
     /**
@@ -200,7 +193,7 @@ public class BasicOperations {
         DocumentWriteSet batch = textDocumentManager.newWriteSet();
         for (int i = 0; i < contents.length; i++) {
             batch.add(uriPrefix + Math.random() + "_i_value_is_" + i + ".txt",
-                    new StringHandle(contents[i]).withFormat(Format.TEXT));
+                new StringHandle(contents[i]).withFormat(Format.TEXT));
         }
         textDocumentManager.write(batch);
     }
@@ -230,8 +223,8 @@ public class BasicOperations {
     @Deprecated
     public String readSingleDoc(@Connection DatabaseClient databaseClient, String uri) {
         return databaseClient
-                .newTextDocumentManager()
-                .readAs(uri, String.class);
+            .newTextDocumentManager()
+            .readAs(uri, String.class);
     }
 
     /**
@@ -252,5 +245,15 @@ public class BasicOperations {
             }
         }
         return arrayList.toArray(new String[arrayList.size()]);
+    }
+
+    private DocumentManager.Metadata[] buildMetadataCategories(String categories) {
+        String[] categoriesArray = categories.split(",");
+        DocumentManager.Metadata[] transformedCategories = new DocumentManager.Metadata[categoriesArray.length];
+        int index = 0;
+        for (String category : categoriesArray) {
+            transformedCategories[index++] = DocumentManager.Metadata.valueOf(category.toUpperCase());
+        }
+        return transformedCategories;
     }
 }
