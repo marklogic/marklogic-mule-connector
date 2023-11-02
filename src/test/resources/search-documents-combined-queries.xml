@@ -1,0 +1,57 @@
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd
+        http://www.mulesoft.org/schema/mule/batch https://www.mulesoft.org/schema/mule/ee/batch/3.9/mule-batch.xsd">
+
+  <basic:config name="config" configId="configId">
+    <basic:connection
+      host="localhost"
+      port="8022"
+      username="mule2-test-user"
+      password="password"
+      authenticationType="DIGEST"/>
+  </basic:config>
+
+  <flow name="search-documents-no-query">
+    <basic:search-documents config-ref="config" queryType="CombinedQuery"/>
+  </flow>
+
+  <flow name="search-documents-xml-combinedQuery">
+    <basic:search-documents config-ref="config" collection="test-data" queryType="CombinedQuery" queryFormat="XML">
+      <basic:query><![CDATA[<search xmlns="http://marklogic.com/appservices/search"><cts:word-query xmlns:cts="http://marklogic.com/cts"><cts:text xml:lang="en">world</cts:text></cts:word-query><options><return-metrics>false</return-metrics><return-qtext>false</return-qtext><debug>true</debug><transform-results apply="raw"/></options></search>]]></basic:query>
+    </basic:search-documents>
+  </flow>
+
+  <flow name="search-documents-json-combinedQuery">
+    <basic:search-documents config-ref="config" collection="test-data" queryType="CombinedQuery" queryFormat="JSON">
+      <basic:query><![CDATA[{ "search": { "query": { "query": { "queries": [{"term-query":{"text":["world"]}}] } } } }]]></basic:query>
+    </basic:search-documents>
+  </flow>
+
+  <flow name="search-documents-xml-combinedQuery-noMatches">
+    <basic:search-documents config-ref="config" collection="test-data" queryType="CombinedQuery" queryFormat="XML">
+      <basic:query><![CDATA[<search xmlns="http://marklogic.com/appservices/search"><cts:word-query xmlns:cts="http://marklogic.com/cts"><cts:text xml:lang="en">thisTermDoesNotExist</cts:text></cts:word-query><options><return-metrics>false</return-metrics><return-qtext>false</return-qtext><debug>true</debug><transform-results apply="raw"/></options></search>]]></basic:query>
+    </basic:search-documents>
+  </flow>
+
+  <flow name="search-documents-json-combinedQuery-noMatches">
+    <basic:search-documents config-ref="config" collection="test-data" queryType="CombinedQuery" queryFormat="JSON">
+      <basic:query><![CDATA[{ "search": { "query": { "query": { "queries": [{"term-query":{"text":["antidisestablishmentarianism"]}}] } } } }]]></basic:query>
+    </basic:search-documents>
+  </flow>
+
+  <flow name="search-documents-xml-combinedQuery-badXml">
+    <basic:search-documents config-ref="config" collection="test-data" queryType="CombinedQuery" queryFormat="XML">
+      <basic:query><![CDATA[<search xmlns="http://marklogic.com/appservices/search"><cts:word-query]]></basic:query>
+    </basic:search-documents>
+  </flow>
+
+  <flow name="search-documents-json-combinedQuery-badJson">
+    <basic:search-documents config-ref="config" collection="test-data" queryType="CombinedQuery" queryFormat="JSON">
+      <basic:query><![CDATA[{ "search": { "query": { "query": { "queries": [{"term-query"]]></basic:query>
+    </basic:search-documents>
+  </flow>
+
+</mule>
