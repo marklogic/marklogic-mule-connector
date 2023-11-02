@@ -26,7 +26,7 @@ Also, update the automation-credentials.properties to populate username, passwor
 * Click File &rarr; Import
 * On the next screen, click "Anypoint Studio project from File System" &rarr; Next.
 * You can now import the demo from the file system on the next screen.  Locate the demo/ directory from the codebase, and find the 1.2.1 demo.  
-* Provide a project name. Use ""Server Runtime 4.4.0 EE". 
+* Provide a project name. Use ""Server Runtime 4.4.0 EE". Note that the connector will run on any runtime version 4.1.1 EE or later.
 * The project will be imported and begin to build automatically. 
 * Run the project by right- or Ctrl-clicking the project name at left, the Run As &rarr; Mule Application.
 * If you experience any dependency issues, you might need to add the JCenter repository to the demo project pom.xml file, as described above in "Adding Dependencies".

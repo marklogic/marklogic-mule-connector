@@ -13,7 +13,7 @@ The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users
 |===
 |Software |Version
 |Anypoint Studio |7.8.0 and later
-|Mule SDK|4.3.0 and later
+|Mule SDK|4.1.1 and later
 |JDK |1.8.x or Java 11 and later
 |MarkLogic|9.0-6.2 and later
 |===
@@ -48,7 +48,7 @@ This release of the Connector includes the following hotfixes:
 |===
 |Software |Version
 |Anypoint Studio |7.8.0 and later
-|Mule SDK|4.3.0 and later
+|Mule SDK|4.1.1 and later
 |JDK |1.8.x or Java 11 and later
 |MarkLogic|9.0-6.2 and later
 |===
@@ -89,7 +89,7 @@ This release of the Connector includes the following hotfixes:
 |===
 |Software |Version
 |Anypoint Studio |7.4.1 and later
-|Mule SDK|4.2.2 and later
+|Mule SDK|4.1.1 and later
 |JDK |1.8.x
 |MarkLogic Java Client API |4.2.0 and later
 |MarkLogic|9.0-6.2 and later
@@ -146,7 +146,7 @@ This release of the Connector includes the following:
 |===
 |Software |Version
 |Anypoint Studio |7.1.4 and later
-|Mule SDK |4.2.0 and later
+|Mule SDK |4.1.1 and later
 |JDK |1.8.x
 |MarkLogic Java Client API |4.2.0 and later
 |MarkLogic|9.0-6.2 and later
