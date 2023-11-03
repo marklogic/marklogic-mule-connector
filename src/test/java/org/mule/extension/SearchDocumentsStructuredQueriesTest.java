@@ -27,14 +27,14 @@ public class SearchDocumentsStructuredQueriesTest extends AbstractFlowTester {
     public void structuredXmlQuery() {
         Message outerMessage = runFlowGetMessage("search-documents-xml-structuredQuery");
         List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        assertEquals(2, innerMessages.size());
+        assertEquals("3 docs are expected to have 'world' in them", 3, innerMessages.size());
     }
 
     @Test
     public void structuredJsonQuery() {
         Message outerMessage = runFlowGetMessage("search-documents-json-structuredQuery");
         List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        assertEquals(2, innerMessages.size());
+        assertEquals("3 docs are expected to have 'world' in them", 3, innerMessages.size());
     }
 
     @Test

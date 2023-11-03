@@ -27,14 +27,14 @@ public class SearchDocumentsSerializedCtsQueriesTest extends AbstractFlowTester 
     public void serializedXmlQuery() {
         Message outerMessage = runFlowGetMessage("search-documents-xml-serializedCtsQuery");
         List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        assertEquals(2, innerMessages.size());
+        assertEquals("3 docs are expected to have 'world' in them", 3, innerMessages.size());
     }
 
     @Test
     public void serializedJsonQuery() {
         Message outerMessage = runFlowGetMessage("search-documents-json-serializedCtsQuery");
         List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        assertEquals(2, innerMessages.size());
+        assertEquals("3 docs are expected to have 'world' in them", 3, innerMessages.size());
     }
 
     @Test
