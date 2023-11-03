@@ -139,6 +139,22 @@ public class BasicOperations {
         mgr.write(writeSet);
     }
 
+    /**
+     * Evaluate custom JavaScript code on the MarkLogic server.
+     */
+    @MediaType(value = ANY, strict = false)
+    @DisplayName("Eval JavaScript")
+    public String evalJavascript(
+        @Connection DatabaseClient databaseClient,
+        @DisplayName("Script") @Text @Example("xdmp.log('Hello, World!');") String script
+    ) {
+        if ((script != null) && (!script.isEmpty())) {
+            return databaseClient.newServerEval().javascript(script).evalAs(String.class);
+        } else {
+            throw new RuntimeException("A valid script must be provided.");
+        }
+    }
+
     private org.mule.runtime.api.metadata.MediaType makeMediaType(Format format) {
         if (Format.JSON.equals(format)) {
             return org.mule.runtime.api.metadata.MediaType.APPLICATION_JSON;

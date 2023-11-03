@@ -1,0 +1,38 @@
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd
+        http://www.mulesoft.org/schema/mule/batch https://www.mulesoft.org/schema/mule/ee/batch/3.9/mule-batch.xsd">
+
+  <basic:config name="config" configId="configId">
+    <basic:connection
+      host="localhost"
+      port="8022"
+      username="mule2-test-user"
+      password="password"
+      authenticationType="DIGEST"/>
+  </basic:config>
+
+
+  <flow name="simple-math">
+    <basic:eval-javascript config-ref="config">
+      <basic:script><![CDATA[1 + 2;]]></basic:script>
+    </basic:eval-javascript>
+  </flow>
+
+  <flow name="writeDocument">
+    <basic:write-singledoc uri="/toBeDeleted.json" content='{"Hello": "World!"}' config-ref="config"/>
+  </flow>
+
+  <flow name="readDocument">
+    <basic:read-single-doc uri="/toBeDeleted.json" config-ref="config"/>
+  </flow>
+
+  <flow name="deleteDocument">
+    <basic:eval-javascript config-ref="config">
+      <basic:script><![CDATA[declareUpdate(); xdmp.documentDelete("/toBeDeleted.json")]]></basic:script>
+    </basic:eval-javascript>
+  </flow>
+
+</mule>
