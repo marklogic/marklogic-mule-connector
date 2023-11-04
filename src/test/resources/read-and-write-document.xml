@@ -16,6 +16,10 @@
   </basic:config>
 
   <flow name="read-and-write-document">
+
+    <basic:eval-javascript config-ref="config">
+      <basic:script><![CDATA[#[vars.DELETE_QUERY]]]></basic:script>
+    </basic:eval-javascript>
     <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
     <basic:write-document config-ref="config" uri='#["/test" ++ attributes.uri]'/>
     <basic:read-document config-ref="config" uri="/test/metadataSamples/json/hello.json"/>

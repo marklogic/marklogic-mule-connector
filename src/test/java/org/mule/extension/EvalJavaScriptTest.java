@@ -19,15 +19,14 @@ public class EvalJavaScriptTest extends AbstractFlowTester {
     }
 
     @Test
-    public void deleteDocumentEvalTest() {
-        runFlowGetMessage("writeDocument");
-        Message message = runFlowGetMessage("readDocument");
-        assertEquals("{\"Hello\":\"World!\"}", message.getPayload().getValue().toString());
+    public void writeAndDeleteDocument() {
+        DocumentData data = runFlowGetDocumentData("writeAndDeleteDocument");
+        assertEquals("{\"hello\":\"world\"}", data.getContents());
 
         runFlowGetMessage("deleteDocument");
 
         try {
-            runFlowGetMessage("readDocument");
+            runFlowGetMessage("readDocumentThatShouldHaveBeenDeleted");
             fail("This message should cause the exception because the document should not exist any longer.");
         } catch (RuntimeException e) {
             assertTrue(e.getMessage().contains("Local message: Could not read non-existent document."));

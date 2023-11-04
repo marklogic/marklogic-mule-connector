@@ -148,7 +148,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         assertEquals("text/plain; charset=UTF-8", documentData.getMimeType());
         verifyContents(TEXT_CONTENTS, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), TEXT_URI)
-            .collections(1, "text-data")
+            .collections(2, "text-data", "test-data")
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(95)
             .properties(1, "priority", "2")
@@ -160,7 +160,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         DocumentData documentData = runFlowGetDocumentData("read-text-document-with-metadata-metadata");
         verifyContents(TEXT_CONTENTS, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), TEXT_URI)
-            .collections(1, "text-data")
+            .collections(2, "text-data", "test-data")
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(95)
             .properties(1, "priority", "2")
@@ -185,7 +185,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         DocumentData documentData = runFlowGetDocumentData("read-text-document-with-metadata-content");
         verifyContents(TEXT_CONTENTS, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), TEXT_URI)
-            .collections(1, "text-data")
+            .collections(2, "text-data", "test-data")
             .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
             .quality(95)
             .properties(1, "priority", "2")

@@ -27,14 +27,14 @@ public class SearchDocumentsCombinedQueriesTest extends AbstractFlowTester {
     public void combinedXmlQuery() {
         Message outerMessage = runFlowGetMessage("search-documents-xml-combinedQuery");
         List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        assertEquals(2, innerMessages.size());
+        assertEquals("3 docs are expected to have 'world' in them", 3, innerMessages.size());
     }
 
     @Test
     public void combinedJsonQuery() {
         Message outerMessage = runFlowGetMessage("search-documents-json-combinedQuery");
         List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        assertEquals(2, innerMessages.size());
+        assertEquals("3 docs are expected to have 'world' in them", 3, innerMessages.size());
     }
 
     @Test
