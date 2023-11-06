@@ -5,14 +5,13 @@ import com.marklogic.client.document.*;
 import com.marklogic.client.io.*;
 import com.marklogic.client.io.marker.JSONReadHandle;
 import com.marklogic.client.io.marker.JSONWriteHandle;
+import com.marklogic.client.query.DeleteQueryDefinition;
+import com.marklogic.client.query.QueryManager;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.StringQueryDefinition;
-
-import org.mule.runtime.extension.api.annotation.param.Connection;
-import org.mule.runtime.extension.api.annotation.param.Content;
+import org.mule.runtime.extension.api.annotation.param.*;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
-import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Text;
 import org.mule.runtime.extension.api.runtime.operation.Result;
@@ -52,22 +51,23 @@ public class BasicOperations {
     }
 
     /**
-     * Likely a temporary method for writing a single document.
+     * Write document(s) with/without metadata.
      *
      * @param databaseClient
      * @param myContent
      * @param uri
+     * @param format
+     * @param permissions
+     * @param quality
+     * @param collections
      */
     public void writeDocument(
-        @Connection DatabaseClient databaseClient,
-        @Content InputStream myContent,
-        String uri) {
-        databaseClient
-            .newDocumentManager()
-            .write(uri,
-                new DocumentMetadataHandle().withPermission("rest-reader",
-                    DocumentMetadataHandle.Capability.READ, DocumentMetadataHandle.Capability.UPDATE),
-                new InputStreamHandle(myContent));
+            @Connection DatabaseClient databaseClient, @Content InputStream myContent, @Optional String uri,
+                               @Optional Format format,
+                               @Optional @Example("Role,permission")String permissions,
+                               @Optional(defaultValue = "0") int quality,
+                               @Optional @Example("Comma separated collection strings") String collections) {
+        new WriteOperations().writeDocuments(databaseClient,myContent,uri,format, permissions, quality, collections);
     }
 
     /**
@@ -166,6 +166,13 @@ public class BasicOperations {
         return org.mule.runtime.api.metadata.MediaType.BINARY;
     }
 
+    @MediaType(value = ANY, strict = false) //This is temporary. Will edit later
+    public void deleteCollection(@Connection DatabaseClient databaseClient, String collection){
+        QueryManager queryMgr = databaseClient.newQueryManager();
+        DeleteQueryDefinition qdef = queryMgr.newDeleteDefinition();
+        qdef.setCollections(collection);
+        queryMgr.delete(qdef);
+    }
     private DocumentManager.Metadata[] buildMetadataCategories(String categories) {
         String[] categoriesArray = categories.split(",");
         DocumentManager.Metadata[] transformedCategories = new DocumentManager.Metadata[categoriesArray.length];

@@ -2,7 +2,8 @@
   "role-name": "mule2-test-role",
   "role": [
     "rest-extension-user",
-    "rest-reader"
+    "rest-reader",
+    "rest-writer"
   ],
   "privilege": [
     {

@@ -13,4 +13,66 @@
       authenticationType="DIGEST"/>
   </basic:config>
 
+  <flow name="writeTextDocumentWithAllMetadata">
+    <basic:delete-collection config-ref="config" collection="writeTextDocumentWithAllMetadata"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
+    <basic:write-document config-ref="config" uri="/writeTextDocumentWithAllMetadata/hello.txt" format="UNKNOWN" permissions="rest-reader,read,rest-reader,update" quality="1" collections="writeTextDocumentWithAllMetadata"/>
+    <basic:read-document config-ref="config" uri="/writeTextDocumentWithAllMetadata/hello.txt" categories="all"/>
+  </flow>
+
+  <flow name="writeJsonDocumentWithAllMetadata">
+    <basic:delete-collection config-ref="config" collection="writeJsonDocumentWithAllMetadata"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
+    <basic:write-document config-ref="config" uri="/writeJsonDocumentWithAllMetadata/hello.json" format="JSON" permissions="rest-reader,read,rest-reader,update" quality="2" collections="writeJsonDocumentWithAllMetadata"/>
+    <basic:read-document config-ref="config" uri="/writeJsonDocumentWithAllMetadata/hello.json" categories="all"/>
+  </flow>
+
+  <flow name="writeXmlDocumentWithAllMetadata">
+    <basic:delete-collection config-ref="config" collection="writeXmlDocumentWithAllMetadata"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml"/>
+    <basic:write-document config-ref="config" uri="/writeXmlDocumentWithAllMetadata/hello.xml" format="XML" permissions="rest-reader,read,rest-reader,update" quality="3" collections="writeXmlDocumentWithAllMetadata"/>
+    <basic:read-document config-ref="config" uri="/writeXmlDocumentWithAllMetadata/hello.xml" categories="all"/>
+  </flow>
+
+  <flow name="writeBinaryDocumentWithAllMetadata">
+    <basic:delete-collection config-ref="config" collection="writeBinaryDocumentWithAllMetadata"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/binary/logo.png"/>
+    <basic:write-document config-ref="config" uri="/writeBinaryDocumentWithAllMetadata/logo.png" format="BINARY" permissions="rest-reader,read,rest-reader,update" quality="4" collections="writeBinaryDocumentWithAllMetadata"/>
+    <basic:read-document config-ref="config" uri="/writeBinaryDocumentWithAllMetadata/logo.png" categories="all"/>
+  </flow>
+
+  <flow name="writeDocumentWithoutUriWithTextFormat">
+    <basic:delete-collection config-ref="config" collection="writeDocumentWithoutUriWithTextFormat"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
+    <basic:write-document config-ref="config" format="TEXT" permissions="rest-reader,read,rest-reader,update" quality="5" collections="writeDocumentWithoutUriWithTextFormat"/>
+    <basic:search-documents config-ref="config" collection="writeDocumentWithoutUriWithTextFormat" categories="all"/>
+  </flow>
+
+  <flow name="writeDocumentWithoutUriWithoutFormat">
+    <basic:delete-collection config-ref="config" collection="writeDocumentWithoutUriWithoutFormat"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
+    <basic:write-document config-ref="config" permissions="rest-reader,read,rest-reader,update" quality="6" collections="writeDocumentWithoutUriWithoutFormat"/>
+    <basic:search-documents config-ref="config" collection="writeDocumentWithoutUriWithoutFormat" categories="all"/>
+  </flow>
+
+  <flow name="writeDocumentWithoutUriWithJsonFormat">
+    <basic:delete-collection config-ref="config" collection="writeDocumentWithoutUriWithJsonFormat"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
+    <basic:write-document config-ref="config" format="JSON" permissions="rest-reader,read,rest-reader,update" quality="7" collections="writeDocumentWithoutUriWithJsonFormat"/>
+    <basic:search-documents config-ref="config" collection="writeDocumentWithoutUriWithJsonFormat" categories="all"/>
+  </flow>
+
+  <flow name="writeDocumentWithoutUriWithXmlFormat">
+    <basic:delete-collection config-ref="config" collection="writeDocumentWithoutUriWithXmlFormat"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml"/>
+    <basic:write-document config-ref="config" format="XML" permissions="rest-reader,read,rest-reader,update" quality="8" collections="writeDocumentWithoutUriWithXmlFormat"/>
+    <basic:search-documents config-ref="config" collection="writeDocumentWithoutUriWithXmlFormat" categories="all"/>
+  </flow>
+
+  <flow name="writeDocumentWithoutUriWithBinaryFormat">
+    <basic:delete-collection config-ref="config" collection="writeDocumentWithoutUriWithBinaryFormat"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml"/>
+    <basic:write-document config-ref="config" format="BINARY" permissions="rest-reader,read,rest-reader,update" quality="9" collections="writeDocumentWithoutUriWithBinaryFormat"/>
+    <basic:search-documents config-ref="config" collection="writeDocumentWithoutUriWithBinaryFormat" categories="all"/>
+  </flow>
 </mule>
