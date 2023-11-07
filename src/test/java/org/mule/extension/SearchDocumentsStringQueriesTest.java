@@ -1,14 +1,11 @@
 package org.mule.extension;
 
 import org.junit.Test;
-import org.mule.runtime.api.message.Message;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@SuppressWarnings("unchecked")
 public class SearchDocumentsStringQueriesTest extends AbstractFlowTester {
 
     @Override
@@ -18,25 +15,25 @@ public class SearchDocumentsStringQueriesTest extends AbstractFlowTester {
 
     @Test
     public void noQuery() {
-        Message outerMessage = runFlowGetMessage("search-documents-no-query");
-        List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        assertTrue(1 < innerMessages.size());
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("search-documents-no-query");
+        assertTrue(1 < documentDataList.size());
     }
 
     @Test
     public void noQueryWithCollection() {
-        Message collectionOuterMessage = runFlowGetMessage("search-documents-no-query-with-collection");
-        List<Message> collectionInnerMessages = (List<Message>) collectionOuterMessage.getPayload().getValue();
-        assertEquals(10, collectionInnerMessages.size());
-        Message outerMessage = runFlowGetMessage("search-documents-no-query");
-        List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        assertTrue(collectionInnerMessages.size() < innerMessages.size());
+        List<DocumentData> collectionDocumentDataList = runFlowAndVerifyMessageCount(
+            "search-documents-no-query-with-collection",
+            10,
+            "For the given collection, exactly 10 documents should be returned.");
+        List<DocumentData> noQueryDocumentDataList = runFlowForDocumentDataList("search-documents-no-query");
+        assertTrue(collectionDocumentDataList.size() < noQueryDocumentDataList.size());
     }
 
     @Test
     public void queryWithNoMatches() {
-        Message outerMessage = runFlowGetMessage("search-documents-query-with-no-matches");
-        List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        assertEquals(0, innerMessages.size());
+        runFlowAndVerifyMessageCount(
+            "search-documents-query-with-no-matches",
+            0,
+            "A search term with no matches should return no documents");
     }
 }

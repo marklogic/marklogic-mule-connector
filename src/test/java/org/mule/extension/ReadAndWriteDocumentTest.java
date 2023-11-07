@@ -16,17 +16,12 @@ public class ReadAndWriteDocumentTest extends AbstractFlowTester {
 
     @Test
     public void readAndWriteDocument() throws Exception {
-        Message message = runFlowGetMessage("read-and-write-document");
-        DataType dataType = message.getPayload().getDataType();
-        assertEquals("application/json; charset=UTF-8", dataType.getMediaType().toString());
-
-        String messageString = getPayloadAsString(message);
+        DocumentData documentData = runFlowGetDocumentData("read-and-write-document");
+        assertEquals("application/json; charset=UTF-8", documentData.getMimeType());
         assertEquals("The contents of the message should match the contents of the original document",
-                "{\"hello\":\"world\"}", messageString);
-
-        DocumentAttributes attributes = (DocumentAttributes) message.getAttributes().getValue();
+            JSON_HELLO_WORLD, documentData.getContents());
         assertEquals(
                 "The written document is expected to be returned, and its URI is based on an expression in the flow operation for writing the document.",
-                "/test/metadataSamples/json/hello.json", attributes.getUri());
+                "/test/metadataSamples/json/hello.json", documentData.getAttributes().getUri());
     }
 }
