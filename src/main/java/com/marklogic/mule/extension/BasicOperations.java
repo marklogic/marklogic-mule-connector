@@ -8,8 +8,10 @@ import com.marklogic.client.io.marker.JSONWriteHandle;
 import com.marklogic.client.query.DeleteQueryDefinition;
 import com.marklogic.client.query.QueryManager;
 import com.marklogic.client.query.QueryDefinition;
-import com.marklogic.client.query.StringQueryDefinition;
-import org.mule.runtime.extension.api.annotation.param.*;
+
+import org.mule.runtime.extension.api.annotation.param.Connection;
+import org.mule.runtime.extension.api.annotation.param.Content;
+import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
@@ -37,7 +39,7 @@ public class BasicOperations {
         DocumentMetadataHandle metadataHandle = new DocumentMetadataHandle();
         GenericDocumentManager documentManager = databaseClient.newDocumentManager();
 
-        if ((categories != null) && (!categories.isEmpty())) {
+        if (hasText(categories)) {
             documentManager.setMetadataCategories(buildMetadataCategories(categories));
         }
 
@@ -82,19 +84,45 @@ public class BasicOperations {
         @DisplayName("Query") @Text @Optional @Example("searchTerm") String query,
         @DisplayName("Query Type") @Optional QueryType queryType,
         @DisplayName("Query Format") @Optional QueryFormat queryFormat,
-        @DisplayName("Metadata Category List") @Optional(defaultValue = "all") @Example("COLLECTIONS,PERMISSIONS") String categories
+        @DisplayName("Metadata Category List") @Optional(defaultValue = "all") @Example("COLLECTIONS,PERMISSIONS") String categories,
+        @DisplayName("Max Results") @Optional @Example("10") Integer maxResults,
+        @DisplayName("Search Options") @Optional @Example("appSearchOptions") String searchOptions,
+//        @DisplayName("Transaction ID") @Optional @Example("12345") String transactionId,
+        @DisplayName("Directory") @Optional @Example("/customerData") String directory,
+        @DisplayName("REST Transform") @Optional String restTransform,
+        @DisplayName("REST Transform Parameters") @Optional String restTransformParameters,
+        @DisplayName("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter
     ) {
         DocumentManager<JSONReadHandle, JSONWriteHandle> documentManager = databaseClient.newJSONDocumentManager();
-        if ((categories != null) && !categories.isEmpty()) {
+        if (hasText(categories)) {
             documentManager.setMetadataCategories(buildMetadataCategories(categories));
         }
-
-        QueryDefinition structuredQueryDefinition = ReadUtil.buildQueryDefinitionFromParams(databaseClient, query, queryType, queryFormat);
-        if (!collection.isEmpty()) {
-            structuredQueryDefinition.setCollections(collection);
+        if (maxResults != null) {
+            documentManager.setPageLength(maxResults);
         }
 
-        DocumentPage page = documentManager.search(structuredQueryDefinition, 1);
+        QueryDefinition queryDefinition = ReadUtil.buildQueryDefinitionFromParams(databaseClient, query, queryType, queryFormat);
+        if (hasText(collection)) {
+            queryDefinition.setCollections(collection);
+        }
+        if (hasText(searchOptions)) {
+            queryDefinition.setOptionsName(searchOptions);
+        }
+        if (hasText(directory)) {
+            queryDefinition.setDirectory(directory);
+        }
+        if (hasText(restTransform)) {
+            ServerTransform serverTransform = new ServerTransform(restTransform);
+            if (hasText(restTransformParameters)) {
+                String[] parametersArray = restTransformParameters.split(restTransformParametersDelimiter);
+                for (int i=0; i<parametersArray.length; i = i + 2) {
+                    serverTransform.addParameter(parametersArray[i], parametersArray[i+1]);
+                }
+            }
+            queryDefinition.setResponseTransform(serverTransform);
+        }
+
+        DocumentPage page = documentManager.search(queryDefinition, 1);
         List<Result<InputStream, DocumentAttributes>> results = new ArrayList<>();
         while (page.hasNext()) {
             InputStreamHandle handle = new InputStreamHandle();
@@ -148,7 +176,7 @@ public class BasicOperations {
         @Connection DatabaseClient databaseClient,
         @DisplayName("Script") @Text @Example("xdmp.log('Hello, World!');") String script
     ) {
-        if ((script != null) && (!script.isEmpty())) {
+        if (hasText(script)) {
             return databaseClient.newServerEval().javascript(script).evalAs(String.class);
         } else {
             throw new RuntimeException("A valid script must be provided.");
@@ -181,5 +209,9 @@ public class BasicOperations {
             transformedCategories[index++] = DocumentManager.Metadata.valueOf(category.toUpperCase());
         }
         return transformedCategories;
+    }
+
+    boolean hasText(String var) {
+        return ((var != null) && !var.isEmpty());
     }
 }

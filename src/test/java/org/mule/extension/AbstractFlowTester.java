@@ -1,9 +1,7 @@
 package org.mule.extension;
 
 import com.marklogic.mule.extension.DocumentAttributes;
-import org.mule.functional.api.flow.FlowRunner;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
-import org.mule.runtime.api.event.Event;
 import org.mule.runtime.api.message.Message;
 
 import static org.junit.Assert.assertEquals;

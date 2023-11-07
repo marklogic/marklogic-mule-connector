@@ -1,0 +1,42 @@
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd
+        http://www.mulesoft.org/schema/mule/batch https://www.mulesoft.org/schema/mule/ee/batch/3.9/mule-batch.xsd">
+
+  <basic:config name="config" configId="configId">
+    <basic:connection
+      host="localhost"
+      port="8022"
+      username="mule2-test-user"
+      password="password"
+      authenticationType="DIGEST"/>
+  </basic:config>
+
+  <flow name="search-documents-with-maxResults">
+    <basic:search-documents config-ref="config" collection="batch-input" maxResults="5"/>
+  </flow>
+
+  <flow name="search-documents-search-term-with-options">
+    <basic:search-documents config-ref="config" searchOptions="testOptions">
+      <basic:query><![CDATA[testConstraint:3]]></basic:query>
+    </basic:search-documents>
+  </flow>
+
+  <flow name="search-documents-search-term-without-options">
+    <basic:search-documents config-ref="config">
+      <basic:query><![CDATA[testConstraint:3]]></basic:query>
+    </basic:search-documents>
+  </flow>
+
+  <flow name="search-documents-within-directory">
+    <basic:search-documents config-ref="config" collection="test-data" directory="/batch"/>
+  </flow>
+
+  <flow name="search-documents-with-transform">
+    <basic:search-documents config-ref="config" collection="json-data" restTransform="testTransform"
+                            restTransformParameters="hello;Hola;world;Mundo" restTransformParametersDelimiter=";"/>
+  </flow>
+
+</mule>
