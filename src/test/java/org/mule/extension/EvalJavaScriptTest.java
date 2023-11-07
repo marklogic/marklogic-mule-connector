@@ -21,7 +21,7 @@ public class EvalJavaScriptTest extends AbstractFlowTester {
     @Test
     public void writeAndDeleteDocument() {
         DocumentData data = runFlowGetDocumentData("writeAndDeleteDocument");
-        assertEquals("{\"hello\":\"world\"}", data.getContents());
+        assertEquals(JSON_HELLO_WORLD, data.getContents());
 
         runFlowGetMessage("deleteDocument");
 

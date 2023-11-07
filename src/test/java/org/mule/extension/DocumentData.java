@@ -26,4 +26,20 @@ public class DocumentData {
     public String getMimeType() {
         return mimeType;
     }
+
+    public boolean isText() {
+        return mimeType.contains("text/plain");
+    }
+
+    public boolean isJSON() {
+        return mimeType.contains("application/json");
+    }
+
+    public boolean isXML() {
+        return mimeType.contains("application/xml");
+    }
+
+    public boolean isBinary() {
+        return mimeType.contains("application/octet-stream");
+    }
 }

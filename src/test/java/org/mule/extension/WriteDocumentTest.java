@@ -3,11 +3,11 @@ package org.mule.extension;
 
 import com.marklogic.mule.extension.DocumentAttributes;
 import org.junit.Test;
-import org.mule.runtime.api.message.Message;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * The parent class does some stuff with the classloader that prevents us from constructing a DatabaseClient.
@@ -17,9 +17,6 @@ import static org.junit.Assert.*;
  * what was written.
  */
 public class WriteDocumentTest extends AbstractFlowTester {
-    private final String TEXT_CONTENTS = "Hello, World!\n";
-    private final String JSON_CONTENTS = "{\"hello\":\"world\"}";
-    private final String XML_CONTENTS = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Hello>World</Hello>";
     @Override
     protected String getConfigFile() {
         return "write-document.xml";
@@ -28,10 +25,8 @@ public class WriteDocumentTest extends AbstractFlowTester {
     @Test
     public void writeTextDocumentWithAllMetadata(){
         DocumentData documentData = runFlowGetDocumentData("writeTextDocumentWithAllMetadata");
-        verifyContents(TEXT_CONTENTS, documentData.getContents());
-        String mimeType = "text/plain; charset=UTF-8";
-        assertEquals("Expected MimeType to be "+mimeType+" but instead received "+documentData.getMimeType(),
-            mimeType, documentData.getMimeType());
+        assertEquals(TEXT_HELLO_WORLD, documentData.getContents());
+        assertTrue(documentData.isText());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), "/writeTextDocumentWithAllMetadata/hello.txt")
             .collections(1, "writeTextDocumentWithAllMetadata")
             .includesPermissions("rest-reader","read","rest-reader","update")
@@ -42,10 +37,8 @@ public class WriteDocumentTest extends AbstractFlowTester {
     @Test
     public void writeJsonDocumentWithAllMetadata(){
         DocumentData documentData = runFlowGetDocumentData("writeJsonDocumentWithAllMetadata");
-        verifyContents(JSON_CONTENTS, documentData.getContents());
-        String mimeType = "application/json; charset=UTF-8";
-        assertEquals("Expected MimeType to be "+mimeType+" but instead received "+documentData.getMimeType(),
-            mimeType, documentData.getMimeType());
+        assertEquals(JSON_HELLO_WORLD, documentData.getContents());
+        assertTrue(documentData.isJSON());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), "/writeJsonDocumentWithAllMetadata/hello.json")
             .collections(1, "writeJsonDocumentWithAllMetadata")
             .includesPermissions("rest-reader","read","rest-reader","update")
@@ -56,10 +49,8 @@ public class WriteDocumentTest extends AbstractFlowTester {
     @Test
     public void writeXmlDocumentWithAllMetadata(){
         DocumentData documentData = runFlowGetDocumentData("writeXmlDocumentWithAllMetadata");
-        verifyContents(XML_CONTENTS, documentData.getContents());
-        String mimeType = "application/xml; charset=UTF-8";
-        assertEquals("Expected MimeType to be "+mimeType+" but instead received "+documentData.getMimeType(),
-            mimeType, documentData.getMimeType());
+        assertEquals(XML_HELLO_WORLD, documentData.getContents());
+        assertTrue(documentData.isXML());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), "/writeXmlDocumentWithAllMetadata/hello.xml")
             .collections(1, "writeXmlDocumentWithAllMetadata")
             .includesPermissions("rest-reader","read","rest-reader","update")
@@ -71,9 +62,7 @@ public class WriteDocumentTest extends AbstractFlowTester {
     public void writeBinaryDocumentWithAllMetadata(){
         DocumentData documentData = runFlowGetDocumentData("writeBinaryDocumentWithAllMetadata");
         assertTrue(documentData.getContents().contains("PNG"));
-        String mimeType = "application/octet-stream; charset=UTF-8";
-        assertEquals("Expected MimeType to be "+mimeType+" but instead received "+documentData.getMimeType(),
-            mimeType, documentData.getMimeType());
+        assertTrue(documentData.isBinary());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), "/writeBinaryDocumentWithAllMetadata/logo.png")
             .collections(1, "writeBinaryDocumentWithAllMetadata")
             .includesPermissions("rest-reader","read","rest-reader","update")
@@ -83,14 +72,11 @@ public class WriteDocumentTest extends AbstractFlowTester {
 
     @Test
     public void writeDocumentWithoutUriWithTextFormat(){
-        Message message = runFlowGetMessage("writeDocumentWithoutUriWithTextFormat");
-        List<Message> innerMessages = (List<Message>) message.getPayload().getValue();
-        for (Message docMessage : innerMessages) {
-            assertEquals("Expected MediaType to be text/plain but instead received "+
-                    docMessage.getPayload().getDataType().getMediaType().toRfcString(), "text/plain",
-                docMessage.getPayload().getDataType().getMediaType().toRfcString());
-            DocumentAttributes attributes = (DocumentAttributes) docMessage.getAttributes().getValue();
-            MetadataVerifier.assertMetadata(attributes, null)
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("writeDocumentWithoutUriWithTextFormat");
+        for (DocumentData documentData : documentDataList) {
+            assertTrue(documentData.isText());
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
                 .includesCollections("writeDocumentWithoutUriWithTextFormat")
                 .includesPermissions("rest-reader","read","rest-reader","update")
                 .quality(5)
@@ -102,14 +88,11 @@ public class WriteDocumentTest extends AbstractFlowTester {
 
     @Test
     public void writeDocumentWithoutUriWithoutFormat(){
-        Message message = runFlowGetMessage("writeDocumentWithoutUriWithoutFormat");
-        List<Message> innerMessages = (List<Message>) message.getPayload().getValue();
-        for (Message docMessage : innerMessages) {
-            assertEquals("Expected MediaType to be application/octet-stream but instead received "+
-                docMessage.getPayload().getDataType().getMediaType().toRfcString(), "application/octet-stream",
-                docMessage.getPayload().getDataType().getMediaType().toRfcString());
-            DocumentAttributes attributes = (DocumentAttributes) docMessage.getAttributes().getValue();
-            MetadataVerifier.assertMetadata(attributes, null)
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("writeDocumentWithoutUriWithoutFormat");
+        for (DocumentData documentData : documentDataList) {
+            assertTrue(documentData.isBinary());
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
                 .includesCollections("writeDocumentWithoutUriWithoutFormat")
                 .includesPermissions("rest-reader","read","rest-reader","update")
                 .quality(6)
@@ -119,14 +102,11 @@ public class WriteDocumentTest extends AbstractFlowTester {
 
     @Test
     public void writeDocumentWithoutUriWithJsonFormat(){
-        Message message = runFlowGetMessage("writeDocumentWithoutUriWithJsonFormat");
-        List<Message> innerMessages = (List<Message>) message.getPayload().getValue();
-        for (Message docMessage : innerMessages) {
-            assertEquals("Expected MediaType to be application/json but instead received "+
-                    docMessage.getPayload().getDataType().getMediaType().toRfcString(), "application/json",
-                docMessage.getPayload().getDataType().getMediaType().toRfcString());
-            DocumentAttributes attributes = (DocumentAttributes) docMessage.getAttributes().getValue();
-            MetadataVerifier.assertMetadata(attributes, null)
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("writeDocumentWithoutUriWithJsonFormat");
+        for (DocumentData documentData : documentDataList) {
+            assertTrue(documentData.isJSON());
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
                 .includesCollections("writeDocumentWithoutUriWithJsonFormat")
                 .includesPermissions("rest-reader","read","rest-reader","update")
                 .quality(7)
@@ -136,14 +116,11 @@ public class WriteDocumentTest extends AbstractFlowTester {
 
     @Test
     public void writeDocumentWithoutUriWithXmlFormat(){
-        Message message = runFlowGetMessage("writeDocumentWithoutUriWithXmlFormat");
-        List<Message> innerMessages = (List<Message>) message.getPayload().getValue();
-        for (Message docMessage : innerMessages) {
-            assertEquals("Expected MediaType to be application/xml but instead received "+
-                    docMessage.getPayload().getDataType().getMediaType().toRfcString(), "application/xml",
-                docMessage.getPayload().getDataType().getMediaType().toRfcString());
-            DocumentAttributes attributes = (DocumentAttributes) docMessage.getAttributes().getValue();
-            MetadataVerifier.assertMetadata(attributes, null)
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("writeDocumentWithoutUriWithXmlFormat");
+        for (DocumentData documentData : documentDataList) {
+            assertTrue(documentData.isXML());
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
                 .includesCollections("writeDocumentWithoutUriWithXmlFormat")
                 .includesPermissions("rest-reader","read","rest-reader","update")
                 .quality(8)
@@ -153,14 +130,11 @@ public class WriteDocumentTest extends AbstractFlowTester {
 
     @Test
     public void writeDocumentWithoutUriWithBinaryFormat(){
-        Message message = runFlowGetMessage("writeDocumentWithoutUriWithBinaryFormat");
-        List<Message> innerMessages = (List<Message>) message.getPayload().getValue();
-        for (Message docMessage : innerMessages) {
-            assertEquals("Expected MediaType to be aapplication/octet-stream but instead received "+
-                    docMessage.getPayload().getDataType().getMediaType().toRfcString(), "application/octet-stream",
-                docMessage.getPayload().getDataType().getMediaType().toRfcString());
-            DocumentAttributes attributes = (DocumentAttributes) docMessage.getAttributes().getValue();
-            MetadataVerifier.assertMetadata(attributes, null)
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("writeDocumentWithoutUriWithBinaryFormat");
+        for (DocumentData documentData : documentDataList) {
+            assertTrue(documentData.isBinary());
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
                 .includesCollections("writeDocumentWithoutUriWithBinaryFormat")
                 .includesPermissions("rest-reader","read","rest-reader","update")
                 .quality(9)

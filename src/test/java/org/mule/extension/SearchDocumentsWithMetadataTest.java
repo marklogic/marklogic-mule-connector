@@ -2,7 +2,6 @@ package org.mule.extension;
 
 import com.marklogic.mule.extension.DocumentAttributes;
 import org.junit.Test;
-import org.mule.runtime.api.message.Message;
 
 import java.util.List;
 
@@ -16,26 +15,24 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
 
     @Test
     public void searchBatchInputDocuments_DefaultMetadata() {
-        Message outerMessage = runFlowGetMessage("search-batch-input-documents-with-metadata-default");
-        List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        for (Message docMessage : innerMessages) {
-            DocumentAttributes attributes = (DocumentAttributes) docMessage.getAttributes().getValue();
-            MetadataVerifier.assertMetadata(attributes, null)
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("search-batch-input-documents-with-metadata-default");
+        for (DocumentData documentData : documentDataList) {
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
                 .includesCollections("test-data", "batch-input")
                 .permissions(2, "rest-reader","read","rest-writer","update")
                 .quality(42)
-                .properties(2, "uriProperty", attributes.getUri(), "widgets", "2")
+                .properties(2, "uriProperty", documentAttributes.getUri(), "widgets", "2")
                 .verify();
         }
     }
 
     @Test
     public void searchTestDataDocuments_AllMetadata() {
-        Message outerMessage = runFlowGetMessage("search-test-data-documents-with-metadata-all");
-        List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        for (Message docMessage : innerMessages) {
-            DocumentAttributes attributes = (DocumentAttributes) docMessage.getAttributes().getValue();
-            MetadataVerifier.assertMetadata(attributes, null)
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("search-test-data-documents-with-metadata-all");
+        for (DocumentData documentData : documentDataList) {
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
                 .includesCollections("test-data")
                 .includesPermissions("rest-reader","read")
                 .verify();
@@ -44,11 +41,10 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
 
     @Test
     public void searchBinaryDataDocuments_CollectionsMetadata() {
-        Message outerMessage = runFlowGetMessage("search-binary-documents-with-metadata-collections");
-        List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        for (Message docMessage : innerMessages) {
-            DocumentAttributes attributes = (DocumentAttributes) docMessage.getAttributes().getValue();
-            MetadataVerifier.assertMetadata(attributes, null)
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("search-binary-documents-with-metadata-collections");
+        for (DocumentData documentData : documentDataList) {
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
                 .includesCollections("binary-data", "test-data")
                 .permissions(0)
                 .properties(0)
@@ -58,11 +54,10 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
 
     @Test
     public void queryDataDocuments_PermissionsMetadata() {
-        Message outerMessage = runFlowGetMessage("search-text-documents-with-metadata-permissions");
-        List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        for (Message docMessage : innerMessages) {
-            DocumentAttributes attributes = (DocumentAttributes) docMessage.getAttributes().getValue();
-            MetadataVerifier.assertMetadata(attributes, null)
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("search-text-documents-with-metadata-permissions");
+        for (DocumentData documentData : documentDataList) {
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
                 .collections(0)
                 .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
                 .properties(0)
@@ -73,11 +68,10 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
 
     @Test
     public void queryDataDocuments_PermissionsPropertiesMetadata() {
-        Message outerMessage = runFlowGetMessage("search-text-documents-with-metadata-permissionsProperties");
-        List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        for (Message docMessage : innerMessages) {
-            DocumentAttributes attributes = (DocumentAttributes) docMessage.getAttributes().getValue();
-            MetadataVerifier.assertMetadata(attributes, null)
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("search-text-documents-with-metadata-permissionsProperties");
+        for (DocumentData documentData : documentDataList) {
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
                 .collections(0)
                 .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
                 .properties(1, "priority", "2")
