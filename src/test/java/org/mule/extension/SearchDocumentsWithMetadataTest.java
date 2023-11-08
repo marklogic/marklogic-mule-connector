@@ -20,7 +20,7 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
             DocumentAttributes documentAttributes = documentData.getAttributes();
             MetadataVerifier.assertMetadata(documentAttributes, null)
                 .includesCollections("test-data", "batch-input")
-                .permissions(2, "rest-reader","read","rest-writer","update")
+                .permissions(2, "rest-reader","read","admin","update")
                 .quality(42)
                 .properties(2, "uriProperty", documentAttributes.getUri(), "widgets", "2")
                 .verify();

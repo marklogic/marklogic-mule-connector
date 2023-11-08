@@ -21,7 +21,7 @@
       <basic:script><![CDATA[#[vars.DELETE_QUERY]]]></basic:script>
     </basic:eval-javascript>
     <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
-    <basic:write-document config-ref="config" uri='#["/test" ++ attributes.uri]'/>
+    <basic:write-document config-ref="config" uri='#["/test" ++ attributes.uri]' permissions="rest-reader,read,rest-reader,update"/>
     <basic:read-document config-ref="config" uri="/test/metadataSamples/json/hello.json"/>
   </flow>
 
