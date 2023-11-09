@@ -25,7 +25,7 @@
       <basic:script><![CDATA[#[vars.DELETE_QUERY]]]></basic:script>
     </basic:eval-javascript>
     <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
-    <basic:write-document config-ref="config" uri='/toBeDeleted.json' permissions="rest-reader,read,rest-reader,update"/>
+    <basic:write-document config-ref="config" uriPrefix='/toBeDeleted' uriSuffix=".json" generateUUID="False" permissions="rest-reader,read,rest-reader,update"/>
     <basic:read-document config-ref="config" uri="/toBeDeleted.json"/>
   </flow>
 
