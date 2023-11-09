@@ -1,4 +1,4 @@
-package org.mule.extension;
+package com.marklogic.mule.extension;
 
 import org.junit.Test;
 import org.mule.runtime.api.message.Message;

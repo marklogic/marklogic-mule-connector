@@ -1,6 +1,5 @@
-package org.mule.extension;
+package com.marklogic.mule.extension;
 
-import com.marklogic.mule.extension.DocumentAttributes;
 import org.junit.Assert;
 
 import javax.xml.namespace.QName;

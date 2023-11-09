@@ -5,13 +5,13 @@ You can copy/paste this into Anypoint for quick manual testing of the flows.
 <mule
     xmlns="http://www.mulesoft.org/schema/mule/core"
     xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
-    xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
+    xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
     xmlns:http="http://www.mulesoft.org/schema/mule/http"
     xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
   http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-  http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd
+  http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
   http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
   http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd"
 >
@@ -20,26 +20,26 @@ You can copy/paste this into Anypoint for quick manual testing of the flows.
     <http:listener-connection host="0.0.0.0" port="8082"/>
   </http:listener-config>
 
-  <basic:config name="config" configId="MarkLogicConfig">
-    <basic:connection
+  <marklogic:config name="config" configId="MarkLogicConfig">
+    <marklogic:connection
         host="localhost"
         port="8022"
         username="mule2-test-user"
         password="password"
         authenticationType="DIGEST"/>
-  </basic:config>
+  </marklogic:config>
 
   <!--
   Reads the 10 test documents in the "batch-input" collection and then writes them 5 at a time.
   -->
   <flow name="readTenDocsWriteTwoBatches">
     <http:listener config-ref="httpConfig" path="/many"/>
-    <basic:search-documents config-ref="config" collection="batch-input"/>
+    <marklogic:search-documents config-ref="config" collection="batch-input"/>
     <batch:job jobName="MyJob">
       <batch:process-records>
         <batch:step name="MyStep1">
           <batch:aggregator size="5">
-            <basic:write-batch config-ref="config"/>
+            <marklogic:write-batch config-ref="config"/>
           </batch:aggregator>
         </batch:step>
       </batch:process-records>

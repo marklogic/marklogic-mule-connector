@@ -172,7 +172,7 @@ update the settings for the operation:
 ```
 #[ "/" ++ uuid() ++ ".json" ]
 ```
-10. Add a MarkLogic write operation to the flow by choosing the Basic group in the Mule
+10. Add a MarkLogic write operation to the flow by choosing the MarkLogic group in the Mule
 Palette and then dragging "Write Singledoc" into the flow, to the right of the third variable.
 11. With the MarkLogic write operation selected, configure the MarkLogic search.
 * Click the "+" beside Connector configuration
@@ -182,7 +182,7 @@ Port: 8022
 Authentication Type: DIGEST
 Username: mule2-test-user
 Passowrd: password
-General->Config id: Basic_Config
+General->Config id: MarkLogic_Config
 ```
 * In the General area of the General config tab, set Content to #[vars.docContent]
 * In the General area of the General config tab, set Uri to #[vars.uri]

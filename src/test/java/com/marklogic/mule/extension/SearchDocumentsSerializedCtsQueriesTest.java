@@ -1,4 +1,4 @@
-package org.mule.extension;
+package com.marklogic.mule.extension;
 
 import org.junit.Test;
 
@@ -6,11 +6,12 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-public class SearchDocumentsStructuredQueriesTest extends AbstractFlowTester {
+@SuppressWarnings("unchecked")
+public class SearchDocumentsSerializedCtsQueriesTest extends AbstractFlowTester {
 
     @Override
     protected String getConfigFile() {
-        return "search-documents-structured-queries.xml";
+        return "search-documents-serialized-cts-queries.xml";
     }
 
     @Test
@@ -20,36 +21,36 @@ public class SearchDocumentsStructuredQueriesTest extends AbstractFlowTester {
     }
 
     @Test
-    public void structuredXmlQuery() {
+    public void serializedXmlQuery() {
         runFlowAndVerifyMessageCount(
-            "search-documents-xml-structuredQuery",
+            "search-documents-xml-serializedCtsQuery",
             3,
             "3 docs are expected to have 'world' in them");
     }
 
     @Test
-    public void structuredJsonQuery() {
+    public void serializedJsonQuery() {
         runFlowAndVerifyMessageCount(
-            "search-documents-json-structuredQuery",
+            "search-documents-json-serializedCtsQuery",
             3,
             "3 docs are expected to have 'world' in them");
     }
 
     @Test
-    public void structuredJsonQueryWithNoMatches() {
+    public void serializedJsonQueryWithNoMatches() {
         runFlowAndVerifyMessageCount(
-            "search-documents-structuredQuery-noMatches",
+            "search-documents-serializedCtsQuery-noMatches",
             0,
             "A search term with no matches should return no documents");
     }
 
     @Test(expected = RuntimeException.class)
-    public void structuredJsonQueryWithBadJson() {
-        runFlowGetMessage("search-documents-structuredQuery-badJson");
+    public void serializedJsonQueryWithBadJson() {
+        runFlowGetMessage("search-documents-serializedCtsQuery-badJson");
     }
 
     @Test(expected = RuntimeException.class)
-    public void structuredJsonQueryWithBadXml() {
-        runFlowGetMessage("search-documents-structuredQuery-badXml");
+    public void serializedXmlQueryWithBadXml() {
+        runFlowGetMessage("search-documents-serializedCtsQuery-badXml");
     }
 }
