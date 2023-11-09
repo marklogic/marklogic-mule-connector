@@ -1,14 +1,30 @@
+/*
+ * Copyright (c) 2023 MarkLogic Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.marklogic.mule.extension;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.document.*;
-import com.marklogic.client.io.*;
+import com.marklogic.client.io.DocumentMetadataHandle;
+import com.marklogic.client.io.Format;
+import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.client.io.marker.JSONReadHandle;
 import com.marklogic.client.io.marker.JSONWriteHandle;
 import com.marklogic.client.query.DeleteQueryDefinition;
-import com.marklogic.client.query.QueryManager;
 import com.marklogic.client.query.QueryDefinition;
-
+import com.marklogic.client.query.QueryManager;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
@@ -19,7 +35,9 @@ import org.mule.runtime.extension.api.annotation.param.display.Text;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 
@@ -64,15 +82,15 @@ public class BasicOperations {
      * @param collections
      */
     public void writeDocument(
-            @Connection DatabaseClient databaseClient, @Content InputStream myContent,
-                               @Optional Format format,
-                               @Optional @Example("Role,permission")String permissions,
-                               @Optional(defaultValue = "0") int quality,
-                               @Optional @Example("Comma separated collection strings") String collections,
-                                @Optional @Example("/test/") String uriPrefix,
-                                @Optional @Example(".json") String uriSuffix,
-                                @Optional(defaultValue = "True") boolean generateUUID) {
-        new WriteOperations().writeDocuments(databaseClient,myContent,format, permissions, quality, collections,
+        @Connection DatabaseClient databaseClient, @Content InputStream myContent,
+        @Optional Format format,
+        @Optional @Example("Role,permission") String permissions,
+        @Optional(defaultValue = "0") int quality,
+        @Optional @Example("Comma separated collection strings") String collections,
+        @Optional @Example("/test/") String uriPrefix,
+        @Optional @Example(".json") String uriSuffix,
+        @Optional(defaultValue = "True") boolean generateUUID) {
+        new WriteOperations().writeDocuments(databaseClient, myContent, format, permissions, quality, collections,
             uriPrefix, uriSuffix, generateUUID);
     }
 
@@ -91,7 +109,6 @@ public class BasicOperations {
         @DisplayName("Metadata Category List") @Optional(defaultValue = "all") @Example("COLLECTIONS,PERMISSIONS") String categories,
         @DisplayName("Max Results") @Optional @Example("10") Integer maxResults,
         @DisplayName("Search Options") @Optional @Example("appSearchOptions") String searchOptions,
-//        @DisplayName("Transaction ID") @Optional @Example("12345") String transactionId,
         @DisplayName("Directory") @Optional @Example("/customerData") String directory,
         @DisplayName("REST Transform") @Optional String restTransform,
         @DisplayName("REST Transform Parameters") @Optional String restTransformParameters,
@@ -119,8 +136,8 @@ public class BasicOperations {
             ServerTransform serverTransform = new ServerTransform(restTransform);
             if (hasText(restTransformParameters)) {
                 String[] parametersArray = restTransformParameters.split(restTransformParametersDelimiter);
-                for (int i=0; i<parametersArray.length; i = i + 2) {
-                    serverTransform.addParameter(parametersArray[i], parametersArray[i+1]);
+                for (int i = 0; i < parametersArray.length; i = i + 2) {
+                    serverTransform.addParameter(parametersArray[i], parametersArray[i + 1]);
                 }
             }
             queryDefinition.setResponseTransform(serverTransform);
@@ -199,12 +216,13 @@ public class BasicOperations {
     }
 
     @MediaType(value = ANY, strict = false) //This is temporary. Will edit later
-    public void deleteCollection(@Connection DatabaseClient databaseClient, String collection){
+    public void deleteCollection(@Connection DatabaseClient databaseClient, String collection) {
         QueryManager queryMgr = databaseClient.newQueryManager();
         DeleteQueryDefinition qdef = queryMgr.newDeleteDefinition();
         qdef.setCollections(collection);
         queryMgr.delete(qdef);
     }
+
     private DocumentManager.Metadata[] buildMetadataCategories(String categories) {
         String[] categoriesArray = categories.split(",");
         DocumentManager.Metadata[] transformedCategories = new DocumentManager.Metadata[categoriesArray.length];

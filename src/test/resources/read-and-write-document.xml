@@ -8,11 +8,11 @@
 
   <basic:config name="config" configId="configId">
     <basic:connection
-      host="localhost"
-      port="8022"
-      username="mule2-test-user"
-      password="password"
-      authenticationType="DIGEST"/>
+        host="localhost"
+        port="8022"
+        username="mule2-test-user"
+        password="password"
+        authenticationType="DIGEST"/>
   </basic:config>
 
   <flow name="read-and-write-document">
@@ -21,7 +21,8 @@
       <basic:script><![CDATA[#[vars.DELETE_QUERY]]]></basic:script>
     </basic:eval-javascript>
     <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
-    <basic:write-document config-ref="config" uriPrefix='#["/test" ++ attributes.uri]' generateUUID="False" permissions="rest-reader,read,rest-reader,update"/>
+    <basic:write-document config-ref="config" uriPrefix='#["/test" ++ attributes.uri]' generateUUID="False"
+                          permissions="rest-reader,read,rest-reader,update"/>
     <basic:read-document config-ref="config" uri="/test/metadataSamples/json/hello.json"/>
   </flow>
 

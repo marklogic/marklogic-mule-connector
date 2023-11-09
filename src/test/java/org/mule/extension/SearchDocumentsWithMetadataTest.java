@@ -20,7 +20,7 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
             DocumentAttributes documentAttributes = documentData.getAttributes();
             MetadataVerifier.assertMetadata(documentAttributes, null)
                 .includesCollections("test-data", "batch-input")
-                .permissions(2, "rest-reader","read","admin","update")
+                .permissions(2, "rest-reader", "read", "admin", "update")
                 .quality(42)
                 .properties(2, "uriProperty", documentAttributes.getUri(), "widgets", "2")
                 .verify();
@@ -34,7 +34,7 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
             DocumentAttributes documentAttributes = documentData.getAttributes();
             MetadataVerifier.assertMetadata(documentAttributes, null)
                 .includesCollections("test-data")
-                .includesPermissions("rest-reader","read")
+                .includesPermissions("rest-reader", "read")
                 .verify();
         }
     }
@@ -59,7 +59,7 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
             DocumentAttributes documentAttributes = documentData.getAttributes();
             MetadataVerifier.assertMetadata(documentAttributes, null)
                 .collections(0)
-                .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
+                .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
                 .properties(0)
                 .quality(0)
                 .verify();
@@ -73,7 +73,7 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
             DocumentAttributes documentAttributes = documentData.getAttributes();
             MetadataVerifier.assertMetadata(documentAttributes, null)
                 .collections(0)
-                .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
+                .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
                 .properties(1, "priority", "2")
                 .quality(0)
                 .verify();

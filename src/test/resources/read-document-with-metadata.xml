@@ -7,17 +7,18 @@
 
   <basic:config name="config" configId="configId">
     <basic:connection
-      host="localhost"
-      port="8022"
-      username="mule2-test-user"
-      password="password"
-      authenticationType="DIGEST"/>
+        host="localhost"
+        port="8022"
+        username="mule2-test-user"
+        password="password"
+        authenticationType="DIGEST"/>
   </basic:config>
 
 
   <!-- JSON documents -->
   <flow name="read-json-document-with-metadata-permissions-collections">
-    <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json" categories="permissions,collections"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"
+                         categories="permissions,collections"/>
   </flow>
 
   <flow name="read-json-document-with-metadata-collections">
@@ -39,7 +40,8 @@
 
   <!-- XML documents -->
   <flow name="read-xml-document-with-metadata-permissions-collections">
-    <basic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml" categories="permissions,collections"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml"
+                         categories="permissions,collections"/>
   </flow>
 
   <flow name="read-xml-document-with-metadata-collections">
