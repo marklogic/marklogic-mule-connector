@@ -3,13 +3,13 @@ Not able to run the flows in here in JUnit yet as Mule's test runner doesn't rec
 You can copy/paste this into Anypoint for quick manual testing of the flows.
 -->
 <mule
-  xmlns="http://www.mulesoft.org/schema/mule/core"
-  xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
-  xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
-  xmlns:http="http://www.mulesoft.org/schema/mule/http"
-  xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+    xmlns="http://www.mulesoft.org/schema/mule/core"
+    xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+    xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
+    xmlns:http="http://www.mulesoft.org/schema/mule/http"
+    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
   http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
   http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd
   http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
@@ -22,11 +22,11 @@ You can copy/paste this into Anypoint for quick manual testing of the flows.
 
   <basic:config name="config" configId="MarkLogicConfig">
     <basic:connection
-      host="localhost"
-      port="8022"
-      username="mule2-test-user"
-      password="password"
-      authenticationType="DIGEST"/>
+        host="localhost"
+        port="8022"
+        username="mule2-test-user"
+        password="password"
+        authenticationType="DIGEST"/>
   </basic:config>
 
   <!--

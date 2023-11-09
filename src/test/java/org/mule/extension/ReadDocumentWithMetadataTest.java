@@ -2,7 +2,8 @@ package org.mule.extension;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
 
@@ -24,7 +25,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         assertEquals(JSON_HELLO_WORLD, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), JSON_URI)
             .collections(2, "test-data", "json-data")
-            .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
+            .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(0)
             .properties(0)
             .verify();
@@ -48,7 +49,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         assertEquals(JSON_HELLO_WORLD, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), JSON_URI)
             .collections(0)
-            .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
+            .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(0)
             .properties(0)
             .verify();
@@ -72,7 +73,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         assertEquals(JSON_HELLO_WORLD, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), JSON_URI)
             .collections(2, "test-data", "json-data")
-            .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
+            .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(17)
             .properties(0)
             .verify();
@@ -86,7 +87,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         assertEquals(XML_CONTENTS, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), XML_URI)
             .collections(2, "test-data", "xml-data")
-            .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
+            .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(0)
             .properties(0)
             .verify();
@@ -110,7 +111,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         assertEquals(XML_CONTENTS, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), XML_URI)
             .collections(0)
-            .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
+            .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(0)
             .properties(0)
             .verify();
@@ -134,7 +135,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         assertEquals(XML_CONTENTS, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), XML_URI)
             .collections(2, "test-data", "xml-data")
-            .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
+            .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(27)
             .properties(0)
             .verify();
@@ -147,7 +148,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         assertEquals(TEXT_HELLO_WORLD, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), TEXT_URI)
             .collections(2, "text-data", "test-data")
-            .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
+            .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(95)
             .properties(1, "priority", "2")
             .verify();
@@ -159,7 +160,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         assertEquals(TEXT_HELLO_WORLD, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), TEXT_URI)
             .collections(2, "text-data", "test-data")
-            .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
+            .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(95)
             .properties(1, "priority", "2")
             .verify();
@@ -184,7 +185,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         assertEquals(TEXT_HELLO_WORLD, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), TEXT_URI)
             .collections(2, "text-data", "test-data")
-            .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
+            .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(95)
             .properties(1, "priority", "2")
             .verify();
@@ -197,7 +198,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         assertTrue(documentData.getContents().contains("PNG"));
         MetadataVerifier.assertMetadata(documentData.getAttributes(), BINARY_URI)
             .collections(2, "test-data", "binary-data")
-            .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
+            .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(0)
             .properties(0)
             .verify();
@@ -209,7 +210,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
         assertTrue(documentData.getContents().contains("PNG"));
         MetadataVerifier.assertMetadata(documentData.getAttributes(), BINARY_URI)
             .collections(2, "test-data", "binary-data")
-            .permissions(3, "rest-reader","read","rest-admin","read","rest-admin","update","rest-extension-user","execute")
+            .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(0)
             .properties(0)
             .verify();

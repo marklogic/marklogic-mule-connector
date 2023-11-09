@@ -82,9 +82,9 @@ public class MetadataVerifier {
         if (expectedPropertyCount != null) {
             assertEquals(((long) expectedPropertyCount), attributes.getProperties().size());
             if (expectedPropertyCount > 0) {
-                for (int i=0; i<expectedProperties.length; i = i + 2) {
+                for (int i = 0; i < expectedProperties.length; i = i + 2) {
                     QName propertyKey = new QName(expectedProperties[i]);
-                    assertEquals(expectedProperties[i+1], attributes.getProperties().get(propertyKey).toString());
+                    assertEquals(expectedProperties[i + 1], attributes.getProperties().get(propertyKey).toString());
                 }
             }
         }
@@ -95,8 +95,8 @@ public class MetadataVerifier {
             assertEquals(((long) expectedPermissionCount), attributes.getPermissions().size());
         }
         if (expectedPermissions != null) {
-            for (int i=0; i<expectedPermissions.length; i = i + 2) {
-                String expectedPermission = expectedPermissions[i+1].toUpperCase();
+            for (int i = 0; i < expectedPermissions.length; i = i + 2) {
+                String expectedPermission = expectedPermissions[i + 1].toUpperCase();
                 boolean wasFound = false;
                 if (attributes.getPermissions().get(expectedPermissions[i]) != null) {
                     Object[] permissions = attributes.getPermissions().get(expectedPermissions[i]).toArray();
