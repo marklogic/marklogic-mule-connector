@@ -64,12 +64,16 @@ public class BasicOperations {
      * @param collections
      */
     public void writeDocument(
-            @Connection DatabaseClient databaseClient, @Content InputStream myContent, @Optional String uri,
+            @Connection DatabaseClient databaseClient, @Content InputStream myContent,
                                @Optional Format format,
                                @Optional @Example("Role,permission")String permissions,
                                @Optional(defaultValue = "0") int quality,
-                               @Optional @Example("Comma separated collection strings") String collections) {
-        new WriteOperations().writeDocuments(databaseClient,myContent,uri,format, permissions, quality, collections);
+                               @Optional @Example("Comma separated collection strings") String collections,
+                                @Optional @Example("/test/") String uriPrefix,
+                                @Optional @Example(".json") String uriSuffix,
+                                @Optional(defaultValue = "True") boolean generateUUID) {
+        new WriteOperations().writeDocuments(databaseClient,myContent,format, permissions, quality, collections,
+            uriPrefix, uriSuffix, generateUUID);
     }
 
     /**

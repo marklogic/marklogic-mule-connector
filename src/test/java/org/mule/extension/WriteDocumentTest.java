@@ -141,4 +141,43 @@ public class WriteDocumentTest extends AbstractFlowTester {
                 .verify();
         }
     }
+
+    @Test
+    public void writeDocumentWithPrefixWithoutUuid(){
+        DocumentData documentData = runFlowGetDocumentData("writeDocumentWithPrefixWithoutUuid");
+        assertEquals(TEXT_HELLO_WORLD, documentData.getContents());
+        assertTrue(documentData.isText());
+        MetadataVerifier.assertMetadata(documentData.getAttributes(), "writeDocumentWithPrefixWithoutUuid")
+            .collections(1, "writeDocumentWithPrefixWithoutUuid")
+            .includesPermissions("rest-reader","read","rest-reader","update")
+            .quality(10)
+            .verify();
+    }
+
+    @Test
+    public void writeDocumentWithPrefixAndSuffix(){
+        DocumentData documentData = runFlowGetDocumentData("writeDocumentWithPrefixAndSuffix");
+        assertEquals(JSON_HELLO_WORLD, documentData.getContents());
+        assertTrue(documentData.isJSON());
+        MetadataVerifier.assertMetadata(documentData.getAttributes(), "writeDocumentWithPrefixAndSuffix.json")
+            .collections(1, "writeDocumentWithPrefixAndSuffix")
+            .includesPermissions("rest-reader","read","rest-reader","update")
+            .quality(11)
+            .verify();
+    }
+
+    @Test
+    public void writeDocumentWithUuid(){
+
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("writeDocumentWithUuid");
+        for (DocumentData documentData : documentDataList) {
+            assertTrue(documentData.isJSON());
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
+                .includesCollections("writeDocumentWithUuid")
+                .includesPermissions("rest-reader","read","rest-reader","update")
+                .quality(12)
+                .verify();
+        }
+    }
 }

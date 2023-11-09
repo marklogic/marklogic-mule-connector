@@ -16,28 +16,32 @@
   <flow name="writeTextDocumentWithAllMetadata">
     <basic:delete-collection config-ref="config" collection="writeTextDocumentWithAllMetadata"/>
     <basic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
-    <basic:write-document config-ref="config" uri="/writeTextDocumentWithAllMetadata/hello.txt" format="UNKNOWN" permissions="rest-reader,read,rest-reader,update" quality="1" collections="writeTextDocumentWithAllMetadata"/>
+    <basic:write-document config-ref="config" uriPrefix="/writeTextDocumentWithAllMetadata/hello" uriSuffix=".txt" format="UNKNOWN" generateUUID="False"
+                          permissions="rest-reader,read,rest-reader,update" quality="1" collections="writeTextDocumentWithAllMetadata"/>
     <basic:read-document config-ref="config" uri="/writeTextDocumentWithAllMetadata/hello.txt" categories="all"/>
   </flow>
 
   <flow name="writeJsonDocumentWithAllMetadata">
     <basic:delete-collection config-ref="config" collection="writeJsonDocumentWithAllMetadata"/>
     <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
-    <basic:write-document config-ref="config" uri="/writeJsonDocumentWithAllMetadata/hello.json" format="JSON" permissions="rest-reader,read,rest-reader,update" quality="2" collections="writeJsonDocumentWithAllMetadata"/>
+    <basic:write-document config-ref="config" uriPrefix="/writeJsonDocumentWithAllMetadata/hello" uriSuffix=".json" format="JSON" generateUUID="False"
+                          permissions="rest-reader,read,rest-reader,update" quality="2" collections="writeJsonDocumentWithAllMetadata"/>
     <basic:read-document config-ref="config" uri="/writeJsonDocumentWithAllMetadata/hello.json" categories="all"/>
   </flow>
 
   <flow name="writeXmlDocumentWithAllMetadata">
     <basic:delete-collection config-ref="config" collection="writeXmlDocumentWithAllMetadata"/>
     <basic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml"/>
-    <basic:write-document config-ref="config" uri="/writeXmlDocumentWithAllMetadata/hello.xml" format="XML" permissions="rest-reader,read,rest-reader,update" quality="3" collections="writeXmlDocumentWithAllMetadata"/>
+    <basic:write-document config-ref="config" uriPrefix="/writeXmlDocumentWithAllMetadata/hello" uriSuffix=".xml" format="XML" generateUUID="False"
+                          permissions="rest-reader,read,rest-reader,update" quality="3" collections="writeXmlDocumentWithAllMetadata"/>
     <basic:read-document config-ref="config" uri="/writeXmlDocumentWithAllMetadata/hello.xml" categories="all"/>
   </flow>
 
   <flow name="writeBinaryDocumentWithAllMetadata">
     <basic:delete-collection config-ref="config" collection="writeBinaryDocumentWithAllMetadata"/>
     <basic:read-document config-ref="config" uri="/metadataSamples/binary/logo.png"/>
-    <basic:write-document config-ref="config" uri="/writeBinaryDocumentWithAllMetadata/logo.png" format="BINARY" permissions="rest-reader,read,rest-reader,update" quality="4" collections="writeBinaryDocumentWithAllMetadata"/>
+    <basic:write-document config-ref="config" uriPrefix="/writeBinaryDocumentWithAllMetadata/logo" uriSuffix=".png" format="BINARY" generateUUID="False"
+                          permissions="rest-reader,read,rest-reader,update" quality="4" collections="writeBinaryDocumentWithAllMetadata"/>
     <basic:read-document config-ref="config" uri="/writeBinaryDocumentWithAllMetadata/logo.png" categories="all"/>
   </flow>
 
@@ -74,5 +78,29 @@
     <basic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml"/>
     <basic:write-document config-ref="config" format="BINARY" permissions="rest-reader,read,rest-reader,update" quality="9" collections="writeDocumentWithoutUriWithBinaryFormat"/>
     <basic:search-documents config-ref="config" collection="writeDocumentWithoutUriWithBinaryFormat" categories="all"/>
+  </flow>
+
+  <flow name="writeDocumentWithPrefixWithoutUuid">
+    <basic:delete-collection config-ref="config" collection="writeDocumentWithPrefixWithoutUuid"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
+    <basic:write-document config-ref="config" uriPrefix="writeDocumentWithPrefixWithoutUuid" format="TEXT" generateUUID="False"
+                          permissions="rest-reader,read,rest-reader,update" quality="10" collections="writeDocumentWithPrefixWithoutUuid"/>
+    <basic:read-document config-ref="config" uri="writeDocumentWithPrefixWithoutUuid" categories="all"/>
+  </flow>
+
+  <flow name="writeDocumentWithPrefixAndSuffix">
+    <basic:delete-collection config-ref="config" collection="writeDocumentWithPrefixAndSuffix"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
+    <basic:write-document config-ref="config" uriPrefix="writeDocumentWithPrefixAndSuffix" uriSuffix=".json" format="JSON" generateUUID="False"
+                          permissions="rest-reader,read,rest-reader,update" quality="11" collections="writeDocumentWithPrefixAndSuffix"/>
+    <basic:read-document config-ref="config" uri="writeDocumentWithPrefixAndSuffix.json" categories="all"/>
+  </flow>
+
+  <flow name="writeDocumentWithUuid">
+    <basic:delete-collection config-ref="config" collection="writeDocumentWithUuid"/>
+    <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
+    <basic:write-document config-ref="config" format="JSON"
+                          permissions="rest-reader,read,rest-reader,update" quality="12" collections="writeDocumentWithUuid"/>
+    <basic:search-documents config-ref="config" collection="writeDocumentWithUuid" categories="all"/>
   </flow>
 </mule>
