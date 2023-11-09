@@ -1,7 +1,6 @@
-package org.mule.extension;
+package com.marklogic.mule.extension;
 
 
-import com.marklogic.mule.extension.DocumentAttributes;
 import org.junit.Test;
 
 import java.util.List;

@@ -15,18 +15,21 @@
  */
 package com.marklogic.mule.extension;
 
-import org.mule.runtime.extension.api.annotation.Configurations;
-import org.mule.runtime.extension.api.annotation.Extension;
-import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
-
+import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 /**
- * This is the main class of an extension, is the entry point from which configurations, connection providers, operations
- * and sources are going to be declared.
+ * This class represents an extension configuration, values set in this class are commonly used across multiple
+ * operations since they represent something core from the extension.
  */
-@Xml(prefix = "basic")
-@Extension(name = "Basic")
-@Configurations(BasicConfiguration.class)
-public class BasicExtension {
+@org.mule.runtime.extension.api.annotation.Operations(Operations.class)
+@ConnectionProviders(ConnectionProvider.class)
+public class Configuration {
 
+    @Parameter
+    private String configId;
+
+    public String getConfigId() {
+        return configId;
+    }
 }

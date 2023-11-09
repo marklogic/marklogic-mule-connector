@@ -1,52 +1,52 @@
 <mule xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
+      xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-        http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd
+        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
         http://www.mulesoft.org/schema/mule/batch https://www.mulesoft.org/schema/mule/ee/batch/3.9/mule-batch.xsd">
 
-  <basic:config name="config" configId="configId">
-    <basic:connection
+  <marklogic:config name="config" configId="configId">
+    <marklogic:connection
         host="localhost"
         port="8022"
         username="mule2-test-user"
         password="password"
         authenticationType="DIGEST"/>
-  </basic:config>
+  </marklogic:config>
 
   <flow name="search-documents-no-query">
-    <basic:search-documents config-ref="config" queryType="SerializedCtsQuery"/>
+    <marklogic:search-documents config-ref="config" queryType="SerializedCtsQuery"/>
   </flow>
 
   <flow name="search-documents-xml-serializedCtsQuery">
-    <basic:search-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
+    <marklogic:search-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
                             queryFormat="XML">
-      <basic:query>
-        <![CDATA[<cts:word-query xmlns:cts="http://marklogic.com/cts"><cts:text xml:lang="en">world</cts:text></cts:word-query>]]></basic:query>
-    </basic:search-documents>
+      <marklogic:query>
+        <![CDATA[<cts:word-query xmlns:cts="http://marklogic.com/cts"><cts:text xml:lang="en">world</cts:text></cts:word-query>]]></marklogic:query>
+    </marklogic:search-documents>
   </flow>
 
   <flow name="search-documents-json-serializedCtsQuery">
-    <basic:search-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
+    <marklogic:search-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
                             queryFormat="JSON">
-      <basic:query>
-        <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "world" ] } }] } }]]></basic:query>
-    </basic:search-documents>
+      <marklogic:query>
+        <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "world" ] } }] } }]]></marklogic:query>
+    </marklogic:search-documents>
   </flow>
 
   <flow name="search-documents-serializedCtsQuery-badXml">
-    <basic:search-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
+    <marklogic:search-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
                             queryFormat="XML">
-      <basic:query><![CDATA[<cts:word-query xmlns:cts="http://marklogic.com/cts"><cts:text]]></basic:query>
-    </basic:search-documents>
+      <marklogic:query><![CDATA[<cts:word-query xmlns:cts="http://marklogic.com/cts"><cts:text]]></marklogic:query>
+    </marklogic:search-documents>
   </flow>
 
   <flow name="search-documents-serializedCtsQuery-noMatches">
-    <basic:search-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
+    <marklogic:search-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
                             queryFormat="JSON">
-      <basic:query>
-        <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "antidisestablishmentarianism" ] } }] } }]]></basic:query>
-    </basic:search-documents>
+      <marklogic:query>
+        <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "antidisestablishmentarianism" ] } }] } }]]></marklogic:query>
+    </marklogic:search-documents>
   </flow>
 
 </mule>

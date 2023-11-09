@@ -1,33 +1,33 @@
 <mule xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
+      xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-        http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd
+        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
         http://www.mulesoft.org/schema/mule/batch https://www.mulesoft.org/schema/mule/ee/batch/3.9/mule-batch.xsd">
 
-  <basic:config name="config" configId="configId">
-    <basic:connection
+  <marklogic:config name="config" configId="configId">
+    <marklogic:connection
         host="localhost"
         port="8022"
         username="mule2-test-user"
         password="password"
         authenticationType="DIGEST"/>
-  </basic:config>
+  </marklogic:config>
 
   <flow name="search-documents-no-query">
-    <basic:search-documents config-ref="config">
-    </basic:search-documents>
+    <marklogic:search-documents config-ref="config">
+    </marklogic:search-documents>
   </flow>
 
   <flow name="search-documents-no-query-with-collection">
-    <basic:search-documents config-ref="config" collection="batch-input">
-    </basic:search-documents>
+    <marklogic:search-documents config-ref="config" collection="batch-input">
+    </marklogic:search-documents>
   </flow>
 
   <flow name="search-documents-query-with-no-matches">
-    <basic:search-documents config-ref="config">
-      <basic:query><![CDATA[antidisestablishmentarianism]]></basic:query>
-    </basic:search-documents>
+    <marklogic:search-documents config-ref="config">
+      <marklogic:query><![CDATA[antidisestablishmentarianism]]></marklogic:query>
+    </marklogic:search-documents>
   </flow>
 
 </mule>

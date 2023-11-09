@@ -1,29 +1,29 @@
 <mule xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
+      xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
       xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-        http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd
+        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
         http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
 
-  <basic:config name="config" configId="configId">
-    <basic:connection
+  <marklogic:config name="config" configId="configId">
+    <marklogic:connection
         host="localhost"
         port="8022"
         username="mule2-test-user"
         password="password"
         authenticationType="DIGEST"/>
-  </basic:config>
+  </marklogic:config>
 
   <flow name="read-and-write-document">
 
-    <basic:eval-javascript config-ref="config">
-      <basic:script><![CDATA[#[vars.DELETE_QUERY]]]></basic:script>
-    </basic:eval-javascript>
-    <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
-    <basic:write-document config-ref="config" uriPrefix='#["/test" ++ attributes.uri]' generateUUID="False"
+    <marklogic:eval-javascript config-ref="config">
+      <marklogic:script><![CDATA[#[vars.DELETE_QUERY]]]></marklogic:script>
+    </marklogic:eval-javascript>
+    <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
+    <marklogic:write-document config-ref="config" uriPrefix='#["/test" ++ attributes.uri]' generateUUID="False"
                           permissions="rest-reader,read,rest-reader,update"/>
-    <basic:read-document config-ref="config" uri="/test/metadataSamples/json/hello.json"/>
+    <marklogic:read-document config-ref="config" uri="/test/metadataSamples/json/hello.json"/>
   </flow>
 
 </mule>

@@ -1,52 +1,52 @@
 <mule xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
+      xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-        http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd
+        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
         http://www.mulesoft.org/schema/mule/batch https://www.mulesoft.org/schema/mule/ee/batch/3.9/mule-batch.xsd">
 
-  <basic:config name="config" configId="configId">
-    <basic:connection
+  <marklogic:config name="config" configId="configId">
+    <marklogic:connection
         host="localhost"
         port="8022"
         username="mule2-test-user"
         password="password"
         authenticationType="DIGEST"/>
-  </basic:config>
+  </marklogic:config>
 
   <flow name="search-documents-no-query">
-    <basic:search-documents config-ref="config" queryType="StructuredQuery"/>
+    <marklogic:search-documents config-ref="config" queryType="StructuredQuery"/>
   </flow>
 
   <flow name="search-documents-xml-structuredQuery">
-    <basic:search-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
+    <marklogic:search-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
                             queryFormat="XML">
-      <basic:query>
-        <![CDATA[<query xmlns='http://marklogic.com/appservices/search'><term-query><text>world</text></term-query></query>]]></basic:query>
-    </basic:search-documents>
+      <marklogic:query>
+        <![CDATA[<query xmlns='http://marklogic.com/appservices/search'><term-query><text>world</text></term-query></query>]]></marklogic:query>
+    </marklogic:search-documents>
   </flow>
 
   <flow name="search-documents-json-structuredQuery">
-    <basic:search-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
+    <marklogic:search-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
                             queryFormat="JSON">
-      <basic:query>
-        <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "world" ] } }] } }]]></basic:query>
-    </basic:search-documents>
+      <marklogic:query>
+        <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "world" ] } }] } }]]></marklogic:query>
+    </marklogic:search-documents>
   </flow>
 
   <flow name="search-documents-structuredQuery-badXml">
-    <basic:search-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
+    <marklogic:search-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
                             queryFormat="XML">
-      <basic:query><![CDATA[<query xmlns='http://marklogic.com/appservices/search]]></basic:query>
-    </basic:search-documents>
+      <marklogic:query><![CDATA[<query xmlns='http://marklogic.com/appservices/search]]></marklogic:query>
+    </marklogic:search-documents>
   </flow>
 
   <flow name="search-documents-structuredQuery-noMatches">
-    <basic:search-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
+    <marklogic:search-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
                             queryFormat="JSON">
-      <basic:query>
-        <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "antidisestablishmentarianism" ] } }] } }]]></basic:query>
-    </basic:search-documents>
+      <marklogic:query>
+        <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "antidisestablishmentarianism" ] } }] } }]]></marklogic:query>
+    </marklogic:search-documents>
   </flow>
 
 </mule>

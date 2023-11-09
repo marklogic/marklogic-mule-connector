@@ -1,4 +1,4 @@
-package org.mule.extension;
+package com.marklogic.mule.extension;
 
 import com.marklogic.mule.extension.DocumentAttributes;
 

@@ -1,43 +1,43 @@
 <mule xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns:basic="http://www.mulesoft.org/schema/mule/basic"
+      xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-        http://www.mulesoft.org/schema/mule/basic http://www.mulesoft.org/schema/mule/basic/current/mule-basic.xsd">
+        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
 
-  <basic:config name="config" configId="configId">
-    <basic:connection
+  <marklogic:config name="config" configId="configId">
+    <marklogic:connection
         host="localhost"
         port="8022"
         username="mule2-test-user"
         password="password"
         authenticationType="DIGEST"/>
-  </basic:config>
+  </marklogic:config>
 
 
   <flow name="simple-math">
-    <basic:eval-javascript config-ref="config">
-      <basic:script><![CDATA[1 + 2;]]></basic:script>
-    </basic:eval-javascript>
+    <marklogic:eval-javascript config-ref="config">
+      <marklogic:script><![CDATA[1 + 2;]]></marklogic:script>
+    </marklogic:eval-javascript>
   </flow>
 
   <flow name="writeAndDeleteDocument">
-    <basic:eval-javascript config-ref="config">
-      <basic:script><![CDATA[#[vars.DELETE_QUERY]]]></basic:script>
-    </basic:eval-javascript>
-    <basic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
-    <basic:write-document config-ref="config" uriPrefix='/toBeDeleted' uriSuffix=".json" generateUUID="False"
+    <marklogic:eval-javascript config-ref="config">
+      <marklogic:script><![CDATA[#[vars.DELETE_QUERY]]]></marklogic:script>
+    </marklogic:eval-javascript>
+    <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
+    <marklogic:write-document config-ref="config" uriPrefix='/toBeDeleted' uriSuffix=".json" generateUUID="False"
                           permissions="rest-reader,read,rest-reader,update"/>
-    <basic:read-document config-ref="config" uri="/toBeDeleted.json"/>
+    <marklogic:read-document config-ref="config" uri="/toBeDeleted.json"/>
   </flow>
 
   <flow name="deleteDocument">
-    <basic:eval-javascript config-ref="config">
-      <basic:script><![CDATA[declareUpdate(); xdmp.documentDelete("/toBeDeleted.json")]]></basic:script>
-    </basic:eval-javascript>
+    <marklogic:eval-javascript config-ref="config">
+      <marklogic:script><![CDATA[declareUpdate(); xdmp.documentDelete("/toBeDeleted.json")]]></marklogic:script>
+    </marklogic:eval-javascript>
   </flow>
 
   <flow name="readDocumentThatShouldHaveBeenDeleted">
-    <basic:read-document config-ref="config" uri="/toBeDeleted.json"/>
+    <marklogic:read-document config-ref="config" uri="/toBeDeleted.json"/>
   </flow>
 
 </mule>
