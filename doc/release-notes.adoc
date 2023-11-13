@@ -1,10 +1,45 @@
 = MarkLogic Connector Release Notes 
 
-April 2023
+October 2023
 
 _MuleSoft Certified_
 
 The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users (via the MuleSoft Anypoint Exchange) with easy integration to MarkLogic, delivering data movement and transformation pipelines via MuleSoft AnypointStudio and Design Center flows. The MuleSoft Connector is built atop MarkLogic’s https://developer.marklogic.com/learn/data-movement-sdk/[Data Movement SDK] (DMSDK), which is a Java API library for applications that need to move data into, out of, or within a MarkLogic cluster.  For those familiar with the existing MarkLogic ecosystem, it provides the core capabilities of MarkLogic Content Pump in the vernacular of the MarkLogic Java Client API.
+
+== Version 1.2.1 - 2023-10-23
+
+=== Version 1.2.1 - Compatibility
+[%header%autowidth.spread]
+|===
+|Software |Version
+|Anypoint Studio |7.8.0 and later
+|Mule SDK|4.1.1 and later
+|JDK |1.8.x or Java 11 and later
+|MarkLogic|9.0-6.2 and later
+|===
+
+=== Version 1.2.1 - Fixed in this Release
+This release of the Connector includes the following hotfixes:
+
+* Upgraded MarkLogic Java Client API to 6.2.2 to fix a bug that impacted 2-way certificate authentication.
+
+=== Version 1.2.1 - Required Libraries
+
+* MarkLogic Java Client API v.6.2.2
+* MarkLogic Java Client Utilities v.4.4.0
+* MarkLogic Data Movement Components v2.5.0
+
+=== Version 1.2.1 - Improvements
+
+* Upgraded MarkLogic Java Client API to 6.2.2.
+
+=== Version 1.2.1 - Bugs Fixed
+
+* Upgraded MarkLogic Java Client API to 6.2.2 to fix a bug that impacted 2-way certificate authentication. 
+
+=== Version 1.2.1 - Operations
+
+* No operations were modified.
 
 == Version 1.2.0 - 2023-04-25
 
@@ -13,7 +48,7 @@ The MarkLogic MuleSoft Connector aims to provide the MuleSoft community of users
 |===
 |Software |Version
 |Anypoint Studio |7.8.0 and later
-|Mule SDK|4.3.0 and later
+|Mule SDK|4.1.1 and later
 |JDK |1.8.x or Java 11 and later
 |MarkLogic|9.0-6.2 and later
 |===
@@ -47,7 +82,6 @@ This release of the Connector includes the following hotfixes:
 
 * No operations were modified.
 
-
 == Version 1.1.1 - 2020-04-30
 
 === Version 1.1.1 - Compatibility
@@ -55,7 +89,7 @@ This release of the Connector includes the following hotfixes:
 |===
 |Software |Version
 |Anypoint Studio |7.4.1 and later
-|Mule SDK|4.2.2 and later
+|Mule SDK|4.1.1 and later
 |JDK |1.8.x
 |MarkLogic Java Client API |4.2.0 and later
 |MarkLogic|9.0-6.2 and later
@@ -112,7 +146,7 @@ This release of the Connector includes the following:
 |===
 |Software |Version
 |Anypoint Studio |7.1.4 and later
-|Mule SDK |4.2.0 and later
+|Mule SDK |4.1.1 and later
 |JDK |1.8.x
 |MarkLogic Java Client API |4.2.0 and later
 |MarkLogic|9.0-6.2 and later
