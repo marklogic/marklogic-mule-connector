@@ -20,6 +20,8 @@ import com.marklogic.client.io.Format;
 import com.marklogic.client.io.StringHandle;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
+import com.marklogic.mule.extension.api.QueryFormat;
+import com.marklogic.mule.extension.api.QueryType;
 
 public abstract class ReadUtil {
 
