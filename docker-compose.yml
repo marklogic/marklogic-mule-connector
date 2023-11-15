@@ -6,7 +6,6 @@ services:
   marklogic:
     image: "marklogicdb/marklogic-db:11.1.0-centos-1.1.0"
     platform: linux/amd64
-    restart: always
     environment:
       - MARKLOGIC_INIT=true
       - MARKLOGIC_ADMIN_USERNAME=admin
@@ -16,6 +15,7 @@ services:
     ports:
       - "8000-8002:8000-8002"
       - "8022:8022"
+      - "8023:8023"
 
   # Copied from https://docs.sonarsource.com/sonarqube/latest/setup-and-upgrade/install-the-server/#example-docker-compose-configuration .
   sonarqube:
