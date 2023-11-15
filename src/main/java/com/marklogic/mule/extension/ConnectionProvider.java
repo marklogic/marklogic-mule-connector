@@ -19,6 +19,8 @@ import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientBuilder;
 import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.impl.SSLUtil;
+import com.marklogic.mule.extension.api.AuthenticationType;
+import com.marklogic.mule.extension.api.ConnectionType;
 import org.mule.runtime.api.connection.CachedConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;

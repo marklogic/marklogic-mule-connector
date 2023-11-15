@@ -1,6 +1,6 @@
 package com.marklogic.mule.extension;
 
-import com.marklogic.mule.extension.DocumentAttributes;
+import com.marklogic.mule.extension.api.DocumentAttributes;
 
 public class DocumentData {
 

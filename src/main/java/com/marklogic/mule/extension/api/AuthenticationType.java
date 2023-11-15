@@ -13,23 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.extension;
+package com.marklogic.mule.extension.api;
 
-import com.marklogic.client.DatabaseClient;
+public enum AuthenticationType {
+    DIGEST,
+    CERTIFICATE,
+    BASIC,
 
-public enum ConnectionType {
-    DIRECT {
-        @Override
-        public DatabaseClient.ConnectionType getMarkLogicConnectionType() {
-            return DatabaseClient.ConnectionType.DIRECT;
-        }
-    },
-    GATEWAY {
-        @Override
-        public DatabaseClient.ConnectionType getMarkLogicConnectionType() {
-            return DatabaseClient.ConnectionType.GATEWAY;
-        }
-    };
+    CLOUD;
 
-    public abstract DatabaseClient.ConnectionType getMarkLogicConnectionType();
 }

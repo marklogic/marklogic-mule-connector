@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.extension;
+package com.marklogic.mule.extension.api;
 
 import com.marklogic.client.io.DocumentMetadataHandle;
 
