@@ -13,10 +13,6 @@
         authenticationType="DIGEST"/>
   </marklogic:config>
 
-  <flow name="prepare-database">
-    <marklogic:search-documents config-ref="config" collection="dummy" restTransform="prepare-database"/>
-  </flow>
-
   <flow name="simple-math">
     <marklogic:eval-javascript config-ref="config">
       <marklogic:script><![CDATA[1 + 2;]]></marklogic:script>
@@ -24,7 +20,6 @@
   </flow>
 
   <flow name="writeAndDeleteDocument">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
     <marklogic:write-document config-ref="config" uriPrefix='/toBeDeleted' uriSuffix=".json" generateUUID="False"
                           permissions="rest-reader,read,rest-reader,update"/>

@@ -13,12 +13,7 @@
         authenticationType="DIGEST"/>
   </marklogic:config>
 
-  <flow name="prepare-database">
-    <marklogic:search-documents config-ref="config" collection="dummy" restTransform="prepare-database"/>
-  </flow>
-
   <flow name="writeTextDocumentWithAllMetadata">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
     <marklogic:write-document config-ref="config" uriPrefix="/writeTextDocumentWithAllMetadata/hello" uriSuffix=".txt"
                           format="UNKNOWN" generateUUID="False"
@@ -28,7 +23,6 @@
   </flow>
 
   <flow name="writeJsonDocumentWithAllMetadata">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
     <marklogic:write-document config-ref="config" uriPrefix="/writeJsonDocumentWithAllMetadata/hello" uriSuffix=".json"
                           format="JSON" generateUUID="False"
@@ -38,7 +32,6 @@
   </flow>
 
   <flow name="writeXmlDocumentWithAllMetadata">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml"/>
     <marklogic:write-document config-ref="config" uriPrefix="/writeXmlDocumentWithAllMetadata/hello" uriSuffix=".xml"
                           format="XML" generateUUID="False"
@@ -48,7 +41,6 @@
   </flow>
 
   <flow name="writeBinaryDocumentWithAllMetadata">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/binary/logo.png"/>
     <marklogic:write-document config-ref="config" uriPrefix="/writeBinaryDocumentWithAllMetadata/logo" uriSuffix=".png"
                           format="BINARY" generateUUID="False"
@@ -58,7 +50,6 @@
   </flow>
 
   <flow name="writeDocumentWithoutUriWithTextFormat">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
     <marklogic:write-document config-ref="config" format="TEXT" permissions="rest-reader,read,rest-reader,update"
                           quality="5" collections="writeDocumentWithoutUriWithTextFormat"/>
@@ -67,7 +58,6 @@
   </flow>
 
   <flow name="writeDocumentWithoutUriWithoutFormat">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
     <marklogic:write-document config-ref="config" permissions="rest-reader,read,rest-reader,update" quality="6"
                           collections="writeDocumentWithoutUriWithoutFormat"/>
@@ -75,7 +65,6 @@
   </flow>
 
   <flow name="writeDocumentWithoutUriWithJsonFormat">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
     <marklogic:write-document config-ref="config" format="JSON" permissions="rest-reader,read,rest-reader,update"
                           quality="7" collections="writeDocumentWithoutUriWithJsonFormat"/>
@@ -84,7 +73,6 @@
   </flow>
 
   <flow name="writeDocumentWithoutUriWithXmlFormat">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml"/>
     <marklogic:write-document config-ref="config" format="XML" permissions="rest-reader,read,rest-reader,update"
                           quality="8" collections="writeDocumentWithoutUriWithXmlFormat"/>
@@ -92,7 +80,6 @@
   </flow>
 
   <flow name="writeDocumentWithoutUriWithBinaryFormat">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml"/>
     <marklogic:write-document config-ref="config" format="BINARY" permissions="rest-reader,read,rest-reader,update"
                           quality="9" collections="writeDocumentWithoutUriWithBinaryFormat"/>
@@ -101,7 +88,6 @@
   </flow>
 
   <flow name="writeDocumentWithPrefixWithoutUuid">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
     <marklogic:write-document config-ref="config" uriPrefix="writeDocumentWithPrefixWithoutUuid" format="TEXT"
                           generateUUID="False"
@@ -111,7 +97,6 @@
   </flow>
 
   <flow name="writeDocumentWithPrefixAndSuffix">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
     <marklogic:write-document config-ref="config" uriPrefix="writeDocumentWithPrefixAndSuffix" uriSuffix=".json"
                           format="JSON" generateUUID="False"
@@ -121,7 +106,6 @@
   </flow>
 
   <flow name="writeDocumentWithUuid">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
     <marklogic:write-document config-ref="config" format="JSON"
                           permissions="rest-reader,read,rest-reader,update" quality="12"

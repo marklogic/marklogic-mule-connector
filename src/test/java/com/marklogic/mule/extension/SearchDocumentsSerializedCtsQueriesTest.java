@@ -10,7 +10,7 @@ import static org.junit.Assert.assertTrue;
 public class SearchDocumentsSerializedCtsQueriesTest extends AbstractFlowTester {
 
     @Override
-    protected String getConfigFile() {
+    protected String getFlowTestFile() {
         return "search-documents-serialized-cts-queries.xml";
     }
 

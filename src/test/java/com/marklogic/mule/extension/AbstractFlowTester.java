@@ -1,6 +1,7 @@
 package com.marklogic.mule.extension;
 
 import com.marklogic.mule.extension.api.DocumentAttributes;
+import org.junit.Before;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.runtime.api.message.Message;
 
@@ -15,6 +16,18 @@ public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase 
     protected final static String JSON_HELLO_WORLD = "{\"hello\":\"world\"}";
     protected final static String TEXT_HELLO_WORLD = "Hello, World!\n";
     protected final static String XML_HELLO_WORLD = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Hello>World</Hello>";
+
+    protected abstract String getFlowTestFile();
+
+    @Before
+    public void prepareDatabase() throws Exception {
+        flowRunner("prepare-database").run();
+    }
+
+    @Override
+    final protected String[] getConfigFiles() {
+        return new String[] {"prepare-database-flow.xml", getFlowTestFile()};
+    }
 
     Message runFlowGetMessage(String flowName) {
         try {

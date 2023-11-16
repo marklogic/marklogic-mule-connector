@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 public class SearchDocumentsCombinedQueriesTest extends AbstractFlowTester {
 
     @Override
-    protected String getConfigFile() {
+    protected String getFlowTestFile() {
         return "search-documents-combined-queries.xml";
     }
 

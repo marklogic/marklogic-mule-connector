@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class WriteDocumentTest extends AbstractFlowTester {
     @Override
-    protected String getConfigFile() {
+    protected String getFlowTestFile() {
         return "write-document.xml";
     }
 

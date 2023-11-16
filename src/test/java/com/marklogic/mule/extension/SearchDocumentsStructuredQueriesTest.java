@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 public class SearchDocumentsStructuredQueriesTest extends AbstractFlowTester {
 
     @Override
-    protected String getConfigFile() {
+    protected String getFlowTestFile() {
         return "search-documents-structured-queries.xml";
     }
 
