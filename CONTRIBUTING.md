@@ -26,6 +26,11 @@ If you are able to use Docker, run the following:
 This will create a MarkLogic service along with SonarQube and Postgres service. See the SonarQube section below for 
 information on using SonarQube to generate code quality reports.
 
+## Testing the documentation locally
+
+See the section with the same name in the
+[MarkLogic Koop contributing guide](https://github.com/koopjs/koop-provider-marklogic/blob/master/CONTRIBUTING.md).
+
 ## Connector Testing
 Tests are an important part of the development process for this connector. For automated testing,
 we use Java/JUnit. Instructions for running those tests are just below. However, it is
