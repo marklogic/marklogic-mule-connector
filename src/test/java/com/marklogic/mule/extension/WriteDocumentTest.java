@@ -179,4 +179,27 @@ public class WriteDocumentTest extends AbstractFlowTester {
                 .verify();
         }
     }
+
+    @Test
+    public void writeDocumentWithTemporalCollection() {
+        DocumentData documentData = runFlowGetDocumentData("writeDocumentWithTemporalCollection");
+        MetadataVerifier.assertMetadata(documentData.getAttributes(), "/documentWithTemporalCollection.xml")
+            .includesPermissions("rest-reader", "read", "rest-reader", "update")
+            .collections(3, "mule-temporal-collection","/documentWithTemporalCollection.xml","latest")
+            .verify();
+    }
+
+    @Test
+    public void writeDocumentWithTransform() {
+
+        DocumentData documentData = runFlowGetDocumentData("writeDocumentWithTransform");
+        assertEquals("The contents of the message should match the transformed contents of the test3 document.",
+            "{\"key\":\"value\"}", documentData.getContents());
+        assertTrue(documentData.isJSON());
+        MetadataVerifier.assertMetadata(documentData.getAttributes(), "/writeDocumentWithTransform")
+            .collections(1, "test-data")
+            .includesPermissions("rest-reader", "read", "rest-reader", "update")
+            .quality(14)
+            .verify();
+    }
 }
