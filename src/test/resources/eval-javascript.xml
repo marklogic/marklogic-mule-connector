@@ -21,7 +21,7 @@
 
   <flow name="writeAndDeleteDocument">
     <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
-    <marklogic:write-document config-ref="config" uriPrefix='/toBeDeleted' uriSuffix=".json" generateUUID="False"
+    <marklogic:write-documents config-ref="config" uriPrefix='/toBeDeleted' uriSuffix=".json" generateUUID="False"
                           permissions="rest-reader,read,rest-reader,update"/>
     <marklogic:read-document config-ref="config" uri="/toBeDeleted.json"/>
   </flow>

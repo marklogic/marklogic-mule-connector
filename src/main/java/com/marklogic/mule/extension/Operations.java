@@ -22,9 +22,7 @@ import com.marklogic.client.io.Format;
 import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.client.io.marker.JSONReadHandle;
 import com.marklogic.client.io.marker.JSONWriteHandle;
-import com.marklogic.client.query.DeleteQueryDefinition;
 import com.marklogic.client.query.QueryDefinition;
-import com.marklogic.client.query.QueryManager;
 import com.marklogic.mule.extension.api.DocumentAttributes;
 import com.marklogic.mule.extension.api.QueryFormat;
 import com.marklogic.mule.extension.api.QueryType;
@@ -60,7 +58,7 @@ public class Operations {
         DocumentMetadataHandle metadataHandle = new DocumentMetadataHandle();
         GenericDocumentManager documentManager = databaseClient.newDocumentManager();
 
-        if (hasText(categories)) {
+        if (Utilities.hasText(categories)) {
             documentManager.setMetadataCategories(buildMetadataCategories(categories));
         }
 
@@ -78,13 +76,19 @@ public class Operations {
      *
      * @param databaseClient
      * @param myContent
-     * @param uri
      * @param format
      * @param permissions
      * @param quality
      * @param collections
+     * @param uriPrefix
+     * @param uriSuffix
+     * @param generateUUID
+     * @param temporalCollection
+     * @DisplayName ("REST Transform") @Optional String restTransform,
+     * @DisplayName ("REST Transform Parameters") @Optional String restTransformParameters,
+     * @DisplayName ("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter
      */
-    public void writeDocument(
+    public void writeDocuments(
         @Connection DatabaseClient databaseClient, @Content InputStream myContent,
         @Optional Format format,
         @Optional @Example("Role,permission") String permissions,
@@ -92,9 +96,14 @@ public class Operations {
         @Optional @Example("Comma separated collection strings") String collections,
         @Optional @Example("/test/") String uriPrefix,
         @Optional @Example(".json") String uriSuffix,
-        @Optional(defaultValue = "True") boolean generateUUID) {
+        @Optional(defaultValue = "True") boolean generateUUID,
+        @Optional @Example("temporal-collection string") String temporalCollection,
+        @DisplayName("REST Transform") @Optional String restTransform,
+        @DisplayName("REST Transform Parameters") @Optional String restTransformParameters,
+        @DisplayName("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter) {
+
         new WriteOperations().writeDocuments(databaseClient, myContent, format, permissions, quality, collections,
-            uriPrefix, uriSuffix, generateUUID);
+            uriPrefix, uriSuffix, generateUUID, temporalCollection, restTransform, restTransformParameters, restTransformParametersDelimiter);
     }
 
     /**
@@ -118,7 +127,7 @@ public class Operations {
         @DisplayName("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter
     ) {
         DocumentManager<JSONReadHandle, JSONWriteHandle> documentManager = databaseClient.newJSONDocumentManager();
-        if (hasText(categories)) {
+        if (Utilities.hasText(categories)) {
             documentManager.setMetadataCategories(buildMetadataCategories(categories));
         }
         if (maxResults != null) {
@@ -126,18 +135,18 @@ public class Operations {
         }
 
         QueryDefinition queryDefinition = ReadUtil.buildQueryDefinitionFromParams(databaseClient, query, queryType, queryFormat);
-        if (hasText(collection)) {
+        if (Utilities.hasText(collection)) {
             queryDefinition.setCollections(collection);
         }
-        if (hasText(searchOptions)) {
+        if (Utilities.hasText(searchOptions)) {
             queryDefinition.setOptionsName(searchOptions);
         }
-        if (hasText(directory)) {
+        if (Utilities.hasText(directory)) {
             queryDefinition.setDirectory(directory);
         }
-        if (hasText(restTransform)) {
+        if (Utilities.hasText(restTransform)) {
             ServerTransform serverTransform = new ServerTransform(restTransform);
-            if (hasText(restTransformParameters)) {
+            if (Utilities.hasText(restTransformParameters)) {
                 String[] parametersArray = restTransformParameters.split(restTransformParametersDelimiter);
                 for (int i = 0; i < parametersArray.length; i = i + 2) {
                     serverTransform.addParameter(parametersArray[i], parametersArray[i + 1]);
@@ -200,7 +209,7 @@ public class Operations {
         @Connection DatabaseClient databaseClient,
         @DisplayName("Script") @Text @Example("xdmp.log('Hello, World!');") String script
     ) {
-        if (hasText(script)) {
+        if (Utilities.hasText(script)) {
             return databaseClient.newServerEval().javascript(script).evalAs(String.class);
         } else {
             throw new RuntimeException("A valid script must be provided.");
@@ -218,14 +227,6 @@ public class Operations {
         return org.mule.runtime.api.metadata.MediaType.BINARY;
     }
 
-    @MediaType(value = ANY, strict = false) //This is temporary. Will edit later
-    public void deleteCollection(@Connection DatabaseClient databaseClient, String collection) {
-        QueryManager queryMgr = databaseClient.newQueryManager();
-        DeleteQueryDefinition qdef = queryMgr.newDeleteDefinition();
-        qdef.setCollections(collection);
-        queryMgr.delete(qdef);
-    }
-
     private DocumentManager.Metadata[] buildMetadataCategories(String categories) {
         String[] categoriesArray = categories.split(",");
         DocumentManager.Metadata[] transformedCategories = new DocumentManager.Metadata[categoriesArray.length];
@@ -234,9 +235,5 @@ public class Operations {
             transformedCategories[index++] = DocumentManager.Metadata.valueOf(category.toUpperCase());
         }
         return transformedCategories;
-    }
-
-    boolean hasText(String var) {
-        return ((var != null) && !var.isEmpty());
     }
 }

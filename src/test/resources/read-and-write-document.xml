@@ -17,7 +17,7 @@
 
   <flow name="read-and-write-document">
     <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
-    <marklogic:write-document config-ref="config" uriPrefix='#["/test" ++ attributes.uri]' generateUUID="False"
+    <marklogic:write-documents config-ref="config" uriPrefix='#["/test" ++ attributes.uri]' generateUUID="False"
                           permissions="rest-reader,read,rest-reader,update"/>
     <marklogic:read-document config-ref="config" uri="/test/metadataSamples/json/hello.json"/>
   </flow>

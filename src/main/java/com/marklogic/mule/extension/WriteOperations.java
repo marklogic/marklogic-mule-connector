@@ -16,7 +16,7 @@
 package com.marklogic.mule.extension;
 
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.client.document.GenericDocumentManager;
+import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
 import com.marklogic.client.io.InputStreamHandle;
@@ -24,36 +24,60 @@ import com.marklogic.client.io.InputStreamHandle;
 import java.io.InputStream;
 import java.util.UUID;
 
+import static com.marklogic.client.io.Format.XML;
+
 public class WriteOperations {
     void writeDocuments(DatabaseClient databaseClient, InputStream content,
                         Format format, String permissions, int quality,
-                        String collections, String uriPrefix, String uriSuffix, boolean generateUUID) {
-
-        GenericDocumentManager documentManager = databaseClient.newDocumentManager();
+                        String collections, String uriPrefix, String uriSuffix, boolean generateUUID, String temporalCollection,
+                        String restTransform, String restTransformParameters, String restTransformParametersDelimiter) {
 
         DocumentMetadataHandle documentMetadataHandle = new DocumentMetadataHandle().withQuality(quality);
 
-        if (collections != null && !collections.isEmpty()) {
+        if (Utilities.hasText(collections)) {
             String[] collectionArray = collections.split(",");
             documentMetadataHandle.withCollections(collectionArray);
         }
 
-        if (permissions != null && !permissions.isEmpty()) {
+        if (Utilities.hasText(permissions)) {
             documentMetadataHandle.getPermissions().addFromDelimitedString(permissions);
         }
         StringBuilder uri = new StringBuilder();
-        if (uriPrefix != null && !uriPrefix.isEmpty()) {
+        if (Utilities.hasText(uriPrefix)) {
             uri.append(uriPrefix);
         }
         if (generateUUID) {
             uri.append(UUID.randomUUID());
         }
-        if (uriSuffix != null && !uriSuffix.isEmpty()) {
+        if (Utilities.hasText(uriSuffix)) {
             uri.append(uriSuffix);
         }
-        documentManager
-            .write(uri.toString(),
-                documentMetadataHandle,
-                new InputStreamHandle(content).withFormat(format));
+        InputStreamHandle contentHandle = new InputStreamHandle(content).withFormat(format);
+        ServerTransform serverTransform = Utilities.findServerTransform(restTransform, restTransformParameters,
+            restTransformParametersDelimiter);
+
+        if(Utilities.hasText(temporalCollection)){
+            if(format != null && format.equals(XML)){
+                databaseClient.newXMLDocumentManager()
+                    .write(uri.toString(),
+                        documentMetadataHandle,
+                        contentHandle,
+                        serverTransform,
+                        null, temporalCollection);
+            } else {
+                databaseClient.newJSONDocumentManager()
+                    .write(uri.toString(),
+                        documentMetadataHandle,
+                        contentHandle,
+                        serverTransform,
+                        null, temporalCollection);
+            }
+        } else {
+            databaseClient.newDocumentManager()
+                .write(uri.toString(),
+                    documentMetadataHandle,
+                    contentHandle,
+                    serverTransform);
+        }
     }
 }
