@@ -1,0 +1,18 @@
+title: MarkLogic MuleSoft Connector
+remote_theme: just-the-docs/just-the-docs
+plugins:
+  - jekyll-remote-theme
+
+heading_anchors: true
+
+logo: "/assets/ProgressMarkLogic_PrimaryLogo_Stacked.svg"
+
+# Aux links for the upper right navigation
+aux_links:
+  "marklogic/marklogic-mule-connector":
+    - "https://github.com/marklogic/marklogic-mule-connector"
+
+# Makes Aux links open in a new tab. Default is false
+aux_links_new_tab: false
+
+enable_copy_code_button: true
