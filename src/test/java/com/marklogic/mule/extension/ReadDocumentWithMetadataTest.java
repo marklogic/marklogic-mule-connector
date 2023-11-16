@@ -14,7 +14,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     private final String BINARY_URI = "/metadataSamples/binary/logo.png";
 
     @Override
-    protected String getConfigFile() {
+    protected String getFlowTestFile() {
         return "read-document-with-metadata.xml";
     }
 

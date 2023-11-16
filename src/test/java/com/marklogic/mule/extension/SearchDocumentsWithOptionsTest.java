@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 public class SearchDocumentsWithOptionsTest extends AbstractFlowTester {
 
     @Override
-    protected String getConfigFile() {
+    protected String getFlowTestFile() {
         return "search-documents-with-options.xml";
     }
 

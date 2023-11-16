@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 public class EvalJavaScriptTest extends AbstractFlowTester {
 
     @Override
-    protected String getConfigFile() {
+    protected String getFlowTestFile() {
         return "eval-javascript.xml";
     }
 

@@ -7,7 +7,7 @@ import static org.junit.Assert.assertEquals;
 public class ReadAndWriteDocumentTest extends AbstractFlowTester {
 
     @Override
-    protected String getConfigFile() {
+    protected String getFlowTestFile() {
         return "read-and-write-document.xml";
     }
 

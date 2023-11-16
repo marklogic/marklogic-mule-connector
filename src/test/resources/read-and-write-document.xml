@@ -15,12 +15,7 @@
         authenticationType="DIGEST"/>
   </marklogic:config>
 
-  <flow name="prepare-database">
-    <marklogic:search-documents config-ref="config" collection="dummy" restTransform="prepare-database"/>
-  </flow>
-
   <flow name="read-and-write-document">
-    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
     <marklogic:write-document config-ref="config" uriPrefix='#["/test" ++ attributes.uri]' generateUUID="False"
                           permissions="rest-reader,read,rest-reader,update"/>

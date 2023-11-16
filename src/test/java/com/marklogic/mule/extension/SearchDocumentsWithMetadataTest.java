@@ -9,7 +9,7 @@ import java.util.List;
 public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
 
     @Override
-    protected String getConfigFile() {
+    protected String getFlowTestFile() {
         return "search-documents-with-metadata.xml";
     }
 
