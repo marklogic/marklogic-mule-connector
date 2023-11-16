@@ -13,8 +13,12 @@
         authenticationType="DIGEST"/>
   </marklogic:config>
 
+  <flow name="prepare-database">
+    <marklogic:search-documents config-ref="config" collection="dummy" restTransform="prepare-database"/>
+  </flow>
+
   <flow name="writeTextDocumentWithAllMetadata">
-    <marklogic:delete-collection config-ref="config" collection="writeTextDocumentWithAllMetadata"/>
+    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
     <marklogic:write-document config-ref="config" uriPrefix="/writeTextDocumentWithAllMetadata/hello" uriSuffix=".txt"
                           format="UNKNOWN" generateUUID="False"
@@ -24,7 +28,7 @@
   </flow>
 
   <flow name="writeJsonDocumentWithAllMetadata">
-    <marklogic:delete-collection config-ref="config" collection="writeJsonDocumentWithAllMetadata"/>
+    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
     <marklogic:write-document config-ref="config" uriPrefix="/writeJsonDocumentWithAllMetadata/hello" uriSuffix=".json"
                           format="JSON" generateUUID="False"
@@ -34,7 +38,7 @@
   </flow>
 
   <flow name="writeXmlDocumentWithAllMetadata">
-    <marklogic:delete-collection config-ref="config" collection="writeXmlDocumentWithAllMetadata"/>
+    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml"/>
     <marklogic:write-document config-ref="config" uriPrefix="/writeXmlDocumentWithAllMetadata/hello" uriSuffix=".xml"
                           format="XML" generateUUID="False"
@@ -44,7 +48,7 @@
   </flow>
 
   <flow name="writeBinaryDocumentWithAllMetadata">
-    <marklogic:delete-collection config-ref="config" collection="writeBinaryDocumentWithAllMetadata"/>
+    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/binary/logo.png"/>
     <marklogic:write-document config-ref="config" uriPrefix="/writeBinaryDocumentWithAllMetadata/logo" uriSuffix=".png"
                           format="BINARY" generateUUID="False"
@@ -54,7 +58,7 @@
   </flow>
 
   <flow name="writeDocumentWithoutUriWithTextFormat">
-    <marklogic:delete-collection config-ref="config" collection="writeDocumentWithoutUriWithTextFormat"/>
+    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
     <marklogic:write-document config-ref="config" format="TEXT" permissions="rest-reader,read,rest-reader,update"
                           quality="5" collections="writeDocumentWithoutUriWithTextFormat"/>
@@ -63,7 +67,7 @@
   </flow>
 
   <flow name="writeDocumentWithoutUriWithoutFormat">
-    <marklogic:delete-collection config-ref="config" collection="writeDocumentWithoutUriWithoutFormat"/>
+    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
     <marklogic:write-document config-ref="config" permissions="rest-reader,read,rest-reader,update" quality="6"
                           collections="writeDocumentWithoutUriWithoutFormat"/>
@@ -71,7 +75,7 @@
   </flow>
 
   <flow name="writeDocumentWithoutUriWithJsonFormat">
-    <marklogic:delete-collection config-ref="config" collection="writeDocumentWithoutUriWithJsonFormat"/>
+    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
     <marklogic:write-document config-ref="config" format="JSON" permissions="rest-reader,read,rest-reader,update"
                           quality="7" collections="writeDocumentWithoutUriWithJsonFormat"/>
@@ -80,7 +84,7 @@
   </flow>
 
   <flow name="writeDocumentWithoutUriWithXmlFormat">
-    <marklogic:delete-collection config-ref="config" collection="writeDocumentWithoutUriWithXmlFormat"/>
+    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml"/>
     <marklogic:write-document config-ref="config" format="XML" permissions="rest-reader,read,rest-reader,update"
                           quality="8" collections="writeDocumentWithoutUriWithXmlFormat"/>
@@ -88,7 +92,7 @@
   </flow>
 
   <flow name="writeDocumentWithoutUriWithBinaryFormat">
-    <marklogic:delete-collection config-ref="config" collection="writeDocumentWithoutUriWithBinaryFormat"/>
+    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml"/>
     <marklogic:write-document config-ref="config" format="BINARY" permissions="rest-reader,read,rest-reader,update"
                           quality="9" collections="writeDocumentWithoutUriWithBinaryFormat"/>
@@ -97,7 +101,7 @@
   </flow>
 
   <flow name="writeDocumentWithPrefixWithoutUuid">
-    <marklogic:delete-collection config-ref="config" collection="writeDocumentWithPrefixWithoutUuid"/>
+    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
     <marklogic:write-document config-ref="config" uriPrefix="writeDocumentWithPrefixWithoutUuid" format="TEXT"
                           generateUUID="False"
@@ -107,7 +111,7 @@
   </flow>
 
   <flow name="writeDocumentWithPrefixAndSuffix">
-    <marklogic:delete-collection config-ref="config" collection="writeDocumentWithPrefixAndSuffix"/>
+    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
     <marklogic:write-document config-ref="config" uriPrefix="writeDocumentWithPrefixAndSuffix" uriSuffix=".json"
                           format="JSON" generateUUID="False"
@@ -117,7 +121,7 @@
   </flow>
 
   <flow name="writeDocumentWithUuid">
-    <marklogic:delete-collection config-ref="config" collection="writeDocumentWithUuid"/>
+    <flow-ref name="prepare-database"/>
     <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
     <marklogic:write-document config-ref="config" format="JSON"
                           permissions="rest-reader,read,rest-reader,update" quality="12"
