@@ -47,12 +47,18 @@ So, the first step is to deploy that application. Follow these steps to deploy t
 4. Run: `./gradlew -i mlDeploy` to deploy the test application to MarkLogic.
 5. Use `cd ..` to return to the root directory of the repository.
 
-### Run the Java tests
-To run the tests from the command-line, ensure you are in the root directory of the project
-and use the Maven command with the "test" goal.
+### Run the tests
+The project includes both JUnit tests and MUnit tests. The MUnit tests require that the connector is packaged and in the
+target directory before running the tests. So you'll need to build first. To run the tests from the command-line, ensure
+you are in the root directory of the project and use the following two Maven commands.
 ```
-mvn clean test
+mvn clean package -DskipTests
+mvn test
 ```
+
+### Adding an MUnit test
+To create a new MUnit test, a good place to start is with batch-read-write-test-suite.xml in src/test/munit. This is a
+relatively simple test with some comments to explain things.
 
 ### Generating code quality reports with SonarQube
 
@@ -78,10 +84,11 @@ of that configuration captured in it. You'll only need the token that you just g
 Because the connector needs to be built with Java 8, but SonarQube requires Java 11, you must first build and test the
 code with Java 8 and then use Java 11 to run SonarQube. Annoying, yes, but there's not yet a way around this. 
 
-So with Java 8, run `package` to build and test the code, which produces the output that SonarQube needs to generate
-its report:
+So with Java 8, run `package` to build the project, and then run the tests. The tests produce the output that SonarQube
+needs to generate its report:
 
-    mvn clean package
+    mvn clean package -DskipTests
+    mvn test
 
 After that completes, switch to Java 11 and run the following, using the token you obtained above:
 
