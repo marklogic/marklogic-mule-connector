@@ -21,16 +21,21 @@ import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.impl.SSLUtil;
 import com.marklogic.mule.extension.api.AuthenticationType;
 import com.marklogic.mule.extension.api.ConnectionType;
+import com.marklogic.mule.extension.api.HostnameVerifier;
 import org.mule.runtime.api.connection.CachedConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
 import org.mule.runtime.api.tls.TlsContextFactory;
+import org.mule.runtime.api.tls.TlsContextTrustStoreConfiguration;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
+import javax.net.ssl.X509TrustManager;
+import java.security.KeyStore;
+import java.security.cert.X509Certificate;
 
 /**
  * This class (as it's name implies) provides connection instances and the functionality to disconnect and validate those
@@ -57,8 +62,7 @@ public class ConnectionProvider implements PoolingConnectionProvider<DatabaseCli
 
     @DisplayName("Authentication Type")
     @Parameter
-    @Summary("The authentication type used to authenticate to MarkLogic. Valid values are: digest, basic.")
-    @Placement(tab = Placement.DEFAULT_TAB)
+    @Summary("The authentication type used to authenticate to MarkLogic.")
     private AuthenticationType authenticationType;
 
     @DisplayName("Connection Type")
@@ -79,29 +83,36 @@ public class ConnectionProvider implements PoolingConnectionProvider<DatabaseCli
 
     @DisplayName("Database")
     @Parameter
-    @Summary("The MarkLogic database name.")
+    @Summary("TODO")
     @Optional
     private String database;
 
-
-    @DisplayName("CloudApiKey")
+    @DisplayName("MarkLogic Cloud API Key")
     @Parameter
-    @Summary("The MarkLogic cloud Api key.")
+    @Summary("TODO")
     @Optional
     private String cloudApiKey;
 
 
-    @DisplayName("BasePath")
+    @DisplayName("Base Path")
     @Parameter
-    @Summary("The MarkLogic cloud Base Path.")
+    @Summary("TODO")
     @Optional
     private String cloudBasePath;
 
     @DisplayName("TLS Context")
     @Placement(tab = "Security")
+    @Summary("TODO")
     @Parameter
     @Optional
     private TlsContextFactory tlsContextFactory;
+
+    @DisplayName("Hostname Verifier")
+    @Placement(tab = "Security")
+    @Summary("TODO")
+    @Parameter
+    @Optional
+    private HostnameVerifier hostnameVerifier;
 
     @Override
     public DatabaseClient connect() {
@@ -114,31 +125,11 @@ public class ConnectionProvider implements PoolingConnectionProvider<DatabaseCli
             .withConnectionType(connectionType.getMarkLogicConnectionType())
             .withUsername(username)
             .withPassword(password)
-            .withCloudApiKey(cloudApiKey);
+            .withCloudApiKey(cloudApiKey)
+            .withSSLHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.ANY);
 
         if (tlsContextFactory != null) {
-            // TODO With Java Client 6.4, I think we may be better off handing the keystore config over to the Java
-            // Client and letting it construct the SSLContext itself. That allows for constructing a TrustManager from
-            // the keystore as well. Mule's TlsContextFactory doesn't have a facility for creating a TrustManager,
-            // which our Java Client requires.
-            // However, if the user doesn't provide a key path, we'll need to call createSslContext as we're doing
-            // below. And we'll still need to honor a truststore path if one is provided.
-            try {
-                builder.withSSLContext(tlsContextFactory.createSslContext());
-            } catch (Exception e) {
-                throw new RuntimeException(String.format(
-                    "Unable to create SSL context; key store path: %s; cause: %s",
-                    tlsContextFactory.getKeyStoreConfiguration().getPath(), e.getMessage()
-                ), e);
-            }
-
-            // TODO Make this configurable.
-            builder.withSSLHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.ANY);
-
-            // This is what the 1.x connector is doing. I think we need to be a bit better - i.e. if the user provides
-            // a truststore path, we need to use that instead. Otherwise, we can default to the JVM's default trust
-            // manager. Java Client 6.4 also allows for this being constructed based on the keystore.
-            builder.withTrustManager(SSLUtil.getDefaultTrustManager());
+            configureSSL(builder);
         }
 
         return builder.build();
@@ -156,4 +147,52 @@ public class ConnectionProvider implements PoolingConnectionProvider<DatabaseCli
             ConnectionValidationResult.success() :
             ConnectionValidationResult.failure(result.getErrorMessage(), new RuntimeException(result.getErrorMessage()));
     }
+
+    private void configureSSL(DatabaseClientBuilder builder) {
+        try {
+            builder.withSSLContext(tlsContextFactory.createSslContext());
+        } catch (Exception e) {
+            throw new RuntimeException(String.format(
+                "Unable to create SSL context; cause: %s",
+                tlsContextFactory.getKeyStoreConfiguration().getPath(), e.getMessage()
+            ), e);
+        }
+
+        builder.withTrustManager(tlsContextFactory.getTrustStoreConfiguration().isInsecure() ?
+            INSECURE_TRUST_MANAGER :
+            newTrustManager(tlsContextFactory.getTrustStoreConfiguration())
+        );
+
+        if (hostnameVerifier != null) {
+            builder.withSSLHostnameVerifier(hostnameVerifier.getSslHostnameVerifier());
+        }
+    }
+
+    /**
+     * This is depending on what are technically internal methods in the Java Client.
+     * TODO Ideally the Java Client can make this public, as it is handling some tedious but well-known Java code
+     * for constructing a trust manager based on a truststore.
+     *
+     * @param config
+     * @return
+     */
+    private X509TrustManager newTrustManager(TlsContextTrustStoreConfiguration config) {
+        KeyStore trustStore = SSLUtil.getKeyStore(config.getPath(), config.getPassword().toCharArray(), config.getType());
+        return (X509TrustManager) SSLUtil.getTrustManagers(config.getAlgorithm(), trustStore)[0];
+    }
+
+    private final static X509TrustManager INSECURE_TRUST_MANAGER = new X509TrustManager() {
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType) {
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType) {
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+        }
+    };
 }

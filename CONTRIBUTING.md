@@ -60,6 +60,25 @@ mvn test
 To create a new MUnit test, a good place to start is with batch-read-write-test-suite.xml in src/test/munit. This is a
 relatively simple test with some comments to explain things.
 
+### Manually testing SSL
+
+The connector supports 1-way and 2-way SSL with MarkLogic via Mule's `TLSContextFactory`, but we do not yet have 
+automated tests for this due to the complexity of the test setup (we do have tests for an insecure trust manager, but
+that is not a realistic approach in a production scenario). To manually verify this capability, please see 
+the "Testing 2-way SSL with the Java Client" internal Wiki page. If you do not have access to this, you can achieve
+a similar effect via the following steps:
+
+1. Clone the [MarkLogic Java Client project](https://github.com/marklogic/java-client-api).
+2. Follow the CONTRIBUTING.md instructions for getting the test application setup.
+3. Open `TwoWaySSLTest` and put a debugger breakpoint in the start of the `teardown` method.
+4. Run the debugger on one of the tests that does not test an error condition.
+
+With the debugger having paused the program, the `java-unittest` MarkLogic app server will be in a state where it 
+requires 2-way SSL. In addition, the test logging will identify the location of a Java keystore containing a private
+key for authenticating with MarkLogic along with the public certificate matching the `java-unittest`'s certificate 
+template. You can use that Java keystore for manually testing a Mule `TLSContextFactory`; the keystore will act as the
+truststore as well. 
+
 ### Generating code quality reports with SonarQube
 
 In order to use SonarQube, you must have used Docker to run this project's `docker-compose.yml` file and you must

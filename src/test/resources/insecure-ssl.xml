@@ -1,0 +1,45 @@
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+      xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
+
+  <tls:context name="tlsContext">
+    <tls:trust-store insecure="true"/>
+  </tls:context>
+
+  <marklogic:config name="config" configId="configId">
+    <marklogic:connection
+        host="localhost"
+        port="8023"
+        username="mule2-test-user"
+        password="password"
+        authenticationType="DIGEST"
+        tlsContext="tlsContext"
+        hostnameVerifier="ANY"
+    />
+  </marklogic:config>
+
+  <marklogic:config name="config2" configId="configId2">
+    <marklogic:connection
+        host="localhost"
+        port="8023"
+        username="mule2-test-user"
+        password="password"
+        authenticationType="DIGEST"
+        tlsContext="tlsContext"
+        hostnameVerifier="COMMON"
+    />
+  </marklogic:config>
+
+  <flow name="hostnameVerifierANY">
+    <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
+  </flow>
+
+  <flow name="hostnameVerifierCOMMON">
+    <marklogic:read-document config-ref="config2" uri="/metadataSamples/json/hello.json"/>
+  </flow>
+
+</mule>
