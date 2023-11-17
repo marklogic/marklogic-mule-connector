@@ -81,28 +81,40 @@ public class ConnectionProvider implements PoolingConnectionProvider<DatabaseCli
     @Optional
     private String password;
 
-    @DisplayName("Database")
-    @Parameter
-    @Summary("TODO")
-    @Optional
-    private String database;
-
     @DisplayName("MarkLogic Cloud API Key")
     @Parameter
-    @Summary("TODO")
+    @Summary("The API key for authenticating with a MarkLogic Cloud instance.")
     @Optional
     private String cloudApiKey;
 
+    @DisplayName("SAML Token")
+    @Parameter
+    @Summary("SAML access token for when the MarkLogic app server requires 'saml' authentication.")
+    @Optional
+    private String samlToken;
+
+    @DisplayName("Kerberos Principal")
+    @Parameter
+    @Summary("Kerberos principal for when the MarkLogic app server requires 'kerberos' authentication.")
+    @Optional
+    private String kerberosPrincipal;
 
     @DisplayName("Base Path")
     @Parameter
     @Summary("TODO")
     @Optional
-    private String cloudBasePath;
+    private String basePath;
+
+    @DisplayName("Database")
+    @Parameter
+    @Summary("Identifies the MarkLogic content database to query; only required when the database associated with " +
+        "the app server identified by the 'Port' value is not the one you wish to query.")
+    @Optional
+    private String database;
 
     @DisplayName("TLS Context")
-    @Placement(tab = "Security")
-    @Summary("TODO")
+    @Placement(tab = "SSL/TLS")
+    @Summary("Controls how SSL/TLS connections are made with MarkLogic.")
     @Parameter
     @Optional
     private TlsContextFactory tlsContextFactory;
@@ -119,13 +131,15 @@ public class ConnectionProvider implements PoolingConnectionProvider<DatabaseCli
         DatabaseClientBuilder builder = new DatabaseClientBuilder()
             .withHost(host)
             .withPort(port)
-            .withBasePath(cloudBasePath)
+            .withBasePath(basePath)
             .withDatabase(database)
             .withAuthType(authenticationType.name())
             .withConnectionType(connectionType.getMarkLogicConnectionType())
             .withUsername(username)
             .withPassword(password)
             .withCloudApiKey(cloudApiKey)
+            .withSAMLToken(samlToken)
+            .withKerberosPrincipal(kerberosPrincipal)
             .withSSLHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.ANY);
 
         if (tlsContextFactory != null) {
