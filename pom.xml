@@ -16,6 +16,123 @@
     <version>1.1.3</version>
   </parent>
 
+  <properties>
+    <munit.version>2.3.14</munit.version>
+    <mule.maven.plugin.version>3.8.1</mule.maven.plugin.version>
+    <munit.extensions.maven.plugin.version>1.1.3</munit.extensions.maven.plugin.version>
+  </properties>
+
+  <build>
+    <plugins>
+
+      <!-- Some useful reference pages:     -->
+      <!--      https://docs.mulesoft.com/munit/latest/-->
+      <!--      https://docs.mulesoft.com/munit/latest/munit-maven-plugin-->
+      <!--      https://docs.mulesoft.com/mule-runtime/latest/mmp-concept-->
+      <plugin>
+        <groupId>org.mule.tools.maven</groupId>
+        <artifactId>mule-maven-plugin</artifactId>
+        <version>${mule.maven.plugin.version}</version>
+        <extensions>true</extensions>
+      </plugin>
+
+<!--      The munit runner requires the files to be in "target/test-mule/munit", so this copies the munit tests.-->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>copy-munit-resources</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/test-mule/munit</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/test/munit</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+<!--      This plugin is required to run the munit tests-->
+      <plugin>
+        <groupId>com.mulesoft.munit.tools</groupId>
+        <artifactId>munit-maven-plugin</artifactId>
+        <version>${munit.version}</version>
+        <executions>
+          <execution>
+            <id>test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>coverage-report</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <runtimeProduct>MULE_EE</runtimeProduct>
+          <runtimeVersion>${app.runtime}</runtimeVersion>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          <coverage>
+            <runCoverage>true</runCoverage>
+            <failBuild>false</failBuild>
+            <requiredApplicationCoverage>50</requiredApplicationCoverage>
+            <requiredResourceCoverage>50</requiredResourceCoverage>
+            <requiredFlowCoverage>50</requiredFlowCoverage>
+            <formats>
+              <format>console</format>
+              <format>html</format>
+              <format>json</format>
+              <format>sonar</format>
+            </formats>
+          </coverage>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.mulesoft.munit</groupId>
+        <artifactId>munit-extensions-maven-plugin</artifactId>
+        <version>${munit.extensions.maven.plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <phase>test</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <runtimeConfiguration>
+            <discoverRuntimes>
+              <product>EE</product>
+              <includeSnapshots>true</includeSnapshots>
+            </discoverRuntimes>
+          </runtimeConfiguration>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.mulesoft.munit</groupId>
+            <artifactId>munit-runner</artifactId>
+            <version>${munit.version}</version>
+            <classifier>mule-plugin</classifier>
+          </dependency>
+          <dependency>
+            <groupId>com.mulesoft.munit</groupId>
+            <artifactId>munit-tools</artifactId>
+            <version>${munit.version}</version>
+            <classifier>mule-plugin</classifier>
+          </dependency>
+        </dependencies>
+      </plugin>
+
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>com.marklogic</groupId>
@@ -94,6 +211,7 @@
         <sonar.projectKey>marklogic-mule-connector</sonar.projectKey>
       </properties>
     </profile>
+
   </profiles>
 
 </project>
