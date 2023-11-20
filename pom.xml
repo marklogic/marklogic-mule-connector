@@ -3,17 +3,97 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.example</groupId>
-    <artifactId>hello</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>mule-extension</packaging>
-    <name>Hello Extension</name>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.example</groupId>
+  <artifactId>hello</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>mule-extension</packaging>
+  <name>Hello Extension</name>
 
-    <parent>
-        <groupId>org.mule.extensions</groupId>
-        <artifactId>mule-modules-parent</artifactId>
-        <version>1.1.10</version>
-    </parent>
+  <properties>
+    <!--
+    When testing with munit 3.0.0, the generated JUnit tests fail with an error message of:
+    Caused by: org.springframework.beans.factory.BeanCreationException:
+    Could not autowire field: private java.util.Optional org.mule.munit.runner.remote.api.server.RunnerServer.testArtifactAst;
+    nested exception is java.lang.TypeNotPresentException: Type org.mule.runtime.ast.api.ArtifactAst not present
+
+    Using the latest 2.x avoids that error.
+
+    But with any version of 2.x, the JUnit tests pass, but we get an munit error of:
+
+     Failed to execute goal com.mulesoft.munit.tools:munit-maven-plugin:2.3.18:test (test) on project hello:
+     Fail to read mule application file from /Users/rudin/workspace/marklogic-mule-connector/target/META-INF/mule-artifact/mule-artifact.json:
+     /Users/rudin/workspace/marklogic-mule-connector/target/META-INF/mule-artifact/mule-artifact.json
+     (No such file or directory)
+    -->
+    <munit.version>2.3.18</munit.version>
+  </properties>
+
+  <parent>
+    <groupId>org.mule.extensions</groupId>
+    <artifactId>mule-modules-parent</artifactId>
+    <version>1.1.10</version>
+  </parent>
+
+  <!--
+  Added the following config per the documentation at https://docs.mulesoft.com/munit/latest/munit-maven-plugin .
+  -->
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.mulesoft.munit.tools</groupId>
+        <artifactId>munit-maven-plugin</artifactId>
+        <version>${munit.version}</version>
+        <executions>
+          <execution>
+            <id>test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.mulesoft.munit</groupId>
+      <artifactId>munit-runner</artifactId>
+      <version>${munit.version}</version>
+      <classifier>mule-plugin</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.mulesoft.munit</groupId>
+      <artifactId>munit-tools</artifactId>
+      <version>${munit.version}</version>
+      <classifier>mule-plugin</classifier>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>mulesoft-releases</id>
+      <name>MuleSoft Releases Repository</name>
+      <url>https://repository.mulesoft.org/releases/</url>
+      <layout>default</layout>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>mulesoft-release</id>
+      <name>mulesoft release repository</name>
+      <layout>default</layout>
+      <url>https://repository.mulesoft.org/releases/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
 
 </project>
