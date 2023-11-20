@@ -1,7 +1,0 @@
-{
-  "local-name" : "prepare-database",
-  "namespace": "test",
-  "document-uri" : "/test-lib.xqy",
-  "modules-database" : "%%MODULES_DATABASE%%",
-  "role" : [ "admin" ]
-}

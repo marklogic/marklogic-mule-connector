@@ -1,5 +1,0 @@
-{
-  "server-name": "%%NAME%%",
-  "group-name": "Default",
-  "authentication": "digestbasic"
-}

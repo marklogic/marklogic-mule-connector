@@ -1,5 +1,0 @@
-<text>
-  This is only here so that our operation for preparing a database can perform a search and match on a single document,
-  thus ensuring that the transform for preparing the database only runs once. It's technically fine if it runs multiple
-  times, but that's also not necessary.
-</text>

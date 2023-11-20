@@ -1,7 +1,0 @@
-<options xmlns="http://marklogic.com/appservices/search">
-  <constraint name="testConstraint">
-    <range type="xs:int">
-      <json-property>test</json-property>
-    </range>
-  </constraint>
-</options>
