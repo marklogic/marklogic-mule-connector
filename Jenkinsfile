@@ -25,7 +25,10 @@ pipeline{
           echo "mlPassword=admin" > gradle-local.properties
           ./gradlew -i mlDeploy
           cd $WORKSPACE/marklogic-mule-connector/
-          mvn clean test
+          mvn dependency:resolve
+          sed -i.bak 's/4.3.0-20220221/4.5.0-20220221/g' ~/.m2/repository/com/mulesoft/munit/2.3.11/munit-2.3.11.pom
+          mvn clean package -DskipTests
+          mvn test
         '''
         junit '**/target/surefire-reports/**/*.xml'
       }
