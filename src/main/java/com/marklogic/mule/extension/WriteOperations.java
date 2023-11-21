@@ -16,6 +16,7 @@
 package com.marklogic.mule.extension;
 
 import com.marklogic.client.DatabaseClient;
+import com.marklogic.client.document.DocumentWriteSet;
 import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
@@ -77,6 +78,59 @@ public class WriteOperations {
                 .write(uri.toString(),
                     documentMetadataHandle,
                     contentHandle,
+                    serverTransform);
+        }
+    }
+
+    void writeMultipleDocuments(DatabaseClient databaseClient, InputStream[] content,
+                                Format format, String permissions, int quality,
+                                String collections, String uriPrefix, String uriSuffix, boolean generateUUID,
+                                String temporalCollection,
+                                String restTransform, String restTransformParameters, String restTransformParametersDelimiter) {
+
+        DocumentMetadataHandle documentMetadataHandle = new DocumentMetadataHandle().withQuality(quality);
+
+        if(Utilities.hasText(collections)){
+            String[] collectionArray = collections.split(",");
+            documentMetadataHandle.withCollections(collectionArray);
+        }
+
+        if(Utilities.hasText(permissions)){
+            documentMetadataHandle.getPermissions().addFromDelimitedString(permissions);
+        }
+        DocumentWriteSet documentWriteSet = databaseClient.newDocumentManager().newWriteSet();
+        ServerTransform serverTransform = Utilities.findServerTransform(restTransform, restTransformParameters,
+            restTransformParametersDelimiter);
+
+        for (InputStream inputStream : content) {
+            StringBuilder uri = new StringBuilder();
+            if (Utilities.hasText(uriPrefix)) {
+                uri.append(uriPrefix);
+            }
+            if (generateUUID) {
+                uri.append(UUID.randomUUID());
+            }
+            if (Utilities.hasText(uriSuffix)) {
+                uri.append(uriSuffix);
+            }
+            documentWriteSet.add(uri.toString(), documentMetadataHandle, new InputStreamHandle(inputStream).withFormat(format));
+        }
+
+        if(Utilities.hasText(temporalCollection)){
+            if(format != null && format.equals(XML)){
+                databaseClient.newXMLDocumentManager()
+                    .write(documentWriteSet,
+                        serverTransform,
+                        null, temporalCollection);
+            } else {
+                databaseClient.newJSONDocumentManager()
+                    .write(documentWriteSet,
+                        serverTransform,
+                        null, temporalCollection);
+            }
+        } else {
+            databaseClient.newDocumentManager()
+                .write(documentWriteSet,
                     serverTransform);
         }
     }

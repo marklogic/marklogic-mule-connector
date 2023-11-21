@@ -109,6 +109,39 @@ public class Operations {
             uriPrefix, uriSuffix, generateUUID, temporalCollection, restTransform, restTransformParameters, restTransformParametersDelimiter);
     }
 
+
+    /**
+     * Write document(s) with/without metadata.
+     *
+     * @param databaseClient
+     * @param myContents
+     * @param format
+     * @param permissions
+     * @param quality
+     * @param collections
+     * @param uriPrefix
+     * @param uriSuffix
+     * @param generateUUID
+     */
+    public void writeMultipleDocuments(
+        @Connection DatabaseClient databaseClient, @Content InputStream[] myContents,
+        @Optional Format format,
+        @Optional @Example("Role,permission")String permissions,
+        @Optional(defaultValue = "0") int quality,
+        @Optional @Example("Comma separated collection strings") String collections,
+        @Optional @Example("/test/") String uriPrefix,
+        @Optional @Example(".json") String uriSuffix,
+        @Optional(defaultValue = "True") boolean generateUUID,
+        @Optional @Example("temporal-collection string") String temporalCollection,
+        @DisplayName("REST Transform") @Optional String restTransform,
+        @DisplayName("REST Transform Parameters") @Optional String restTransformParameters,
+        @DisplayName("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter
+    ) {
+
+        new WriteOperations().writeMultipleDocuments(databaseClient,myContents,format, permissions, quality, collections,
+            uriPrefix, uriSuffix, generateUUID,  temporalCollection, restTransform, restTransformParameters, restTransformParametersDelimiter);
+    }
+
     /**
      * Search for documents, returning the documents but not yet any metadata for them.
      * Will eventually support many parameters here for searching.
@@ -261,6 +294,19 @@ public class Operations {
         } else {
             throw new RuntimeException("A valid script must be provided.");
         }
+    }
+
+    /**
+     * Temp function
+     */
+    @MediaType(value = ANY, strict = false)
+    public InputStream[] readArray(@Connection DatabaseClient databaseClient, String[] uris
+    ) throws Exception {
+        InputStream[] inputStreams = new InputStream[uris.length];
+        for(int i=0; i<uris.length; i++){
+            inputStreams[i] = readDocument(databaseClient,uris[i],"").getOutput();
+        }
+       return inputStreams;
     }
 
     private org.mule.runtime.api.metadata.MediaType makeMediaType(Format format) {
