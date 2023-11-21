@@ -17,9 +17,8 @@ package com.marklogic.mule.extension;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.document.*;
-import com.marklogic.client.io.DocumentMetadataHandle;
-import com.marklogic.client.io.Format;
-import com.marklogic.client.io.InputStreamHandle;
+import com.marklogic.client.impl.JSONDocumentImpl;
+import com.marklogic.client.io.*;
 import com.marklogic.client.io.marker.JSONReadHandle;
 import com.marklogic.client.io.marker.JSONWriteHandle;
 import com.marklogic.client.query.QueryDefinition;
@@ -35,6 +34,8 @@ import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Text;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
  * will be taken as an extension operation.
  */
 public class Operations {
+    static final private Logger logger = LoggerFactory.getLogger(Operations.class);
 
     @MediaType(value = ANY, strict = false)
     @DisplayName("Read document")
@@ -125,13 +127,16 @@ public class Operations {
         @DisplayName("Directory") @Optional @Example("/customerData") String directory,
         @DisplayName("REST Transform") @Optional String restTransform,
         @DisplayName("REST Transform Parameters") @Optional String restTransformParameters,
-        @DisplayName("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter
+        @DisplayName("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter,
+        @DisplayName("Consistent Snapshot") @Optional(defaultValue = "True") boolean consistentSnapshot
     ) {
         final int finalPageLength = pageLength != null ? pageLength : 100;
 
         return new PagingProvider<DatabaseClient, Result<InputStream, DocumentAttributes>>() {
             int totalDocumentsDelivered = 0;
             Integer currentPage = -1;
+            Long serverTimestamp = -1L;
+
             @Override
             public List<Result<InputStream, DocumentAttributes>> getPage(DatabaseClient databaseClient) {
                 List<Result<InputStream, DocumentAttributes>> resultSet = new ArrayList<>();
@@ -139,7 +144,6 @@ public class Operations {
                 currentPage++;
 
                 DocumentManager<JSONReadHandle, JSONWriteHandle> documentManager = databaseClient.newJSONDocumentManager();
-                documentManager.setPageLength(finalPageLength);
                 if (Utilities.hasText(categories)) {
                     documentManager.setMetadataCategories(buildMetadataCategories(categories));
                 }
@@ -165,8 +169,21 @@ public class Operations {
                     queryDefinition.setResponseTransform(serverTransform);
                 }
 
+                if ((consistentSnapshot) && (serverTimestamp == -1)) {
+                    JacksonParserHandle searchHandle = new JacksonParserHandle();
+                    documentManager.setPageLength(1);
+                    DocumentPage documentPage = documentManager.search(queryDefinition,1, searchHandle);
+                    if (documentPage.getTotalSize() == 0) {
+                        return resultSet;
+                    }
+                    serverTimestamp = searchHandle.getServerTimestamp();
+                    logger.debug("Server timestamp for PagingProvider search: {}", serverTimestamp);
+                }
+
                 int startingDocument = (currentPage * finalPageLength) + 1;
-                DocumentPage documentPage = documentManager.search(queryDefinition, startingDocument);
+                documentManager.setPageLength(finalPageLength);
+                logger.debug("Server timestamp for current Page: {}", serverTimestamp);
+                DocumentPage documentPage = ((JSONDocumentImpl) documentManager).search(queryDefinition, startingDocument, serverTimestamp);
                 while (documentPage.hasNext()) {
                     InputStreamHandle contentHandle = new InputStreamHandle();
                     DocumentRecord documentRecord = documentPage.next();

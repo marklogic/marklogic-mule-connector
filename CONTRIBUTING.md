@@ -69,6 +69,16 @@ mvn clean package -DskipTests
 mvn test
 ```
 
+To run only the JUnit tests, you may use a switch to skip the MUnit tests.
+```
+mvn test -DskipMunitTests
+```
+
+** This switch is currently unavailable. ** 
+To run only the Munit tests, you may use a switch to skip the JUnit tests.
+```
+mvn test -DskipSureFire=true
+```
 
 ### Adding an MUnit test
 To create a new MUnit test, a good place to start is with batch-read-write-test-suite.xml in src/test/munit. This is a
@@ -256,4 +266,11 @@ Effective logging can be tricky depending on the payload. However, to log the pa
 after a MarkLogic connector operation, add a logger element after the operation element.
 ```
 <logger message="#[payload.typedValue]" level="INFO" doc:name="Logger"/>
+```
+
+### Anypoint - MarkLogic Logging
+To set the logging level for MarkLogic packages, update the appropriate log4j2.xml file with a line like the following.
+Set the package name and add more copies of the line as necessary.
+```
+<AsyncLogger name="com.marklogic.mule.extension" level="DEBUG"/>
 ```

@@ -123,7 +123,7 @@
 
   <flow name="writeDocumentWithTransform">
     <marklogic:read-document config-ref="config" uri="/batch/test3.json"/>
-    <marklogic:write-documents config-ref="config" format="JSON" collections="test-data"
+    <marklogic:write-documents config-ref="config" format="JSON" collections="transformed-data"
                                permissions="rest-reader,read,rest-reader,update" quality="14" generateUUID="False"
                                uriPrefix="/writeDocumentWithTransform" restTransform="testTransform"
                                restTransformParameters="hello;key;world;value" restTransformParametersDelimiter=";"/>
