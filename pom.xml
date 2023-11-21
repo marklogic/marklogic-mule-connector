@@ -6,55 +6,90 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.example</groupId>
   <artifactId>hello</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>mule-extension</packaging>
   <name>Hello Extension</name>
 
   <properties>
+    <!-- Added per https://beta.docs.mulesoft.com/beta-mtf/mule-sdk/1.1/testing-writing-your-first-munit-test -->
+    <munit.input.directory>src/test/munit</munit.input.directory>
+    <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
+    <munit.extensions.maven.plugin.version>1.1.3</munit.extensions.maven.plugin.version>
     <!--
-    When testing with munit 3.0.0, the generated JUnit tests fail with an error message of:
-    Caused by: org.springframework.beans.factory.BeanCreationException:
-    Could not autowire field: private java.util.Optional org.mule.munit.runner.remote.api.server.RunnerServer.testArtifactAst;
-    nested exception is java.lang.TypeNotPresentException: Type org.mule.runtime.ast.api.ArtifactAst not present
-
-    Using the latest 2.x avoids that error.
-
-    But with any version of 2.x, the JUnit tests pass, but we get an munit error of:
-
-     Failed to execute goal com.mulesoft.munit.tools:munit-maven-plugin:2.3.18:test (test) on project hello:
-     Fail to read mule application file from /Users/rudin/workspace/marklogic-mule-connector/target/META-INF/mule-artifact/mule-artifact.json:
-     /Users/rudin/workspace/marklogic-mule-connector/target/META-INF/mule-artifact/mule-artifact.json
-     (No such file or directory)
+    Using latest 2.3.x as 2.3.0 results in a IncompatibleClassChange error when HelloOperationsTestCase is run.
+    3.0.0 works as well.
     -->
     <munit.version>2.3.18</munit.version>
+    <maven.resources.plugin.version>3.1.0</maven.resources.plugin.version>
   </properties>
 
   <parent>
     <groupId>org.mule.extensions</groupId>
     <artifactId>mule-modules-parent</artifactId>
-    <version>1.1.10</version>
+    <version>1.3.2</version>
   </parent>
 
-  <!--
-  Added the following config per the documentation at https://docs.mulesoft.com/munit/latest/munit-maven-plugin .
-  -->
-  
+  <!-- Added per https://beta.docs.mulesoft.com/beta-mtf/mule-sdk/1.1/testing-writing-your-first-munit-test -->
+
   <build>
     <plugins>
       <plugin>
-        <groupId>com.mulesoft.munit.tools</groupId>
-        <artifactId>munit-maven-plugin</artifactId>
-        <version>${munit.version}</version>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>${maven.resources.plugin.version}</version>
         <executions>
           <execution>
-            <id>test</id>
-            <phase>test</phase>
+            <id>copy-munit-resources</id>
+            <phase>process-test-resources</phase>
             <goals>
-              <goal>test</goal>
+              <goal>copy-resources</goal>
             </goals>
+            <configuration>
+              <outputDirectory>${munit.output.directory}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${munit.input.directory}</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
           </execution>
         </executions>
       </plugin>
+      <!--
+      Including this plugin results in an error of:
+      Failed to read artifact descriptor for org.mule.runtime:mule-core:jar:4.3.0-20220221: The following artifacts could not be resolved: org.mule.runtime:mule-core:pom:4.3.0-20220221 (absent)
+
+      This requires fixing the pom for munit 2.3.11 that was downloaded to your local Maven repository.
+      The "mule.version" value in the munit 2.3.11 pom must be changed from 4.3.0-20220221 to 4.5.0-20220221.
+      -->
+      <plugin>
+        <groupId>com.mulesoft.munit</groupId>
+        <artifactId>munit-extensions-maven-plugin</artifactId>
+        <version>${munit.extensions.maven.plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <phase>integration-test</phase>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.mulesoft.munit</groupId>
+            <artifactId>munit-runner</artifactId>
+            <version>${munit.version}</version>
+            <classifier>mule-plugin</classifier>
+          </dependency>
+          <dependency>
+            <groupId>com.mulesoft.munit</groupId>
+            <artifactId>munit-tools</artifactId>
+            <version>${munit.version}</version>
+            <classifier>mule-plugin</classifier>
+          </dependency>
+        </dependencies>
+      </plugin>
+
     </plugins>
   </build>
 

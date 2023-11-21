@@ -1,33 +1,34 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns="http://www.mulesoft.org/schema/mule/core"
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:hello="http://www.mulesoft.org/schema/mule/hello"
       xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
       xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
-      xmlns:hello="http://www.mulesoft.org/schema/mule/hello"
-      xsi:schemaLocation="
-      http://www.mulesoft.org/schema/mule/hello http://www.mulesoft.org/schema/mule/hello/current/mule-hello.xsd
-		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
-		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
-">
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/munit-tools http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+      http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+          http://www.mulesoft.org/schema/mule/hello http://www.mulesoft.org/schema/mule/hello/current/mule-hello.xsd">
 
   <hello:config name="config" configId="configId">
     <hello:connection requiredParameter="aValue" />
   </hello:config>
 
-  <flow name="sayHiFlow">
-    <hello:say-hi person="Mariano Gonzalez"/>
-  </flow>
+  <munit:config name="hello-operations-test"/>
 
-  <munit:config name="seems-to-be-required" />
-
-  <munit:test name="sample" description="Test">
-    <munit:execution >
-      <flow-ref name="sayHiFlow"/>
+  <munit:test name="sayHiTest">
+    <munit:execution>
+      <hello:say-hi person="Your Name"/>
     </munit:execution>
     <munit:validation>
-      <munit-tools:sleep time="5" timeUnit="SECONDS"/>
-      <munit-tools:assert-equals actual="#[payload.result]" expected="Hello Mariano Gonzalez!!!"/>
+      <munit-tools:assert-equals actual="#[payload]" expected="#['Hello Your Name!!!']"/>
+    </munit:validation>
+  </munit:test>
+
+  <munit:test name="retrieveInfoTest">
+    <munit:execution>
+      <hello:retrieve-info config-ref="config"/>
+    </munit:execution>
+    <munit:validation>
+      <munit-tools:assert-equals actual="#[payload]" expected="#['Using Configuration [configId] with Connection id [aValue:100]']"/>
     </munit:validation>
   </munit:test>
 
