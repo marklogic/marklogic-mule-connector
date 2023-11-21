@@ -48,6 +48,19 @@ So, the first step is to deploy that application. Follow these steps to deploy t
 5. Use `cd ..` to return to the root directory of the repository.
 
 ### Run the tests
+
+**Important** - to get munit working, we have to work around a bug in a Mule pom file. When you attempt to run 
+`mvn clean package` below, you will most likely get an error about a missing Mule dependency. Here are the 
+hopefully-temporary instructions to work around this issue:
+
+1. Go to `~/.m2/repository/com/mulesoft/munit/2.3.11`.
+2. Open `munit-2.3.11.pom`.
+3. Change the `<mule.version>` element to have a value of "4.5.0-20220221" instead of "4.3.0-20220221".
+
+This fix was found [in this Mule support page](https://help.mulesoft.com/s/question/0D52T000061exOfSAI/error-failed-to-execute-goal-commulesoftmunitmunitextensionsmavenplugin113test-defaulttest). 
+We have no idea why fixing the pom for munit 2.3.11 works, given that our pom.xml is asking for munit 2.3.14. But it 
+should allow for the below instructions to work. 
+
 The project includes both JUnit tests and MUnit tests. The MUnit tests require that the connector is packaged and in the
 target directory before running the tests. So you'll need to build first. To run the tests from the command-line, ensure
 you are in the root directory of the project and use the following two Maven commands.
@@ -55,6 +68,7 @@ you are in the root directory of the project and use the following two Maven com
 mvn clean package -DskipTests
 mvn test
 ```
+
 
 ### Adding an MUnit test
 To create a new MUnit test, a good place to start is with batch-read-write-test-suite.xml in src/test/munit. This is a
