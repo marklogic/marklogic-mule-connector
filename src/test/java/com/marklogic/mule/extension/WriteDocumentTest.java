@@ -4,7 +4,9 @@ package com.marklogic.mule.extension;
 import com.marklogic.mule.extension.api.DocumentAttributes;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -201,5 +203,25 @@ public class WriteDocumentTest extends AbstractFlowTester {
             .includesPermissions("rest-reader", "read", "rest-reader", "update")
             .quality(14)
             .verify();
+    }
+
+    @Test
+    public void writeDocumentWithArrayInput() {
+
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("writeDocumentWithArrayInput");
+        Set<String> contentSet = new HashSet<>();
+        contentSet.add("Hello, World!\n");
+        contentSet.add("{\"hello\":\"world\"}");
+        for (DocumentData documentData : documentDataList) {
+            assertTrue(documentData.isText());
+            assertTrue("Invalid content returned. "+documentData.getContents(),contentSet.contains(documentData.getContents()));
+            contentSet.remove(documentData.getContents());
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
+                .includesCollections("writeDocumentWithArrayInput")
+                .includesPermissions("rest-reader", "read", "rest-reader", "update")
+                .quality(15)
+                .verify();
+        }
     }
 }

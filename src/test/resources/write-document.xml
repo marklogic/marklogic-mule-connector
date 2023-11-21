@@ -129,4 +129,14 @@
                                restTransformParameters="hello;key;world;value" restTransformParametersDelimiter=";"/>
     <marklogic:read-document config-ref="config" uri="/writeDocumentWithTransform"/>
   </flow>
+
+  <flow name="writeDocumentWithArrayInput">
+    <set-variable variableName="uris" value="#[['/metadataSamples/text/hello.text','/metadataSamples/json/hello.json']]"/>
+    <marklogic:read-array config-ref="config" uris="#[vars.uris]"/>
+    <marklogic:write-multiple-documents config-ref="config" format="TEXT" collections="writeDocumentWithArrayInput"
+                               permissions="rest-reader,read,rest-reader,update" quality="15" generateUUID="True"
+                               uriPrefix="/writeDocumentWithArrayInput/"/>
+    <marklogic:search-documents config-ref="config" collection="writeDocumentWithArrayInput" categories="all"/>
+  </flow>
+
 </mule>
