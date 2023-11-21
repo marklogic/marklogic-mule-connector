@@ -34,6 +34,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Text;
 import org.mule.runtime.extension.api.runtime.operation.Result;
+import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -112,66 +113,95 @@ public class Operations {
      */
     @MediaType(value = ANY, strict = false)
     @DisplayName("Search Documents")
-    public List<Result<InputStream, DocumentAttributes>> searchDocuments(
-        @Connection DatabaseClient databaseClient,
+    public PagingProvider<DatabaseClient, Result<InputStream, DocumentAttributes>> searchDocuments(
         @DisplayName("Collection") @Optional(defaultValue = "") @Example("myCollection") String collection,
         @DisplayName("Query") @Text @Optional @Example("searchTerm") String query,
         @DisplayName("Query Type") @Optional QueryType queryType,
         @DisplayName("Query Format") @Optional QueryFormat queryFormat,
         @DisplayName("Metadata Category List") @Optional(defaultValue = "all") @Example("COLLECTIONS,PERMISSIONS") String categories,
         @DisplayName("Max Results") @Optional @Example("10") Integer maxResults,
+        @DisplayName("Page Length") @Optional @Example("10") Integer pageLength,
         @DisplayName("Search Options") @Optional @Example("appSearchOptions") String searchOptions,
         @DisplayName("Directory") @Optional @Example("/customerData") String directory,
         @DisplayName("REST Transform") @Optional String restTransform,
         @DisplayName("REST Transform Parameters") @Optional String restTransformParameters,
         @DisplayName("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter
     ) {
-        DocumentManager<JSONReadHandle, JSONWriteHandle> documentManager = databaseClient.newJSONDocumentManager();
-        if (Utilities.hasText(categories)) {
-            documentManager.setMetadataCategories(buildMetadataCategories(categories));
-        }
-        if (maxResults != null) {
-            documentManager.setPageLength(maxResults);
-        }
+        final int finalPageLength = pageLength != null ? pageLength : 100;
 
-        QueryDefinition queryDefinition = ReadUtil.buildQueryDefinitionFromParams(databaseClient, query, queryType, queryFormat);
-        if (Utilities.hasText(collection)) {
-            queryDefinition.setCollections(collection);
-        }
-        if (Utilities.hasText(searchOptions)) {
-            queryDefinition.setOptionsName(searchOptions);
-        }
-        if (Utilities.hasText(directory)) {
-            queryDefinition.setDirectory(directory);
-        }
-        if (Utilities.hasText(restTransform)) {
-            ServerTransform serverTransform = new ServerTransform(restTransform);
-            if (Utilities.hasText(restTransformParameters)) {
-                String[] parametersArray = restTransformParameters.split(restTransformParametersDelimiter);
-                for (int i = 0; i < parametersArray.length; i = i + 2) {
-                    serverTransform.addParameter(parametersArray[i], parametersArray[i + 1]);
+        return new PagingProvider<DatabaseClient, Result<InputStream, DocumentAttributes>>() {
+            int totalDocumentsDelivered = 0;
+            Integer currentPage = -1;
+            @Override
+            public List<Result<InputStream, DocumentAttributes>> getPage(DatabaseClient databaseClient) {
+                List<Result<InputStream, DocumentAttributes>> resultSet = new ArrayList<>();
+
+                currentPage++;
+
+                DocumentManager<JSONReadHandle, JSONWriteHandle> documentManager = databaseClient.newJSONDocumentManager();
+                documentManager.setPageLength(finalPageLength);
+                if (Utilities.hasText(categories)) {
+                    documentManager.setMetadataCategories(buildMetadataCategories(categories));
                 }
-            }
-            queryDefinition.setResponseTransform(serverTransform);
-        }
 
-        DocumentPage page = documentManager.search(queryDefinition, 1);
-        List<Result<InputStream, DocumentAttributes>> results = new ArrayList<>();
-        while (page.hasNext()) {
-            InputStreamHandle handle = new InputStreamHandle();
-            DocumentRecord documentRecord = page.next();
-            InputStream content = documentRecord.getContent(handle).get();
-            DocumentMetadataHandle metadataHandle = new DocumentMetadataHandle();
-            documentRecord.getMetadata(metadataHandle);
-            Result<InputStream, DocumentAttributes> resultDoc = Result.<InputStream, DocumentAttributes>builder()
-                .output(content)
-                .attributes(new DocumentAttributes(documentRecord.getUri(), metadataHandle))
-                .mediaType(makeMediaType(handle.getFormat()))
-                .attributesMediaType(org.mule.runtime.api.metadata.MediaType.APPLICATION_JAVA)
-                .build();
-            results.add(resultDoc);
-        }
-        return results;
+                QueryDefinition queryDefinition = ReadUtil.buildQueryDefinitionFromParams(databaseClient, query, queryType, queryFormat);
+                if (Utilities.hasText(collection)) {
+                    queryDefinition.setCollections(collection);
+                }
+                if (Utilities.hasText(searchOptions)) {
+                    queryDefinition.setOptionsName(searchOptions);
+                }
+                if (Utilities.hasText(directory)) {
+                    queryDefinition.setDirectory(directory);
+                }
+                if (Utilities.hasText(restTransform)) {
+                    ServerTransform serverTransform = new ServerTransform(restTransform);
+                    if (Utilities.hasText(restTransformParameters)) {
+                        String[] parametersArray = restTransformParameters.split(restTransformParametersDelimiter);
+                        for (int i = 0; i < parametersArray.length; i = i + 2) {
+                            serverTransform.addParameter(parametersArray[i], parametersArray[i + 1]);
+                        }
+                    }
+                    queryDefinition.setResponseTransform(serverTransform);
+                }
+
+                int startingDocument = (currentPage * finalPageLength) + 1;
+                DocumentPage documentPage = documentManager.search(queryDefinition, startingDocument);
+                while (documentPage.hasNext()) {
+                    InputStreamHandle contentHandle = new InputStreamHandle();
+                    DocumentRecord documentRecord = documentPage.next();
+                    InputStream contentStream = documentRecord.getContent(contentHandle).get();
+                    DocumentMetadataHandle metadataHandle = new DocumentMetadataHandle();
+                    documentRecord.getMetadata(metadataHandle);
+                    Result<InputStream, DocumentAttributes> resultDoc = Result.<InputStream, DocumentAttributes>builder()
+                        .output(contentStream)
+                        .attributes(new DocumentAttributes(documentRecord.getUri(), metadataHandle))
+                        .mediaType(makeMediaType(contentHandle.getFormat()))
+                        .attributesMediaType(org.mule.runtime.api.metadata.MediaType.APPLICATION_JAVA)
+                        .build();
+                    if (maxResults != null) {
+                        if (totalDocumentsDelivered < maxResults) {
+                            resultSet.add(resultDoc);
+                            totalDocumentsDelivered++;
+                        } else {
+                            return resultSet;
+                        }
+                    } else {
+                        resultSet.add(resultDoc);
+                        totalDocumentsDelivered++;
+                    }
+                }
+                return resultSet;
+            }
+
+            @Override
+            public java.util.Optional<Integer> getTotalResults(DatabaseClient databaseClient) {
+                return java.util.Optional.empty();
+            }
+
+            @Override
+            public void close(DatabaseClient databaseClient) { }
+        };
     }
 
     /**

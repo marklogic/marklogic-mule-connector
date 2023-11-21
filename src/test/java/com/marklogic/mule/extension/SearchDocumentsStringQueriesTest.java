@@ -15,8 +15,8 @@ public class SearchDocumentsStringQueriesTest extends AbstractFlowTester {
 
     @Test
     public void noQuery() {
-        List<DocumentData> documentDataList = runFlowForDocumentDataList("search-documents-no-query");
-        assertTrue(1 < documentDataList.size());
+        List<DocumentData> list = runFlowForDocumentDataList("search-documents-no-query");
+        assertTrue("Expecting all documents to be returned, which is far greater than 1", 1 < list.size());
     }
 
     @Test

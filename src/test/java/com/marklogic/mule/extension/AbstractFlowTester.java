@@ -4,6 +4,7 @@ import com.marklogic.mule.extension.api.DocumentAttributes;
 import org.junit.Before;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.runtime.api.message.Message;
+import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase 
 
     @Override
     final protected String[] getConfigFiles() {
-        return new String[] {"prepare-database-flow.xml", getFlowTestFile()};
+        return new String[]{"prepare-database-flow.xml", getFlowTestFile()};
     }
 
     Message runFlowGetMessage(String flowName) {
@@ -38,10 +39,9 @@ public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase 
     }
 
     List<DocumentData> runFlowAndVerifyMessageCount(String flowName, long expectedCount, String assertionMessage) {
-        Message outerMessage = runFlowGetMessage(flowName);
-        List<Message> innerMessages = (List<Message>) outerMessage.getPayload().getValue();
-        assertEquals(assertionMessage, expectedCount, innerMessages.size());
-        return toDocumentDataList(innerMessages);
+        List<DocumentData> resultSet = runFlowForDocumentDataList(flowName);
+        assertEquals(assertionMessage, expectedCount, resultSet.size());
+        return resultSet;
     }
 
     DocumentData runFlowGetDocumentData(String flowName) {
@@ -49,7 +49,10 @@ public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase 
     }
 
     List<DocumentData> runFlowForDocumentDataList(String flowName) {
-        return toDocumentDataList((List<Message>) runFlowGetMessage(flowName).getPayload().getValue());
+        CursorIteratorProvider prov = (CursorIteratorProvider) runFlowGetMessage(flowName).getPayload().getValue();
+        List<DocumentData> result = new ArrayList<>();
+        prov.openCursor().forEachRemaining(message -> result.add(toDocumentData((Message) message)));
+        return result;
     }
 
     private DocumentData toDocumentData(Message message) {
