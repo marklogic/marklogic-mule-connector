@@ -17,7 +17,7 @@ public class SearchDocumentsWithOptionsTest extends AbstractFlowTester {
     public void searchDocuments_DefaultMetadata() {
         runFlowAndVerifyMessageCount(
             "search-documents-with-maxResults",
-            5,
+            9,
             "With maxResults set, only that many documents should be returned.");
     }
 

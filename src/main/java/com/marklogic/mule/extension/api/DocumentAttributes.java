@@ -39,6 +39,20 @@ public class DocumentAttributes {
         this.quality = handle.getQuality();
     }
 
+    @Override
+    public String toString() {
+        // This is solely for testing/debugging.
+        return new StringBuilder()
+            .append("[").append(uri)
+            .append(";").append(collections)
+            .append(";").append(permissions)
+            .append(";").append(quality)
+            .append(";").append(metadataValues)
+            .append(";").append(properties)
+            .append("]")
+            .toString();
+    }
+
     public String getUri() {
         return uri;
     }
