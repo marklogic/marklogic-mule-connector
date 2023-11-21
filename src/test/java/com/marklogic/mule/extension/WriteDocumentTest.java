@@ -197,7 +197,7 @@ public class WriteDocumentTest extends AbstractFlowTester {
             "{\"key\":\"value\"}", documentData.getContents());
         assertTrue(documentData.isJSON());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), "/writeDocumentWithTransform")
-            .collections(1, "test-data")
+            .collections(1, "transformed-data")
             .includesPermissions("rest-reader", "read", "rest-reader", "update")
             .quality(14)
             .verify();

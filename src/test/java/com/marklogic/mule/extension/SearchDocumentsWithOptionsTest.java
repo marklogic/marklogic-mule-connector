@@ -22,6 +22,14 @@ public class SearchDocumentsWithOptionsTest extends AbstractFlowTester {
     }
 
     @Test
+    public void searchDocuments_WithoutConsistentTimestamp() {
+        runFlowAndVerifyMessageCount(
+            "search-documents-without-consistent-timestamp",
+            9,
+            "This only verifies that setting the consistentSnapshot parameter to false does not break anything.");
+    }
+
+    @Test
     public void searchDocuments_SearchTermWithOptions() throws Exception {
         List<DocumentData> documentDataList = runFlowAndVerifyMessageCount(
             "search-documents-search-term-with-options",

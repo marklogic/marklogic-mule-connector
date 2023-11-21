@@ -24,6 +24,14 @@
 
 <!--  <build>-->
 <!--    <plugins>-->
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-surefire-plugin</artifactId>-->
+<!--        <version>2.12.2</version>-->
+<!--        <configuration>-->
+<!--          <skipTests>${skipSureFire}</skipTests>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
 
 <!--      &lt;!&ndash; Some useful reference pages:     &ndash;&gt;-->
 <!--      &lt;!&ndash;      https://docs.mulesoft.com/munit/latest/&ndash;&gt;-->

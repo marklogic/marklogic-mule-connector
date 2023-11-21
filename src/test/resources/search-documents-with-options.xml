@@ -18,6 +18,10 @@
     <marklogic:search-documents config-ref="config" collection="batch-input" maxResults="9"/>
   </flow>
 
+  <flow name="search-documents-without-consistent-timestamp">
+    <marklogic:search-documents config-ref="config" collection="batch-input" maxResults="9" consistentSnapshot="False"/>
+  </flow>
+
   <flow name="search-documents-search-term-with-options">
     <marklogic:search-documents config-ref="config" searchOptions="testOptions">
       <marklogic:query><![CDATA[testConstraint:3]]></marklogic:query>
