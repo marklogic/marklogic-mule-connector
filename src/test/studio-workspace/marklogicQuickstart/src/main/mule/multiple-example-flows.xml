@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:file="http://www.mulesoft.org/schema/mule/file"
+      xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+  <marklogic:config name="MarkLogic_Config" doc:name="MarkLogic Config" doc:id="5b10a925-4548-4966-8d0e-2f78230787f7" configId="ml123">
+    <marklogic:connection port="8022" authenticationType="DIGEST" username="admin" password="admin" host="localhost">
+    </marklogic:connection>
+  </marklogic:config>
+  <tls:context name="TLS_Context" doc:name="TLS Context" doc:id="3a3d8bb7-bccd-4810-ac12-c75dd4bde901" >
+    <tls:trust-store insecure="true"/>
+  </tls:context>
+  <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="cf35fe58-0f25-4b77-a228-083ea0fe6923" >
+    <http:listener-connection host="0.0.0.0" port="8081" />
+  </http:listener-config>
+  <flow name="export_then_write" doc:id="20ab4466-b456-4012-8a7a-a4f21e1c1d0c" >
+    <http:listener doc:name="Listener" doc:id="0f4c0bc2-ac6f-4468-b15e-e51d6d7f76ef" config-ref="HTTP_Listener_config" path="/export"/>
+    <marklogic:export-documents doc:name="Export documents" doc:id="8be0d63d-d600-41ad-9e6d-e7e364f29880" config-ref="MarkLogic_Config" collection="batch-input"/>
+    <marklogic:write-documents doc:name="Write documents" doc:id="514984df-8a37-4212-8b08-258a5aafeb70" config-ref="MarkLogic_Config" format="JSON" permissions="rest-reader,read,rest-writer,update" collections="exported-batch-data" uriPrefix="/exported-batch-data/" uriSuffix=".json"/>
+    <ee:transform doc:name="Transform Message" doc:id="36479b14-1842-4ce0-ab8d-29c213530118" >
+      <ee:message >
+        <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"hello": "world"
+}]]></ee:set-payload>
+      </ee:message>
+    </ee:transform>
+  </flow>
+  <flow name="read_then_write" doc:id="5b2e907f-9bf7-46c5-a4ce-83cdf16246ec" >
+    <http:listener doc:name="Listener" doc:id="a176b67b-9fb4-43cd-97a6-539d3e73ea0b" config-ref="HTTP_Listener_config" path="/read"/>
+    <marklogic:read-documents doc:name="Read documents" doc:id="8a9f165e-698f-459c-ad38-724f28b10673" config-ref="MarkLogic_Config" collection="batch-input"/>
+    <batch:job jobName="batch_job" doc:id="f3b586cd-b298-4463-9fd1-c34d4cd5cb7a" blockSize="5">
+      <batch:process-records >
+        <batch:step name="Batch_Step" doc:id="bafe873a-e1ca-408b-99ff-126266b61d70" >
+          <batch:aggregator size="5">
+            <marklogic:write-documents doc:name="Write documents" doc:id="b38125ca-46f8-43c5-9340-94986ba8e2f4" config-ref="MarkLogic_Config" format="JSON" permissions="rest-reader,read,rest-reader,update" quality="10" collections="read-batch-data" uriPrefix="/read-batch-data/" uriSuffix=".json"/>
+          </batch:aggregator>
+        </batch:step>
+      </batch:process-records>
+      <batch:on-complete >
+        <logger level="INFO" doc:name="Logger" doc:id="ef39ed33-e3df-4fc7-b694-ebc40194e8bf" message="All done!"/>
+      </batch:on-complete>
+    </batch:job>
+    <ee:transform doc:name="Transform Message" doc:id="1955d524-2022-4f77-a06e-2f1d1d255147" >
+      <ee:message >
+        <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"done": true
+}]]></ee:set-payload>
+      </ee:message>
+    </ee:transform>
+  </flow>
+</mule>
