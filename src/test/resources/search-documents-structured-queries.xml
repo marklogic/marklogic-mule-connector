@@ -15,38 +15,38 @@
   </marklogic:config>
 
   <flow name="search-documents-no-query">
-    <marklogic:search-documents config-ref="config" queryType="StructuredQuery"/>
+    <marklogic:read-documents config-ref="config" queryType="StructuredQuery"/>
   </flow>
 
   <flow name="search-documents-xml-structuredQuery">
-    <marklogic:search-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
+    <marklogic:read-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
                             queryFormat="XML">
       <marklogic:query>
         <![CDATA[<query xmlns='http://marklogic.com/appservices/search'><term-query><text>world</text></term-query></query>]]></marklogic:query>
-    </marklogic:search-documents>
+    </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-json-structuredQuery">
-    <marklogic:search-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
+    <marklogic:read-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
                             queryFormat="JSON">
       <marklogic:query>
         <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "world" ] } }] } }]]></marklogic:query>
-    </marklogic:search-documents>
+    </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-structuredQuery-badXml">
-    <marklogic:search-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
+    <marklogic:read-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
                             queryFormat="XML">
       <marklogic:query><![CDATA[<query xmlns='http://marklogic.com/appservices/search]]></marklogic:query>
-    </marklogic:search-documents>
+    </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-structuredQuery-noMatches">
-    <marklogic:search-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
+    <marklogic:read-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
                             queryFormat="JSON">
       <marklogic:query>
         <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "antidisestablishmentarianism" ] } }] } }]]></marklogic:query>
-    </marklogic:search-documents>
+    </marklogic:read-documents>
   </flow>
 
 </mule>

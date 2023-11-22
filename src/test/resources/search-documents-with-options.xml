@@ -15,31 +15,31 @@
   </marklogic:config>
 
   <flow name="search-documents-with-maxResults">
-    <marklogic:search-documents config-ref="config" collection="batch-input" maxResults="9"/>
+    <marklogic:read-documents config-ref="config" collection="batch-input" maxResults="9"/>
   </flow>
 
   <flow name="search-documents-without-consistent-timestamp">
-    <marklogic:search-documents config-ref="config" collection="batch-input" maxResults="9" consistentSnapshot="False"/>
+    <marklogic:read-documents config-ref="config" collection="batch-input" maxResults="9" consistentSnapshot="False"/>
   </flow>
 
   <flow name="search-documents-search-term-with-options">
-    <marklogic:search-documents config-ref="config" searchOptions="testOptions">
+    <marklogic:read-documents config-ref="config" searchOptions="testOptions">
       <marklogic:query><![CDATA[testConstraint:3]]></marklogic:query>
-    </marklogic:search-documents>
+    </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-search-term-without-options">
-    <marklogic:search-documents config-ref="config">
+    <marklogic:read-documents config-ref="config">
       <marklogic:query><![CDATA[testConstraint:3]]></marklogic:query>
-    </marklogic:search-documents>
+    </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-within-directory">
-    <marklogic:search-documents config-ref="config" collection="test-data" directory="/batch"/>
+    <marklogic:read-documents config-ref="config" collection="test-data" directory="/batch"/>
   </flow>
 
   <flow name="search-documents-with-transform">
-    <marklogic:search-documents config-ref="config" collection="json-data" restTransform="testTransform"
+    <marklogic:read-documents config-ref="config" collection="json-data" restTransform="testTransform"
                                 restTransformParameters="hello;Hola;world;Mundo" restTransformParametersDelimiter=";"/>
   </flow>
 

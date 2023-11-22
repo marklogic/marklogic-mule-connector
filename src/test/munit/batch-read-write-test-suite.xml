@@ -25,7 +25,7 @@
 
 <!--  Flows must be defined outside the munit:test element.-->
   <flow name="readTenDocsWriteTwoBatches">
-    <marklogic:search-documents config-ref="MarkLogicConfig" collection="batch-input"/>
+    <marklogic:read-documents config-ref="MarkLogicConfig" collection="batch-input"/>
     <batch:job jobName="BatchJob">
       <batch:process-records>
         <batch:step name="Step1">

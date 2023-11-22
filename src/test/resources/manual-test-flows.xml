@@ -34,7 +34,7 @@ You can copy/paste this into Anypoint for quick manual testing of the flows.
   -->
   <flow name="readTenDocsWriteTwoBatches">
     <http:listener config-ref="httpConfig" path="/many"/>
-    <marklogic:search-documents config-ref="config" collection="batch-input"/>
+    <marklogic:read-documents config-ref="config" collection="batch-input"/>
     <batch:job jobName="MyJob">
       <batch:process-records>
         <batch:step name="MyStep1">

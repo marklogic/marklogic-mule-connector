@@ -15,19 +15,19 @@
   </marklogic:config>
 
   <flow name="search-documents-no-query">
-    <marklogic:search-documents config-ref="config">
-    </marklogic:search-documents>
+    <marklogic:read-documents config-ref="config">
+    </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-no-query-with-collection">
-    <marklogic:search-documents config-ref="config" collection="batch-input">
-    </marklogic:search-documents>
+    <marklogic:read-documents config-ref="config" collection="batch-input">
+    </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-query-with-no-matches">
-    <marklogic:search-documents config-ref="config">
+    <marklogic:read-documents config-ref="config">
       <marklogic:query><![CDATA[antidisestablishmentarianism]]></marklogic:query>
-    </marklogic:search-documents>
+    </marklogic:read-documents>
   </flow>
 
 </mule>

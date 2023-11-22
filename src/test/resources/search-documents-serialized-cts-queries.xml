@@ -15,38 +15,38 @@
   </marklogic:config>
 
   <flow name="search-documents-no-query">
-    <marklogic:search-documents config-ref="config" queryType="SerializedCtsQuery"/>
+    <marklogic:read-documents config-ref="config" queryType="SerializedCtsQuery"/>
   </flow>
 
   <flow name="search-documents-xml-serializedCtsQuery">
-    <marklogic:search-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
+    <marklogic:read-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
                             queryFormat="XML">
       <marklogic:query>
         <![CDATA[<cts:word-query xmlns:cts="http://marklogic.com/cts"><cts:text xml:lang="en">world</cts:text></cts:word-query>]]></marklogic:query>
-    </marklogic:search-documents>
+    </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-json-serializedCtsQuery">
-    <marklogic:search-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
+    <marklogic:read-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
                             queryFormat="JSON">
       <marklogic:query>
         <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "world" ] } }] } }]]></marklogic:query>
-    </marklogic:search-documents>
+    </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-serializedCtsQuery-badXml">
-    <marklogic:search-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
+    <marklogic:read-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
                             queryFormat="XML">
       <marklogic:query><![CDATA[<cts:word-query xmlns:cts="http://marklogic.com/cts"><cts:text]]></marklogic:query>
-    </marklogic:search-documents>
+    </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-serializedCtsQuery-noMatches">
-    <marklogic:search-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
+    <marklogic:read-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
                             queryFormat="JSON">
       <marklogic:query>
         <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "antidisestablishmentarianism" ] } }] } }]]></marklogic:query>
-    </marklogic:search-documents>
+    </marklogic:read-documents>
   </flow>
 
 </mule>
