@@ -51,80 +51,9 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 public class Operations {
     static final private Logger logger = LoggerFactory.getLogger(Operations.class);
 
-    @MediaType(value = ANY, strict = false)
-    @DisplayName("Read document")
-    public Result<InputStream, DocumentAttributes> readDocument(
-        @Connection DatabaseClient databaseClient,
-        @DisplayName("Document URI") @Example("/data/customer.json") String uri,
-        @DisplayName("Metadata Category List") @Optional(defaultValue = "ALL") @Example("COLLECTIONS,PERMISSIONS") String categories
-    ) {
-        DocumentMetadataHandle metadataHandle = new DocumentMetadataHandle();
-        GenericDocumentManager documentManager = databaseClient.newDocumentManager();
-
-        if (Utilities.hasText(categories)) {
-            documentManager.setMetadataCategories(buildMetadataCategories(categories));
-        }
-
-        InputStreamHandle handle = documentManager.read(uri, metadataHandle, new InputStreamHandle());
-        return Result.<InputStream, DocumentAttributes>builder()
-            .output(handle.get())
-            .attributes(new DocumentAttributes(uri, metadataHandle))
-            .mediaType(makeMediaType(handle.getFormat()))
-            .attributesMediaType(org.mule.runtime.api.metadata.MediaType.APPLICATION_JAVA)
-            .build();
-    }
-
-    /**
-     * Write document(s) with/without metadata.
-     *
-     * @param databaseClient
-     * @param myContent
-     * @param format
-     * @param permissions
-     * @param quality
-     * @param collections
-     * @param uriPrefix
-     * @param uriSuffix
-     * @param generateUUID
-     * @param temporalCollection
-     * @DisplayName ("REST Transform") @Optional String restTransform,
-     * @DisplayName ("REST Transform Parameters") @Optional String restTransformParameters,
-     * @DisplayName ("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter
-     */
     public void writeDocuments(
-        @Connection DatabaseClient databaseClient, @Content InputStream myContent,
-        @Optional Format format,
-        @Optional @Example("Role,permission") String permissions,
-        @Optional(defaultValue = "0") int quality,
-        @Optional @Example("Comma separated collection strings") String collections,
-        @Optional @Example("/test/") String uriPrefix,
-        @Optional @Example(".json") String uriSuffix,
-        @Optional(defaultValue = "True") boolean generateUUID,
-        @Optional @Example("temporal-collection string") String temporalCollection,
-        @DisplayName("REST Transform") @Optional String restTransform,
-        @DisplayName("REST Transform Parameters") @Optional String restTransformParameters,
-        @DisplayName("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter) {
-
-        new WriteOperations().writeDocuments(databaseClient, myContent, format, permissions, quality, collections,
-            uriPrefix, uriSuffix, generateUUID, temporalCollection, restTransform, restTransformParameters, restTransformParametersDelimiter);
-    }
-
-
-    /**
-     * Write document(s) with/without metadata.
-     *
-     * @param databaseClient
-     * @param myContents
-     * @param format
-     * @param permissions
-     * @param quality
-     * @param collections
-     * @param uriPrefix
-     * @param uriSuffix
-     * @param generateUUID
-     */
-    public void writeMultipleDocuments(
-        @Connection DatabaseClient databaseClient, @Content InputStream[] myContents,
+        @Connection DatabaseClient databaseClient,
+        @Content InputStream[] myContents,
         @Optional Format format,
         @Optional @Example("Role,permission")String permissions,
         @Optional(defaultValue = "0") int quality,
@@ -132,19 +61,20 @@ public class Operations {
         @Optional @Example("/test/") String uriPrefix,
         @Optional @Example(".json") String uriSuffix,
         @Optional(defaultValue = "True") boolean generateUUID,
-        @Optional @Example("temporal-collection string") String temporalCollection,
+        @Optional @Example("temporal-collection") String temporalCollection,
         @DisplayName("REST Transform") @Optional String restTransform,
         @DisplayName("REST Transform Parameters") @Optional String restTransformParameters,
         @DisplayName("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter
     ) {
 
-        new WriteOperations().writeMultipleDocuments(databaseClient,myContents,format, permissions, quality, collections,
-            uriPrefix, uriSuffix, generateUUID,  temporalCollection, restTransform, restTransformParameters, restTransformParametersDelimiter);
+        new WriteOperations().writeDocuments(databaseClient, myContents, format, permissions, quality, collections,
+            uriPrefix, uriSuffix, generateUUID, temporalCollection, restTransform, restTransformParameters, restTransformParametersDelimiter);
     }
 
     @MediaType(value = ANY, strict = false)
     @DisplayName("Read Documents")
     public PagingProvider<DatabaseClient, Result<InputStream, DocumentAttributes>> readDocuments(
+        @Optional String uri,
         @DisplayName("Collection") @Optional(defaultValue = "") @Example("myCollection") String collection,
         @DisplayName("Query") @Text @Optional @Example("searchTerm") String query,
         @DisplayName("Query Type") @Optional QueryType queryType,
@@ -177,7 +107,10 @@ public class Operations {
                     documentManager.setMetadataCategories(buildMetadataCategories(categories));
                 }
 
-                QueryDefinition queryDefinition = ReadUtil.buildQueryDefinitionFromParams(databaseClient, query, queryType, queryFormat);
+                QueryDefinition queryDefinition = Utilities.hasText(uri) ?
+                    databaseClient.newQueryManager().newStructuredQueryBuilder().document(uri) :
+                    ReadUtil.buildQueryDefinitionFromParams(databaseClient, query, queryType, queryFormat);
+
                 if (Utilities.hasText(collection)) {
                     queryDefinition.setCollections(collection);
                 }
@@ -276,31 +209,19 @@ public class Operations {
         mgr.write(writeSet);
     }
 
-    /**
-     * Evaluate custom JavaScript code on the MarkLogic server.
-     */
     @MediaType(value = ANY, strict = false)
-    @DisplayName("Eval JavaScript")
-    public String evalJavascript(
+    public InputStream[] exportDocuments(
         @Connection DatabaseClient databaseClient,
-        @DisplayName("Script") @Text @Example("xdmp.log('Hello, World!');") String script
+        @Optional String uri,
+        @Optional String[] uris
     ) {
-        if (Utilities.hasText(script)) {
-            return databaseClient.newServerEval().javascript(script).evalAs(String.class);
-        } else {
-            throw new RuntimeException("A valid script must be provided.");
+        if (uris == null) {
+            uris = new String[]{uri};
         }
-    }
-
-    /**
-     * Temp function
-     */
-    @MediaType(value = ANY, strict = false)
-    public InputStream[] readArray(@Connection DatabaseClient databaseClient, String[] uris
-    ) throws Exception {
         InputStream[] inputStreams = new InputStream[uris.length];
+        GenericDocumentManager documentManager = databaseClient.newDocumentManager();
         for(int i=0; i<uris.length; i++){
-            inputStreams[i] = readDocument(databaseClient,uris[i],"").getOutput();
+            inputStreams[i] = documentManager.read(uris[i], new InputStreamHandle()).get();
         }
        return inputStreams;
     }

@@ -28,9 +28,10 @@ import java.util.UUID;
 import static com.marklogic.client.io.Format.XML;
 
 public class WriteOperations {
-    void writeDocuments(DatabaseClient databaseClient, InputStream content,
+    void writeDocuments(DatabaseClient databaseClient, InputStream[] content,
                         Format format, String permissions, int quality,
-                        String collections, String uriPrefix, String uriSuffix, boolean generateUUID, String temporalCollection,
+                        String collections, String uriPrefix, String uriSuffix, boolean generateUUID,
+                        String temporalCollection,
                         String restTransform, String restTransformParameters, String restTransformParametersDelimiter) {
 
         DocumentMetadataHandle documentMetadataHandle = new DocumentMetadataHandle().withQuality(quality);
@@ -43,61 +44,7 @@ public class WriteOperations {
         if (Utilities.hasText(permissions)) {
             documentMetadataHandle.getPermissions().addFromDelimitedString(permissions);
         }
-        StringBuilder uri = new StringBuilder();
-        if (Utilities.hasText(uriPrefix)) {
-            uri.append(uriPrefix);
-        }
-        if (generateUUID) {
-            uri.append(UUID.randomUUID());
-        }
-        if (Utilities.hasText(uriSuffix)) {
-            uri.append(uriSuffix);
-        }
-        InputStreamHandle contentHandle = new InputStreamHandle(content).withFormat(format);
-        ServerTransform serverTransform = Utilities.findServerTransform(restTransform, restTransformParameters,
-            restTransformParametersDelimiter);
 
-        if(Utilities.hasText(temporalCollection)){
-            if(format != null && format.equals(XML)){
-                databaseClient.newXMLDocumentManager()
-                    .write(uri.toString(),
-                        documentMetadataHandle,
-                        contentHandle,
-                        serverTransform,
-                        null, temporalCollection);
-            } else {
-                databaseClient.newJSONDocumentManager()
-                    .write(uri.toString(),
-                        documentMetadataHandle,
-                        contentHandle,
-                        serverTransform,
-                        null, temporalCollection);
-            }
-        } else {
-            databaseClient.newDocumentManager()
-                .write(uri.toString(),
-                    documentMetadataHandle,
-                    contentHandle,
-                    serverTransform);
-        }
-    }
-
-    void writeMultipleDocuments(DatabaseClient databaseClient, InputStream[] content,
-                                Format format, String permissions, int quality,
-                                String collections, String uriPrefix, String uriSuffix, boolean generateUUID,
-                                String temporalCollection,
-                                String restTransform, String restTransformParameters, String restTransformParametersDelimiter) {
-
-        DocumentMetadataHandle documentMetadataHandle = new DocumentMetadataHandle().withQuality(quality);
-
-        if(Utilities.hasText(collections)){
-            String[] collectionArray = collections.split(",");
-            documentMetadataHandle.withCollections(collectionArray);
-        }
-
-        if(Utilities.hasText(permissions)){
-            documentMetadataHandle.getPermissions().addFromDelimitedString(permissions);
-        }
         DocumentWriteSet documentWriteSet = databaseClient.newDocumentManager().newWriteSet();
         ServerTransform serverTransform = Utilities.findServerTransform(restTransform, restTransformParameters,
             restTransformParametersDelimiter);
@@ -116,8 +63,8 @@ public class WriteOperations {
             documentWriteSet.add(uri.toString(), documentMetadataHandle, new InputStreamHandle(inputStream).withFormat(format));
         }
 
-        if(Utilities.hasText(temporalCollection)){
-            if(format != null && format.equals(XML)){
+        if (Utilities.hasText(temporalCollection)) {
+            if (format != null && format.equals(XML)) {
                 databaseClient.newXMLDocumentManager()
                     .write(documentWriteSet,
                         serverTransform,
