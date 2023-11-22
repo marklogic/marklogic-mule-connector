@@ -53,7 +53,7 @@
     <marklogic:export-documents config-ref="config" uris="#[['/metadataSamples/text/hello.text']]"/>
     <marklogic:write-documents config-ref="config" format="TEXT" permissions="rest-reader,read,rest-reader,update"
                           quality="5" collections="writeDocumentWithoutUriWithTextFormat"/>
-    <marklogic:read-documents config-ref="config" collection="writeDocumentWithoutUriWithTextFormat"
+    <marklogic:read-documents config-ref="config" collections="writeDocumentWithoutUriWithTextFormat"
                             categories="all"/>
   </flow>
 
@@ -61,14 +61,14 @@
     <marklogic:export-documents config-ref="config" uris="#[['/metadataSamples/text/hello.text']]"/>
     <marklogic:write-documents config-ref="config" permissions="rest-reader,read,rest-reader,update" quality="6"
                           collections="writeDocumentWithoutUriWithoutFormat"/>
-    <marklogic:read-documents config-ref="config" collection="writeDocumentWithoutUriWithoutFormat" categories="all"/>
+    <marklogic:read-documents config-ref="config" collections="writeDocumentWithoutUriWithoutFormat" categories="all"/>
   </flow>
 
   <flow name="writeDocumentWithoutUriWithJsonFormat">
     <marklogic:export-documents config-ref="config" uris="#[['/metadataSamples/json/hello.json']]"/>
     <marklogic:write-documents config-ref="config" format="JSON" permissions="rest-reader,read,rest-reader,update"
                           quality="7" collections="writeDocumentWithoutUriWithJsonFormat"/>
-    <marklogic:read-documents config-ref="config" collection="writeDocumentWithoutUriWithJsonFormat"
+    <marklogic:read-documents config-ref="config" collections="writeDocumentWithoutUriWithJsonFormat"
                             categories="all"/>
   </flow>
 
@@ -76,14 +76,14 @@
     <marklogic:export-documents config-ref="config" uris="#[['/metadataSamples/xml/hello.xml']]"/>
     <marklogic:write-documents config-ref="config" format="XML" permissions="rest-reader,read,rest-reader,update"
                           quality="8" collections="writeDocumentWithoutUriWithXmlFormat"/>
-    <marklogic:read-documents config-ref="config" collection="writeDocumentWithoutUriWithXmlFormat" categories="all"/>
+    <marklogic:read-documents config-ref="config" collections="writeDocumentWithoutUriWithXmlFormat" categories="all"/>
   </flow>
 
   <flow name="writeDocumentWithoutUriWithBinaryFormat">
     <marklogic:export-documents config-ref="config" uris="#[['/metadataSamples/xml/hello.xml']]"/>
     <marklogic:write-documents config-ref="config" format="BINARY" permissions="rest-reader,read,rest-reader,update"
                           quality="9" collections="writeDocumentWithoutUriWithBinaryFormat"/>
-    <marklogic:read-documents config-ref="config" collection="writeDocumentWithoutUriWithBinaryFormat"
+    <marklogic:read-documents config-ref="config" collections="writeDocumentWithoutUriWithBinaryFormat"
                             categories="all"/>
   </flow>
 
@@ -110,7 +110,7 @@
     <marklogic:write-documents config-ref="config" format="JSON"
                           permissions="rest-reader,read,rest-reader,update" quality="12"
                           collections="writeDocumentWithUuid"/>
-    <marklogic:read-documents config-ref="config" collection="writeDocumentWithUuid" categories="all"/>
+    <marklogic:read-documents config-ref="config" collections="writeDocumentWithUuid" categories="all"/>
   </flow>
 
   <flow name="writeDocumentWithTemporalCollection">
@@ -135,7 +135,15 @@
     <marklogic:write-documents config-ref="config" format="TEXT" collections="writeDocumentWithArrayInput"
                                permissions="rest-reader,read,rest-reader,update" quality="15" generateUUID="True"
                                uriPrefix="/writeDocumentWithArrayInput/"/>
-    <marklogic:read-documents config-ref="config" collection="writeDocumentWithArrayInput" categories="all"/>
+    <marklogic:read-documents config-ref="config" collections="writeDocumentWithArrayInput" categories="all"/>
+  </flow>
+
+  <flow name="writeDocumentsWithMultipleCollections">
+    <marklogic:export-documents config-ref="config" uris="#[['/metadataSamples/text/hello.text','/metadataSamples/json/hello.json']]"/>
+    <marklogic:write-documents config-ref="config" format="TEXT" collections="collection1,collection2"
+                               permissions="rest-reader,read,rest-reader,update" generateUUID="True"
+                               uriPrefix="/writeDocumentsWithMultipleCollections/"/>
+    <marklogic:read-documents config-ref="config" collections="collection1,collection2" categories="all"/>
   </flow>
 
 </mule>

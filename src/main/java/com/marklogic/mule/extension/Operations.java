@@ -67,7 +67,7 @@ public class Operations {
     public PagingProvider<DatabaseClient, Result<InputStream, DocumentAttributes>> readDocuments(
         @DisplayName("Document URIs") @Optional
         @Summary("Specify one or more document URIs to read. If specified, all other parameters for querying will be ignored.") List<String> uris,
-        @DisplayName("Collection") @Optional(defaultValue = "") @Example("myCollection") String collection,
+        @DisplayName("Collections") @Optional(defaultValue = "") @Example("myCollection1,myCollection2") String collections,
         @DisplayName("Query") @Text @Optional @Example("searchTerm") String query,
         @DisplayName("Query Type") @Optional QueryType queryType,
         @DisplayName("Query Format") @Optional QueryFormat queryFormat,
@@ -81,7 +81,7 @@ public class Operations {
         @DisplayName("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter,
         @DisplayName("Consistent Snapshot") @Optional(defaultValue = "True") boolean consistentSnapshot
     ) {
-        return new ReadPagingProvider(uris, collection, query, queryType, queryFormat, categories,
+        return new ReadPagingProvider(uris, collections, query, queryType, queryFormat, categories,
             maxResults, pageLength, searchOptions, directory, restTransform, restTransformParameters,
             restTransformParametersDelimiter, consistentSnapshot);
     }
@@ -91,7 +91,7 @@ public class Operations {
     public PagingProvider<DatabaseClient, InputStream> exportDocuments(
         @DisplayName("Document URIs") @Optional
         @Summary("Specify one or more document URIs to read. If specified, all other parameters for querying will be ignored.") List<String> uris,
-        @DisplayName("Collection") @Optional @Example("myCollection") String collection,
+        @DisplayName("Collections") @Optional @Example("myCollection1,myCollection2") String collections,
         @DisplayName("Query") @Text @Optional @Example("searchTerm") String query,
         @DisplayName("Query Type") @Optional QueryType queryType,
         @DisplayName("Query Format") @Optional QueryFormat queryFormat,
@@ -105,7 +105,7 @@ public class Operations {
         @DisplayName("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter,
         @DisplayName("Consistent Snapshot") @Optional(defaultValue = "True") boolean consistentSnapshot
     ) {
-        return new ExportPagingProvider(uris, collection, query, queryType, queryFormat, categories,
+        return new ExportPagingProvider(uris, collections, query, queryType, queryFormat, categories,
             maxResults, pageLength, searchOptions, directory, restTransform, restTransformParameters,
             restTransformParametersDelimiter, consistentSnapshot);
     }

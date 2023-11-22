@@ -15,11 +15,11 @@
   </marklogic:config>
 
   <flow name="search-documents-with-maxResults">
-    <marklogic:read-documents config-ref="config" collection="batch-input" maxResults="9"/>
+    <marklogic:read-documents config-ref="config" collections="batch-input" maxResults="9"/>
   </flow>
 
   <flow name="search-documents-without-consistent-timestamp">
-    <marklogic:read-documents config-ref="config" collection="batch-input" maxResults="9" consistentSnapshot="False"/>
+    <marklogic:read-documents config-ref="config" collections="batch-input" maxResults="9" consistentSnapshot="False"/>
   </flow>
 
   <flow name="search-documents-search-term-with-options">
@@ -35,11 +35,11 @@
   </flow>
 
   <flow name="search-documents-within-directory">
-    <marklogic:read-documents config-ref="config" collection="test-data" directory="/batch"/>
+    <marklogic:read-documents config-ref="config" collections="test-data" directory="/batch"/>
   </flow>
 
   <flow name="search-documents-with-transform">
-    <marklogic:read-documents config-ref="config" collection="json-data" restTransform="testTransform"
+    <marklogic:read-documents config-ref="config" collections="json-data" restTransform="testTransform"
                                 restTransformParameters="hello;Hola;world;Mundo" restTransformParametersDelimiter=";"/>
   </flow>
 

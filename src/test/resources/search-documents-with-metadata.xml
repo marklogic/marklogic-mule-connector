@@ -16,23 +16,23 @@
 
 
   <flow name="search-batch-input-documents-with-metadata-default">
-    <marklogic:read-documents config-ref="config" collection="batch-input"/>
+    <marklogic:read-documents config-ref="config" collections="batch-input"/>
   </flow>
 
   <flow name="search-test-data-documents-with-metadata-all">
-    <marklogic:read-documents config-ref="config" collection="test-data" categories="all"/>
+    <marklogic:read-documents config-ref="config" collections="test-data" categories="all"/>
   </flow>
 
   <flow name="search-binary-documents-with-metadata-collections">
-    <marklogic:read-documents config-ref="config" collection="binary-data" categories="collections"/>
+    <marklogic:read-documents config-ref="config" collections="binary-data" categories="collections"/>
   </flow>
 
   <flow name="search-text-documents-with-metadata-permissions">
-    <marklogic:read-documents config-ref="config" collection="text-data" categories="permissions"/>
+    <marklogic:read-documents config-ref="config" collections="text-data" categories="permissions"/>
   </flow>
 
   <flow name="search-text-documents-with-metadata-permissionsProperties">
-    <marklogic:read-documents config-ref="config" collection="text-data" categories="permissions,properties"/>
+    <marklogic:read-documents config-ref="config" collections="text-data" categories="permissions,properties"/>
   </flow>
 
 </mule>

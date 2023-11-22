@@ -32,7 +32,7 @@ abstract class AbstractPagingProvider {
 
     private final int pageLength;
     private final List<String> uris;
-    private final String collection;
+    private final String collections;
     private final String query;
     private final QueryType queryType;
     private final QueryFormat queryFormat;
@@ -45,14 +45,14 @@ abstract class AbstractPagingProvider {
     private final String restTransformParametersDelimiter;
     private final boolean consistentSnapshot;
 
-    protected AbstractPagingProvider(List<String> uris, String collection, String query, QueryType queryType, QueryFormat queryFormat,
+    protected AbstractPagingProvider(List<String> uris, String collections, String query, QueryType queryType, QueryFormat queryFormat,
                                      String categories, Integer maxResults, Integer pageLength, String searchOptions,
                                      String directory, String restTransform, String restTransformParameters,
                                      String restTransformParametersDelimiter, boolean consistentSnapshot) {
 
         this.pageLength = pageLength != null ? pageLength : 100;
         this.uris = uris;
-        this.collection = collection;
+        this.collections = collections;
         this.query = query;
         this.queryType = queryType;
         this.queryFormat = queryFormat;
@@ -78,8 +78,8 @@ abstract class AbstractPagingProvider {
             databaseClient.newQueryManager().newStructuredQueryBuilder().document(uris.toArray(new String[]{})) :
             ReadUtil.buildQueryDefinitionFromParams(databaseClient, query, queryType, queryFormat);
 
-        if (Utilities.hasText(collection)) {
-            queryDefinition.setCollections(collection);
+        if (Utilities.hasText(collections)) {
+            queryDefinition.setCollections(collections.split(","));
         }
         if (Utilities.hasText(searchOptions)) {
             queryDefinition.setOptionsName(searchOptions);

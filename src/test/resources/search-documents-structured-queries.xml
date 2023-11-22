@@ -19,7 +19,7 @@
   </flow>
 
   <flow name="search-documents-xml-structuredQuery">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="StructuredQuery"
                             queryFormat="XML">
       <marklogic:query>
         <![CDATA[<query xmlns='http://marklogic.com/appservices/search'><term-query><text>world</text></term-query></query>]]></marklogic:query>
@@ -27,7 +27,7 @@
   </flow>
 
   <flow name="search-documents-json-structuredQuery">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="StructuredQuery"
                             queryFormat="JSON">
       <marklogic:query>
         <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "world" ] } }] } }]]></marklogic:query>
@@ -35,14 +35,14 @@
   </flow>
 
   <flow name="search-documents-structuredQuery-badXml">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="StructuredQuery"
                             queryFormat="XML">
       <marklogic:query><![CDATA[<query xmlns='http://marklogic.com/appservices/search]]></marklogic:query>
     </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-structuredQuery-noMatches">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="StructuredQuery"
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="StructuredQuery"
                             queryFormat="JSON">
       <marklogic:query>
         <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "antidisestablishmentarianism" ] } }] } }]]></marklogic:query>

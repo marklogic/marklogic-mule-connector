@@ -19,42 +19,42 @@
   </flow>
 
   <flow name="search-documents-xml-combinedQuery">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="CombinedQuery" queryFormat="XML">
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="CombinedQuery" queryFormat="XML">
       <marklogic:query>
         <![CDATA[<search xmlns="http://marklogic.com/appservices/search"><cts:word-query xmlns:cts="http://marklogic.com/cts"><cts:text xml:lang="en">world</cts:text></cts:word-query><options><return-metrics>false</return-metrics><return-qtext>false</return-qtext><debug>true</debug><transform-results apply="raw"/></options></search>]]></marklogic:query>
     </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-json-combinedQuery">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="CombinedQuery" queryFormat="JSON">
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="CombinedQuery" queryFormat="JSON">
       <marklogic:query>
         <![CDATA[{ "search": { "query": { "query": { "queries": [{"term-query":{"text":["world"]}}] } } } }]]></marklogic:query>
     </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-xml-combinedQuery-noMatches">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="CombinedQuery" queryFormat="XML">
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="CombinedQuery" queryFormat="XML">
       <marklogic:query>
         <![CDATA[<search xmlns="http://marklogic.com/appservices/search"><cts:word-query xmlns:cts="http://marklogic.com/cts"><cts:text xml:lang="en">thisTermDoesNotExist</cts:text></cts:word-query><options><return-metrics>false</return-metrics><return-qtext>false</return-qtext><debug>true</debug><transform-results apply="raw"/></options></search>]]></marklogic:query>
     </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-json-combinedQuery-noMatches">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="CombinedQuery" queryFormat="JSON">
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="CombinedQuery" queryFormat="JSON">
       <marklogic:query>
         <![CDATA[{ "search": { "query": { "query": { "queries": [{"term-query":{"text":["antidisestablishmentarianism"]}}] } } } }]]></marklogic:query>
     </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-xml-combinedQuery-badXml">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="CombinedQuery" queryFormat="XML">
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="CombinedQuery" queryFormat="XML">
       <marklogic:query>
         <![CDATA[<search xmlns="http://marklogic.com/appservices/search"><cts:word-query]]></marklogic:query>
     </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-json-combinedQuery-badJson">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="CombinedQuery" queryFormat="JSON">
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="CombinedQuery" queryFormat="JSON">
       <marklogic:query><![CDATA[{ "search": { "query": { "query": { "queries": [{"term-query"]]></marklogic:query>
     </marklogic:read-documents>
   </flow>

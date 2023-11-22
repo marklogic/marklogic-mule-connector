@@ -5,6 +5,6 @@
         http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
 
   <flow name="prepare-database">
-    <marklogic:read-documents config-ref="config" collection="dummy" restTransform="prepare-database"/>
+    <marklogic:read-documents config-ref="config" collections="dummy" restTransform="prepare-database"/>
   </flow>
 </mule>
