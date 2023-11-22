@@ -174,9 +174,11 @@ a few steps to get up and running.
 3. Choose Anypoint Studio -> Anypoint Studio project from File System, and click Next
 4. For Project Root, select the src/test/studio-workspace/marklogicQuickstart directory in this project, and click Finish
 5. Click the Green "Run" button in the toolbar.
-6. Once running, the scheduler will cause the flow to run every 10 seconds. Every time
-the flow runs, it will insert a document in the database. The document uris are based on
-random guids (<guid>.json) and contain a single timestamp property. Use QConsole to verify.
+
+The flows expose endpoints at http://localhost:8081/export and http://localhost:8081/read . Each will query the 
+`batch-input` collection in the `mule2-test-content` database. The former uses the "Export Documents" operation to 
+read only the document contents, while the latter uses "Read Documents" and requires the use of a Mule batch job. Both
+will write the 10 documents in the `batch-input` collection to different URIs and collections.
 
 ### Anypoint - Step-By-Step
 This method provides a step-by-step guide to creating a new workspace, a new project, and adding a flow.

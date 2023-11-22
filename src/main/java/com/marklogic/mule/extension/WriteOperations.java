@@ -28,7 +28,7 @@ import java.util.UUID;
 import static com.marklogic.client.io.Format.XML;
 
 public class WriteOperations {
-    void writeDocuments(DatabaseClient databaseClient, InputStream[] content,
+    void writeDocuments(DatabaseClient databaseClient, InputStream[] contents,
                         Format format, String permissions, int quality,
                         String collections, String uriPrefix, String uriSuffix, boolean generateUUID,
                         String temporalCollection,
@@ -49,7 +49,7 @@ public class WriteOperations {
         ServerTransform serverTransform = Utilities.findServerTransform(restTransform, restTransformParameters,
             restTransformParametersDelimiter);
 
-        for (InputStream inputStream : content) {
+        for (InputStream inputStream : contents) {
             StringBuilder uri = new StringBuilder();
             if (Utilities.hasText(uriPrefix)) {
                 uri.append(uriPrefix);
