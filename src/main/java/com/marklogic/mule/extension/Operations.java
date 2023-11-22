@@ -142,13 +142,9 @@ public class Operations {
             uriPrefix, uriSuffix, generateUUID,  temporalCollection, restTransform, restTransformParameters, restTransformParametersDelimiter);
     }
 
-    /**
-     * Search for documents, returning the documents but not yet any metadata for them.
-     * Will eventually support many parameters here for searching.
-     */
     @MediaType(value = ANY, strict = false)
-    @DisplayName("Search Documents")
-    public PagingProvider<DatabaseClient, Result<InputStream, DocumentAttributes>> searchDocuments(
+    @DisplayName("Read Documents")
+    public PagingProvider<DatabaseClient, Result<InputStream, DocumentAttributes>> readDocuments(
         @DisplayName("Collection") @Optional(defaultValue = "") @Example("myCollection") String collection,
         @DisplayName("Query") @Text @Optional @Example("searchTerm") String query,
         @DisplayName("Query Type") @Optional QueryType queryType,
