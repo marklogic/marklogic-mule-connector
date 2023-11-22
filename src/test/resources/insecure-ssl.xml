@@ -35,11 +35,11 @@
   </marklogic:config>
 
   <flow name="hostnameVerifierANY">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/json/hello.json"/>
   </flow>
 
   <flow name="hostnameVerifierCOMMON">
-    <marklogic:read-document config-ref="config2" uri="/metadataSamples/json/hello.json"/>
+    <marklogic:read-documents config-ref="config2" uri="/metadataSamples/json/hello.json"/>
   </flow>
 
 </mule>

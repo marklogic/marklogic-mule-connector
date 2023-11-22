@@ -45,7 +45,7 @@ public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase 
     }
 
     DocumentData runFlowGetDocumentData(String flowName) {
-        return toDocumentData(runFlowGetMessage(flowName));
+        return runFlowForDocumentDataList(flowName).get(0);
     }
 
     List<DocumentData> runFlowForDocumentDataList(String flowName) {
@@ -69,13 +69,4 @@ public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase 
         );
 
     }
-
-    private List<DocumentData> toDocumentDataList(List<Message> innerMessages) {
-        List<DocumentData> documentDataList = new ArrayList<>();
-        for (Message docMessage : innerMessages) {
-            documentDataList.add(toDocumentData(docMessage));
-        }
-        return documentDataList;
-    }
-
 }

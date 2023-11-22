@@ -17,75 +17,75 @@
 
   <!-- JSON documents -->
   <flow name="read-json-document-with-metadata-permissions-collections">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/json/hello.json"
                          categories="permissions,collections"/>
   </flow>
 
   <flow name="read-json-document-with-metadata-collections">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json" categories="collections"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/json/hello.json" categories="collections"/>
   </flow>
 
   <flow name="read-json-document-with-metadata-permissions">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json" categories="permissions"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/json/hello.json" categories="permissions"/>
   </flow>
 
   <flow name="read-json-document-with-metadata-quality">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json" categories="quality"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/json/hello.json" categories="quality"/>
   </flow>
 
   <flow name="read-json-document-with-metadata-all">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json" categories="all"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/json/hello.json" categories="all"/>
   </flow>
 
 
   <!-- XML documents -->
   <flow name="read-xml-document-with-metadata-permissions-collections">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml"
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/xml/hello.xml"
                          categories="permissions,collections"/>
   </flow>
 
   <flow name="read-xml-document-with-metadata-collections">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml" categories="collections"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/xml/hello.xml" categories="collections"/>
   </flow>
 
   <flow name="read-xml-document-with-metadata-permissions">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml" categories="permissions"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/xml/hello.xml" categories="permissions"/>
   </flow>
 
   <flow name="read-xml-document-with-metadata-quality">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml" categories="quality"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/xml/hello.xml" categories="quality"/>
   </flow>
 
   <flow name="read-xml-document-with-metadata-all">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/xml/hello.xml" categories="all"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/xml/hello.xml" categories="all"/>
   </flow>
 
 
   <!-- Text documents -->
   <flow name="read-text-document-with-metadata-properties">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/text/hello.text" categories="properties"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/text/hello.text" categories="properties"/>
   </flow>
 
   <flow name="read-text-document-with-metadata-metadata">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/text/hello.text" categories="all"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/text/hello.text" categories="all"/>
   </flow>
 
   <flow name="read-text-document-with-metadata-content">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/text/hello.text"/>
   </flow>
 
   <flow name="read-text-document-with-metadata-all">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/text/hello.text" categories="all"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/text/hello.text" categories="all"/>
   </flow>
 
 
   <!-- Binary documents -->
   <flow name="read-binary-document-with-metadata-all">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/binary/logo.png" categories="all"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/binary/logo.png" categories="all"/>
   </flow>
 
   <flow name="read-binary-document-with-metadata-content">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/binary/logo.png"/>
+    <marklogic:read-documents config-ref="config" uri="/metadataSamples/binary/logo.png"/>
   </flow>
 
 </mule>

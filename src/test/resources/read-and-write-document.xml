@@ -16,10 +16,10 @@
   </marklogic:config>
 
   <flow name="read-and-write-document">
-    <marklogic:read-document config-ref="config" uri="/metadataSamples/json/hello.json"/>
-    <marklogic:write-documents config-ref="config" uriPrefix='#["/test" ++ attributes.uri]' generateUUID="False"
+    <marklogic:export-documents config-ref="config" uri="/metadataSamples/json/hello.json"/>
+    <marklogic:write-documents config-ref="config" uriPrefix="/test/metadataSamples/json/hello.json" generateUUID="False"
                           permissions="rest-reader,read,rest-reader,update"/>
-    <marklogic:read-document config-ref="config" uri="/test/metadataSamples/json/hello.json"/>
+    <marklogic:read-documents config-ref="config" uri="/test/metadataSamples/json/hello.json"/>
   </flow>
 
 </mule>
