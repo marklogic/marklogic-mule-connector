@@ -296,18 +296,6 @@ public class Operations {
         }
     }
 
-    /**
-     * Temp function
-     */
-    @MediaType(value = ANY, strict = false)
-    public InputStream[] readArray(@Connection DatabaseClient databaseClient, String[] uris
-    ) throws Exception {
-        InputStream[] inputStreams = new InputStream[uris.length];
-        for(int i=0; i<uris.length; i++){
-            inputStreams[i] = readDocument(databaseClient,uris[i],"").getOutput();
-        }
-       return inputStreams;
-    }
 
     private org.mule.runtime.api.metadata.MediaType makeMediaType(Format format) {
         if (Format.JSON.equals(format)) {

@@ -1,6 +1,8 @@
 <mule xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
         http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
 
@@ -132,11 +134,29 @@
 
   <flow name="writeDocumentWithArrayInput">
     <set-variable variableName="uris" value="#[['/metadataSamples/text/hello.text','/metadataSamples/json/hello.json']]"/>
-    <marklogic:read-array config-ref="config" uris="#[vars.uris]"/>
+
+    <marklogic:read-document config-ref="config" uri="/metadataSamples/text/hello.text"/>
+    <flow-ref name="subflow_ex1"/>
     <marklogic:write-multiple-documents config-ref="config" format="TEXT" collections="writeDocumentWithArrayInput"
                                permissions="rest-reader,read,rest-reader,update" quality="15" generateUUID="True"
                                uriPrefix="/writeDocumentWithArrayInput/"/>
     <marklogic:search-documents config-ref="config" collection="writeDocumentWithArrayInput" categories="all"/>
   </flow>
+
+  <sub-flow name="subflow_ex1">
+    <ee:transform >
+      <ee:message >
+        <ee:set-payload ><![CDATA[%dw 2.0
+import java!com::marklogic::mule::extension::TestOperations
+output application/json
+---
+{
+	a: TestOperations::readArray(payload)
+}
+
+]]></ee:set-payload>
+      </ee:message>
+    </ee:transform>
+  </sub-flow>
 
 </mule>
