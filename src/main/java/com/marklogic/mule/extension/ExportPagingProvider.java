@@ -13,11 +13,11 @@ import java.util.Optional;
 
 class ExportPagingProvider extends AbstractPagingProvider implements PagingProvider<DatabaseClient, InputStream> {
 
-    ExportPagingProvider(List<String> uris, String collection, String query, QueryType queryType, QueryFormat queryFormat,
+    ExportPagingProvider(List<String> uris, String collections, String query, QueryType queryType, QueryFormat queryFormat,
                          String categories, Integer maxResults, Integer pageLength, String searchOptions,
                          String directory, String restTransform, String restTransformParameters,
                          String restTransformParametersDelimiter, boolean consistentSnapshot) {
-        super(uris, collection, query, queryType, queryFormat, categories, maxResults, pageLength, searchOptions, directory,
+        super(uris, collections, query, queryType, queryFormat, categories, maxResults, pageLength, searchOptions, directory,
             restTransform, restTransformParameters, restTransformParametersDelimiter, consistentSnapshot);
     }
 

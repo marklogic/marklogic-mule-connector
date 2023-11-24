@@ -19,7 +19,7 @@
   </flow>
 
   <flow name="search-documents-xml-serializedCtsQuery">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="SerializedCtsQuery"
                             queryFormat="XML">
       <marklogic:query>
         <![CDATA[<cts:word-query xmlns:cts="http://marklogic.com/cts"><cts:text xml:lang="en">world</cts:text></cts:word-query>]]></marklogic:query>
@@ -27,7 +27,7 @@
   </flow>
 
   <flow name="search-documents-json-serializedCtsQuery">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="SerializedCtsQuery"
                             queryFormat="JSON">
       <marklogic:query>
         <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "world" ] } }] } }]]></marklogic:query>
@@ -35,14 +35,14 @@
   </flow>
 
   <flow name="search-documents-serializedCtsQuery-badXml">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="SerializedCtsQuery"
                             queryFormat="XML">
       <marklogic:query><![CDATA[<cts:word-query xmlns:cts="http://marklogic.com/cts"><cts:text]]></marklogic:query>
     </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-serializedCtsQuery-noMatches">
-    <marklogic:read-documents config-ref="config" collection="test-data" queryType="SerializedCtsQuery"
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="SerializedCtsQuery"
                             queryFormat="JSON">
       <marklogic:query>
         <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "antidisestablishmentarianism" ] } }] } }]]></marklogic:query>

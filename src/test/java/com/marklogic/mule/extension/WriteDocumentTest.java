@@ -227,4 +227,24 @@ public class WriteDocumentTest extends AbstractFlowTester {
                 .verify();
         }
     }
+
+    @Test
+    public void writeDocumentsWithMultipleCollections() {
+
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("writeDocumentsWithMultipleCollections");
+        Set<String> contentSet = new HashSet<>();
+        contentSet.add("Hello, World!\n");
+        contentSet.add("{\"hello\":\"world\"}");
+        for (DocumentData documentData : documentDataList) {
+            assertTrue(documentData.isText());
+            assertTrue("Invalid content returned. " + documentData.getContents(), contentSet.contains(documentData.getContents()));
+            contentSet.remove(documentData.getContents());
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
+                .includesCollections("collection1")
+                .includesCollections("collection2")
+                .includesPermissions("rest-reader", "read", "rest-reader", "update")
+                .verify();
+        }
+    }
 }

@@ -20,7 +20,7 @@
   </flow>
 
   <flow name="search-documents-no-query-with-collection">
-    <marklogic:read-documents config-ref="config" collection="batch-input">
+    <marklogic:read-documents config-ref="config" collections="batch-input">
     </marklogic:read-documents>
   </flow>
 
