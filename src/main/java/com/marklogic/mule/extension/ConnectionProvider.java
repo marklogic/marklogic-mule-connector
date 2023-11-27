@@ -22,108 +22,102 @@ import com.marklogic.client.impl.SSLUtil;
 import com.marklogic.mule.extension.api.AuthenticationType;
 import com.marklogic.mule.extension.api.ConnectionType;
 import com.marklogic.mule.extension.api.HostnameVerifier;
-import org.mule.runtime.api.connection.CachedConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.api.tls.TlsContextTrustStoreConfiguration;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
-import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
-import org.mule.runtime.extension.api.annotation.param.display.Placement;
-import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.runtime.extension.api.annotation.param.display.*;
 
 import javax.net.ssl.X509TrustManager;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 
-/**
- * This class (as it's name implies) provides connection instances and the functionality to disconnect and validate those
- * connections.
- * <p>
- * All connection related parameters (values required in order to create a connection) must be
- * declared in the connection providers.
- * <p>
- * This particular example is a {@link PoolingConnectionProvider} which declares that connections resolved by this provider
- * will be pooled and reused. There are other implementations like {@link CachedConnectionProvider} which lazily creates and
- * caches connections or simply {@link org.mule.runtime.api.connection.ConnectionProvider} if you want a new connection each time something requires one.
- */
 public class ConnectionProvider implements PoolingConnectionProvider<DatabaseClient> {
 
-    @DisplayName("Host")
     @Parameter
-    @Optional(defaultValue = "0.0.0.0")
-    private String host;
+    @Summary("The hostname of the MarkLogic server to connect to.")
+    @Example("localhost")
+    private String host = "localhost";
 
-    @DisplayName("Port")
     @Parameter
-    @Optional(defaultValue = "8000")
+    @Summary("The port of the MarkLogic REST API app server to connect to.")
+    @Example("8000")
     private Integer port;
 
-    @DisplayName("Authentication Type")
     @Parameter
-    @Summary("The authentication type used to authenticate to MarkLogic.")
+    @DisplayName("Authentication Type")
+    @Summary("The authentication required by the MarkLogic REST API app server.")
+    // This is actually required, but oddly, setting it to Optional with a default value achieves the desired result
+    // in Anypoint of making it required and having a default value.
+    @Optional(defaultValue = "DIGEST")
     private AuthenticationType authenticationType;
 
-    @DisplayName("Connection Type")
     @Parameter
-    @Summary("The type of connection used to work with MarkLogic, either DIRECT (non-load balanced) or GATEWAY (load-balanced).")
+    @DisplayName("Connection Type")
+    @Summary("Set to GATEWAY when connecting to MarkLogic through a load balancer; otherwise select DEFAULT.")
     @Optional(defaultValue = "DIRECT")
     private ConnectionType connectionType;
 
-    @DisplayName("Username")
     @Parameter
+    @Summary("MarkLogic username to use when 'Authentication Type' is set to BASIC or DIGEST.")
     @Optional
     private String username;
 
-    @DisplayName("Password")
     @Parameter
+    @Summary("Password for the MarkLogic user when 'Authentication Type' is set to BASIC or DIGEST.")
     @Optional
+    @Password
     private String password;
 
-    @DisplayName("MarkLogic Cloud API Key")
     @Parameter
-    @Summary("The API key for authenticating with a MarkLogic Cloud instance.")
+    @DisplayName("MarkLogic Cloud API Key")
+    @Summary("API key to use when 'Authentication Type' is set to MARKLOGIC_CLOUD.")
     @Optional
+    @Password
     private String cloudApiKey;
 
-    @DisplayName("SAML Token")
     @Parameter
-    @Summary("SAML access token for when the MarkLogic app server requires 'saml' authentication.")
+    @DisplayName("SAML Token")
+    @Summary("SAML access token to use when 'Authentication Type' is set to SAML.")
     @Optional
+    @Password
     private String samlToken;
 
-    @DisplayName("Kerberos Principal")
     @Parameter
-    @Summary("Kerberos principal for when the MarkLogic app server requires 'kerberos' authentication.")
+    @DisplayName("Kerberos Principal")
+    @Summary("Kerberos principal to use when 'Authentication Type' is set to KERBEROS.")
     @Optional
     private String kerberosPrincipal;
 
-    @DisplayName("Base Path")
     @Parameter
-    @Summary("TODO")
+    @DisplayName("Base Path")
+    @Summary("Base path for each request to MarkLogic; typically used when connecting through a reverse proxy; required by MarkLogic Cloud.")
     @Optional
     private String basePath;
 
-    @DisplayName("Database")
     @Parameter
+    @DisplayName("Database")
     @Summary("Identifies the MarkLogic content database to query; only required when the database associated with " +
         "the app server identified by the 'Port' value is not the one you wish to query.")
     @Optional
     private String database;
 
+    @Parameter
     @DisplayName("TLS Context")
     @Placement(tab = "SSL/TLS")
     @Summary("Controls how SSL/TLS connections are made with MarkLogic.")
-    @Parameter
     @Optional
     private TlsContextFactory tlsContextFactory;
 
-    @DisplayName("Hostname Verifier")
-    @Placement(tab = "Security")
-    @Summary("TODO")
     @Parameter
-    @Optional
+    @DisplayName("Hostname Verifier")
+    @Placement(tab = "SSL/TLS")
+    @Summary("Specifies how a hostname is verified during SSL authentication. COMMON allows any level of subdomain " +
+        "for SSL certificates with wildcard domains. STRICT only allows one subdomain level for SSL certificates with " +
+        "wildcard domains. ANY disables hostname verification and is not recommended for production usage.")
+    @Optional(defaultValue = "COMMON")
     private HostnameVerifier hostnameVerifier;
 
     @Override

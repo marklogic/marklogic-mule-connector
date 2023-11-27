@@ -16,10 +16,12 @@
 package com.marklogic.mule.extension.api;
 
 public enum AuthenticationType {
-    DIGEST,
-    CERTIFICATE,
-    BASIC,
 
-    CLOUD;
+    DIGEST,
+    BASIC,
+    MARKLOGIC_CLOUD,
+    CERTIFICATE,
+    KERBEROS,
+    SAML;
 
 }

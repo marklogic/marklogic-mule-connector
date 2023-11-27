@@ -10,7 +10,7 @@
     <tls:trust-store insecure="true"/>
   </tls:context>
 
-  <marklogic:config name="config" configId="configId">
+  <marklogic:config name="config">
     <marklogic:connection
         host="localhost"
         port="8023"
@@ -22,7 +22,7 @@
     />
   </marklogic:config>
 
-  <marklogic:config name="config2" configId="configId2">
+  <marklogic:config name="config2">
     <marklogic:connection
         host="localhost"
         port="8023"
