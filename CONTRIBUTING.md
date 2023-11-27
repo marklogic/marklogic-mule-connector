@@ -114,11 +114,11 @@ To configure the SonarQube service, perform the following steps:
 2. Login as admin/admin. SonarQube will ask you to change this password; you can choose whatever you want ("password" works).
 3. Click on "Create project manually".
 4. Enter "marklogic-mule-connector" for the Project Name; use that as the Project Key too.
-5. Enter "master" as the main branch name.
+5. Enter "develop" as the main branch name.
 6. Click on "Next".
 7. Click on "Use the global setting" and then "Create project".
 8. On the "Analysis Method" page, click on "Locally".
-9. In the "Provide a token" panel, click on "Generate". Copy the token to a safe place (although you can always generate a new one).
+9. In the "Provide a token" panel, click on "Generate". Copy the token to a safe place (you can always generate a new one).
 
 You now have a SonarQube project and a token to use for authentication. If you'd like, you can continue on the 
 "Analyze your project" page in SonarQube to the "Run analysis" step, but this project's `pom.xml` file already has most 

@@ -5,7 +5,7 @@
         http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
         http://www.mulesoft.org/schema/mule/batch https://www.mulesoft.org/schema/mule/ee/batch/3.9/mule-batch.xsd">
 
-  <marklogic:config name="config" configId="configId">
+  <marklogic:config name="config">
     <marklogic:connection
         host="localhost"
         port="8022"
