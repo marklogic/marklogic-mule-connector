@@ -60,7 +60,7 @@
   <flow name="writeDocumentWithoutUriWithoutFormat">
     <marklogic:export-documents config-ref="config" uris="#[['/metadataSamples/text/hello.text']]"/>
     <marklogic:write-documents config-ref="config" permissions="rest-reader,read,rest-reader,update" quality="6"
-                          collections="writeDocumentWithoutUriWithoutFormat"/>
+                          collections="writeDocumentWithoutUriWithoutFormat" format="UNKNOWN"/>
     <marklogic:read-documents config-ref="config" collections="writeDocumentWithoutUriWithoutFormat" categories="all"/>
   </flow>
 
@@ -125,8 +125,8 @@
     <marklogic:export-documents config-ref="config" uris="#[['/batch/test3.json']]"/>
     <marklogic:write-documents config-ref="config" format="JSON" collections="transformed-data"
                                permissions="rest-reader,read,rest-reader,update" quality="14" generateUUID="False"
-                               uriPrefix="/writeDocumentWithTransform" restTransform="testTransform"
-                               restTransformParameters="hello;key;world;value" restTransformParametersDelimiter=";"/>
+                               uriPrefix="/writeDocumentWithTransform" transform="testTransform"
+                               transformParameters="hello;key;world;value" transformParametersDelimiter=";"/>
     <marklogic:read-documents config-ref="config" uris="#[['/writeDocumentWithTransform']]"/>
   </flow>
 

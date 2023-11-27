@@ -36,30 +36,37 @@ import java.util.List;
 
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 
-/**
- * This class is a container for operations, every public method in this class
- * will be taken as an extension operation.
- */
 public class Operations {
 
-    @Summary("Write one or more documents to MarkLogic.")
+    @Summary("Write one or more documents to MarkLogic, typically from within a Mule 'Batch Aggregator'.")
     public void writeDocuments(
         @Connection DatabaseClient databaseClient,
         @Content InputStream[] contents,
-        @Optional Format format,
-        @Optional @Example("Role,permission") String permissions,
-        @Optional(defaultValue = "0") int quality,
-        @Optional @Example("Comma separated collection strings") String collections,
-        @Optional @Example("/test/") String uriPrefix,
-        @Optional @Example(".json") String uriSuffix,
-        @Optional(defaultValue = "True") boolean generateUUID,
-        @Optional @Example("temporal-collection") String temporalCollection,
-        @DisplayName("REST Transform") @Optional String restTransform,
-        @DisplayName("REST Transform Parameters") @Optional String restTransformParameters,
-        @DisplayName("REST Transform Parameters Delimiter") @Optional @Example(",") String restTransformParametersDelimiter
+        @Summary("Format of documents to write to MarkLogic. Selecting 'UNKNOWN' will result in MarkLogic determining the document format based on the URI extension.") @Optional(defaultValue = "JSON")
+        Format format,
+        @Summary("Comma-delimited collections to assign to each document.") @Optional @Example("collection1,collection2")
+        String collections,
+        @Summary("Comma-delimited permissions to assign to each document; format is role,capability,role,capability.") @Optional @Example("rest-reader,read,rest-writer,update")
+        String permissions,
+        @Summary("Temporal collection to assign each document to.") @DisplayName("Temporal Collection") @Optional @Example("temporal-collection")
+        String temporalCollection,
+        @Summary("Quality score to assign to each document.") @Optional(defaultValue = "0")
+        int quality,
+        @Summary("String to prepend to each document URI.") @DisplayName("URI Prefix") @Optional @Example("/example/")
+        String uriPrefix,
+        @Summary("String to append to each document URI.") @DisplayName("URI Suffix") @Optional @Example(".json")
+        String uriSuffix,
+        @Summary("Whether to include a UUID in each document URI.") @DisplayName("Generate UUID") @Optional(defaultValue = "True")
+        boolean generateUUID,
+        @Summary("Name of a REST server transform to apply to each document.") @DisplayName("Transform") @Optional
+        String transform,
+        @Summary("Comma-delimited parameters to pass to the REST server transform.") @DisplayName("Transform Parameters") @Optional @Example("param1,value1,param2,value2")
+        String transformParameters,
+        @Summary("Delimiter to use for defining 'Transform Parameters'.") @DisplayName("Transform Parameters Delimiter") @Optional(defaultValue = ",")
+        String transformParametersDelimiter
     ) {
         new WriteOperations().writeDocuments(databaseClient, contents, format, permissions, quality, collections,
-            uriPrefix, uriSuffix, generateUUID, temporalCollection, restTransform, restTransformParameters, restTransformParametersDelimiter);
+            uriPrefix, uriSuffix, generateUUID, temporalCollection, transform, transformParameters, transformParametersDelimiter);
     }
 
     @MediaType(value = ANY, strict = false)
