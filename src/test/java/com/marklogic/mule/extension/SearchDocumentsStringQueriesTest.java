@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SearchDocumentsStringQueriesTest extends AbstractFlowTester {
@@ -15,8 +16,8 @@ public class SearchDocumentsStringQueriesTest extends AbstractFlowTester {
 
     @Test
     public void noQuery() {
-        List<DocumentData> list = runFlowForDocumentDataList("search-documents-no-query");
-        assertTrue("Expecting all documents to be returned, which is far greater than 1", 1 < list.size());
+        assertTrue("Expecting all documents to be returned, which is far greater than 1",
+            1 < runFlowForDocumentCount("search-documents-no-query"));
     }
 
     @Test
@@ -25,15 +26,12 @@ public class SearchDocumentsStringQueriesTest extends AbstractFlowTester {
             "search-documents-no-query-with-collection",
             10,
             "For the given collection, exactly 10 documents should be returned.");
-        List<DocumentData> noQueryDocumentDataList = runFlowForDocumentDataList("search-documents-no-query");
-        assertTrue(collectionDocumentDataList.size() < noQueryDocumentDataList.size());
+        assertTrue(collectionDocumentDataList.size() < runFlowForDocumentCount("search-documents-no-query"));
     }
 
     @Test
     public void queryWithNoMatches() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-query-with-no-matches",
-            0,
-            "A search term with no matches should return no documents");
+        assertEquals("A search term with no matches should return no documents",
+            0, runFlowForDocumentCount("search-documents-query-with-no-matches"));
     }
 }

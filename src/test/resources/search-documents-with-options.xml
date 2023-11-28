@@ -18,7 +18,7 @@
     <marklogic:read-documents config-ref="config" collections="batch-input" maxResults="9"/>
   </flow>
 
-  <flow name="search-documents-without-consistent-timestamp">
+  <flow name="search-documents-without-consistent-snapshot">
     <marklogic:read-documents config-ref="config" collections="batch-input" maxResults="9" consistentSnapshot="False"/>
   </flow>
 
