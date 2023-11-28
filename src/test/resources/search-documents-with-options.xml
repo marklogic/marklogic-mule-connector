@@ -38,8 +38,8 @@
   </flow>
 
   <flow name="search-documents-with-transform">
-    <marklogic:read-documents config-ref="config" collections="json-data" restTransform="testTransform"
-                                restTransformParameters="hello;Hola;world;Mundo" restTransformParametersDelimiter=";"/>
+    <marklogic:read-documents config-ref="config" collections="json-data" transform="testTransform"
+                                transformParameters="hello;Hola;world;Mundo" transformParametersDelimiter=";"/>
   </flow>
 
 </mule>
