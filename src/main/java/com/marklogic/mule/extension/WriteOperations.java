@@ -25,8 +25,6 @@ import com.marklogic.client.io.InputStreamHandle;
 import java.io.InputStream;
 import java.util.UUID;
 
-import static com.marklogic.client.io.Format.XML;
-
 public class WriteOperations {
     void writeDocuments(DatabaseClient databaseClient, InputStream[] contents,
                         Format format, String permissions, int quality,
@@ -46,9 +44,6 @@ public class WriteOperations {
         }
 
         DocumentWriteSet documentWriteSet = databaseClient.newDocumentManager().newWriteSet();
-        ServerTransform serverTransform = Utilities.findServerTransform(restTransform, restTransformParameters,
-            restTransformParametersDelimiter);
-
         for (InputStream inputStream : contents) {
             StringBuilder uri = new StringBuilder();
             if (Utilities.hasText(uriPrefix)) {
@@ -63,22 +58,18 @@ public class WriteOperations {
             documentWriteSet.add(uri.toString(), documentMetadataHandle, new InputStreamHandle(inputStream).withFormat(format));
         }
 
+        final ServerTransform serverTransform = Utilities.hasText(restTransform) ?
+            Utilities.makeServerTransform(restTransform, restTransformParameters, restTransformParametersDelimiter) :
+            null;
+
         if (Utilities.hasText(temporalCollection)) {
-            if (format != null && format.equals(XML)) {
-                databaseClient.newXMLDocumentManager()
-                    .write(documentWriteSet,
-                        serverTransform,
-                        null, temporalCollection);
+            if (Format.XML.equals(format)) {
+                databaseClient.newXMLDocumentManager().write(documentWriteSet, serverTransform, null, temporalCollection);
             } else {
-                databaseClient.newJSONDocumentManager()
-                    .write(documentWriteSet,
-                        serverTransform,
-                        null, temporalCollection);
+                databaseClient.newJSONDocumentManager().write(documentWriteSet, serverTransform, null, temporalCollection);
             }
         } else {
-            databaseClient.newDocumentManager()
-                .write(documentWriteSet,
-                    serverTransform);
+            databaseClient.newDocumentManager().write(documentWriteSet, serverTransform);
         }
     }
 }
