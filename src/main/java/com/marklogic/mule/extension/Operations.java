@@ -18,6 +18,7 @@ package com.marklogic.mule.extension;
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.io.Format;
 import com.marklogic.mule.extension.api.DocumentAttributes;
+import com.marklogic.mule.extension.api.DocumentFormat;
 import com.marklogic.mule.extension.api.QueryFormat;
 import com.marklogic.mule.extension.api.QueryType;
 import org.mule.runtime.extension.api.annotation.param.Connection;
@@ -42,8 +43,8 @@ public class Operations {
     public void writeDocuments(
         @Connection DatabaseClient databaseClient,
         @Content InputStream[] contents,
-        @Summary("Format of documents to write to MarkLogic. Selecting 'UNKNOWN' will result in MarkLogic determining the document format based on the URI extension.") @Optional(defaultValue = "JSON")
-        Format format,
+        @Summary("Format of documents to write to MarkLogic. Selecting 'UNKNOWN' will result in MarkLogic determining the format based on the URI extension.") @Optional(defaultValue = "JSON")
+        DocumentFormat format,
         @Summary("Comma-delimited collections to assign to each document.") @Optional @Example("collection1,collection2")
         String collections,
         @Summary("Comma-delimited permissions to assign to each document; format is role,capability,role,capability.") @Optional @Example("rest-reader,read,rest-writer,update")
@@ -65,7 +66,8 @@ public class Operations {
         @Summary("Delimiter to use for defining 'Transform Parameters'.") @DisplayName("Transform Parameters Delimiter") @Optional(defaultValue = ",")
         String transformParametersDelimiter
     ) {
-        new WriteOperations().writeDocuments(databaseClient, contents, format, permissions, quality, collections,
+        new WriteOperations().writeDocuments(databaseClient, contents,
+            format != null ? format.getFormat() : Format.UNKNOWN, permissions, quality, collections,
             uriPrefix, uriSuffix, generateUUID, temporalCollection, transform, transformParameters, transformParametersDelimiter);
     }
 
