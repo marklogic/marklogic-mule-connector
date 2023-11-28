@@ -16,8 +16,8 @@
 package com.marklogic.mule.extension.api;
 
 public enum QueryType {
-    StringQuery,
-    StructuredQuery,
-    SerializedCtsQuery,
-    CombinedQuery;
+    STRING_QUERY,
+    STRUCTURED_QUERY,
+    SERIALIZED_CTS_QUERY,
+    COMBINED_QUERY;
 }

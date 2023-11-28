@@ -145,6 +145,8 @@ Click on that link. If it's the first time you've run the report, you'll see all
 before, then SonarQube will show "New Code" by default. That's handy, as you can use that to quickly see any issues 
 you've introduced on the feature branch you're working on. You can then click on "Overall Code" to see all issues. 
 
+Note that if you only need results on code smells and vulnerabilities, you can repeatedly run `mvn sonar:sonar`
+without having to re-run the tests nor re-build the package.
 
 ### Using Anypoint Studio
 You can also use Anypoint Studio for testing flows using this connector. Follow either

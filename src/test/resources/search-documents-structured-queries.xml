@@ -2,8 +2,7 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
-        http://www.mulesoft.org/schema/mule/batch https://www.mulesoft.org/schema/mule/ee/batch/3.9/mule-batch.xsd">
+        http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd">
 
   <marklogic:config name="config">
     <marklogic:connection
@@ -15,11 +14,11 @@
   </marklogic:config>
 
   <flow name="search-documents-no-query">
-    <marklogic:read-documents config-ref="config" queryType="StructuredQuery"/>
+    <marklogic:read-documents config-ref="config" queryType="STRUCTURED_QUERY"/>
   </flow>
 
   <flow name="search-documents-xml-structuredQuery">
-    <marklogic:read-documents config-ref="config" collections="test-data" queryType="StructuredQuery"
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="STRUCTURED_QUERY"
                             queryFormat="XML">
       <marklogic:query>
         <![CDATA[<query xmlns='http://marklogic.com/appservices/search'><term-query><text>world</text></term-query></query>]]></marklogic:query>
@@ -27,7 +26,7 @@
   </flow>
 
   <flow name="search-documents-json-structuredQuery">
-    <marklogic:read-documents config-ref="config" collections="test-data" queryType="StructuredQuery"
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="STRUCTURED_QUERY"
                             queryFormat="JSON">
       <marklogic:query>
         <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "world" ] } }] } }]]></marklogic:query>
@@ -35,14 +34,14 @@
   </flow>
 
   <flow name="search-documents-structuredQuery-badXml">
-    <marklogic:read-documents config-ref="config" collections="test-data" queryType="StructuredQuery"
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="STRUCTURED_QUERY"
                             queryFormat="XML">
       <marklogic:query><![CDATA[<query xmlns='http://marklogic.com/appservices/search]]></marklogic:query>
     </marklogic:read-documents>
   </flow>
 
   <flow name="search-documents-structuredQuery-noMatches">
-    <marklogic:read-documents config-ref="config" collections="test-data" queryType="StructuredQuery"
+    <marklogic:read-documents config-ref="config" collections="test-data" queryType="STRUCTURED_QUERY"
                             queryFormat="JSON">
       <marklogic:query>
         <![CDATA[{ "query": { "queries": [{ "term-query": { "text": [ "antidisestablishmentarianism" ] } }] } }]]></marklogic:query>
