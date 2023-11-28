@@ -2,8 +2,7 @@ package com.marklogic.mule.extension;
 
 import org.junit.Test;
 
-import java.util.List;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SearchDocumentsStructuredQueriesTest extends AbstractFlowTester {
@@ -15,32 +14,25 @@ public class SearchDocumentsStructuredQueriesTest extends AbstractFlowTester {
 
     @Test
     public void noQuery() {
-        List<DocumentData> documentDataList = runFlowForDocumentDataList("search-documents-no-query");
-        assertTrue(1 < documentDataList.size());
+        assertTrue(1 < runFlowForDocumentCount("search-documents-no-query"));
     }
 
     @Test
     public void structuredXmlQuery() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-xml-structuredQuery",
-            3,
-            "3 docs are expected to have 'world' in them");
+        assertEquals("3 docs are expected to have 'world' in them",
+            3, runFlowForDocumentCount("search-documents-xml-structuredQuery"));
     }
 
     @Test
     public void structuredJsonQuery() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-json-structuredQuery",
-            3,
-            "3 docs are expected to have 'world' in them");
+        assertEquals("3 docs are expected to have 'world' in them",
+            3, runFlowForDocumentCount("search-documents-json-structuredQuery"));
     }
 
     @Test
     public void structuredJsonQueryWithNoMatches() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-structuredQuery-noMatches",
-            0,
-            "A search term with no matches should return no documents");
+        assertEquals("A search term with no matches should return no documents",
+            0, runFlowForDocumentCount("search-documents-structuredQuery-noMatches"));
     }
 
     @Test(expected = RuntimeException.class)

@@ -15,18 +15,14 @@ public class SearchDocumentsWithOptionsTest extends AbstractFlowTester {
 
     @Test
     public void searchDocuments_DefaultMetadata() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-with-maxResults",
-            9,
-            "With maxResults set, only that many documents should be returned.");
+        assertEquals("With maxResults set, only that many documents should be returned.",
+            9, runFlowForDocumentCount("search-documents-with-maxResults"));
     }
 
     @Test
-    public void searchDocuments_WithoutConsistentTimestamp() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-without-consistent-timestamp",
-            9,
-            "This only verifies that setting the consistentSnapshot parameter to false does not break anything.");
+    public void searchDocuments_WithoutConsistentSnapshot() {
+        assertEquals("This only verifies that setting the consistentSnapshot parameter to false does not break anything.",
+            9, runFlowForDocumentCount("search-documents-without-consistent-snapshot"));
     }
 
     @Test
@@ -40,22 +36,18 @@ public class SearchDocumentsWithOptionsTest extends AbstractFlowTester {
 
     @Test
     public void searchDocuments_SearchTermWithoutOptions() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-search-term-without-options",
-            0,
-            "Without search options, the search string should not have any matches");
+        assertEquals("Without search options, the search string should not have any matches",
+            0, runFlowForDocumentCount("search-documents-search-term-without-options"));
     }
 
     @Test
     public void searchDocuments_withinDirectory() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-within-directory",
-            10,
-            "Only the documents in the specified directory should be returned.");
+        assertEquals("Only the documents in the specified directory should be returned.",
+            10, runFlowForDocumentCount("search-documents-within-directory"));
     }
 
     @Test
-    public void searchDocuments_withTransform() throws Exception {
+    public void searchDocuments_withTransform() {
         List<DocumentData> documentDataList = runFlowAndVerifyMessageCount(
             "search-documents-with-transform",
             1,

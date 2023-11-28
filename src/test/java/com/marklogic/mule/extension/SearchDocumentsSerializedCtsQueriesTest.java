@@ -2,8 +2,7 @@ package com.marklogic.mule.extension;
 
 import org.junit.Test;
 
-import java.util.List;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("unchecked")
@@ -16,32 +15,25 @@ public class SearchDocumentsSerializedCtsQueriesTest extends AbstractFlowTester 
 
     @Test
     public void noQuery() {
-        List<DocumentData> documentDataList = runFlowForDocumentDataList("search-documents-no-query");
-        assertTrue(1 < documentDataList.size());
+        assertTrue(1 < runFlowForDocumentCount("search-documents-no-query"));
     }
 
     @Test
     public void serializedXmlQuery() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-xml-serializedCtsQuery",
-            3,
-            "3 docs are expected to have 'world' in them");
+        assertEquals("3 docs are expected to have 'world' in them",
+            3, runFlowForDocumentCount("search-documents-xml-serializedCtsQuery"));
     }
 
     @Test
     public void serializedJsonQuery() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-json-serializedCtsQuery",
-            3,
-            "3 docs are expected to have 'world' in them");
+        assertEquals("3 docs are expected to have 'world' in them",
+            3, runFlowForDocumentCount("search-documents-json-serializedCtsQuery"));
     }
 
     @Test
     public void serializedJsonQueryWithNoMatches() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-serializedCtsQuery-noMatches",
-            0,
-            "A search term with no matches should return no documents");
+        assertEquals("A search term with no matches should return no documents",
+            0, runFlowForDocumentCount("search-documents-serializedCtsQuery-noMatches"));
     }
 
     @Test(expected = RuntimeException.class)

@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SearchDocumentsCombinedQueriesTest extends AbstractFlowTester {
@@ -15,40 +16,31 @@ public class SearchDocumentsCombinedQueriesTest extends AbstractFlowTester {
 
     @Test
     public void noQuery() {
-        List<DocumentData> documentDataList = runFlowForDocumentDataList("search-documents-no-query");
-        assertTrue(1 < documentDataList.size());
+        assertTrue(1 < runFlowForDocumentCount("search-documents-no-query"));
     }
 
     @Test
     public void combinedXmlQuery() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-xml-combinedQuery",
-            3,
-            "3 docs are expected to have 'world' in them");
+        assertEquals("3 docs are expected to have 'world' in them",
+            3, runFlowForDocumentCount("search-documents-xml-combinedQuery"));
     }
 
     @Test
     public void combinedJsonQuery() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-json-combinedQuery",
-            3,
-            "3 docs are expected to have 'world' in them");
+        assertEquals("3 docs are expected to have 'world' in them",
+            3, runFlowForDocumentCount("search-documents-json-combinedQuery"));
     }
 
     @Test
     public void combinedXmlQueryWithNoMatches() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-xml-combinedQuery-noMatches",
-            0,
-            "A search term with no matches should return no documents");
+        assertEquals("A search term with no matches should return no documents",
+            0, runFlowForDocumentCount("search-documents-xml-combinedQuery-noMatches"));
     }
 
     @Test
     public void combinedJsonQueryWithNoMatches() {
-        runFlowAndVerifyMessageCount(
-            "search-documents-json-combinedQuery-noMatches",
-            0,
-            "A search term with no matches should return no documents");
+        assertEquals("A search term with no matches should return no documents",
+            0, runFlowForDocumentCount("search-documents-json-combinedQuery-noMatches"));
     }
 
     @Test(expected = RuntimeException.class)

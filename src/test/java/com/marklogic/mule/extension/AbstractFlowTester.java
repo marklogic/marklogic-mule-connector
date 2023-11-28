@@ -55,6 +55,10 @@ public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase 
         return result;
     }
 
+    int runFlowForDocumentCount(String flowName) {
+        return runFlowForDocumentDataList(flowName).size();
+    }
+
     private DocumentData toDocumentData(Message message) {
         String content;
         try {
