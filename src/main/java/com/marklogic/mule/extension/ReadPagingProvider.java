@@ -41,7 +41,6 @@ class ReadPagingProvider extends AbstractPagingProvider implements PagingProvide
                 .build();
             results.add(result);
         });
-        logger.info("RESULT COUNT: " + results.size());
         return results;
     }
 

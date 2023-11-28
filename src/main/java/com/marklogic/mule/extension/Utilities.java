@@ -17,18 +17,16 @@ package com.marklogic.mule.extension;
 
 import com.marklogic.client.document.ServerTransform;
 
-class Utilities {
-    static boolean hasText(String var) {
-        return ((var != null) && !var.isEmpty());
+public interface Utilities {
+
+    static boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 
-    static ServerTransform findServerTransform(String restTransform, String restTransformParameters, String restTransformParametersDelimiter) {
-        if(!hasText(restTransform)){
-            return null;
-        }
-        ServerTransform serverTransform = new ServerTransform(restTransform);
-        if (Utilities.hasText(restTransformParameters)) {
-            String[] parametersArray = restTransformParameters.split(restTransformParametersDelimiter);
+    static ServerTransform makeServerTransform(String transform, String parameters, String delimiter) {
+        ServerTransform serverTransform = new ServerTransform(transform);
+        if (Utilities.hasText(parameters)) {
+            String[] parametersArray = parameters.split(delimiter);
             for (int i = 0; i < parametersArray.length; i = i + 2) {
                 serverTransform.addParameter(parametersArray[i], parametersArray[i + 1]);
             }

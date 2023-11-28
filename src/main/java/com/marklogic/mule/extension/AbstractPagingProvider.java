@@ -4,12 +4,14 @@ import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.document.DocumentManager;
 import com.marklogic.client.document.DocumentPage;
 import com.marklogic.client.document.DocumentRecord;
-import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.impl.JSONDocumentImpl;
+import com.marklogic.client.io.Format;
 import com.marklogic.client.io.JacksonParserHandle;
+import com.marklogic.client.io.StringHandle;
 import com.marklogic.client.io.marker.JSONReadHandle;
 import com.marklogic.client.io.marker.JSONWriteHandle;
 import com.marklogic.client.query.QueryDefinition;
+import com.marklogic.client.query.QueryManager;
 import com.marklogic.mule.extension.api.QueryFormat;
 import com.marklogic.mule.extension.api.QueryType;
 import org.slf4j.Logger;
@@ -76,7 +78,7 @@ abstract class AbstractPagingProvider {
 
         final QueryDefinition queryDefinition = uris != null && !uris.isEmpty() ?
             databaseClient.newQueryManager().newStructuredQueryBuilder().document(uris.toArray(new String[]{})) :
-            ReadUtil.buildQueryDefinitionFromParams(databaseClient, query, queryType, queryFormat);
+            buildQueryDefinitionFromParams(databaseClient, query, queryType, queryFormat);
 
         if (Utilities.hasText(collections)) {
             queryDefinition.setCollections(collections.split(","));
@@ -88,14 +90,8 @@ abstract class AbstractPagingProvider {
             queryDefinition.setDirectory(directory);
         }
         if (Utilities.hasText(restTransform)) {
-            ServerTransform serverTransform = new ServerTransform(restTransform);
-            if (Utilities.hasText(restTransformParameters)) {
-                String[] parametersArray = restTransformParameters.split(restTransformParametersDelimiter);
-                for (int i = 0; i < parametersArray.length; i = i + 2) {
-                    serverTransform.addParameter(parametersArray[i], parametersArray[i + 1]);
-                }
-            }
-            queryDefinition.setResponseTransform(serverTransform);
+            queryDefinition.setResponseTransform(Utilities.makeServerTransform(restTransform, restTransformParameters,
+                restTransformParametersDelimiter));
         }
 
         if ((consistentSnapshot) && (serverTimestamp == -1)) {
@@ -134,5 +130,40 @@ abstract class AbstractPagingProvider {
             transformedCategories[index++] = DocumentManager.Metadata.valueOf(category.toUpperCase());
         }
         return transformedCategories;
+    }
+
+    private QueryDefinition buildQueryDefinitionFromParams(
+        DatabaseClient databaseClient,
+        String query,
+        QueryType queryType,
+        QueryFormat queryFormat
+    ) {
+        if (query != null) {
+            if (queryType != null) {
+                if ((queryType != QueryType.STRING_QUERY) && (queryFormat == null)) {
+                    throw new IllegalArgumentException("A Query Format must be specified when using a Structured, Serialized, or Combined Query");
+                }
+                QueryManager queryManager = databaseClient.newQueryManager();
+                switch (queryType) {
+                    case STRUCTURED_QUERY:
+                        return queryManager.newRawStructuredQueryDefinition(
+                            new StringHandle(query).withFormat(Format.valueOf(queryFormat.toString()))
+                        );
+                    case SERIALIZED_CTS_QUERY:
+                        return queryManager.newRawCtsQueryDefinitionAs(Format.valueOf(queryFormat.toString()), query);
+                    case COMBINED_QUERY:
+                        return queryManager.newRawCombinedQueryDefinition(
+                            new StringHandle(query).withFormat(Format.valueOf(queryFormat.toString()))
+                        );
+                    case STRING_QUERY:
+                    default:
+                        return queryManager.newStringDefinition().withCriteria(query);
+                }
+            } else {
+                return databaseClient.newQueryManager().newStringDefinition().withCriteria(query);
+            }
+        } else {
+            return databaseClient.newQueryManager().newStringDefinition();
+        }
     }
 }

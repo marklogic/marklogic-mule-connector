@@ -21,6 +21,7 @@ import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.impl.SSLUtil;
 import com.marklogic.mule.extension.api.AuthenticationType;
 import com.marklogic.mule.extension.api.ConnectionType;
+import com.marklogic.mule.extension.api.ErrorType;
 import com.marklogic.mule.extension.api.HostnameVerifier;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
@@ -29,6 +30,7 @@ import org.mule.runtime.api.tls.TlsContextTrustStoreConfiguration;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.*;
+import org.mule.runtime.extension.api.exception.ModuleException;
 
 import javax.net.ssl.X509TrustManager;
 import java.security.KeyStore;
@@ -160,10 +162,8 @@ public class ConnectionProvider implements PoolingConnectionProvider<DatabaseCli
         try {
             builder.withSSLContext(tlsContextFactory.createSslContext());
         } catch (Exception e) {
-            throw new RuntimeException(String.format(
-                "Unable to create SSL context; cause: %s",
-                tlsContextFactory.getKeyStoreConfiguration().getPath(), e.getMessage()
-            ), e);
+            String message = String.format("Unable to create SSL context; cause: %s", e.getMessage());
+            throw new ModuleException(message, ErrorType.CONNECTION_ERROR, e);
         }
 
         builder.withTrustManager(tlsContextFactory.getTrustStoreConfiguration().isInsecure() ?
@@ -178,7 +178,7 @@ public class ConnectionProvider implements PoolingConnectionProvider<DatabaseCli
 
     /**
      * This is depending on what are technically internal methods in the Java Client.
-     * TODO Ideally the Java Client can make this public, as it is handling some tedious but well-known Java code
+     * Ideally the Java Client can make this public, as it is handling some tedious but well-known Java code
      * for constructing a trust manager based on a truststore.
      *
      * @param config
@@ -189,13 +189,17 @@ public class ConnectionProvider implements PoolingConnectionProvider<DatabaseCli
         return (X509TrustManager) SSLUtil.getTrustManagers(config.getAlgorithm(), trustStore)[0];
     }
 
-    private final static X509TrustManager INSECURE_TRUST_MANAGER = new X509TrustManager() {
+    private static final X509TrustManager INSECURE_TRUST_MANAGER = new X509TrustManager() {
         @Override
+        @SuppressWarnings("java:S4830")
         public void checkClientTrusted(X509Certificate[] chain, String authType) {
+            // Intentionally empty to support Anypoint's "Insecure" checkbox for a trust store.
         }
 
         @Override
+        @SuppressWarnings("java:S4830")
         public void checkServerTrusted(X509Certificate[] chain, String authType) {
+            // Intentionally empty to support Anypoint's "Insecure" checkbox for a trust store.
         }
 
         @Override
