@@ -5,8 +5,6 @@ import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
 import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.mule.extension.api.DocumentAttributes;
-import com.marklogic.mule.extension.api.QueryFormat;
-import com.marklogic.mule.extension.api.QueryType;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 
@@ -17,12 +15,8 @@ import java.util.Optional;
 
 class ReadPagingProvider extends AbstractPagingProvider implements PagingProvider<DatabaseClient, Result<InputStream, DocumentAttributes>> {
 
-    ReadPagingProvider(List<String> uris, String collection, String query, QueryType queryType, QueryFormat queryFormat,
-                       String categories, Integer maxResults, Integer pageLength, String searchOptions,
-                       String directory, String restTransform, String restTransformParameters,
-                       String restTransformParametersDelimiter, boolean consistentSnapshot) {
-        super(uris, collection, query, queryType, queryFormat, categories, maxResults, pageLength, searchOptions, directory,
-            restTransform, restTransformParameters, restTransformParametersDelimiter, consistentSnapshot);
+    ReadPagingProvider(QueryParameters params) {
+        super(params);
     }
 
     @Override

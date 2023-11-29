@@ -23,8 +23,10 @@ import com.marklogic.mule.extension.api.AuthenticationType;
 import com.marklogic.mule.extension.api.ConnectionType;
 import com.marklogic.mule.extension.api.ErrorType;
 import com.marklogic.mule.extension.api.HostnameVerifier;
+import org.mule.runtime.api.connection.CachedConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
-import org.mule.runtime.api.connection.PoolingConnectionProvider;
+import org.mule.runtime.api.lifecycle.Initialisable;
+import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.api.tls.TlsContextTrustStoreConfiguration;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -36,7 +38,12 @@ import javax.net.ssl.X509TrustManager;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 
-public class ConnectionProvider implements PoolingConnectionProvider<DatabaseClient> {
+/**
+ * Implements {@code CachedConnectionProvider} per
+ * https://docs.mulesoft.com/mule-sdk/latest/define-configurations-and-connection-providers#defining-a-connection-management-strategy ,
+ * as a DatabaseClient is a threadsafe object.
+ */
+public class ConnectionProvider implements CachedConnectionProvider<DatabaseClient>, Initialisable {
 
     @Parameter
     @Summary("The hostname of the MarkLogic server to connect to.")
@@ -148,6 +155,14 @@ public class ConnectionProvider implements PoolingConnectionProvider<DatabaseCli
     @Override
     public void disconnect(DatabaseClient client) {
         client.release();
+    }
+
+    // See https://docs.mulesoft.com/mule-sdk/latest/define-configurations-and-connection-providers#handling-ssl-connections .
+    @Override
+    public void initialise() throws InitialisationException {
+        if (this.tlsContextFactory != null && tlsContextFactory instanceof Initialisable) {
+            ((Initialisable) tlsContextFactory).initialise();
+        }
     }
 
     @Override
