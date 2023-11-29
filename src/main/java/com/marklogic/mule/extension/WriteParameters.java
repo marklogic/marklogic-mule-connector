@@ -68,13 +68,13 @@ public class WriteParameters {
     boolean generateUUID;
 
     @Parameter
-    @Summary("Name of a REST server transform to apply to each document.")
+    @Summary("Name of a REST transform to apply to each document.")
     @DisplayName("Transform")
     @Optional
     String transform;
 
     @Parameter
-    @Summary("Comma-delimited parameters to pass to the REST server transform.")
+    @Summary("Comma-delimited parameters to pass to the REST transform.")
     @DisplayName("Transform Parameters")
     @Optional
     @Example("param1,value1,param2,value2")

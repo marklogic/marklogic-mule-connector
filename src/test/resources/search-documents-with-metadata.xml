@@ -15,7 +15,7 @@
 
 
   <flow name="search-batch-input-documents-with-metadata-default">
-    <marklogic:read-documents config-ref="config" collections="batch-input"/>
+    <marklogic:read-documents config-ref="config" collections="batch-input" categories="all"/>
   </flow>
 
   <flow name="search-test-data-documents-with-metadata-all">

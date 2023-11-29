@@ -14,4 +14,4 @@ The connector has the following system requirements:
 * Mule 4.1 or higher.
 * MarkLogic 9 or higher.
 
-Please see [the installation guide](installation-guide.md) to get started. 
+Please see [the installation guide](./installation.md) to get started. 
