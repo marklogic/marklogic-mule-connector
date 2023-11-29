@@ -1,13 +1,11 @@
 package com.marklogic.mule.extension;
 
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.client.document.DocumentManager;
 import com.marklogic.client.document.DocumentPage;
 import com.marklogic.client.document.DocumentRecord;
-import com.marklogic.client.impl.JSONDocumentImpl;
+import com.marklogic.client.document.GenericDocumentManager;
+import com.marklogic.client.impl.GenericDocumentImpl;
 import com.marklogic.client.io.JacksonParserHandle;
-import com.marklogic.client.io.marker.JSONReadHandle;
-import com.marklogic.client.io.marker.JSONWriteHandle;
 import com.marklogic.client.query.QueryDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +26,7 @@ abstract class AbstractPagingProvider {
 
     private final int pageLength;
 
-    private final QueryParameters queryParameters;
+    protected final QueryParameters queryParameters;
 
     protected AbstractPagingProvider(QueryParameters params) {
         this.pageLength = params.pageLength != null ? params.pageLength : 100;
@@ -38,7 +36,7 @@ abstract class AbstractPagingProvider {
     protected final void handlePage(DatabaseClient databaseClient, Consumer<DocumentRecord> documentHandler) {
         currentPage++;
 
-        DocumentManager<JSONReadHandle, JSONWriteHandle> documentManager = databaseClient.newJSONDocumentManager();
+        GenericDocumentManager documentManager = databaseClient.newDocumentManager();
         if (Utilities.hasText(queryParameters.categories)) {
             documentManager.setMetadataCategories(queryParameters.buildMetadataCategories());
         }
@@ -50,7 +48,7 @@ abstract class AbstractPagingProvider {
         int startingPosition = (currentPage * pageLength) + 1;
         documentManager.setPageLength(pageLength);
         DocumentPage documentPage = serverTimestamp != null ?
-            ((JSONDocumentImpl) documentManager).search(queryDefinition, startingPosition, serverTimestamp) :
+            ((GenericDocumentImpl) documentManager).search(queryDefinition, startingPosition, serverTimestamp) :
             documentManager.search(queryDefinition, startingPosition);
 
         while (documentPage.hasNext()) {
@@ -69,7 +67,7 @@ abstract class AbstractPagingProvider {
         }
     }
 
-    private void initializeServerTimestampIfNecessary(DocumentManager<JSONReadHandle, JSONWriteHandle> documentManager, QueryDefinition queryDefinition) {
+    private void initializeServerTimestampIfNecessary(GenericDocumentManager documentManager, QueryDefinition queryDefinition) {
         if (queryParameters.consistentSnapshot && serverTimestamp == null) {
             JacksonParserHandle searchHandle = new JacksonParserHandle();
             documentManager.setPageLength(1);
@@ -78,5 +76,4 @@ abstract class AbstractPagingProvider {
             logger.info("Using consistent snapshot with server timestamp: {}", serverTimestamp);
         }
     }
-
 }

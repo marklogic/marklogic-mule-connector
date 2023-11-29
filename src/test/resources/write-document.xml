@@ -118,7 +118,7 @@
     <marklogic:write-documents config-ref="config" documentFormat="XML"
                                permissions="rest-reader,read,rest-reader,update" generateUUID="False"
                                uriPrefix="/documentWithTemporalCollection" uriSuffix=".xml" temporalCollection="mule-temporal-collection"/>
-    <marklogic:read-documents config-ref="config" uris="#[['/documentWithTemporalCollection.xml']]"/>
+    <marklogic:read-documents config-ref="config" uris="#[['/documentWithTemporalCollection.xml']]" categories="all"/>
   </flow>
 
   <flow name="writeDocumentWithTransform">

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Writing Documents
-nav_order: 4
+nav_order: 5
 ---
 
 The MarkLogic MuleSoft connector supports writing batches of documents of any type to MarkLogic in a scalable, 

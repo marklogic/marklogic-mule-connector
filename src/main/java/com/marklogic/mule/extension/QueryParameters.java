@@ -30,75 +30,89 @@ public class QueryParameters {
     List<String> uris;
 
     @Parameter
-    @DisplayName("Collections")
-    @Optional
-    @Example("myCollection1,myCollection2")
-    String collections;
-
-    @Parameter
     @DisplayName("Query")
+    @Summary("A MarkLogic query that corresponds to the type defined by 'Query Type', which must be set if a query is provided here.")
     @Text
     @Optional
-    @Example("searchTerm")
     String query;
 
     @Parameter
     @DisplayName("Query Type")
+    @Summary("The type of MarkLogic query to execute. Please see the connector user guide for more information on each type of query.")
     @Optional
     QueryType queryType;
 
     @Parameter
     @DisplayName("Query Format")
-    @Optional
+    @Summary("Whether a query is represented as JSON or XML. Only applies when 'Query Type' is either a structured query, " +
+        "a serialized CTS query, or a combined query.")
+    @Optional(defaultValue = "JSON")
     QueryFormat queryFormat;
 
     @Parameter
-    @DisplayName("Metadata Category List")
-    @Optional(defaultValue = "all")
-    @Example("COLLECTIONS;PERMISSIONS")
-    String categories;
-
-    @Parameter
-    @DisplayName("Max Results")
+    @DisplayName("Collections")
     @Optional
-    @Example("10")
-    Integer maxResults;
-
-    @Parameter
-    @DisplayName("Page Length")
-    @Optional
-    @Example("10")
-    Integer pageLength;
-
-    @Parameter
-    @DisplayName("Search Options")
-    @Optional
-    @Example("appSearchOptions")
-    String searchOptions;
+    @Summary("Comma-delimited collections to filter results.")
+    @Example("myCollection1,myCollection2")
+    String collections;
 
     @Parameter
     @DisplayName("Directory")
+    @Summary("Filters results to only include documents in the specified database directory.")
     @Optional
     @Example("/customerData")
     String directory;
 
     @Parameter
+    @DisplayName("Search Options")
+    @Summary("The name of the REST search options to apply to the query defined in 'Query'. " +
+        "Please see the connector user guide for more information.")
+    @Optional
+    String searchOptions;
+
+    @Parameter
+    @DisplayName("Document Metadata")
+    @Summary("Comma-delimited list of the types of metadata to include for each matching document. Allowable values are: " +
+        "all, collections, permissions, properties, quality, and metadatavalues.")
+    @Optional
+    @Example("all,collections,permissions,properties,quality,metadatavalues")
+    String categories;
+
+    @Parameter
+    @DisplayName("Max Results")
+    @Summary("Maximum number of documents to retrieve.")
+    @Optional
+    Integer maxResults;
+
+    @Parameter
+    @DisplayName("Page Length")
+    @Summary("Number of documents to retrieve in each page, which corresponds to a call to MarkLogic.")
+    @Optional
+    @Example("100")
+    Integer pageLength;
+
+    @Parameter
     @DisplayName("Transform")
+    @Summary("Name of a REST transform to apply to each matching document.")
     @Optional
     String transform;
 
     @Parameter
     @DisplayName("Transform Parameters")
+    @Summary("Comma-delimited parameters to pass to the REST transform.")
     @Optional
+    @Example("param1,value1,param2,value2")
     String transformParameters;
 
     @Parameter
     @DisplayName("Transform Parameters Delimiter")
+    @Summary("Delimiter to use for defining 'Transform Parameters'.")
     @Optional(defaultValue = ",")
     String transformParametersDelimiter;
 
     @Parameter
     @DisplayName("Consistent Snapshot")
+    @Summary("Whether to constrain each page of results to the same MarkLogic server timestamp.")
     @Optional(defaultValue = "True")
     boolean consistentSnapshot;
 
@@ -127,7 +141,11 @@ public class QueryParameters {
         DocumentManager.Metadata[] transformedCategories = new DocumentManager.Metadata[categoriesArray.length];
         int index = 0;
         for (String category : categoriesArray) {
-            transformedCategories[index++] = DocumentManager.Metadata.valueOf(category.toUpperCase());
+            try {
+                transformedCategories[index++] = DocumentManager.Metadata.valueOf(category.trim().toUpperCase());
+            } catch (IllegalArgumentException ex) {
+                throw new IllegalArgumentException(String.format("Invalid document metadata category: %s", category));
+            }
         }
         return transformedCategories;
     }
@@ -141,7 +159,7 @@ public class QueryParameters {
         if (query != null) {
             if (queryType != null) {
                 if ((queryType != QueryType.STRING_QUERY) && (queryFormat == null)) {
-                    throw new IllegalArgumentException("A Query Format must be specified when using a Structured, Serialized, or Combined Query");
+                    throw new IllegalArgumentException("'Query Format' must be specified when using a Structured, Serialized, or Combined Query.");
                 }
                 QueryManager queryManager = databaseClient.newQueryManager();
                 switch (queryType) {

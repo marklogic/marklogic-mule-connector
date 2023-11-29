@@ -2,8 +2,7 @@ package com.marklogic.mule.extension;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
 
@@ -79,6 +78,27 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
             .verify();
     }
 
+    @Test
+    public void readJsonDocumentNoMetadata() {
+        DocumentData documentData = runFlowGetDocumentData("read-json-document-no-metadata");
+        assertEquals(JSON_HELLO_WORLD, documentData.getContents());
+        MetadataVerifier.assertMetadata(documentData.getAttributes(), JSON_URI)
+            .collections(0)
+            .permissions(0)
+            .quality(0)
+            .properties(0)
+            .verify();
+    }
+
+    @Test
+    public void readJsonDocumentInvalidMetadata() {
+        try {
+            runFlowGetDocumentData("read-json-document-invalid-metadata");
+            fail("Expected the invalid metadata value to throw an error");
+        } catch (RuntimeException ex) {
+            assertEquals("Invalid document metadata category: not-valid.", ex.getCause().getMessage());
+        }
+    }
 
     @Test
     public void readXmlDocument_OnlyPermissionsAndCollections() {
@@ -179,7 +199,6 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    // Not passing in a category parameter seems to default to "ALL"
     public void readTextQualityDocument_Content() {
         DocumentData documentData = runFlowGetDocumentData("read-text-document-with-metadata-content");
         assertEquals(TEXT_HELLO_WORLD, documentData.getContents());

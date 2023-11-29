@@ -17,15 +17,17 @@
   <!-- JSON documents -->
   <flow name="read-json-document-with-metadata-permissions-collections">
     <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/json/hello.json']]"
-                         categories="permissions,collections"/>
+                              categories="permissions,collections"/>
   </flow>
 
   <flow name="read-json-document-with-metadata-collections">
-    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/json/hello.json']]" categories="collections"/>
+    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/json/hello.json']]"
+                              categories="collections"/>
   </flow>
 
   <flow name="read-json-document-with-metadata-permissions">
-    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/json/hello.json']]" categories="permissions"/>
+    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/json/hello.json']]"
+                              categories="permissions"/>
   </flow>
 
   <flow name="read-json-document-with-metadata-quality">
@@ -36,19 +38,28 @@
     <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/json/hello.json']]" categories="all"/>
   </flow>
 
+  <flow name="read-json-document-no-metadata">
+    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/json/hello.json']]"/>
+  </flow>
+
+  <flow name="read-json-document-invalid-metadata">
+    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/json/hello.json']]" categories="not-valid"/>
+  </flow>
 
   <!-- XML documents -->
   <flow name="read-xml-document-with-metadata-permissions-collections">
     <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/xml/hello.xml']]"
-                         categories="permissions,collections"/>
+                              categories="permissions,collections"/>
   </flow>
 
   <flow name="read-xml-document-with-metadata-collections">
-    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/xml/hello.xml']]" categories="collections"/>
+    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/xml/hello.xml']]"
+                              categories="collections"/>
   </flow>
 
   <flow name="read-xml-document-with-metadata-permissions">
-    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/xml/hello.xml']]" categories="permissions"/>
+    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/xml/hello.xml']]"
+                              categories="permissions"/>
   </flow>
 
   <flow name="read-xml-document-with-metadata-quality">
@@ -62,7 +73,8 @@
 
   <!-- Text documents -->
   <flow name="read-text-document-with-metadata-properties">
-    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/text/hello.text']]" categories="properties"/>
+    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/text/hello.text']]"
+                              categories="properties"/>
   </flow>
 
   <flow name="read-text-document-with-metadata-metadata">
@@ -70,7 +82,7 @@
   </flow>
 
   <flow name="read-text-document-with-metadata-content">
-    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/text/hello.text']]"/>
+    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/text/hello.text']]" categories="all"/>
   </flow>
 
   <flow name="read-text-document-with-metadata-all">
@@ -84,7 +96,7 @@
   </flow>
 
   <flow name="read-binary-document-with-metadata-content">
-    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/binary/logo.png']]"/>
+    <marklogic:read-documents config-ref="config" uris="#[['/metadataSamples/binary/logo.png']]" categories="all"/>
   </flow>
 
 </mule>

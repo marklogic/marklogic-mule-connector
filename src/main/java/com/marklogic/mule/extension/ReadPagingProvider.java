@@ -26,7 +26,9 @@ class ReadPagingProvider extends AbstractPagingProvider implements PagingProvide
             InputStreamHandle contentHandle = new InputStreamHandle();
             InputStream contentStream = documentRecord.getContent(contentHandle).get();
             DocumentMetadataHandle metadataHandle = new DocumentMetadataHandle();
-            documentRecord.getMetadata(metadataHandle);
+            if (Utilities.hasText(queryParameters.categories)) {
+                documentRecord.getMetadata(metadataHandle);
+            }
             Result<InputStream, DocumentAttributes> result = Result.<InputStream, DocumentAttributes>builder()
                 .output(contentStream)
                 .attributes(new DocumentAttributes(documentRecord.getUri(), metadataHandle))
