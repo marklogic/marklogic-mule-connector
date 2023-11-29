@@ -39,7 +39,8 @@ connector in the same way that users will be using the connector. Instructions f
 Anypoint Studio are also including a little further down.
 
 ### Deploy the test application
-Both the automated Java tests as well as the Anypoint Studio examples rely on the included test application.
+
+Both the automated Java tests and the Anypoint Studio examples rely on the included test application.
 So, the first step is to deploy that application. Follow these steps to deploy the test application to your local MarkLogic database:
 1. Clone this repository and navigate to the root directory on the command line.
 2. Navigate to the test-app directory, `cd test-app`
@@ -49,59 +50,11 @@ So, the first step is to deploy that application. Follow these steps to deploy t
 
 ### Run the tests
 
-**Important** - to get munit working, we have to work around a bug in a Mule pom file. When you attempt to run 
-`mvn clean package` below, you will most likely get an error about a missing Mule dependency. Here are the 
-hopefully-temporary instructions to work around this issue:
+The tests are run via:
 
-1. Go to `~/.m2/repository/com/mulesoft/munit/2.3.11`.
-2. Open `munit-2.3.11.pom`.
-3. Change the `<mule.version>` element to have a value of "4.5.0-20220221" instead of "4.3.0-20220221".
+    mvn clean test
 
-This fix was found [in this Mule support page](https://help.mulesoft.com/s/question/0D52T000061exOfSAI/error-failed-to-execute-goal-commulesoftmunitmunitextensionsmavenplugin113test-defaulttest). 
-We have no idea why fixing the pom for munit 2.3.11 works, given that our pom.xml is asking for munit 2.3.14. But it 
-should allow for the below instructions to work. 
-
-The project includes both JUnit tests and MUnit tests. The MUnit tests require that the connector is packaged and in the
-target directory before running the tests. So you'll need to build first. To run the tests from the command-line, ensure
-you are in the root directory of the project and use the following two Maven commands.
-```
-mvn clean package -DskipTests
-mvn test
-```
-
-To run only the JUnit tests, you may use a switch to skip the MUnit tests.
-```
-mvn test -DskipMunitTests
-```
-
-** This switch is currently unavailable. ** 
-To run only the Munit tests, you may use a switch to skip the JUnit tests.
-```
-mvn test -DskipSureFire=true
-```
-
-### Adding an MUnit test
-To create a new MUnit test, a good place to start is with batch-read-write-test-suite.xml in src/test/munit. This is a
-relatively simple test with some comments to explain things.
-
-### Manually testing SSL
-
-The connector supports 1-way and 2-way SSL with MarkLogic via Mule's `TLSContextFactory`, but we do not yet have 
-automated tests for this due to the complexity of the test setup (we do have tests for an insecure trust manager, but
-that is not a realistic approach in a production scenario). To manually verify this capability, please see 
-the "Testing 2-way SSL with the Java Client" internal Wiki page. If you do not have access to this, you can achieve
-a similar effect via the following steps:
-
-1. Clone the [MarkLogic Java Client project](https://github.com/marklogic/java-client-api).
-2. Follow the CONTRIBUTING.md instructions for getting the test application setup.
-3. Open `TwoWaySSLTest` and put a debugger breakpoint in the start of the `teardown` method.
-4. Run the debugger on one of the tests that does not test an error condition.
-
-With the debugger having paused the program, the `java-unittest` MarkLogic app server will be in a state where it 
-requires 2-way SSL. In addition, the test logging will identify the location of a Java keystore containing a private
-key for authenticating with MarkLogic along with the public certificate matching the `java-unittest`'s certificate 
-template. You can use that Java keystore for manually testing a Mule `TLSContextFactory`; the keystore will act as the
-truststore as well. 
+This includes code coverage data via jacoco, which can be utilized by SonarQube as described next.
 
 ### Generating code quality reports with SonarQube
 
@@ -124,14 +77,13 @@ You now have a SonarQube project and a token to use for authentication. If you'd
 "Analyze your project" page in SonarQube to the "Run analysis" step, but this project's `pom.xml` file already has most 
 of that configuration captured in it. You'll only need the token that you just generated for the following steps.
 
-Because the connector needs to be built with Java 8, but SonarQube requires Java 11, you must first build and test the
-code with Java 8 and then use Java 11 to run SonarQube. Annoying, yes, but there's not yet a way around this. 
+Because the connector needs to be built with Java 8, but SonarQube requires Java 11 or higher (starting in SonarQube
+10.3, it will require Java 17 or higher), you must first build and test the code with Java 8 and then use Java 11 or 
+higher to run SonarQube. Annoying, yes, but there's not yet a way around this. 
 
-So with Java 8, run `package` to build the project, and then run the tests. The tests produce the output that SonarQube
-needs to generate its report:
+So with Java 8, run the following:
 
-    mvn clean package -DskipTests
-    mvn test
+    mvn clean install
 
 After that completes, switch to Java 11 and run the following, using the token you obtained above:
 
@@ -147,6 +99,25 @@ you've introduced on the feature branch you're working on. You can then click on
 
 Note that if you only need results on code smells and vulnerabilities, you can repeatedly run `mvn sonar:sonar`
 without having to re-run the tests nor re-build the package.
+
+### Manually testing SSL
+
+The connector supports 1-way and 2-way SSL with MarkLogic via Mule's `TLSContextFactory`, but we do not yet have
+automated tests for this due to the complexity of the test setup (we do have tests for an insecure trust manager, but
+that is not a realistic approach in a production scenario). To manually verify this capability, please see
+the "Testing 2-way SSL with the Java Client" internal Wiki page. If you do not have access to this, you can achieve
+a similar effect via the following steps:
+
+1. Clone the [MarkLogic Java Client project](https://github.com/marklogic/java-client-api).
+2. Follow the CONTRIBUTING.md instructions for getting the test application setup.
+3. Open `TwoWaySSLTest` and put a debugger breakpoint in the start of the `teardown` method.
+4. Run the debugger on one of the tests that does not test an error condition.
+
+With the debugger having paused the program, the `java-unittest` MarkLogic app server will be in a state where it
+requires 2-way SSL. In addition, the test logging will identify the location of a Java keystore containing a private
+key for authenticating with MarkLogic along with the public certificate matching the `java-unittest`'s certificate
+template. You can use that Java keystore for manually testing a Mule `TLSContextFactory`; the keystore will act as the
+truststore as well.
 
 ### Using Anypoint Studio
 You can also use Anypoint Studio for testing flows using this connector. Follow either
