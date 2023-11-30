@@ -13,12 +13,15 @@ Follow these steps to configure a connection in Anypoint Studio:
 1. In your flow view, click on "Global Elements".
 2. Click on "Create" in the "Global Configuration Elements" panel that Anypoint displays. 
 3. Expand "Connector Configuration" and select "MarkLogic Connection Configuration".
-4. You can assign any name you wish to the connection in the "Name:" field.
 
-You can then configure each of the fields in the "General" tab to define how connections are made to your MarkLogic 
-REST API app server. Upon clicking into each text field, Anypoint will display a small information icon to the left
-of the field. You can hover over this to view a description of the text field. For dropdown fields, you can hover over
-the dropdown to view a description of the field.
+Anypoint will display the following form for configuring a connection:
+
+![connection-form.png](assets/connection-form.png)
+
+You can choose any name you wish for the connection. You can then configure each of the fields in the "General" tab 
+to define how connections are made to your MarkLogic REST API app server. Upon clicking into each text field, 
+Anypoint will display a small information icon to the left of the field. You can hover over this to view a 
+description of the text field. For dropdown fields, you can hover over the dropdown to view a description of the field.
 
 If your [MarkLogic app server requires an SSL connection](https://docs.marklogic.com/11.0/guide/security-guide/en/configuring-ssl-on-app-servers.html),
 use the "SSL/TLS" tab to configure how the connection is made. The fields you need to configure for a Mule "TLS Context"

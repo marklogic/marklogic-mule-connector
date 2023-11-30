@@ -10,7 +10,10 @@ it to your project. Once the MarkLogic Connector has been successfully added to 
 will appear as a module in the Mule Palette.
 
 Installing from Anypoint Exchange:
-1. Open Anypoint Exchange by clicking on the "Open Exchange" icon near the top-left of the window.![exchangeIcon.png](assets/exchangeIcon.png)
+
+1. Open Anypoint Exchange by clicking on the "Open Exchange" icon near the top-left of the window.
+![exchangeIcon.png](assets/exchangeIcon.png)
+
 2. If necessary, login with your Anypoint credentials.
 3. Search for "marklogic".
 4. Choose the "MarkLogic Connector - Mule 4" box.

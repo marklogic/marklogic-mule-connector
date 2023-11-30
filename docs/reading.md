@@ -20,10 +20,14 @@ numbers of documents to be efficiently retrieved from MarkLogic.
 
 The "Read Documents" operation can be added to a flow in Anypoint Studio from the "MarkLogic" module in the Mule Palette. 
 The operation provides a number of fields and dropdowns for configuring which documents are read and what is returned
-for each document. Upon clicking into each text field, Anypoint will display a small information icon to the left of 
-the field. You can hover over this to view a description of the text field. For dropdown fields, you can hover over 
-the dropdown to view a description of the field. The sections below provide additional information on how to use
-this operation.
+for each document. 
+
+## Accessing inline help 
+
+Upon clicking into each text field in the "Read Documents" operation, Anypoint will display a small information icon to 
+the left of the field. You can hover over this to view a description of the text field. For dropdown fields, you can 
+hover over the dropdown to view a description of the field. The sections below provide additional information on how 
+to use this operation.
 
 ## Specifying a query
 
@@ -58,6 +62,11 @@ fields:
 2. Set 'Query Type' to `STRUCTURED_QUERY`.
 3. Set 'Query Format' to either 'JSON' or 'XML'.
 
+The following shows a simple example of a structured query; please refer to the link above to the MarkLogic 
+documentation on structured queries for more information and examples:
+
+    {"query": {"term-query": {"text": "example"}}}
+
 ### Using a Serialized CTS query
 
 A [serialized CTS query](https://docs.marklogic.com/guide/rest-dev/search#id_30577) is similar to a structured query 
@@ -69,6 +78,11 @@ following fields:
 2. Set 'Query Type' to 'SERIALIZED_CTS_QUERY'.
 3. Set 'Query Format' to either 'JSON' or 'XML'.
 
+The following shows a simple example of a serialized CTS query; please refer to the link above to the MarkLogic
+documentation on serialized CTS queries for more information and examples:
+
+    {"ctsquery": {"wordQuery": {"text": "example"}}}
+
 ### Using a Combined query
 
 A [combined query](https://docs.marklogic.com/guide/rest-dev/search#id_69918) allows you to combine either a 
@@ -79,6 +93,23 @@ following fields:
 1. Put your combined query, expressed in either JSON or XML, in the 'Query' field.
 2. Set 'Query Type' to 'COMBINED_QUERY'.
 3. Set 'Query Format' to either 'JSON' or 'XML'.
+
+The following shows a simple example of a combined query; please refer to the link above to the MarkLogic
+documentation on combined queries for more information and examples:
+
+```
+{
+  "search": {
+    "options": {
+      "constraint": {
+        "name": "c1", 
+        "word": {"element": {"name": "text"}}
+      }
+    }
+  },
+  "qtext": "c1:example",
+}
+```
 
 ## Specifying metadata to include
 

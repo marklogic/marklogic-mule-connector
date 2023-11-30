@@ -25,14 +25,22 @@ please see the Mule documentation for complete information in its batch processi
 2. From the "Core" module, drag a "Batch Aggregator" into the "Aggregator" area in the "Batch_Step" in your flow.
 3. Configure the "Batch Aggregator" by specifying an "Aggregator Size" (i.e. the maximum number of documents to send to MarkLogic 
 in one call); 100 is a good default value. 
-4. In the Mule Palette, click on the "MarkLogic" module and drag a "Write documents" operation into the "Batch Aggregator". 
-5. Under "Basic Settings" for the "Write documents" instance, select a [MarkLogic Connection Configuration](connection-guide.md).
+4. In the Mule Palette, click on the "MarkLogic" module and drag a "Write Documents" operation into the "Batch Aggregator". 
+5. Under "Basic Settings" for the "Write Documents" instance, select a [MarkLogic Connection Configuration](connection-guide.md).
 6. In general, the value of "Content" should be `payload` so that the payload of the incoming Mule messages becomes the
 content of the documents written to MarkLogic.
 
-You can now configure the rest of the "Write documents" operation based on your requirements. Upon clicking into each 
-text field, Anypoint will display a small information icon to the left of the field. You can hover over this to view 
-a description of the text field. For dropdown fields, you can hover over the dropdown to view a description of the field.
+After performing the above steps, you should have a batch job in your flow similar to this:
+
+![batch-job.png](assets/batch-job.png)
+
+You can now configure the rest of the "Write Documents" operation based on your requirements. 
+
+## Accessing inline help
+
+Upon clicking into each text field in the "Write Documents" operation, Anypoint will display a small information icon 
+to the left of the field. You can hover over this to view a description of the text field. For dropdown fields, you 
+can hover over the dropdown to view a description of the field.
 
 ## Recommendations for writing documents
 
