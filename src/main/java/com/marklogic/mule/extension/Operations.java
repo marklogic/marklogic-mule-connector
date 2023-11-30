@@ -16,7 +16,6 @@
 package com.marklogic.mule.extension;
 
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.mule.extension.api.ExecuteErrorsProvider;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;

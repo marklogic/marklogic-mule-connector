@@ -1,4 +1,4 @@
-package com.marklogic.mule.extension.api;
+package com.marklogic.mule.extension;
 
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
