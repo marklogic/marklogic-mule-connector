@@ -1,7 +1,6 @@
 package com.marklogic.mule.extension;
 
 import com.marklogic.mule.extension.api.DocumentAttributes;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -96,8 +95,17 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
     }
 
     @Test
-    @Ignore
     public void queryDataDocuments_MetadataValuesOnly() {
-        // TODO - Ignoring this until the bug is fixed in the Java Client
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("search-text-data-documents-with-metadata-values");
+        for (DocumentData documentData : documentDataList) {
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
+                .collections(0)
+                .permissions(0)
+                .properties(0)
+                .metadataValues(1, "hello", "world")
+                .quality(0)
+                .verify();
+        }
     }
 }

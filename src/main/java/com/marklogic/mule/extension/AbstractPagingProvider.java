@@ -48,7 +48,7 @@ abstract class AbstractPagingProvider {
         int startingPosition = (currentPage * pageLength) + 1;
         documentManager.setPageLength(pageLength);
         DocumentPage documentPage = serverTimestamp != null ?
-            ((GenericDocumentImpl) documentManager).search(queryDefinition, startingPosition, serverTimestamp) :
+            documentManager.search(queryDefinition, startingPosition, serverTimestamp) :
             documentManager.search(queryDefinition, startingPosition);
 
         while (documentPage.hasNext()) {
