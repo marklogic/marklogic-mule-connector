@@ -4,7 +4,6 @@ import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.document.DocumentPage;
 import com.marklogic.client.document.DocumentRecord;
 import com.marklogic.client.document.GenericDocumentManager;
-import com.marklogic.client.impl.GenericDocumentImpl;
 import com.marklogic.client.io.JacksonParserHandle;
 import com.marklogic.client.query.QueryDefinition;
 import org.slf4j.Logger;
