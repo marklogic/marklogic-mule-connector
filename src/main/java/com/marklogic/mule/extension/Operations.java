@@ -16,7 +16,8 @@
 package com.marklogic.mule.extension;
 
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.mule.extension.api.DocumentAttributes;
+import com.marklogic.mule.extension.api.ExecuteErrorsProvider;
+import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
@@ -32,6 +33,7 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 public class Operations {
 
     @Summary("Write one or more documents to MarkLogic, typically from within a Mule 'Batch Aggregator'.")
+    @Throws(ExecuteErrorsProvider.class)
     public void writeDocuments(
         @Connection DatabaseClient databaseClient,
         @Content InputStream[] contents,
@@ -43,7 +45,8 @@ public class Operations {
 
     @MediaType(value = ANY, strict = false)
     @Summary("Returns the content, URI, and optional metadata for each document matching the query criteria.")
-    public PagingProvider<DatabaseClient, Result<InputStream, DocumentAttributes>> readDocuments(
+    @Throws(ExecuteErrorsProvider.class)
+    public PagingProvider<DatabaseClient, Result<InputStream, InputStream>> readDocuments(
         @ParameterGroup(name = "Query Settings") QueryParameters queryParameters
     ) {
         return new ReadPagingProvider(queryParameters);
@@ -51,6 +54,7 @@ public class Operations {
 
     @MediaType(value = ANY, strict = false)
     @Summary("Returns the content of documents matching the query criteria.")
+    @Throws(ExecuteErrorsProvider.class)
     public PagingProvider<DatabaseClient, InputStream> exportDocuments(
         @ParameterGroup(name = "Query Settings") QueryParameters queryParameters
     ) {

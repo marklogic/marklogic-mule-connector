@@ -15,9 +15,11 @@
  */
 package com.marklogic.mule.extension;
 
+import com.marklogic.mule.extension.api.ErrorType;
 import org.mule.runtime.extension.api.annotation.Configurations;
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
+import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
 
 
 /**
@@ -27,6 +29,7 @@ import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
 @Xml(prefix = "marklogic")
 @Extension(name = "MarkLogic")
 @Configurations(Configuration.class)
+@ErrorTypes(ErrorType.class)
 public class MarkLogicExtension {
 
 }

@@ -20,7 +20,10 @@ declareUpdate();
 xdmp.documentSetQuality('/metadataSamples/json/hello.json', 17);
 xdmp.documentSetQuality('/metadataSamples/xml/hello.xml', 27);
 xdmp.documentSetQuality('/metadataSamples/text/hello.text', 95);
-xdmp.documentSetProperty('/metadataSamples/text/hello.text', fn.head(xdmp.unquote('<priority>2</priority>')).root);
+xdmp.documentSetProperty('/metadataSamples/text/hello.text', fn.head(xdmp.unquote('<ex:priority xmlns:ex="org:example"><hello>world</hello></ex:priority>')).root);
+xdmp.documentSetProperty('/metadataSamples/text/hello.text', fn.head(xdmp.unquote('<complexity>2</complexity>')).root);
+xdmp.documentSetProperty('/metadataSamples/text/hello.text', fn.head(xdmp.unquote('<ex:anotherProp xmlns:ex="org:example">PropValue</ex:anotherProp>')).root);
+xdmp.documentSetMetadata('/metadataSamples/text/hello.text', {"hello":"world"});
 xdmp.documentSetMetadata('/metadataSamples/binary/logo.png', {"name":"value"});
 const uris = cts.uris("", null, cts.collectionQuery("batch-input")).toArray();
 for (var i in uris) {

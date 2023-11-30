@@ -5,23 +5,34 @@ import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
 import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.mule.extension.api.DocumentAttributes;
+import com.marklogic.mule.extension.api.ErrorType;
+import org.jetbrains.annotations.NotNull;
+import org.mule.runtime.api.metadata.MediaType;
+import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import javax.xml.transform.*;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-class ReadPagingProvider extends AbstractPagingProvider implements PagingProvider<DatabaseClient, Result<InputStream, DocumentAttributes>> {
+class ReadPagingProvider extends AbstractPagingProvider implements PagingProvider<DatabaseClient, Result<InputStream, InputStream>> {
 
     ReadPagingProvider(QueryParameters params) {
         super(params);
     }
 
     @Override
-    public List<Result<InputStream, DocumentAttributes>> getPage(DatabaseClient databaseClient) {
-        List<Result<InputStream, DocumentAttributes>> results = new ArrayList<>();
+    public List<Result<InputStream, InputStream>> getPage(DatabaseClient databaseClient) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        final Transformer transformer = newTransformer();
+
+        List<Result<InputStream, InputStream>> results = new ArrayList<>();
         super.handlePage(databaseClient, documentRecord -> {
             InputStreamHandle contentHandle = new InputStreamHandle();
             InputStream contentStream = documentRecord.getContent(contentHandle).get();
@@ -29,11 +40,13 @@ class ReadPagingProvider extends AbstractPagingProvider implements PagingProvide
             if (Utilities.hasText(queryParameters.categories)) {
                 documentRecord.getMetadata(metadataHandle);
             }
-            Result<InputStream, DocumentAttributes> result = Result.<InputStream, DocumentAttributes>builder()
+            String attributes = new DocumentAttributes(documentRecord.getUri(), metadataHandle).toJsonObjectNode(objectMapper, transformer).toString();
+            InputStream attributesStream = new ByteArrayInputStream(attributes.getBytes(StandardCharsets.UTF_8));
+            Result<InputStream, InputStream> result = Result.<InputStream, InputStream>builder()
                 .output(contentStream)
-                .attributes(new DocumentAttributes(documentRecord.getUri(), metadataHandle))
+                .attributes(attributesStream)
                 .mediaType(makeMediaType(contentHandle.getFormat()))
-                .attributesMediaType(org.mule.runtime.api.metadata.MediaType.APPLICATION_JAVA)
+                .attributesMediaType(MediaType.APPLICATION_JSON)
                 .build();
             results.add(result);
         });
@@ -59,5 +72,18 @@ class ReadPagingProvider extends AbstractPagingProvider implements PagingProvide
             return org.mule.runtime.api.metadata.MediaType.TEXT;
         }
         return org.mule.runtime.api.metadata.MediaType.BINARY;
+    }
+
+    @NotNull
+    private static Transformer newTransformer() {
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        final Transformer transformer;
+        try {
+            transformer = transformerFactory.newTransformer();
+        } catch (TransformerConfigurationException e) {
+            throw new ModuleException("Unable to create new Transformer", ErrorType.TRANSFORMER_FACTORY_ERROR, e);
+        }
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        return transformer;
     }
 }
