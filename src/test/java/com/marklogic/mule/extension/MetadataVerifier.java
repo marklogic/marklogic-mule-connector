@@ -135,7 +135,7 @@ public class MetadataVerifier {
 
     private void verifyMetadataValues() {
         if (expectedMetadataValueCount != null) {
-            assertEquals(((long) expectedMetadataValueCount), attributes.getMetadataValues().size());
+            assertEquals(((int) expectedMetadataValueCount), attributes.getMetadataValues().size());
         }
         if (expectedMetadataValues != null) {
             for (int i = 0; i < expectedMetadataValues.length; i = i + 2) {
