@@ -170,7 +170,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
             .collections(2, "text-data", "test-data")
             .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(95)
-            .properties(1, "priority", "2")
+            .properties(3, "{org:example}priority", "<hello>world</hello>", "complexity", "2", "{org:example}anotherProp", "PropValue")
             .verify();
     }
 
@@ -182,7 +182,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
             .collections(2, "text-data", "test-data")
             .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(95)
-            .properties(1, "priority", "2")
+            .properties(3, "{org:example}priority", "<hello>world</hello>", "complexity", "2", "{org:example}anotherProp", "PropValue")
             .verify();
     }
 
@@ -194,7 +194,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
             .collections(0)
             .permissions(0)
             .quality(0)
-            .properties(1, "priority", "2")
+            .properties(3, "{org:example}priority", "<hello>world</hello>", "complexity", "2", "{org:example}anotherProp", "PropValue")
             .verify();
     }
 
@@ -206,7 +206,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
             .collections(2, "text-data", "test-data")
             .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
             .quality(95)
-            .properties(1, "priority", "2")
+            .properties(3, "{org:example}priority", "<hello>world</hello>", "complexity", "2", "{org:example}anotherProp", "PropValue")
             .verify();
     }
 

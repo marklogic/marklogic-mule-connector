@@ -34,4 +34,8 @@
     <marklogic:read-documents config-ref="config" collections="text-data" categories="permissions,properties"/>
   </flow>
 
+  <flow name="search-text-documents-with-metadata-all">
+    <marklogic:read-documents config-ref="config" collections="text-data" categories="all"/>
+  </flow>
+
 </mule>

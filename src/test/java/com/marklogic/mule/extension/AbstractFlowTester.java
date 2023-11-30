@@ -5,7 +5,9 @@ import org.junit.Before;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
+import org.springframework.util.FileCopyUtils;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,14 +63,17 @@ public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase 
 
     private DocumentData toDocumentData(Message message) {
         String content;
+        DocumentAttributes attributes;
         try {
             content = getPayloadAsString(message);
+            String attributesJson = new String(FileCopyUtils.copyToByteArray((InputStream) message.getAttributes().getValue()));
+            attributes = DocumentAttributes.buildDocumentAttributes(attributesJson);
         } catch (Exception e) {
             throw new RuntimeException("Unable to get payload as string", e);
         }
         return new DocumentData(
             content,
-            (DocumentAttributes) message.getAttributes().getValue(),
+            attributes,
             message.getPayload().getDataType().getMediaType().toRfcString()
         );
 

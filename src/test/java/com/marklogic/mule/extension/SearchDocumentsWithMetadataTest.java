@@ -1,11 +1,11 @@
 package com.marklogic.mule.extension;
 
 import com.marklogic.mule.extension.api.DocumentAttributes;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
 
-@SuppressWarnings("unchecked")
 public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
 
     @Override
@@ -74,9 +74,30 @@ public class SearchDocumentsWithMetadataTest extends AbstractFlowTester {
             MetadataVerifier.assertMetadata(documentAttributes, null)
                 .collections(0)
                 .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
-                .properties(1, "priority", "2")
+                .properties(3, "{org:example}priority", "<hello>world</hello>", "complexity", "2", "{org:example}anotherProp", "PropValue")
                 .quality(0)
                 .verify();
         }
+    }
+
+    @Test
+    public void queryDataDocuments_AllMetadata() {
+        List<DocumentData> documentDataList = runFlowForDocumentDataList("search-text-documents-with-metadata-all");
+        for (DocumentData documentData : documentDataList) {
+            DocumentAttributes documentAttributes = documentData.getAttributes();
+            MetadataVerifier.assertMetadata(documentAttributes, null)
+                .collections(2)
+                .permissions(3, "rest-reader", "read", "rest-admin", "read", "rest-admin", "update", "rest-extension-user", "execute")
+                .properties(3, "{org:example}priority", "<hello>world</hello>", "complexity", "2", "{org:example}anotherProp", "PropValue")
+                .metadataValues(1, "hello", "world")
+                .quality(95)
+                .verify();
+        }
+    }
+
+    @Test
+    @Ignore
+    public void queryDataDocuments_MetadataValuesOnly() {
+        // TODO - Ignoring this until the bug is fixed in the Java Client
     }
 }

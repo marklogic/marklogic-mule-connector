@@ -5,8 +5,7 @@ import org.junit.Assert;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MetadataVerifier {
 
@@ -19,6 +18,8 @@ public class MetadataVerifier {
     Integer expectedQuality = null;
     Integer expectedPropertyCount = null;
     String[] expectedProperties = null;
+    Integer expectedMetadataValueCount = null;
+    String[] expectedMetadataValues = null;
 
     private MetadataVerifier(DocumentAttributes attributes, String expectedUri) {
         this.attributes = attributes;
@@ -57,6 +58,12 @@ public class MetadataVerifier {
         return this;
     }
 
+    public MetadataVerifier metadataValues(int expectedMetadataValueCount, String... expectedMetadataValues) {
+        this.expectedMetadataValueCount = expectedMetadataValueCount;
+        this.expectedMetadataValues = expectedMetadataValues;
+        return this;
+    }
+
     public MetadataVerifier quality(int expectedQuality) {
         this.expectedQuality = expectedQuality;
         return this;
@@ -70,6 +77,7 @@ public class MetadataVerifier {
         verifyProperties();
         verifyPermissions();
         verifyQuality();
+        verifyMetadataValues();
     }
 
     private void verifyQuality() {
@@ -121,6 +129,20 @@ public class MetadataVerifier {
         if (expectedCollections != null) {
             for (String collection : expectedCollections) {
                 assertTrue(attributes.getCollections().contains(collection));
+            }
+        }
+    }
+
+    private void verifyMetadataValues() {
+        if (expectedMetadataValueCount != null) {
+            assertEquals(((long) expectedMetadataValueCount), attributes.getMetadataValues().size());
+        }
+        if (expectedMetadataValues != null) {
+            for (int i = 0; i < expectedMetadataValues.length; i = i + 2) {
+                if (!(attributes.getMetadataValues().containsKey(expectedMetadataValues[i]) &&
+                    attributes.getMetadataValues().get(expectedMetadataValues[i]).equals(expectedMetadataValues[i + 1]))) {
+                    fail("Key::Value not found: " + expectedMetadataValues[i] + "::" + expectedMetadataValues[i + 1]);
+                }
             }
         }
     }
