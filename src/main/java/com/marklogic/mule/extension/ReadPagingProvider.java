@@ -1,5 +1,6 @@
 package com.marklogic.mule.extension;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
@@ -11,9 +12,12 @@ import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.xml.transform.*;
+import javax.xml.XMLConstants;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -40,7 +44,7 @@ class ReadPagingProvider extends AbstractPagingProvider implements PagingProvide
             if (Utilities.hasText(queryParameters.categories)) {
                 documentRecord.getMetadata(metadataHandle);
             }
-            String attributes = new DocumentAttributes(documentRecord.getUri(), metadataHandle).toJsonObjectNode(objectMapper, transformer).toString();
+            String attributes = new DocumentAttributes(documentRecord.getUri(), metadataHandle).serializeToJson(objectMapper, transformer).toString();
             InputStream attributesStream = new ByteArrayInputStream(attributes.getBytes(StandardCharsets.UTF_8));
             Result<InputStream, InputStream> result = Result.<InputStream, InputStream>builder()
                 .output(contentStream)
@@ -79,9 +83,14 @@ class ReadPagingProvider extends AbstractPagingProvider implements PagingProvide
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         final Transformer transformer;
         try {
+            // Copied from https://stackoverflow.com/questions/32178558/how-to-prevent-xml-external-entity-injection-on-transformerfactory
+            // to make Sonar happy about preventing external entities from being processed.
+            transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
             transformer = transformerFactory.newTransformer();
         } catch (TransformerConfigurationException e) {
-            throw new ModuleException("Unable to create new Transformer", ErrorType.TRANSFORMER_FACTORY_ERROR, e);
+            throw new ModuleException("Unable to create new Transformer", ErrorType.XML_TRANSFORMER_ERROR, e);
         }
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         return transformer;

@@ -7,6 +7,6 @@ public enum ErrorType implements ErrorTypeDefinition<ErrorType> {
     // TODO Test that this works.
     CONNECTION_ERROR,
 
-    TRANSFORMER_FACTORY_ERROR;
+    XML_TRANSFORMER_ERROR;
 
 }

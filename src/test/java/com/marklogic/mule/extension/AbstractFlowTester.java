@@ -67,7 +67,7 @@ public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase 
         try {
             content = getPayloadAsString(message);
             String attributesJson = new String(FileCopyUtils.copyToByteArray((InputStream) message.getAttributes().getValue()));
-            attributes = DocumentAttributes.buildDocumentAttributes(attributesJson);
+            attributes = new DocumentAttributes(attributesJson);
         } catch (Exception e) {
             throw new RuntimeException("Unable to get payload as string", e);
         }
