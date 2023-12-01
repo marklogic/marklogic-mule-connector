@@ -15,7 +15,6 @@
  */
 package com.marklogic.mule.extension;
 
-import com.marklogic.mule.extension.api.ErrorType;
 import org.mule.runtime.extension.api.annotation.Configurations;
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;

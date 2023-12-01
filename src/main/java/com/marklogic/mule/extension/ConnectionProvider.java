@@ -21,7 +21,6 @@ import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.impl.SSLUtil;
 import com.marklogic.mule.extension.api.AuthenticationType;
 import com.marklogic.mule.extension.api.ConnectionType;
-import com.marklogic.mule.extension.api.ErrorType;
 import com.marklogic.mule.extension.api.HostnameVerifier;
 import org.mule.runtime.api.connection.CachedConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
@@ -177,6 +176,9 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
         try {
             builder.withSSLContext(tlsContextFactory.createSslContext());
         } catch (Exception e) {
+            // Have not found a way to cause this error to happen yet, but createSslContext() can throw a
+            // checked exception so it needs to be handled. Attempts at providing invalid inputs result in
+            // the "initialize()" call failing instead.
             String message = String.format("Unable to create SSL context; cause: %s", e.getMessage());
             throw new ModuleException(message, ErrorType.CONNECTION_ERROR, e);
         }

@@ -6,7 +6,6 @@ import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
 import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.mule.extension.api.DocumentAttributes;
-import com.marklogic.mule.extension.api.ErrorType;
 import org.jetbrains.annotations.NotNull;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.exception.ModuleException;
