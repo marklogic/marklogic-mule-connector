@@ -14,14 +14,10 @@
   </marklogic:config>
 
   <flow name="read-and-write-document">
-    <marklogic:export-documents config-ref="config">
-      <marklogic:uris >
-        <marklogic:uri value="/metadataSamples/json/hello.json" />
-      </marklogic:uris>
-    </marklogic:export-documents>
-    <marklogic:write-documents config-ref="config" uriPrefix="/test/metadataSamples/json/hello.json" generateUUID="False"
-                          permissions="rest-reader,read,rest-reader,update"/>
+    <marklogic:write-documents config-ref="config" uriPrefix="/test/metadataSamples/json/hello.json"
+                               generateUUID="False" permissions="rest-reader,read,rest-reader,update">
+      <marklogic:contents><![CDATA[#[java!test::Data::getJsonDoc()]]]></marklogic:contents>
+    </marklogic:write-documents>
     <marklogic:read-documents config-ref="config" uris="#[['/test/metadataSamples/json/hello.json']]"/>
   </flow>
-
 </mule>

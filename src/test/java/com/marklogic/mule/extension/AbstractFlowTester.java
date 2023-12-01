@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase {
 
     protected final static String JSON_HELLO_WORLD = "{\"hello\":\"world\"}";
-    protected final static String TEXT_HELLO_WORLD = "Hello, World!\n";
+    protected final static String TEXT_HELLO_WORLD = "Hello, World!";
     protected final static String XML_HELLO_WORLD = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Hello>World</Hello>";
 
     protected abstract String getFlowTestFile();

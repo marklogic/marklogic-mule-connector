@@ -50,13 +50,4 @@ public class Operations {
     ) {
         return new ReadPagingProvider(queryParameters);
     }
-
-    @MediaType(value = ANY, strict = false)
-    @Summary("Returns the content of documents matching the query criteria.")
-    @Throws(ExecuteErrorsProvider.class)
-    public PagingProvider<DatabaseClient, InputStream> exportDocuments(
-        @ParameterGroup(name = "Query Settings") QueryParameters queryParameters
-    ) {
-        return new ExportPagingProvider(queryParameters);
-    }
 }
