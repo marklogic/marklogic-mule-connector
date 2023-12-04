@@ -2,57 +2,88 @@ package com.marklogic.mule.extension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marklogic.client.DatabaseClient;
+import com.marklogic.client.document.DocumentPage;
+import com.marklogic.client.document.DocumentRecord;
+import com.marklogic.client.document.GenericDocumentManager;
 import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
 import com.marklogic.client.io.InputStreamHandle;
+import com.marklogic.client.io.JacksonParserHandle;
+import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.mule.extension.api.DocumentAttributes;
-import org.jetbrains.annotations.NotNull;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
-class ReadPagingProvider extends AbstractPagingProvider implements PagingProvider<DatabaseClient, Result<InputStream, InputStream>> {
+class ReadPagingProvider implements PagingProvider<DatabaseClient, Result<InputStream, InputStream>> {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private final QueryParameters queryParameters;
+    private final int pageLength;
+    private final ObjectMapper objectMapper;
+    private final Supplier<Transformer> transformerSupplier;
+
+    // State that changes as the provider iterates through pages.
+    private int totalDocumentsDelivered = 0;
+    private Integer currentPage = -1;
+    private Long serverTimestamp = null;
+    private TransformerFactory transformerFactory;
 
     ReadPagingProvider(QueryParameters params) {
-        super(params);
+        this.queryParameters = params;
+        this.pageLength = params.pageLength != null ? params.pageLength : 100;
+        this.objectMapper = new ObjectMapper();
+        this.transformerSupplier = () -> newTransformer();
     }
 
     @Override
     public List<Result<InputStream, InputStream>> getPage(DatabaseClient databaseClient) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        final Transformer transformer = newTransformer();
+        currentPage++;
 
-        List<Result<InputStream, InputStream>> results = new ArrayList<>();
-        super.handlePage(databaseClient, documentRecord -> {
-            InputStreamHandle contentHandle = new InputStreamHandle();
-            InputStream contentStream = documentRecord.getContent(contentHandle).get();
-            DocumentMetadataHandle metadataHandle = new DocumentMetadataHandle();
-            if (Utilities.hasText(queryParameters.categories)) {
-                documentRecord.getMetadata(metadataHandle);
+        GenericDocumentManager documentManager = databaseClient.newDocumentManager();
+        if (Utilities.hasText(queryParameters.categories)) {
+            documentManager.setMetadataCategories(queryParameters.buildMetadataCategories());
+        }
+
+        final QueryDefinition queryDefinition = queryParameters.makeQueryDefinition(databaseClient);
+        initializeServerTimestampIfNecessary(documentManager, queryDefinition);
+
+        int startingPosition = (currentPage * pageLength) + 1;
+        documentManager.setPageLength(pageLength);
+        DocumentPage documentPage = serverTimestamp != null ?
+            documentManager.search(queryDefinition, startingPosition, serverTimestamp) :
+            documentManager.search(queryDefinition, startingPosition);
+
+        final List<Result<InputStream, InputStream>> results = new ArrayList<>();
+        while (documentPage.hasNext()) {
+            DocumentRecord document = documentPage.next();
+            if (queryParameters.maxResults != null) {
+                if (totalDocumentsDelivered < queryParameters.maxResults) {
+                    results.add(documentToResult(document));
+                    totalDocumentsDelivered++;
+                } else {
+                    break;
+                }
+            } else {
+                results.add(documentToResult(document));
+                totalDocumentsDelivered++;
             }
-            String attributes = new DocumentAttributes(documentRecord.getUri(), metadataHandle).serializeToJson(objectMapper, transformer).toString();
-            InputStream attributesStream = new ByteArrayInputStream(attributes.getBytes(StandardCharsets.UTF_8));
-            Result<InputStream, InputStream> result = Result.<InputStream, InputStream>builder()
-                .output(contentStream)
-                .attributes(attributesStream)
-                .mediaType(makeMediaType(contentHandle.getFormat()))
-                .attributesMediaType(MediaType.APPLICATION_JSON)
-                .build();
-            results.add(result);
-        });
+        }
         return results;
     }
 
@@ -66,6 +97,32 @@ class ReadPagingProvider extends AbstractPagingProvider implements PagingProvide
         // We don't want to call release here, as the client will no longer be usable by other operations.
     }
 
+    private void initializeServerTimestampIfNecessary(GenericDocumentManager documentManager, QueryDefinition queryDefinition) {
+        if (queryParameters.consistentSnapshot && serverTimestamp == null) {
+            JacksonParserHandle searchHandle = new JacksonParserHandle();
+            documentManager.setPageLength(1);
+            documentManager.search(queryDefinition, 1, searchHandle);
+            serverTimestamp = searchHandle.getServerTimestamp();
+            logger.info("Using consistent snapshot with server timestamp: {}", serverTimestamp);
+        }
+    }
+    
+    private Result<InputStream, InputStream> documentToResult(DocumentRecord documentRecord) {
+        InputStreamHandle contentHandle = documentRecord.getContent(new InputStreamHandle());
+        DocumentMetadataHandle metadataHandle = new DocumentMetadataHandle();
+        if (Utilities.hasText(queryParameters.categories)) {
+            documentRecord.getMetadata(metadataHandle);
+        }
+        InputStream attributes = new DocumentAttributes(documentRecord.getUri(), metadataHandle).serializeToJsonStream(objectMapper, transformerSupplier);
+        return Result.<InputStream, InputStream>builder()
+            .output(contentHandle.get())
+            .attributes(attributes)
+            .mediaType(makeMediaType(contentHandle.getFormat()))
+            .attributesMediaType(MediaType.APPLICATION_JSON)
+            .build();
+    }
+
+
     private org.mule.runtime.api.metadata.MediaType makeMediaType(Format format) {
         if (Format.JSON.equals(format)) {
             return org.mule.runtime.api.metadata.MediaType.APPLICATION_JSON;
@@ -77,9 +134,19 @@ class ReadPagingProvider extends AbstractPagingProvider implements PagingProvide
         return org.mule.runtime.api.metadata.MediaType.BINARY;
     }
 
-    @NotNull
-    private static Transformer newTransformer() {
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    /**
+     * Per https://stackoverflow.com/questions/47341723/javax-transformer-fails-on-high-concurrent-environment , a
+     * Transformer is reusable but depending on the implementation, it may be better to create a new one each time.
+     * Testing has shown no real difference with creating a new one each time. So the TransformerFactory is reused, but
+     * a new Transformer is created each time. Note that multithreading does not appear possible here as Mule runs a
+     * PagingProvider via a single thread.
+     *
+     * @return
+     */
+    private Transformer newTransformer() {
+        if (this.transformerFactory == null) {
+            this.transformerFactory = TransformerFactory.newInstance();
+        }
         final Transformer transformer;
         try {
             // Copied from https://stackoverflow.com/questions/32178558/how-to-prevent-xml-external-entity-injection-on-transformerfactory
