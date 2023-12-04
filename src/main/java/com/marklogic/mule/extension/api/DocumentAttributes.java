@@ -30,11 +30,15 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Wraps a document's URI and metadata and knows how to serialize the data to JSON and deserialize it from JSON.
@@ -59,15 +63,20 @@ public class DocumentAttributes {
         this.metadata = metadata;
     }
 
-    public ObjectNode serializeToJson(ObjectMapper objectMapper, Transformer transformer) {
+    /**
+     * @param objectMapper
+     * @param transformerSupplier a Supplier is used to lazily instantiate this in case it's never needed.
+     * @return
+     */
+    public InputStream serializeToJsonStream(ObjectMapper objectMapper, Supplier<Transformer> transformerSupplier) {
         ObjectNode node = objectMapper.createObjectNode();
         node.put("uri", uri);
         serializeCollections(node);
         serializePermissions(node);
-        serializeProperties(transformer, node);
+        serializeProperties(transformerSupplier, node);
         serializeMetadataValues(node);
         node.put(QUALITY, metadata.getQuality());
-        return node;
+        return new ByteArrayInputStream(node.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     public DocumentAttributes(String attributesJson) throws JsonProcessingException {
@@ -97,14 +106,14 @@ public class DocumentAttributes {
         });
     }
 
-    private void serializeProperties(Transformer transformer, ObjectNode node) {
+    private void serializeProperties(Supplier<Transformer> transformerSupplier, ObjectNode node) {
         ArrayNode propertiesArray = node.putArray(PROPERTIES);
         metadata.getProperties().forEach((property, value) -> {
             ObjectNode propertyNode = propertiesArray.addObject();
             if (value instanceof Node) {
                 Writer out = new StringWriter();
                 try {
-                    transformer.transform(new DOMSource(((Node) value).getFirstChild()), new StreamResult(out));
+                    transformerSupplier.get().transform(new DOMSource(((Node) value).getFirstChild()), new StreamResult(out));
                     propertyNode.put(property.toString(), out.toString());
                 } catch (TransformerException e) {
                     throw new ModuleException(ErrorType.XML_TRANSFORMER_ERROR, e);
