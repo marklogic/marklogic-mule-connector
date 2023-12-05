@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+    xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+    xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+    xmlns:http="http://www.mulesoft.org/schema/mule/http"
+    xmlns:file="http://www.mulesoft.org/schema/mule/file"
+    xmlns:sockets="http://www.mulesoft.org/schema/mule/sockets"
+    xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic"
+    xmlns="http://www.mulesoft.org/schema/mule/core"
+    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
+http://www.mulesoft.org/schema/mule/sockets http://www.mulesoft.org/schema/mule/sockets/current/mule-sockets.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+	">
+
+  <configuration-properties file="properties.yaml"/>
+
+  <marklogic:config name="MarkLogic_Connection_Configuration" doc:name="MarkLogic Connection Configuration" doc:id="a921b600-937d-43f0-aaad-bd28612b7710" >
+    <marklogic:connection host="localhost" port="8000" username="admin" password="admin"/>
+  </marklogic:config>
+
+  <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e034d969-7201-4e9a-8102-3e63500b0409" >
+    <http:listener-connection host="localhost" port="8100" />
+  </http:listener-config>
+
+  <flow name="Write_Documents" doc:id="6b2f9577-b83c-416c-bfa4-1b9457868262" >
+    <http:listener doc:name="Listener_writeDocuments" doc:id="89566f78-3bed-4283-aaf3-eb8985b26588" config-ref="HTTP_Listener_config" path="/writeDocuments"/>
+    <file:list doc:name="List Files In Source Directory" doc:id="dd7eee85-2681-442f-8b31-1954b724831e" directoryPath="${project.path}/examples/demo-project/data"/>
+    <batch:job jobName="WriteDocuments_BatchJob" doc:id="35b317bf-2a74-49dd-9a5f-6444e92a81d7">
+      <batch:process-records>
+        <batch:step name="Batch_Step" doc:id="db0edd3c-10d3-4fbb-a224-fd11c5d67ba1">
+          <batch:aggregator doc:name="Batch Aggregator" doc:id="485bd37c-e72e-4304-bd01-c43465081f83" size="5">
+            <logger level="INFO" doc:name="Batch Logger" doc:id="ba3e7aa9-12fb-4a90-9b60-761ef5846cef" message='#["Writing batch, size: " ++ sizeOf(payload)]' />
+            <marklogic:write-documents doc:name="Write documents" doc:id="ea8524de-7f00-40e5-afb1-ba589874e22c" config-ref="MarkLogic_Connection_Configuration" collections="from-disk" uriPrefix="/from-disk/"/>
+          </batch:aggregator>
+        </batch:step>
+      </batch:process-records>
+    </batch:job>
+    <ee:transform doc:name="Transform Message for Web Response" doc:id="98d7c8fe-2364-41f0-a648-c7d539ce73fa">
+      <ee:message>
+        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Total_Records": payload.result.totalRecords
+}]]></ee:set-payload>
+      </ee:message>
+    </ee:transform>
+  </flow>
+  <flow name="Read_Documents" doc:id="1c4f7f12-ce43-4a51-8ac4-6aa48f287dc0" >
+    <http:listener doc:name="Listener_readDocuments" doc:id="90be4aa3-a47f-4d14-bba6-e006b1c33a5c" config-ref="HTTP_Listener_config" path="/readDocuments"/>
+    <marklogic:read-documents doc:name="Read documents" doc:id="3074829b-6341-4304-b5d4-190b36facaa6" config-ref="MarkLogic_Connection_Configuration" collections="from-disk" pageLength="5" categories="all"/>
+    <batch:job jobName="demoBatch_Job" doc:id="b22c509b-6771-43a9-8836-99ec51498b0f" >
+      <batch:process-records >
+        <batch:step name="Batch_Step1" doc:id="5c2c99e6-13a1-4c79-9a23-73e1d445eedd" >
+          <file:write doc:name="Write Documents to Target Directory" doc:id="feb1888a-586b-4aa1-beaf-3521c10173fb" path='#["${project.path}/examples/demo-project/output/" ++ attributes.uri ++ ".json"]'>
+          </file:write>
+
+        </batch:step>
+      </batch:process-records>
+    </batch:job>
+    <ee:transform doc:name="Transform Message for Web Response" doc:id="ce99d737-4713-429d-b418-cca959a808e3">
+      <ee:message>
+        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Total_Records": payload.result.totalRecords
+}]]></ee:set-payload>
+      </ee:message>
+    </ee:transform>
+  </flow>
+</mule>

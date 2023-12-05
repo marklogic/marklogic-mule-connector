@@ -12,3 +12,7 @@ docker/marklogic/logs
 src/test/studio-workspace/.metadata/
 src/test/studio-workspace/.mule/
 src/test/studio-workspace/.DS_Store
+/examples/demos/.metadata/
+/examples/demos/.mule/plugins-tmp/
+/examples/demos/.tooling/
+/examples/demos/.tooling-apps-cache/
