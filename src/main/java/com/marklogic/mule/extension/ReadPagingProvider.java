@@ -48,7 +48,7 @@ class ReadPagingProvider implements PagingProvider<DatabaseClient, Result<InputS
         this.queryParameters = params;
         this.pageLength = params.pageLength != null ? params.pageLength : 100;
         this.objectMapper = new ObjectMapper();
-        this.transformerSupplier = () -> newTransformer();
+        this.transformerSupplier = this::newTransformer;
     }
 
     @Override
