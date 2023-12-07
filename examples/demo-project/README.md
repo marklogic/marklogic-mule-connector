@@ -24,17 +24,18 @@ operations to the correct location on your local system.
 3. Select "Anypoint Studio"->"Anypoint Studio project from File System" & click Next.
 4. For Project Root, enter the path to your local copy of this project plus "/examples/demo-project" & click Finish.
 The project will then be imported into your workspace.
-5. In the project, open the "properties.yaml" file in the src/main/resources directory, and update the "path" property
+5. In Anypoint Studio, open the "properties.yaml" file in the src/main/resources directory, and update the "path" property
 to be the absolute path to your local version of this project.
 6. Save your changes.
 7. To view the flows, open the "demo" flow file (src/main/mule/demo.xml).
 8. Right-click in the flow editing window and choose "Run project demo-project".
 9. Wait for the project to finish initializing. You'll know it is ready when you see messages in the console that
 say, "Message source 'listener' on flow 'Read_Documents' successfully started" and
-"Message source 'listener' on flow 'Write_Documents' successfully started".
+"Message source 'listener' on flow 'Write_Documents' successfully started". You may need to scroll to the right to see
+these messages.
 10. To run the Write_Documents flow, open a web browser and point it to: http://localhost:8100/writeDocuments.
 11. Use Query Console (https://docs.marklogic.com/guide/qconsole) to explore the "Documents" database and verify that the
 documents have been loaded. Query Console should be available at http://localhost:8000/qconsole/.
 12. To run the "Read_Documents" flow, point your browser to http://localhost:8100/readDocuments.
-13. Use a file browser to verify that the documents have been written to the /demos/demo-project/output/
+13. Use a file browser to verify that the documents have been written to the /examples/demo-project/output/
     directory in your local project.
