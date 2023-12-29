@@ -1,4 +1,4 @@
-package com.marklogic.mule.extension;
+package com.marklogic.mule.internal;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.document.DocumentManager;
@@ -6,8 +6,8 @@ import com.marklogic.client.io.Format;
 import com.marklogic.client.io.StringHandle;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
-import com.marklogic.mule.extension.api.QueryFormat;
-import com.marklogic.mule.extension.api.QueryType;
+import com.marklogic.mule.internal.api.QueryFormat;
+import com.marklogic.mule.internal.api.QueryType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;

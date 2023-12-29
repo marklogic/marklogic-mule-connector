@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.extension;
+package com.marklogic.mule.internal.extension;
 
+import com.marklogic.mule.internal.config.Configuration;
+import com.marklogic.mule.internal.error.ErrorType;
 import org.mule.runtime.extension.api.annotation.Configurations;
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
@@ -29,6 +31,6 @@ import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
 @Extension(name = "MarkLogic")
 @Configurations(Configuration.class)
 @ErrorTypes(ErrorType.class)
-public class MarkLogicExtension {
+public class MarkLogicConnector {
 
 }

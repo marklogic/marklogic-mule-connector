@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.extension;
+package com.marklogic.mule.internal.connection.provider;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientBuilder;
 import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.impl.SSLUtil;
-import com.marklogic.mule.extension.api.AuthenticationType;
-import com.marklogic.mule.extension.api.ConnectionType;
-import com.marklogic.mule.extension.api.HostnameVerifier;
+import com.marklogic.mule.internal.error.ErrorType;
+import com.marklogic.mule.internal.api.AuthenticationType;
+import com.marklogic.mule.internal.api.ConnectionType;
+import com.marklogic.mule.internal.api.HostnameVerifier;
 import org.mule.runtime.api.connection.CachedConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.lifecycle.Initialisable;

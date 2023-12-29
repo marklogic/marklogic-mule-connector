@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.extension.api;
+package com.marklogic.mule.internal.api;
 
-public enum QueryFormat {
-    JSON,
-    XML;
+public enum QueryType {
+    STRING_QUERY,
+    STRUCTURED_QUERY,
+    SERIALIZED_CTS_QUERY,
+    COMBINED_QUERY;
 }

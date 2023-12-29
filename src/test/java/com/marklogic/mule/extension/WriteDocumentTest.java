@@ -1,7 +1,7 @@
 package com.marklogic.mule.extension;
 
 
-import com.marklogic.mule.extension.api.DocumentAttributes;
+import com.marklogic.mule.internal.api.DocumentAttributes;
 import org.junit.Ignore;
 import org.junit.Test;
 

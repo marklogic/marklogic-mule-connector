@@ -1,4 +1,4 @@
-package com.marklogic.mule.extension.api;
+package com.marklogic.mule.internal.api;
 
 import com.marklogic.client.DatabaseClientFactory;
 
