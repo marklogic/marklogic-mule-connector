@@ -31,12 +31,19 @@ import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.api.tls.TlsContextTrustStoreConfiguration;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
-import org.mule.runtime.extension.api.annotation.param.display.*;
+import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
+import org.mule.runtime.extension.api.annotation.param.display.Example;
+import org.mule.runtime.extension.api.annotation.param.display.Password;
+import org.mule.runtime.extension.api.annotation.param.display.Placement;
+import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.exception.ModuleException;
 
 import javax.net.ssl.X509TrustManager;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+
+import static org.mule.runtime.extension.api.annotation.param.display.Placement.DEFAULT_TAB;
+import static org.mule.runtime.extension.api.annotation.param.display.Placement.SECURITY_TAB;
 
 /**
  * Implements {@code CachedConnectionProvider} per
@@ -48,11 +55,13 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
     @Parameter
     @Summary("The hostname of the MarkLogic server to connect to.")
     @Example("localhost")
+    @Placement(tab = DEFAULT_TAB)
     private String host = "localhost";
 
     @Parameter
     @Summary("The port of the MarkLogic REST API app server to connect to.")
     @Example("8000")
+    @Placement(tab = DEFAULT_TAB)
     private Integer port;
 
     @Parameter
@@ -111,13 +120,14 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
     @Summary("Identifies the MarkLogic content database to query; only required when the database associated with " +
         "the app server identified by the 'Port' value is not the one you wish to query.")
     @Optional
+    @Placement(tab = SECURITY_TAB)
     private String database;
 
     @Parameter
     @DisplayName("TLS Context")
-    @Placement(tab = "SSL/TLS")
     @Summary("Controls how SSL/TLS connections are made with MarkLogic.")
     @Optional
+    @Placement(tab = SECURITY_TAB)
     private TlsContextFactory tlsContextFactory;
 
     @Parameter
