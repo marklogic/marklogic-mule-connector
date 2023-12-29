@@ -13,15 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.extension.api;
+package com.marklogic.mule.internal.api;
 
-public enum AuthenticationType {
-
-    DIGEST,
-    BASIC,
-    MARKLOGIC_CLOUD,
-    CERTIFICATE,
-    KERBEROS,
-    SAML;
-
+public enum QueryFormat {
+    JSON,
+    XML;
 }
