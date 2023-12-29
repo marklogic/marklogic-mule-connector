@@ -10,12 +10,14 @@
     <tls:trust-store insecure="true"/>
   </tls:context>
 
+  <configuration-properties file="connection.properties"/>
+
   <marklogic:config name="config">
     <marklogic:connection
-        host="localhost"
+        host="${config.hostName}"
         port="8023"
-        username="mule2-test-user"
-        password="password"
+        username="${config.username}"
+        password="${config.password}"
         authenticationType="DIGEST"
         tlsContext="tlsContext"
         hostnameVerifier="ANY"
@@ -24,10 +26,10 @@
 
   <marklogic:config name="config2">
     <marklogic:connection
-        host="localhost"
+        host="${config.hostName}"
         port="8023"
-        username="mule2-test-user"
-        password="password"
+        username="${config.username}"
+        password="${config.password}"
         authenticationType="DIGEST"
         tlsContext="tlsContext"
         hostnameVerifier="COMMON"
