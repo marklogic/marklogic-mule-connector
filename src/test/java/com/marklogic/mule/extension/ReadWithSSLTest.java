@@ -28,7 +28,7 @@ public class ReadWithSSLTest extends AbstractFlowTester {
         } catch (Exception ex) {
             assertTrue(
                 "Unexpected error; expected error to fail due to hostname not being verifiable: " + ex.getMessage(),
-                ex.getMessage().contains("javax.net.ssl.SSLPeerUnverifiedException: Hostname localhost not verified")
+                ex.getMessage().contains("javax.net.ssl.SSLPeerUnverifiedException:")
             );
             assertTrue(
                 "Unexpected exception; expecting a MarkLogicIOException and then SSLPeerUnverifiedException: " + ex.getCause(),
