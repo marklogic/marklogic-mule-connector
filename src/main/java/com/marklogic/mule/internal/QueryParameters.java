@@ -8,6 +8,7 @@ import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
 import com.marklogic.mule.internal.api.QueryFormat;
 import com.marklogic.mule.internal.api.QueryType;
+import org.mule.runtime.extension.api.annotation.param.NullSafe;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
@@ -26,6 +27,7 @@ public class QueryParameters {
     @Parameter
     @DisplayName("Document URIs")
     @Optional
+    @NullSafe
     @Summary("Specify one or more document URIs to read. If specified, all other parameters for querying will be ignored.")
     List<String> uris;
 

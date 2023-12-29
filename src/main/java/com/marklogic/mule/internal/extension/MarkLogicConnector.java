@@ -17,6 +17,7 @@ package com.marklogic.mule.internal.extension;
 
 import com.marklogic.mule.internal.config.Configuration;
 import com.marklogic.mule.internal.error.ErrorType;
+import org.mule.runtime.api.meta.Category;
 import org.mule.runtime.extension.api.annotation.Configurations;
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
@@ -28,7 +29,7 @@ import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
  * and sources are going to be declared.
  */
 @Xml(prefix = "marklogic")
-@Extension(name = "MarkLogic")
+@Extension(category = Category.COMMUNITY, name = "MarkLogic")
 @Configurations(Configuration.class)
 @ErrorTypes(ErrorType.class)
 public class MarkLogicConnector {
