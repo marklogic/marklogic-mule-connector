@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 
 class ReadPagingProvider implements PagingProvider<DatabaseClient, Result<InputStream, InputStream>> {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger logger = LoggerFactory.getLogger(ReadPagingProvider.class);
 
     private final QueryParameters queryParameters;
     private final int pageLength;
