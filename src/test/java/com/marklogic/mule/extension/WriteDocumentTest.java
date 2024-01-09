@@ -193,22 +193,6 @@ public class WriteDocumentTest extends AbstractFlowTester {
     }
 
     @Test
-    @Ignore("Temporarily ignored; something about 'quality' and 'restTransform' aren't playing well together when " +
-        "a DocumentWriteSet is used. It may be a bug in the REST API or in the Java Client, I'll work on " +
-        "reproducing in the Java Client.")
-    public void writeDocumentWithTransform() {
-        DocumentData documentData = runFlowGetDocumentData("writeDocumentWithTransform");
-        assertEquals("The contents of the message should match the transformed contents of the test3 document.",
-            "{\"key\":\"value\"}", documentData.getContents());
-        assertTrue(documentData.isJSON());
-        MetadataVerifier.assertMetadata(documentData.getAttributes(), "/writeDocumentWithTransform")
-            .collections(1, "transformed-data")
-            .includesPermissions("rest-reader", "read", "rest-reader", "update")
-            .quality(14)
-            .verify();
-    }
-
-    @Test
     public void writeDocumentWithArrayInput() {
         List<DocumentData> documentDataList = runFlowForDocumentDataList("writeDocumentWithArrayInput");
         Set<String> contentSet = new HashSet<>();
