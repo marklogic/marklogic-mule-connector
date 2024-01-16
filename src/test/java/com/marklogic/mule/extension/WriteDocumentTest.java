@@ -1,8 +1,7 @@
 package com.marklogic.mule.extension;
 
 
-import com.marklogic.mule.internal.api.DocumentAttributes;
-import org.junit.Ignore;
+import com.marklogic.mule.connector.internal.provider.DocumentAttributes;
 import org.junit.Test;
 
 import java.util.HashSet;

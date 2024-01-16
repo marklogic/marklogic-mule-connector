@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.internal.connection.provider;
+package com.marklogic.mule.connector.api.provider;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientBuilder;
 import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.impl.SSLUtil;
-import com.marklogic.mule.internal.error.ErrorType;
-import com.marklogic.mule.internal.api.AuthenticationType;
-import com.marklogic.mule.internal.api.ConnectionType;
-import com.marklogic.mule.internal.api.HostnameVerifier;
+import com.marklogic.mule.connector.internal.provider.AuthenticationType;
+import com.marklogic.mule.connector.internal.error.ErrorType;
+import com.marklogic.mule.connector.internal.provider.ConnectionType;
+import com.marklogic.mule.connector.internal.provider.HostnameVerifier;
 import org.mule.runtime.api.connection.CachedConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.lifecycle.Initialisable;
@@ -132,7 +132,7 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
 
     @Parameter
     @DisplayName("Hostname Verifier")
-    @Placement(tab = "SSL/TLS")
+    @Placement(tab = SECURITY_TAB)
     @Summary("Specifies how a hostname is verified during SSL authentication. COMMON allows any level of subdomain " +
         "for SSL certificates with wildcard domains. STRICT only allows one subdomain level for SSL certificates with " +
         "wildcard domains. ANY disables hostname verification and is not recommended for production usage.")

@@ -13,23 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.internal.api;
+package com.marklogic.mule.connector.internal.provider;
 
-import com.marklogic.client.DatabaseClient;
-
-public enum ConnectionType {
-    DIRECT {
-        @Override
-        public DatabaseClient.ConnectionType getMarkLogicConnectionType() {
-            return DatabaseClient.ConnectionType.DIRECT;
-        }
-    },
-    GATEWAY {
-        @Override
-        public DatabaseClient.ConnectionType getMarkLogicConnectionType() {
-            return DatabaseClient.ConnectionType.GATEWAY;
-        }
-    };
-
-    public abstract DatabaseClient.ConnectionType getMarkLogicConnectionType();
+public enum QueryFormat {
+    JSON,
+    XML;
 }

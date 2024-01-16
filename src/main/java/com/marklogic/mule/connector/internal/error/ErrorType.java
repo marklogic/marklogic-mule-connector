@@ -1,4 +1,4 @@
-package com.marklogic.mule.internal.error;
+package com.marklogic.mule.connector.internal.error;
 
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
