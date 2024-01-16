@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.internal;
+package com.marklogic.mule.connector.api;
 
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.mule.internal.error.provider.ExecuteErrorsProvider;
+import com.marklogic.mule.connector.internal.error.provider.ExecuteErrorsProvider;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;

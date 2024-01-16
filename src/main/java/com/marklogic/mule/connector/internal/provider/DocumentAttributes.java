@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.internal.api;
+package com.marklogic.mule.connector.internal.provider;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.marklogic.client.io.DocumentMetadataHandle;
-import com.marklogic.mule.internal.error.ErrorType;
+import com.marklogic.mule.connector.internal.error.ErrorType;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.w3c.dom.Node;
 

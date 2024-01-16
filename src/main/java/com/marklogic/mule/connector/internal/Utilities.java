@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.internal;
+package com.marklogic.mule.connector.internal;
 
 import com.marklogic.client.document.ServerTransform;
 

@@ -1,4 +1,4 @@
-package com.marklogic.mule.internal;
+package com.marklogic.mule.connector.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marklogic.client.DatabaseClient;
@@ -10,8 +10,9 @@ import com.marklogic.client.io.Format;
 import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.client.io.JacksonParserHandle;
 import com.marklogic.client.query.QueryDefinition;
-import com.marklogic.mule.internal.api.DocumentAttributes;
-import com.marklogic.mule.internal.error.ErrorType;
+import com.marklogic.mule.connector.internal.Utilities;
+import com.marklogic.mule.connector.internal.provider.DocumentAttributes;
+import com.marklogic.mule.connector.internal.error.ErrorType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;

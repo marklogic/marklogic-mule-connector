@@ -1,4 +1,4 @@
-package com.marklogic.mule.internal;
+package com.marklogic.mule.connector.api;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.document.DocumentWriteSet;
@@ -6,7 +6,8 @@ import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
 import com.marklogic.client.io.InputStreamHandle;
-import com.marklogic.mule.internal.api.DocumentFormat;
+import com.marklogic.mule.connector.internal.Utilities;
+import com.marklogic.mule.connector.internal.provider.DocumentFormat;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
