@@ -7,7 +7,7 @@ import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
 import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.mule.connector.internal.Utilities;
-import com.marklogic.mule.connector.internal.provider.DocumentFormat;
+import com.marklogic.mule.connector.api.provider.DocumentFormat;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;

@@ -14,7 +14,7 @@ public class ReadAndWriteDocumentTest extends AbstractFlowTester {
     @Test
     public void readAndWriteDocument() {
         DocumentData documentData = runFlowGetDocumentData("read-and-write-document");
-        assertEquals("application/json", documentData.getMimeType());
+        assertEquals("application/json; charset=UTF-8", documentData.getMimeType());
         assertEquals("The contents of the message should match the contents of the original document",
             JSON_HELLO_WORLD, documentData.getContents());
         assertEquals(

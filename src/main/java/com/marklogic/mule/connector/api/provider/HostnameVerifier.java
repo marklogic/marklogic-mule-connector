@@ -1,4 +1,4 @@
-package com.marklogic.mule.connector.internal.provider;
+package com.marklogic.mule.connector.api.provider;
 
 import com.marklogic.client.DatabaseClientFactory;
 

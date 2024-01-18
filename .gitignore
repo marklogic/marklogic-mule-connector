@@ -5,6 +5,7 @@ target
 *.iml
 .gradle
 .vscode
+.mule
 gradle-local.properties
 docker/marklogic/logs
 

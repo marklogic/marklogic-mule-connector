@@ -20,7 +20,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     @Test
     public void readJsonDocument_OnlyPermissionsAndCollections() {
         DocumentData documentData = runFlowGetDocumentData("read-json-document-with-metadata-permissions-collections");
-        assertEquals("application/json", documentData.getMimeType());
+        assertEquals("application/json; charset=UTF-8", documentData.getMimeType());
         assertEquals(JSON_HELLO_WORLD, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), JSON_URI)
             .collections(2, "test-data", "json-data")
@@ -96,14 +96,14 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
             runFlowGetDocumentData("read-json-document-invalid-metadata");
             fail("Expected the invalid metadata value to throw an error");
         } catch (RuntimeException ex) {
-            assertEquals("Invalid document metadata category: not-valid.", ex.getCause().getMessage());
+            assertEquals("Invalid document metadata category: not-valid", ex.getCause().getMessage());
         }
     }
 
     @Test
     public void readXmlDocument_OnlyPermissionsAndCollections() {
         DocumentData documentData = runFlowGetDocumentData("read-xml-document-with-metadata-permissions-collections");
-        assertEquals("application/xml", documentData.getMimeType());
+        assertEquals("application/xml; charset=UTF-8", documentData.getMimeType());
         assertEquals(XML_CONTENTS, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), XML_URI)
             .collections(2, "test-data", "xml-data")
@@ -164,7 +164,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     @Test
     public void readTextQualityDocument_All() {
         DocumentData documentData = runFlowGetDocumentData("read-text-document-with-metadata-all");
-        assertEquals("text/plain", documentData.getMimeType());
+        assertEquals("text/plain; charset=UTF-8", documentData.getMimeType());
         assertEquals(TEXT_HELLO_WORLD, documentData.getContents());
         MetadataVerifier.assertMetadata(documentData.getAttributes(), TEXT_URI)
             .collections(2, "text-data", "test-data")
@@ -213,7 +213,7 @@ public class ReadDocumentWithMetadataTest extends AbstractFlowTester {
     @Test
     public void readBinaryQualityDocument_All() {
         DocumentData documentData = runFlowGetDocumentData("read-binary-document-with-metadata-all");
-        assertEquals("application/octet-stream", documentData.getMimeType());
+        assertEquals("application/octet-stream; charset=UTF-8", documentData.getMimeType());
         assertTrue(documentData.getContents().contains("PNG"));
         MetadataVerifier.assertMetadata(documentData.getAttributes(), BINARY_URI)
             .collections(2, "test-data", "binary-data")
