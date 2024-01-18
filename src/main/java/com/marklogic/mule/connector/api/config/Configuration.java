@@ -15,8 +15,8 @@
  */
 package com.marklogic.mule.connector.api.config;
 
-import com.marklogic.mule.connector.api.Operations;
-import com.marklogic.mule.connector.api.provider.ConnectionProvider;
+import com.marklogic.mule.connector.internal.operation.Operations;
+import com.marklogic.mule.connector.internal.provider.ConnectionProvider;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;

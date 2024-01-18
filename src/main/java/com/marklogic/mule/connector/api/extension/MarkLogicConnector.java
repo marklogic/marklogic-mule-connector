@@ -29,7 +29,7 @@ import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
  * and sources are going to be declared.
  */
 @Xml(prefix = "marklogic")
-@Extension(category = Category.COMMUNITY, name = "MarkLogic")
+@Extension(category = Category.CERTIFIED, name = "MarkLogic")
 @Configurations(Configuration.class)
 @ErrorTypes(ErrorType.class)
 public class MarkLogicConnector {

@@ -8,8 +8,10 @@ MarkLogic.
 Add this dependency to your application pom.xml:
 
 ```
-<groupId>com.marklogic.mule.extension</groupId>
-<artifactId>mule-marklogic-extension</artifactId>
-<version>1.0.0-SNAPSHOT</version>
-<classifier>mule-plugin</classifier>
+<dependency>
+	<groupId>com.marklogic</groupId>
+	<artifactId>marklogic-mule-connector</artifactId>
+	<version>2.0.0</version>
+	<classifier>mule-plugin</classifier>
+</dependency>
 ```

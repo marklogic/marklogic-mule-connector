@@ -1,4 +1,4 @@
-package com.marklogic.mule.connector.api;
+package com.marklogic.mule.connector.internal.operation;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.document.DocumentWriteSet;
@@ -7,17 +7,20 @@ import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
 import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.mule.connector.internal.Utilities;
-import com.marklogic.mule.connector.api.provider.DocumentFormat;
+import com.marklogic.mule.connector.internal.provider.DocumentFormat;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.UUID;
 
 public class WriteParameters {
+    private static final Logger logger = LoggerFactory.getLogger(WriteParameters.class);
 
     @Parameter
     @Summary("Format of documents to write to MarkLogic. Selecting 'UNKNOWN' will result in MarkLogic determining the format based on the URI extension.")
@@ -110,6 +113,7 @@ public class WriteParameters {
         } else {
             databaseClient.newDocumentManager().write(writeSet, serverTransform);
         }
+        logger.debug("Wrote {} documents to the database.", contents.length);
     }
 
     private DocumentMetadataHandle makeMetadata() {

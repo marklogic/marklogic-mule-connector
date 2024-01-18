@@ -1,6 +1,6 @@
 package com.marklogic.mule.extension;
 
-import com.marklogic.mule.connector.api.provider.DocumentAttributes;
+import com.marklogic.mule.connector.internal.provider.DocumentAttributes;
 import org.junit.Before;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.runtime.api.message.Message;

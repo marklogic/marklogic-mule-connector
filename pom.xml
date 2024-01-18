@@ -28,6 +28,7 @@
     <!-- When updating the parent pom to 1.3.2, we must also upgrade the munit extensions plugin to 1.1.2 -->
     <!-- See https://help.mulesoft.com/s/question/0D52T000064RgmpSAC/mule-4-custom-connector-mvn-install-failing-with-commulesoftmunitmunitremotejarjarwithdependencies232-not-found -->
     <munit.extensions.maven.plugin.version>1.1.2</munit.extensions.maven.plugin.version>
+    <runtimeVersion>4.3.0</runtimeVersion>
   </properties>
 
   <build>
