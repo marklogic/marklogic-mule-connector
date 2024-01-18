@@ -13,9 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.connector.internal.provider;
+package com.marklogic.mule.connector.api.provider;
 
-public enum QueryFormat {
-    JSON,
-    XML;
+public enum AuthenticationType {
+
+    DIGEST,
+    BASIC,
+    MARKLOGIC_CLOUD,
+    CERTIFICATE,
+    KERBEROS,
+    SAML;
+
 }
