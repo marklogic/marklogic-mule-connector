@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.connector.api.provider;
+package com.marklogic.mule.connector.internal.provider;
 
 public enum QueryType {
     STRING_QUERY,

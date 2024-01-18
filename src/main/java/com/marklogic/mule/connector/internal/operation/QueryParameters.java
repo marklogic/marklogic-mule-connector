@@ -1,4 +1,4 @@
-package com.marklogic.mule.connector.api;
+package com.marklogic.mule.connector.internal.operation;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.document.DocumentManager;
@@ -7,8 +7,8 @@ import com.marklogic.client.io.StringHandle;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
 import com.marklogic.mule.connector.internal.Utilities;
-import com.marklogic.mule.connector.api.provider.QueryFormat;
-import com.marklogic.mule.connector.api.provider.QueryType;
+import com.marklogic.mule.connector.internal.provider.QueryFormat;
+import com.marklogic.mule.connector.internal.provider.QueryType;
 import org.mule.runtime.extension.api.annotation.param.NullSafe;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;

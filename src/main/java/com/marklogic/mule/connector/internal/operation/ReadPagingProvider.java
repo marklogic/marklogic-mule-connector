@@ -1,4 +1,4 @@
-package com.marklogic.mule.connector.api;
+package com.marklogic.mule.connector.internal.operation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marklogic.client.DatabaseClient;
@@ -11,7 +11,7 @@ import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.client.io.JacksonParserHandle;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.mule.connector.internal.Utilities;
-import com.marklogic.mule.connector.api.provider.DocumentAttributes;
+import com.marklogic.mule.connector.internal.provider.DocumentAttributes;
 import com.marklogic.mule.connector.internal.error.ErrorType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.exception.ModuleException;
@@ -56,6 +56,7 @@ class ReadPagingProvider implements PagingProvider<DatabaseClient, Result<InputS
     @Override
     public List<Result<InputStream, InputStream>> getPage(DatabaseClient databaseClient) {
         currentPage++;
+        logger.debug("Reading page {} of results.", currentPage);
 
         GenericDocumentManager documentManager = databaseClient.newDocumentManager();
         if (Utilities.hasText(queryParameters.categories)) {

@@ -1,4 +1,4 @@
-package com.marklogic.mule.connector.api.provider;
+package com.marklogic.mule.connector.internal.provider;
 
 import com.marklogic.client.io.Format;
 
