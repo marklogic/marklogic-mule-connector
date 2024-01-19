@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.connector.internal.provider;
+package com.marklogic.mule.connector.api.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -66,9 +66,9 @@ public class DocumentAttributes {
     }
 
     /**
-     * @param objectMapper
+     * @param objectMapper an objectMapper is used to an ObjectNode which can be serialized into a Stream
      * @param transformerSupplier a Supplier is used to lazily instantiate this in case it's never needed.
-     * @return
+     * @return a ByteArrayInputStream containing the serialized node
      */
     public InputStream serializeToJsonStream(ObjectMapper objectMapper, Supplier<Transformer> transformerSupplier) {
         ObjectNode node = objectMapper.createObjectNode();

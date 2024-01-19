@@ -15,11 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.connector.internal.provider;
+package com.marklogic.mule.connector.api.types;
 
-public enum QueryType {
-    STRING_QUERY,
-    STRUCTURED_QUERY,
-    SERIALIZED_CTS_QUERY,
-    COMBINED_QUERY;
+public enum QueryFormat {
+    JSON,
+    XML;
 }

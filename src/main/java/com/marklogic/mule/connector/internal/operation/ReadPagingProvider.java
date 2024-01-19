@@ -28,7 +28,7 @@ import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.client.io.JacksonParserHandle;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.mule.connector.internal.Utilities;
-import com.marklogic.mule.connector.internal.provider.DocumentAttributes;
+import com.marklogic.mule.connector.api.types.DocumentAttributes;
 import com.marklogic.mule.connector.internal.error.ErrorType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.exception.ModuleException;

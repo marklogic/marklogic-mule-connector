@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.connector.api.config;
+package com.marklogic.mule.connector.internal.config;
 
 import com.marklogic.mule.connector.internal.operation.Operations;
-import com.marklogic.mule.connector.internal.provider.ConnectionProvider;
+import com.marklogic.mule.connector.internal.connection.provider.ConnectionProvider;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
