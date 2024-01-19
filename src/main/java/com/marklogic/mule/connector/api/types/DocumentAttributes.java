@@ -23,8 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.marklogic.client.io.DocumentMetadataHandle;
-import com.marklogic.mule.connector.internal.error.ErrorType;
-import org.mule.runtime.extension.api.exception.ModuleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import javax.xml.namespace.QName;
@@ -44,12 +44,9 @@ import java.util.function.Supplier;
 
 /**
  * Wraps a document's URI and metadata and knows how to serialize the data to JSON and deserialize it from JSON.
- * <p>
- * This is not intended to be part of the API package as it is not exposed in any of the public operations methods.
- * But we are not able to reuse it within our tests unless it's in this package.
  */
 public class DocumentAttributes {
-
+    private static final Logger logger = LoggerFactory.getLogger(DocumentAttributes.class);
     private final String uri;
     private final DocumentMetadataHandle metadata;
 
@@ -118,7 +115,8 @@ public class DocumentAttributes {
                     transformerSupplier.get().transform(new DOMSource(((Node) value).getFirstChild()), new StreamResult(out));
                     propertyNode.put(property.toString(), out.toString());
                 } catch (TransformerException e) {
-                    throw new ModuleException(ErrorType.XML_TRANSFORMER_ERROR, e);
+                    // We do not expect this to ever happen.
+                    logger.warn("Failed to serialize the properties");
                 }
             } else {
                 propertyNode.put(property.toString(), value.toString());
