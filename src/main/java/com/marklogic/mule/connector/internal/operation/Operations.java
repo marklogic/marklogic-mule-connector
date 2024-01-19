@@ -18,7 +18,7 @@
 package com.marklogic.mule.connector.internal.operation;
 
 import com.marklogic.client.DatabaseClient;
-import com.marklogic.mule.connector.internal.error.provider.ExecuteErrorsProvider;
+import com.marklogic.mule.connector.api.error.provider.ExecuteErrorsProvider;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;

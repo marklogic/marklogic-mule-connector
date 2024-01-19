@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.connector.internal.error.provider;
+package com.marklogic.mule.connector.api.error.provider;
 
-import com.marklogic.mule.connector.internal.error.ErrorType;
+import com.marklogic.mule.connector.api.error.ErrorType;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
