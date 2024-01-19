@@ -18,7 +18,7 @@
 package com.marklogic.mule.connector.internal.extension;
 
 import com.marklogic.mule.connector.internal.config.Configuration;
-import com.marklogic.mule.connector.internal.error.ErrorType;
+import com.marklogic.mule.connector.api.types.ErrorType;
 import org.mule.runtime.api.meta.Category;
 import org.mule.runtime.extension.api.annotation.Configurations;
 import org.mule.runtime.extension.api.annotation.Extension;

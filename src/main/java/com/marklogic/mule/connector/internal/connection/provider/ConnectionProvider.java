@@ -24,7 +24,7 @@ import com.marklogic.client.impl.SSLUtil;
 import com.marklogic.mule.connector.api.types.AuthenticationType;
 import com.marklogic.mule.connector.api.types.ConnectionType;
 import com.marklogic.mule.connector.api.types.HostnameVerifier;
-import com.marklogic.mule.connector.internal.error.ErrorType;
+import com.marklogic.mule.connector.api.types.ErrorType;
 import org.mule.runtime.api.connection.CachedConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.lifecycle.Initialisable;

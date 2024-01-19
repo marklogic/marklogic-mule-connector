@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.marklogic.client.io.DocumentMetadataHandle;
-import com.marklogic.mule.connector.internal.error.ErrorType;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.w3c.dom.Node;
 
