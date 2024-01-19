@@ -15,12 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.connector.internal.provider;
+package com.marklogic.mule.connector.internal.connection.provider;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientBuilder;
 import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.impl.SSLUtil;
+import com.marklogic.mule.connector.api.types.AuthenticationType;
+import com.marklogic.mule.connector.api.types.ConnectionType;
+import com.marklogic.mule.connector.api.types.HostnameVerifier;
 import com.marklogic.mule.connector.internal.error.ErrorType;
 import org.mule.runtime.api.connection.CachedConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
@@ -208,8 +211,8 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
      * Ideally the Java Client can make this public, as it is handling some tedious but well-known Java code
      * for constructing a trust manager based on a truststore.
      *
-     * @param config
-     * @return
+     * @param config contains the configuration necessary to build the X509 Trust Manager
+     * @return an X509TrustManager object
      */
     private X509TrustManager newTrustManager(TlsContextTrustStoreConfiguration config) {
         KeyStore trustStore = SSLUtil.getKeyStore(config.getPath(), config.getPassword().toCharArray(), config.getType());
