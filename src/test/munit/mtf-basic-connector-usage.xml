@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="   http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd   http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd   http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+  <munit:config name="mtf-basic-connector-usage.xml"/>
+  <marklogic:config doc:id="65ff37b7-46d4-422b-baf8-2d0d021723a7" doc:name="MarkLogic Connection Configuration" name="MarkLogic_Connection_Configuration">
+    <marklogic:connection host="localhost" password="admin" port="8022" username="admin"/>
+  </marklogic:config>
+  <marklogic:config doc:id="d6a61d6c-a217-469a-ae0c-c404bbc710b8" doc:name="MarkLogic Connection Configuration" name="MarkLogic_INVALID_Connection_Configuration">
+    <marklogic:connection host="localhost" password="admin" port="8122" username="admin"/>
+  </marklogic:config>
+  <munit:test doc:id="ff4ec6ff-3bda-409e-9b5f-b89cec79c5bd" name="write-documents-then-read-documents">
+    <munit:execution>
+      <marklogic:read-documents collections="dummy" config-ref="MarkLogic_Connection_Configuration" doc:name="Prepare Database" transform="prepare-database" doc:description='This purpose of thie query is to clear the database of any documents NOT in the "test-data" collection.'/>
+      <set-payload doc:id="19f8fb4d-6ba7-4ba1-93f4-f2dd4c04a501" value="#[[&#10;'{&quot;A&quot;:&quot;a&quot;}', '{&quot;B&quot;:&quot;b&quot;}', '{&quot;C&quot;:&quot;c&quot;}', '{&quot;D&quot;:&quot;d&quot;}', '{&quot;E&quot;:&quot;e&quot;}',&#10;'{&quot;F&quot;:&quot;f&quot;}', '{&quot;G&quot;:&quot;g&quot;}', '{&quot;H&quot;:&quot;h&quot;}', '{&quot;I&quot;:&quot;i&quot;}', '{&quot;J&quot;:&quot;j&quot;}'&#10;]]" doc:name="Set Payload to 10 JSON documents"/>
+      <set-variable value="#[sizeOf(payload)]" doc:name="Save the number of documents to be written" doc:id="6383564f-dee2-4f52-9965-f50de5e6773e" variableName="numDocumentsSentToDatabase"/>
+      <marklogic:write-documents collections="test_input" config-ref="MarkLogic_Connection_Configuration" doc:id="c9a627a9-ba74-4a50-8f17-d1b0bd8f2806" doc:name="Write documents to database" uriPrefix="/test_input/" uriSuffix=".json"/>
+      <marklogic:read-documents collections="test_input" config-ref="MarkLogic_Connection_Configuration" doc:id="563fb52c-44b2-444e-95a8-78348c5452b1" doc:name="Read documents from database"/>
+      <munit-tools:assert-equals actual="#[sizeOf(payload)]" doc:id="2321b751-6679-4850-bd8f-ba28e0b512ad" doc:name="Assert # of documents read equals the # of documents written" expected="#[vars.numDocumentsSentToDatabase]" message="The number of documents read should equal the number of documents written"/>
+    </munit:execution>
+  </munit:test>
+  <munit:test doc:id="56dee1fc-a495-42a7-bb28-f3e11b10b2c0" name="verify-catching-connection-failure">
+    <munit:execution>
+      <set-payload doc:id="75457a85-e525-4e55-a6d3-e6672f2aa4a1" doc:name="Set Payload to 10 JSON documents" value="#[[&#10;'{&quot;A&quot;:&quot;a&quot;}', '{&quot;B&quot;:&quot;b&quot;}', '{&quot;C&quot;:&quot;c&quot;}', '{&quot;D&quot;:&quot;d&quot;}', '{&quot;E&quot;:&quot;e&quot;}',&#10;'{&quot;F&quot;:&quot;f&quot;}', '{&quot;G&quot;:&quot;g&quot;}', '{&quot;H&quot;:&quot;h&quot;}', '{&quot;I&quot;:&quot;i&quot;}', '{&quot;J&quot;:&quot;j&quot;}'&#10;]]"/>
+      <try doc:id="64e980e8-7674-494f-872b-e312112fefeb" doc:name="Try">
+        <marklogic:write-documents collections="bad_test_input" config-ref="MarkLogic_INVALID_Connection_Configuration" doc:id="50b34c10-b616-45e7-9c63-7366cea03bf4" doc:name="Attempt to write documents with an invalid connection configuration"/>
+        <munit-tools:fail doc:id="12cb678d-89b4-47c2-8821-855b74d60167" doc:name="If an error is not captured, then Fail the test" message="If an error is not captured, then Fail the test"/>
+        <error-handler>
+          <on-error-continue doc:id="25022f9e-eba5-4e4e-891a-11bf6d19a1af" doc:name="On Error Continue" enableNotifications="true" logException="true">
+            <logger doc:id="4e906539-e432-4684-a1c7-bc266c602280" doc:name="Logger" level="INFO" message="Write Error" />
+          </on-error-continue>
+        </error-handler>
+      </try>
+    </munit:execution>
+  </munit:test>
+
+</mule>
