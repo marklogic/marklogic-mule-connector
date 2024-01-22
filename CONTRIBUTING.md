@@ -81,9 +81,22 @@ Because the connector needs to be built with Java 8, but SonarQube requires Java
 10.3, it will require Java 17 or higher), you must first build and test the code with Java 8 and then use Java 11 or 
 higher to run SonarQube. Annoying, yes, but there's not yet a way around this. 
 
-So with Java 8, run the following:
+Also, the MTF tests require artifacts from MuleSoft that are stored in a password protected repository. The use
+of that repo is configured in the settings.xml file in the root of the project. To use that settings file, you can add
+"--settings ./settings.xml" to the Maven commands that including running the MTF tests. Alternatively, you can add the
+information in that settings.xml file to your personal Maven settings.xml file (typically in ~/.m2). Additionally, 
+access to that repo requires a username and password. We use the MarkLogic account named "marklogic.nexus" (which is in
+the settings.xml file). However, since the password is sensitive, you will need to specify the password on the command
+line with this switch, "-Drepo.pwd=XXXXXX".
+ 
+So with Java 8, run the following to use your personal settings.xml file (that has been updated with the repo
+information including username and password):
 
     mvn clean install
+
+Or, to use the settings.xml file in the project and specify the password:
+
+    mvn --settings ./settings.xml clean install -Drepo.pwd=XXXXXX
 
 After that completes, switch to Java 11 and run the following, using the token you obtained above:
 
@@ -164,7 +177,7 @@ project name, then choose Mule->Add Maven Dependency
 <dependency>
     <groupId>com.marklogic</groupId>
     <artifactId>marklogic-mule-connector</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.0.0</version>
     <classifier>mule-plugin</classifier>
 </dependency>
 ```
