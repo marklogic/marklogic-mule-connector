@@ -33,7 +33,7 @@ pipeline{
            export JAVA_HOME=$JAVA11_HOME_DIR
            export GRADLE_USER_HOME=$WORKSPACE/$GRADLE_DIR
            export PATH=$JAVA_HOME/bin:$MVN_HOME/bin:$GRADLE_USER_HOME:$PATH
-           mvn sonar:sonar  -Dsonar.projectKey=marklogic_marklogic-mule-connector_AYw7_z2UhXuvzhhRmJgp -Dsonar.projectName=ADP-ML-DevExp-marklogic-mule-connector
+           mvn sonar:sonar  -Dsonar.projectKey=marklogic_marklogic-mule-connector_AYw7_z2UhXuvzhhRmJgp -Dsonar.projectName=ML-DevExp-marklogic-mule-connector
         '''
         junit '**/target/surefire-reports/**/*.xml'
         }
