@@ -34,6 +34,7 @@ public class ExecuteErrorsProvider implements ErrorTypeProvider {
         Set<ErrorTypeDefinition> errors = new HashSet<>();
         errors.add(ErrorType.CONNECTION_ERROR);
         errors.add(ErrorType.XML_TRANSFORMER_ERROR);
+        errors.add(ErrorType.FAILED_REQUEST_ERROR);
         return errors;
     }
 }
