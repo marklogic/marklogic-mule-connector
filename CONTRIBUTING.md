@@ -87,7 +87,7 @@ of that repo is configured in the settings.xml file in the root of the project. 
 information in that settings.xml file to your personal Maven settings.xml file (typically in ~/.m2). Additionally, 
 access to that repo requires a username and password. We use the MarkLogic account named "marklogic.nexus" (which is in
 the settings.xml file). However, since the password is sensitive, you will need to specify the password on the command
-line with this switch, "-Drepo.pwd=XXXXXX".
+line with this switch, "-Dmule.repository.password=XXXXXX".
  
 So with Java 8, run the following to use your personal settings.xml file (that has been updated with the repo
 information including username and password):
@@ -96,7 +96,7 @@ information including username and password):
 
 Or, to use the settings.xml file in the project and specify the password:
 
-    mvn --settings ./settings.xml clean install -Drepo.pwd=XXXXXX
+    mvn --settings ./settings.xml clean install -Dmule.repository.password=XXXXXX
 
 After that completes, switch to Java 11 and run the following, using the token you obtained above:
 

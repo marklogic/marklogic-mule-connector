@@ -4,5 +4,6 @@
   "password": "password",
   "role": [
     "mule2-test-role"
-  ]
+  ],
+  "permission": [{"role-name":"mule2-test-role", "capability":"read"}, {"role-name":"mule2-test-role", "capability":"update"}]
 }

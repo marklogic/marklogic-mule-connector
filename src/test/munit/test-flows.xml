@@ -20,42 +20,42 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
 	">
 
-	<marklogic:config doc:id="81cbf488-71ea-4a75-80da-66d9b99d1cbd" doc:name="MarkLogic Connection Configuration" name="MarkLogic_INVALID_Connection_Configuration2">
-		<marklogic:connection host="localhost" password="admin" port="8122" username="admin"/>
-	</marklogic:config>
-	
-	<marklogic:config doc:id="543c6b78-bbde-4062-b2da-83421c11fd06" doc:name="MarkLogic Connection Configuration" name="MarkLogic_test_user_Configuration">
-		<marklogic:connection host="localhost" password="password" port="8022" username="mule2-test-user"/>
-	</marklogic:config>
+  <marklogic:config doc:id="81cbf488-71ea-4a75-80da-66d9b99d1cbd" doc:name="MarkLogic Connection Configuration" name="MarkLogic_INVALID_Connection_Configuration2">
+    <marklogic:connection host="172.172.161.196" password="password" port="8122" username="mule2-test-user"/>
+  </marklogic:config>
 
-	<flow name="error-handling-flow" doc:id="a88077cc-dcd4-47e9-b6ec-ea4739b35cb4" >
-		<set-payload value="#[[&#10;'{&quot;A&quot;:&quot;a&quot;}', '{&quot;B&quot;:&quot;b&quot;}', '{&quot;C&quot;:&quot;c&quot;}', '{&quot;D&quot;:&quot;d&quot;}', '{&quot;E&quot;:&quot;e&quot;}',&#10;'{&quot;F&quot;:&quot;f&quot;}', '{&quot;G&quot;:&quot;g&quot;}', '{&quot;H&quot;:&quot;h&quot;}', '{&quot;I&quot;:&quot;i&quot;}', '{&quot;J&quot;:&quot;j&quot;}'&#10;]]" doc:name="Set Payload to 10 JSON documents" doc:id="91471e2c-c693-42a3-a075-9cccde237410" />
-		<marklogic:write-documents collections="bad_test_input" config-ref="MarkLogic_INVALID_Connection_Configuration2" doc:id="0e6fbd96-0e68-4b17-a6ae-dce7a3090db8" doc:name="Attempt to write documents with an invalid connection configuration"/>
-		<logger level="INFO" doc:name="This logger should not be called" doc:id="2858e388-a160-4585-8c37-b20cb2f48104" message="Error missed"/>
-		<error-handler >
-			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="0b9a9eca-7b16-4155-a0f0-6d71b4bc7c2d" >
-				<logger level="INFO" doc:name="This logger should be called" doc:id="e5cc4161-0b16-4c01-ab7c-5cb32e593e9b" message="Error Handled"/>
-			</on-error-continue>
-		</error-handler>
-	</flow>
+  <marklogic:config doc:id="543c6b78-bbde-4062-b2da-83421c11fd06" doc:name="MarkLogic Connection Configuration" name="MarkLogic_test_user_Configuration">
+    <marklogic:connection host="172.172.161.196" password="password" port="8022" username="mule2-read-user"/>
+  </marklogic:config>
 
-	<flow name="lack-of-permission-flow" doc:id="297de6a0-646a-465b-a6ba-dc413163b542" >
-		<set-payload value="#[[&#10;'{&quot;A&quot;:&quot;a&quot;}', '{&quot;B&quot;:&quot;b&quot;}', '{&quot;C&quot;:&quot;c&quot;}', '{&quot;D&quot;:&quot;d&quot;}', '{&quot;E&quot;:&quot;e&quot;}',&#10;'{&quot;F&quot;:&quot;f&quot;}', '{&quot;G&quot;:&quot;g&quot;}', '{&quot;H&quot;:&quot;h&quot;}', '{&quot;I&quot;:&quot;i&quot;}', '{&quot;J&quot;:&quot;j&quot;}'&#10;]]" doc:name="Set Payload to 10 JSON documents" doc:id="ee2099a6-40f8-44fd-8700-5f5a6ebf651b" />
-		<marklogic:write-documents collections="bad_test_input" config-ref="MarkLogic_test_user_Configuration" doc:id="54bdbf62-ff7f-4b73-9f3e-98bb5742c252" doc:name="Attempt to write documents without permission"/>
-		<logger level="INFO" doc:name="This logger should not be called - 2" doc:id="e818405a-441b-4c09-bc5e-7ddfd999f74f" message="Error missed"/>
-		<error-handler >
-			<on-error-continue enableNotifications="true" logException="true" doc:name="On MULE Error Continue" doc:id="ced576fa-ab89-416b-ba76-5dff9ceaa254" type="MULE:JUNK">
-				<logger level="INFO" doc:name="This logger should not be called" doc:id="cf99d94c-53d4-486b-9fa3-ace5c5f41dd8" message="Error Handled"/>
-			</on-error-continue>
-			<on-error-continue enableNotifications="true" logException="true" doc:name="On MarkLogic Connection Error Continue" doc:id="a46eaa42-e657-49c3-9b58-0d7f73daaecd" type="MARKLOGIC:CONNECTION_ERROR">
-				<logger level="INFO" doc:name="Connection Error logger" doc:id="cec2a02e-927f-437b-8da4-ab07202552c0" message="Connection Error logger"/>
-			</on-error-continue>
-			<on-error-continue enableNotifications="true" logException="true" doc:name="On MarkLogic Failed Request Error Continue" doc:id="d4909dfc-c1a0-4d53-8577-59f86c39d9b0" type="MARKLOGIC:FAILED_REQUEST_ERROR" >
-				<logger level="INFO" doc:name="Failed Request Logger" doc:id="34a7b18a-dee4-4c45-9d6a-5bc38a9a09ff" message="Failed Request Logger"/>
-			</on-error-continue>
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ea3fecf3-9910-4431-8fde-45c747da5991" >
-				<logger level="INFO" doc:name="Any error logger" doc:id="bb58e549-d1a6-4669-8b1c-dfba8f0948b3" message="Any error logger"/>
-			</on-error-propagate>
-		</error-handler>
-	</flow>
+  <flow name="error-handling-flow" doc:id="a88077cc-dcd4-47e9-b6ec-ea4739b35cb4" >
+    <set-payload value="#[[&#10;'{&quot;A&quot;:&quot;a&quot;}', '{&quot;B&quot;:&quot;b&quot;}', '{&quot;C&quot;:&quot;c&quot;}', '{&quot;D&quot;:&quot;d&quot;}', '{&quot;E&quot;:&quot;e&quot;}',&#10;'{&quot;F&quot;:&quot;f&quot;}', '{&quot;G&quot;:&quot;g&quot;}', '{&quot;H&quot;:&quot;h&quot;}', '{&quot;I&quot;:&quot;i&quot;}', '{&quot;J&quot;:&quot;j&quot;}'&#10;]]" doc:name="Set Payload to 10 JSON documents" doc:id="91471e2c-c693-42a3-a075-9cccde237410" />
+    <marklogic:write-documents collections="bad_test_input" config-ref="MarkLogic_INVALID_Connection_Configuration2" doc:id="0e6fbd96-0e68-4b17-a6ae-dce7a3090db8" doc:name="Attempt to write documents with an invalid connection configuration"/>
+    <logger level="INFO" doc:name="This logger should not be called" doc:id="2858e388-a160-4585-8c37-b20cb2f48104" message="Error missed"/>
+    <error-handler >
+      <on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="0b9a9eca-7b16-4155-a0f0-6d71b4bc7c2d" >
+        <logger level="INFO" doc:name="This logger should be called" doc:id="e5cc4161-0b16-4c01-ab7c-5cb32e593e9b" message="Error Handled"/>
+      </on-error-continue>
+    </error-handler>
+  </flow>
+
+  <flow name="lack-of-permission-flow" doc:id="297de6a0-646a-465b-a6ba-dc413163b542" >
+    <set-payload value="#[[&#10;'{&quot;A&quot;:&quot;a&quot;}', '{&quot;B&quot;:&quot;b&quot;}', '{&quot;C&quot;:&quot;c&quot;}', '{&quot;D&quot;:&quot;d&quot;}', '{&quot;E&quot;:&quot;e&quot;}',&#10;'{&quot;F&quot;:&quot;f&quot;}', '{&quot;G&quot;:&quot;g&quot;}', '{&quot;H&quot;:&quot;h&quot;}', '{&quot;I&quot;:&quot;i&quot;}', '{&quot;J&quot;:&quot;j&quot;}'&#10;]]" doc:name="Set Payload to 10 JSON documents" doc:id="ee2099a6-40f8-44fd-8700-5f5a6ebf651b" />
+    <marklogic:write-documents collections="bad_test_input" config-ref="MarkLogic_test_user_Configuration" doc:id="54bdbf62-ff7f-4b73-9f3e-98bb5742c252" doc:name="Attempt to write documents without permission"/>
+    <logger level="INFO" doc:name="This logger should not be called - 2" doc:id="e818405a-441b-4c09-bc5e-7ddfd999f74f" message="Error missed"/>
+    <error-handler >
+      <on-error-continue enableNotifications="true" logException="true" doc:name="On MULE Error Continue" doc:id="ced576fa-ab89-416b-ba76-5dff9ceaa254" type="MULE:JUNK">
+        <logger level="INFO" doc:name="This logger should not be called" doc:id="cf99d94c-53d4-486b-9fa3-ace5c5f41dd8" message="Error Handled"/>
+      </on-error-continue>
+      <on-error-continue enableNotifications="true" logException="true" doc:name="On MarkLogic Connection Error Continue" doc:id="a46eaa42-e657-49c3-9b58-0d7f73daaecd" type="MARKLOGIC:CONNECTION_ERROR">
+        <logger level="INFO" doc:name="Connection Error logger" doc:id="cec2a02e-927f-437b-8da4-ab07202552c0" message="Connection Error logger"/>
+      </on-error-continue>
+      <on-error-continue enableNotifications="true" logException="true" doc:name="On MarkLogic Failed Request Error Continue" doc:id="d4909dfc-c1a0-4d53-8577-59f86c39d9b0" type="MARKLOGIC:FAILED_REQUEST_ERROR" >
+        <logger level="INFO" doc:name="Failed Request Logger" doc:id="34a7b18a-dee4-4c45-9d6a-5bc38a9a09ff" message="Failed Request Logger"/>
+      </on-error-continue>
+      <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ea3fecf3-9910-4431-8fde-45c747da5991" >
+        <logger level="INFO" doc:name="Any error logger" doc:id="bb58e549-d1a6-4669-8b1c-dfba8f0948b3" message="Any error logger"/>
+      </on-error-propagate>
+    </error-handler>
+  </flow>
 </mule>

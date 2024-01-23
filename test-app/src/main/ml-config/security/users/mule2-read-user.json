@@ -1,0 +1,8 @@
+{
+  "user-name": "mule2-read-user",
+  "description": "User for running tests for the 2.0 version of the MarkLogic Mule connector",
+  "password": "password",
+  "role": [
+    "mule2-test-role"
+  ]
+}
