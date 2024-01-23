@@ -6,7 +6,7 @@
     <server>
       <id>MuleRepository</id>
       <username>marklogic.nexus</username>
-      <password>${repo.pwd}</password>
+      <password>${mule.repository.password}</password>
     </server>
   </servers>
 
