@@ -18,6 +18,7 @@
 package com.marklogic.mule.connector.internal.operation;
 
 import com.marklogic.client.DatabaseClient;
+import com.marklogic.client.FailedRequestException;
 import com.marklogic.client.document.DocumentWriteSet;
 import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.DocumentMetadataHandle;
@@ -25,11 +26,13 @@ import com.marklogic.client.io.Format;
 import com.marklogic.client.io.InputStreamHandle;
 import com.marklogic.mule.connector.internal.Utilities;
 import com.marklogic.mule.connector.api.types.DocumentFormat;
+import com.marklogic.mule.connector.internal.error.ErrorType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.runtime.extension.api.exception.ModuleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,16 +124,22 @@ public class WriteParameters {
             Utilities.makeServerTransform(transform, transformParameters, transformParametersDelimiter) :
             null;
 
-        if (Utilities.hasText(temporalCollection)) {
-            if (documentFormat != null && Format.XML.equals(documentFormat.getFormat())) {
-                databaseClient.newXMLDocumentManager().write(writeSet, serverTransform, null, temporalCollection);
+        try {
+            if (Utilities.hasText(temporalCollection)) {
+                if (documentFormat != null && Format.XML.equals(documentFormat.getFormat())) {
+                    databaseClient.newXMLDocumentManager().write(writeSet, serverTransform, null, temporalCollection);
+                } else {
+                    databaseClient.newJSONDocumentManager().write(writeSet, serverTransform, null, temporalCollection);
+                }
             } else {
-                databaseClient.newJSONDocumentManager().write(writeSet, serverTransform, null, temporalCollection);
+                databaseClient.newDocumentManager().write(writeSet, serverTransform);
             }
-        } else {
-            databaseClient.newDocumentManager().write(writeSet, serverTransform);
+            logger.debug("Wrote {} documents to the database.", contents.length);
+        } catch (FailedRequestException e) {
+            throw new ModuleException("Failed request detected:", ErrorType.FAILED_REQUEST_ERROR, e);
+        } catch (Exception e) {
+            throw new ModuleException("Connect exception detected:", ErrorType.CONNECTION_ERROR, e);
         }
-        logger.debug("Wrote {} documents to the database.", contents.length);
     }
 
     private DocumentMetadataHandle makeMetadata() {

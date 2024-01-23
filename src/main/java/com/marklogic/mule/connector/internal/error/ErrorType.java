@@ -23,6 +23,8 @@ public enum ErrorType implements ErrorTypeDefinition<ErrorType> {
 
     CONNECTION_ERROR,
 
-    XML_TRANSFORMER_ERROR;
+    XML_TRANSFORMER_ERROR,
+
+    FAILED_REQUEST_ERROR;
 
 }
