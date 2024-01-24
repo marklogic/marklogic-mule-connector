@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -185,8 +186,16 @@ public class DocumentAttributes {
         return metadata.getQuality();
     }
 
-    public Map<String, Set<DocumentMetadataHandle.Capability>> getPermissions() {
-        return metadata.getPermissions();
+    public Map<String, Set<String>> getPermissions() {
+        Map<String, Set<String>> permissionsMap = new HashMap<>();
+        metadata.getPermissions().forEach((key, capabilitySet) -> {
+            Set<String> capabilities = new HashSet<>();
+            capabilitySet.forEach(capability ->
+                capabilities.add(capability.name())
+            );
+            permissionsMap.put(key, capabilities);
+        });
+        return permissionsMap;
     }
 
     public Map<QName, Object> getProperties() {

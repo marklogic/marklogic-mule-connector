@@ -17,21 +17,7 @@
  */
 package com.marklogic.mule.connector.api.types;
 
-import com.marklogic.client.DatabaseClient;
-
 public enum ConnectionType {
-    DIRECT {
-        @Override
-        public DatabaseClient.ConnectionType getMarkLogicConnectionType() {
-            return DatabaseClient.ConnectionType.DIRECT;
-        }
-    },
-    GATEWAY {
-        @Override
-        public DatabaseClient.ConnectionType getMarkLogicConnectionType() {
-            return DatabaseClient.ConnectionType.GATEWAY;
-        }
-    };
-
-    public abstract DatabaseClient.ConnectionType getMarkLogicConnectionType();
+    DIRECT,
+    GATEWAY;
 }

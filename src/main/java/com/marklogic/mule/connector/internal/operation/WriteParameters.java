@@ -117,7 +117,7 @@ public class WriteParameters {
         for (InputStream inputStream : contents) {
             writeSet.add(makeUri(), metadata,
                 new InputStreamHandle(inputStream)
-                    .withFormat(documentFormat != null ? documentFormat.getFormat() : Format.UNKNOWN));
+                    .withFormat(documentFormat != null ? Format.valueOf(documentFormat.name()) : Format.UNKNOWN));
         }
 
         final ServerTransform serverTransform = Utilities.hasText(transform) ?
@@ -126,7 +126,7 @@ public class WriteParameters {
 
         try {
             if (Utilities.hasText(temporalCollection)) {
-                if (documentFormat != null && Format.XML.equals(documentFormat.getFormat())) {
+                if (documentFormat != null && Format.XML.equals(Format.valueOf(documentFormat.name()))) {
                     databaseClient.newXMLDocumentManager().write(writeSet, serverTransform, null, temporalCollection);
                 } else {
                     databaseClient.newJSONDocumentManager().write(writeSet, serverTransform, null, temporalCollection);
