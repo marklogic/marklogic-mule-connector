@@ -34,6 +34,7 @@
     <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
     <maven.resources.plugin.version>3.0.0</maven.resources.plugin.version>
     <mavenResourcesVersion>3.0.0</mavenResourcesVersion>
+    <mavenCompilerVersion>3.12.1</mavenCompilerVersion>
     <runtimeVersion>4.3.0</runtimeVersion>
 
   </properties>
