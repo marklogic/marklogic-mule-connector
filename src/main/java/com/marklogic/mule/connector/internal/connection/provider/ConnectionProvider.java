@@ -149,7 +149,7 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
             .withBasePath(basePath)
             .withDatabase(database)
             .withAuthType(authenticationType.name())
-            .withConnectionType(connectionType.getMarkLogicConnectionType())
+            .withConnectionType(DatabaseClient.ConnectionType.valueOf(connectionType.name()))
             .withUsername(username)
             .withPassword(password)
             .withCloudApiKey(cloudApiKey)
@@ -202,7 +202,18 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
         );
 
         if (hostnameVerifier != null) {
-            builder.withSSLHostnameVerifier(hostnameVerifier.getSslHostnameVerifier());
+            switch (hostnameVerifier) {
+                case COMMON:
+                    builder.withSSLHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.COMMON);
+                    break;
+                case STRICT:
+                    builder.withSSLHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.STRICT);
+                    break;
+                case ANY:
+                default:
+                    builder.withSSLHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.ANY);
+                    break;
+            }
         }
     }
 
