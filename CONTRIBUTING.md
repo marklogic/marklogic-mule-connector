@@ -243,7 +243,7 @@ General->Config id: MarkLogic_Config
 
 ### Anypoint - Debugging
 Steps to debug a flow
-1. Change the Anypoint Studio perspeective to the Mule Debug perspective using the top-level menus. Choose Window -> Perspective -> Open Perspective -> Mule Debug. Alternatively, click the "Mule Debug" icon in the top-right corner of the studio.
+1. Change the Anypoint Studio perspective to the Mule Debug perspective using the top-level menus. Choose Window -> Perspective -> Open Perspective -> Mule Debug. Alternatively, click the "Mule Debug" icon in the top-right corner of the studio.
 2. Run the application in debug mode using the top-level menus. Choose Run -> Debug As -> Mule Application. Alternatively, click the "Debug" icon in the toolbar.
 3. In the "Message Flow" tab, right-click an operation and choose "Add breakpoint" to stop execution on that operation.
 4. Initiate the flow.
