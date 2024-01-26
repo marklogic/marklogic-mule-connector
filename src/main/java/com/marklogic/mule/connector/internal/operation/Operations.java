@@ -18,6 +18,7 @@
 package com.marklogic.mule.connector.internal.operation;
 
 import com.marklogic.client.DatabaseClient;
+import com.marklogic.mule.connector.api.types.DocumentAttributes;
 import com.marklogic.mule.connector.internal.error.provider.ExecuteErrorsProvider;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Connection;
@@ -48,7 +49,7 @@ public class Operations {
     @MediaType(value = ANY, strict = false)
     @Summary("Returns the content, URI, and optional metadata for each document matching the query criteria.")
     @Throws(ExecuteErrorsProvider.class)
-    public PagingProvider<DatabaseClient, Result<InputStream, InputStream>> readDocuments(
+    public PagingProvider<DatabaseClient, Result<InputStream, DocumentAttributes>> readDocuments(
         @ParameterGroup(name = "Query Settings") QueryParameters queryParameters
     ) {
         return new ReadPagingProvider(queryParameters);
