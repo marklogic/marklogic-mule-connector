@@ -108,8 +108,17 @@ public class MetadataVerifier {
             assertEquals(((long) expectedPropertyCount), attributes.getProperties().size());
             if (expectedPropertyCount > 0) {
                 for (int i = 0; i < expectedProperties.length; i = i + 2) {
-                    QName propertyKey = new QName(expectedProperties[i]);
-                    assertEquals(expectedProperties[i + 1], attributes.getProperties().get(propertyKey).toString());
+                    boolean notFound = true;
+                    for (QName key : attributes.getProperties().keySet()) {
+                        if (key.toString().equals(expectedProperties[i])) {
+                            notFound = false;
+                            assertEquals(expectedProperties[i + 1], attributes.getProperties().get(key));
+                            break;
+                        }
+                    }
+                    if (notFound) {
+                        fail("A matching property key was not found.");
+                    }
                 }
             }
         }

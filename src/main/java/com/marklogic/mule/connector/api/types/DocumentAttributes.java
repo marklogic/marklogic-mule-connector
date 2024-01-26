@@ -17,161 +17,41 @@
  */
 package com.marklogic.mule.connector.api.types;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.marklogic.client.io.DocumentMetadataHandle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
-
 import javax.xml.namespace.QName;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
-/**
- * Wraps a document's URI and metadata and knows how to serialize the data to JSON and deserialize it from JSON.
- */
 public class DocumentAttributes {
-    private static final Logger logger = LoggerFactory.getLogger(DocumentAttributes.class);
+
     private final String uri;
-    private final DocumentMetadataHandle metadata;
+    private final Set<String> collections;
+    private final Map<String, Set<String>> permissions;
+    private final Map<QName, String> properties;
+    private final Map<String, String> metadataValues;
+    private final int quality;
 
-    private static final String QUALITY = "quality";
-    private static final String COLLECTIONS = "collections";
-    private static final String PERMISSIONS = "permissions";
-    private static final String PROPERTIES = "properties";
-    private static final String METADATA_VALUES = "metadataValues";
-
-
-    public DocumentAttributes(String uri, DocumentMetadataHandle metadata) {
+    public DocumentAttributes(
+        String uri, Set<String> collections, Map<String, Set<String>> permissions,
+        Map<QName, String> properties, Map<String, String> metadataValues, int quality)
+    {
         this.uri = uri;
-        this.metadata = metadata;
+        this.collections = collections;
+        this.permissions = permissions;
+        this.properties = properties;
+        this.metadataValues = metadataValues;
+        this.quality = quality;
     }
 
-    /**
-     * @param objectMapper an objectMapper is used to an ObjectNode which can be serialized into a Stream
-     * @param transformerSupplier a Supplier is used to lazily instantiate this in case it's never needed.
-     * @return a ByteArrayInputStream containing the serialized node
-     */
-    public InputStream serializeToJsonStream(ObjectMapper objectMapper, Supplier<Transformer> transformerSupplier) {
-        ObjectNode node = objectMapper.createObjectNode();
-        node.put("uri", uri);
-        serializeCollections(node);
-        serializePermissions(node);
-        serializeProperties(transformerSupplier, node);
-        serializeMetadataValues(node);
-        node.put(QUALITY, metadata.getQuality());
-        return new ByteArrayInputStream(node.toString().getBytes(StandardCharsets.UTF_8));
-    }
-
-    public DocumentAttributes(String attributesJson) throws JsonProcessingException {
-        JsonNode attributesNode = new ObjectMapper().readTree(attributesJson);
-        this.uri = (attributesNode.get("uri") != null) ? attributesNode.get("uri").textValue() : null;
-        this.metadata = new DocumentMetadataHandle();
-        deserializeCollections(attributesNode);
-        deserializePermissions(attributesNode);
-        deserializeProperties(attributesNode);
-        deserializeMetadataValues(attributesNode);
-        if (attributesNode.has(QUALITY)) {
-            metadata.setQuality(attributesNode.get(QUALITY).asInt());
-        }
-    }
-
-    private void serializeCollections(ObjectNode node) {
-        ArrayNode collections = node.putArray(COLLECTIONS);
-        metadata.getCollections().forEach(collections::add);
-    }
-
-    private void serializePermissions(ObjectNode node) {
-        ArrayNode permissionsArray = node.putArray(PERMISSIONS);
-        metadata.getPermissions().forEach((role, permList) -> {
-            ObjectNode roleNode = permissionsArray.addObject();
-            ArrayNode permArray = roleNode.putArray(role);
-            permList.forEach(perm -> permArray.add(perm.name()));
-        });
-    }
-
-    private void serializeProperties(Supplier<Transformer> transformerSupplier, ObjectNode node) {
-        ArrayNode propertiesArray = node.putArray(PROPERTIES);
-        metadata.getProperties().forEach((property, value) -> {
-            ObjectNode propertyNode = propertiesArray.addObject();
-            if (value instanceof Node) {
-                Writer out = new StringWriter();
-                try {
-                    transformerSupplier.get().transform(new DOMSource(((Node) value).getFirstChild()), new StreamResult(out));
-                    propertyNode.put(property.toString(), out.toString());
-                } catch (TransformerException e) {
-                    // We do not expect this to ever happen.
-                    logger.warn("Failed to serialize the properties");
-                }
-            } else {
-                propertyNode.put(property.toString(), value.toString());
-            }
-        });
-    }
-
-    private void serializeMetadataValues(ObjectNode node) {
-        ArrayNode metadataValuesArray = node.putArray(METADATA_VALUES);
-        metadata.getMetadataValues().forEach((key, value) -> {
-            ObjectNode propertyNode = metadataValuesArray.addObject();
-            propertyNode.put(key, value);
-        });
-    }
-
-    private void deserializeCollections(JsonNode attributesNode) {
-        if (attributesNode.has(COLLECTIONS)) {
-            for (final JsonNode collectionNode : attributesNode.get(COLLECTIONS)) {
-                this.metadata.withCollections(collectionNode.textValue());
-            }
-        }
-    }
-
-    private void deserializePermissions(JsonNode attributesNode) {
-        if (attributesNode.has(PERMISSIONS)) {
-            attributesNode.get(PERMISSIONS).forEach(permObj -> {
-                String roleName = permObj.fieldNames().next();
-                Set<DocumentMetadataHandle.Capability> capabilities = new HashSet<>();
-                permObj.get(roleName).forEach(capability ->
-                    capabilities.add(DocumentMetadataHandle.Capability.valueOf(capability.textValue()))
-                );
-                this.metadata.withPermission(roleName, capabilities.toArray(new DocumentMetadataHandle.Capability[]{}));
-            });
-        }
-    }
-
-    private void deserializeProperties(JsonNode attributesNode) {
-        if (attributesNode.has(PROPERTIES)) {
-            attributesNode.get(PROPERTIES).forEach(propObj -> {
-                String propName = propObj.fieldNames().next();
-                String propVal = propObj.get(propName).asText();
-                this.metadata.withProperty(new QName(propName), propVal);
-            });
-        }
-    }
-
-    private void deserializeMetadataValues(JsonNode attributesNode) {
-        if (attributesNode.has(METADATA_VALUES)) {
-            attributesNode.get(METADATA_VALUES).forEach(metadataValueObj -> {
-                String name = metadataValueObj.fieldNames().next();
-                String val = metadataValueObj.get(name).textValue();
-                this.metadata.withMetadataValue(name, val);
-            });
-        }
+    @Override
+    public String toString() {
+        // This is solely for testing/debugging.
+        return "[" + uri +
+                ";" + collections +
+                ";" + permissions +
+                ";" + quality +
+                ";" + metadataValues +
+                ";" + properties +
+                "]";
     }
 
     public String getUri() {
@@ -179,30 +59,22 @@ public class DocumentAttributes {
     }
 
     public Set<String> getCollections() {
-        return metadata.getCollections();
+        return collections;
     }
 
     public int getQuality() {
-        return metadata.getQuality();
+        return quality;
     }
 
     public Map<String, Set<String>> getPermissions() {
-        Map<String, Set<String>> permissionsMap = new HashMap<>();
-        metadata.getPermissions().forEach((key, capabilitySet) -> {
-            Set<String> capabilities = new HashSet<>();
-            capabilitySet.forEach(capability ->
-                capabilities.add(capability.name())
-            );
-            permissionsMap.put(key, capabilities);
-        });
-        return permissionsMap;
+        return permissions;
     }
 
-    public Map<QName, Object> getProperties() {
-        return metadata.getProperties();
+    public Map<QName, String> getProperties() {
+        return properties;
     }
 
     public Map<String, String> getMetadataValues() {
-        return metadata.getMetadataValues();
+        return metadataValues;
     }
 }
