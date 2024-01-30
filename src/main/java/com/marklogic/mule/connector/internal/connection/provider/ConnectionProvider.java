@@ -76,7 +76,7 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
 
     @Parameter
     @DisplayName("Connection Type")
-    @Summary("Set to GATEWAY when connecting to MarkLogic through a load balancer; otherwise select DEFAULT.")
+    @Summary("Set to GATEWAY when connecting to MarkLogic through a load balancer; otherwise select DIRECT.")
     @Optional(defaultValue = "DIRECT")
     private ConnectionType connectionType;
 
