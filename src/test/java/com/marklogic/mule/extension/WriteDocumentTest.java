@@ -1,8 +1,24 @@
+/**
+ * MarkLogic Mule Connector
+ *
+ * Copyright © 2024 MarkLogic Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.marklogic.mule.extension;
 
 
-import com.marklogic.mule.extension.api.DocumentAttributes;
-import org.junit.Ignore;
+import com.marklogic.mule.connector.api.types.DocumentAttributes;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -189,22 +205,6 @@ public class WriteDocumentTest extends AbstractFlowTester {
         MetadataVerifier.assertMetadata(documentData.getAttributes(), "/documentWithTemporalCollection.xml")
             .includesPermissions("rest-reader", "read", "rest-reader", "update")
             .collections(3, "mule-temporal-collection", "/documentWithTemporalCollection.xml", "latest")
-            .verify();
-    }
-
-    @Test
-    @Ignore("Temporarily ignored; something about 'quality' and 'restTransform' aren't playing well together when " +
-        "a DocumentWriteSet is used. It may be a bug in the REST API or in the Java Client, I'll work on " +
-        "reproducing in the Java Client.")
-    public void writeDocumentWithTransform() {
-        DocumentData documentData = runFlowGetDocumentData("writeDocumentWithTransform");
-        assertEquals("The contents of the message should match the transformed contents of the test3 document.",
-            "{\"key\":\"value\"}", documentData.getContents());
-        assertTrue(documentData.isJSON());
-        MetadataVerifier.assertMetadata(documentData.getAttributes(), "/writeDocumentWithTransform")
-            .collections(1, "transformed-data")
-            .includesPermissions("rest-reader", "read", "rest-reader", "update")
-            .quality(14)
             .verify();
     }
 

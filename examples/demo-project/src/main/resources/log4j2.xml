@@ -22,6 +22,7 @@
         <!--AsyncLogger name="org.mule.service.http.impl.service.HttpMessageLogger" level="DEBUG"/-->
         <AsyncLogger name="org.mule.service.http" level="WARN"/>
         <AsyncLogger name="org.mule.extension.http" level="WARN"/>
+        <AsyncLogger name="com.marklogic" level="WARN"/>
 
         <!-- Mule logger -->
         <AsyncLogger name="org.mule.runtime.core.internal.processor.LoggerMessageProcessor" level="INFO"/>

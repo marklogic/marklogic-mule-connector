@@ -18,7 +18,7 @@ pipeline{
     stage('tests'){
       steps{
       withSonarQubeEnv('SONAR_Progress') {
-      withCredentials([string(credentialsId: 'mule-connector-repo-password', variable: 'mule-repository-password')]) {
+      withCredentials([string(credentialsId: 'mule-connector-repo-password', variable: 'MULE_REPOSITORY_PASSWORD')]) {
         copyRPM 'Release','11.1.0'
         setUpML '$WORKSPACE/xdmp/src/Mark*.rpm'
         sh label:'runtests', script: '''#!/bin/bash
@@ -29,7 +29,7 @@ pipeline{
           echo "mlPassword=admin" > gradle-local.properties
           ./gradlew -i mlDeploy
           cd $WORKSPACE/marklogic-mule-connector/
-          mvn  clean install -Dmule.repository.password=$mule-repository-password
+          mvn --settings ./settings.xml clean install -Dmule.repository.password=$MULE_REPOSITORY_PASSWORD
            export JAVA_HOME=$JAVA11_HOME_DIR
            export GRADLE_USER_HOME=$WORKSPACE/$GRADLE_DIR
            export PATH=$JAVA_HOME/bin:$MVN_HOME/bin:$GRADLE_USER_HOME:$PATH
