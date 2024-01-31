@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="   http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd   http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd   http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+  <munit:config name="mtf-basic-connector-usage.xml"/>
+  <marklogic:config doc:id="65ff37b7-46d4-422b-baf8-2d0d021723a7" doc:name="MarkLogic Connection Configuration" name="MarkLogic_Connection_Configuration">
+    <marklogic:connection host="172.172.161.196" password="password" port="8022" username="mule2-test-user"/>
+  </marklogic:config>
+  <marklogic:config doc:id="d6a61d6c-a217-469a-ae0c-c404bbc710b8" doc:name="MarkLogic Connection Configuration" name="MarkLogic_INVALID_Connection_Configuration">
+    <marklogic:connection host="172.172.161.196" password="password" port="8122" username="mule2-test-user"/>
+  </marklogic:config>
+  <munit:test doc:id="ff4ec6ff-3bda-409e-9b5f-b89cec79c5bd" name="verify-write-and-read-documents">
+    <munit:execution>
+      <marklogic:read-documents collections="dummy" config-ref="MarkLogic_Connection_Configuration" doc:name="Prepare Database" transform="prepare-database" doc:description='This purpose of thie query is to clear the database of any documents NOT in the "test-data" collection.'/>
+      <set-payload doc:id="19f8fb4d-6ba7-4ba1-93f4-f2dd4c04a501" value="#[[&#10;'{&quot;A&quot;:&quot;a&quot;}', '{&quot;B&quot;:&quot;b&quot;}', '{&quot;C&quot;:&quot;c&quot;}', '{&quot;D&quot;:&quot;d&quot;}', '{&quot;E&quot;:&quot;e&quot;}',&#10;'{&quot;F&quot;:&quot;f&quot;}', '{&quot;G&quot;:&quot;g&quot;}', '{&quot;H&quot;:&quot;h&quot;}', '{&quot;I&quot;:&quot;i&quot;}', '{&quot;J&quot;:&quot;j&quot;}'&#10;]]" doc:name="Set Payload to 10 JSON documents"/>
+      <set-variable value="#[sizeOf(payload)]" doc:name="Save the number of documents to be written" doc:id="6383564f-dee2-4f52-9965-f50de5e6773e" variableName="numDocumentsSentToDatabase"/>
+      <marklogic:write-documents collections="test_input" config-ref="MarkLogic_Connection_Configuration" doc:id="c9a627a9-ba74-4a50-8f17-d1b0bd8f2806" doc:name="Write documents to database" uriPrefix="/test_input/" uriSuffix=".json"/>
+      <marklogic:read-documents collections="test_input" config-ref="MarkLogic_Connection_Configuration" doc:id="563fb52c-44b2-444e-95a8-78348c5452b1" doc:name="Read documents from database"/>
+    </munit:execution>
+    <munit:validation >
+      <munit-tools:assert-equals actual="#[sizeOf(payload)]" doc:id="2321b751-6679-4850-bd8f-ba28e0b512ad" doc:name="Assert # of documents read equals the # of documents written" expected="#[vars.numDocumentsSentToDatabase]" message="The number of documents read should equal the number of documents written" />
+    </munit:validation>
+  </munit:test>
+  <munit:test doc:id="56dee1fc-a495-42a7-bb28-f3e11b10b2c0" name="verify-catching-connection-failure">
+    <munit:execution>
+      <set-payload doc:id="75457a85-e525-4e55-a6d3-e6672f2aa4a1" doc:name="Set Payload to 10 JSON documents" value="#[[&#10;'{&quot;A&quot;:&quot;a&quot;}', '{&quot;B&quot;:&quot;b&quot;}', '{&quot;C&quot;:&quot;c&quot;}', '{&quot;D&quot;:&quot;d&quot;}', '{&quot;E&quot;:&quot;e&quot;}',&#10;'{&quot;F&quot;:&quot;f&quot;}', '{&quot;G&quot;:&quot;g&quot;}', '{&quot;H&quot;:&quot;h&quot;}', '{&quot;I&quot;:&quot;i&quot;}', '{&quot;J&quot;:&quot;j&quot;}'&#10;]]"/>
+      <try doc:id="64e980e8-7674-494f-872b-e312112fefeb" doc:name="Try">
+        <marklogic:write-documents collections="bad_test_input" config-ref="MarkLogic_INVALID_Connection_Configuration" doc:id="50b34c10-b616-45e7-9c63-7366cea03bf4" doc:name="Attempt to write documents with an invalid connection configuration"/>
+        <munit-tools:fail doc:id="12cb678d-89b4-47c2-8821-855b74d60167" doc:name="If an error is not captured, then Fail the test" message="If an error is not captured, then Fail the test"/>
+        <error-handler>
+          <on-error-continue doc:id="25022f9e-eba5-4e4e-891a-11bf6d19a1af" doc:name="On Error Continue" enableNotifications="true" logException="true">
+            <logger doc:id="4e906539-e432-4684-a1c7-bc266c602280" doc:name="Logger" level="INFO" message="Write Error" />
+          </on-error-continue>
+        </error-handler>
+      </try>
+    </munit:execution>
+  </munit:test>
+  <munit:test name="verify-error-handler-on-connection-failure" doc:id="00e145c7-82ae-4732-88b1-8818d7c18305" >
+    <munit:execution>
+      <flow-ref doc:name="Flow Reference" doc:id="23937183-34b6-4048-9568-bcc8217c3629" name="error-handling-flow"/>
+    </munit:execution>
+    <munit:validation >
+      <munit-tools:verify-call doc:name="Verify error handler called" doc:id="6aaaee49-4482-426c-8829-fde34edc32a6" processor="logger" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="e5cc4161-0b16-4c01-ab7c-5cb32e593e9b" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify logger after failed processor is not called" doc:id="038e75e1-44dd-432c-afe2-4637e7cf8cd4" processor="logger" times="0">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="2858e388-a160-4585-8c37-b20cb2f48104" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+    </munit:validation>
+  </munit:test>
+  <munit:test name="verify-lack-of-permission-error-handler" doc:id="d512d0a0-17da-4f46-91ed-fcebd99cca00" >
+    <munit:execution >
+      <flow-ref doc:name="Flow Reference" doc:id="3ea868fa-bfe7-4ad2-b03f-76ebd84579d5" name="lack-of-permission-flow" />
+    </munit:execution>
+    <munit:validation >
+      <munit-tools:verify-call doc:name="Verify FAILED REQUEST logger WAS called" doc:id="19b3a518-d000-4936-a07d-7d8ca0a22b07" processor="logger" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="34a7b18a-dee4-4c45-9d6a-5bc38a9a09ff" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify CONNECTION_ERROR logger was NOT called" doc:id="f2277959-300b-42a5-8189-0a66c32fb50e" processor="logger" times="0" >
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="cec2a02e-927f-437b-8da4-ab07202552c0" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify MULE:* handler is not used" doc:id="6f52e1ee-0025-4285-bc9f-1c3a769b9a57" processor="logger" times="0" >
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="cf99d94c-53d4-486b-9fa3-ace5c5f41dd8" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify default error logger is not called" doc:id="417e25bc-a98a-4c84-a3f1-5225a38522bc" processor="logger" times="0">
+        <munit-tools:with-attributes>
+          <munit-tools:with-attribute whereValue="bb58e549-d1a6-4669-8b1c-dfba8f0948b3" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify logger after failed processor is not called - 1" doc:id="bc7fa533-9400-4208-885a-823a03173c55" processor="logger" times="0" >
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="e818405a-441b-4c09-bc5e-7ddfd999f74f" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+    </munit:validation>
+  </munit:test>
+
+</mule>

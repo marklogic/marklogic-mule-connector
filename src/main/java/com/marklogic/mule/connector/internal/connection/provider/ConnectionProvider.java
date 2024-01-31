@@ -1,11 +1,13 @@
-/*
- * Copyright (c) 2023 MarkLogic Corporation
+/**
+ * MarkLogic Mule Connector
+ *
+ * Copyright © 2024 MarkLogic Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,15 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.mule.extension;
+package com.marklogic.mule.connector.internal.connection.provider;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientBuilder;
 import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.impl.SSLUtil;
-import com.marklogic.mule.extension.api.AuthenticationType;
-import com.marklogic.mule.extension.api.ConnectionType;
-import com.marklogic.mule.extension.api.HostnameVerifier;
+import com.marklogic.mule.connector.api.types.AuthenticationType;
+import com.marklogic.mule.connector.api.types.ConnectionType;
+import com.marklogic.mule.connector.api.types.HostnameVerifier;
+import com.marklogic.mule.connector.internal.error.ErrorType;
 import org.mule.runtime.api.connection.CachedConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.lifecycle.Initialisable;
@@ -30,12 +33,19 @@ import org.mule.runtime.api.tls.TlsContextFactory;
 import org.mule.runtime.api.tls.TlsContextTrustStoreConfiguration;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
-import org.mule.runtime.extension.api.annotation.param.display.*;
+import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
+import org.mule.runtime.extension.api.annotation.param.display.Example;
+import org.mule.runtime.extension.api.annotation.param.display.Password;
+import org.mule.runtime.extension.api.annotation.param.display.Placement;
+import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.exception.ModuleException;
 
 import javax.net.ssl.X509TrustManager;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+
+import static org.mule.runtime.extension.api.annotation.param.display.Placement.DEFAULT_TAB;
+import static org.mule.runtime.extension.api.annotation.param.display.Placement.SECURITY_TAB;
 
 /**
  * Implements {@code CachedConnectionProvider} per
@@ -47,11 +57,13 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
     @Parameter
     @Summary("The hostname of the MarkLogic server to connect to.")
     @Example("localhost")
+    @Placement(tab = DEFAULT_TAB)
     private String host = "localhost";
 
     @Parameter
     @Summary("The port of the MarkLogic REST API app server to connect to.")
     @Example("8000")
+    @Placement(tab = DEFAULT_TAB)
     private Integer port;
 
     @Parameter
@@ -64,7 +76,7 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
 
     @Parameter
     @DisplayName("Connection Type")
-    @Summary("Set to GATEWAY when connecting to MarkLogic through a load balancer; otherwise select DEFAULT.")
+    @Summary("Set to GATEWAY when connecting to MarkLogic through a load balancer; otherwise select DIRECT.")
     @Optional(defaultValue = "DIRECT")
     private ConnectionType connectionType;
 
@@ -110,18 +122,19 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
     @Summary("Identifies the MarkLogic content database to query; only required when the database associated with " +
         "the app server identified by the 'Port' value is not the one you wish to query.")
     @Optional
+    @Placement(tab = SECURITY_TAB)
     private String database;
 
     @Parameter
     @DisplayName("TLS Context")
-    @Placement(tab = "SSL/TLS")
     @Summary("Controls how SSL/TLS connections are made with MarkLogic.")
     @Optional
+    @Placement(tab = SECURITY_TAB)
     private TlsContextFactory tlsContextFactory;
 
     @Parameter
     @DisplayName("Hostname Verifier")
-    @Placement(tab = "SSL/TLS")
+    @Placement(tab = SECURITY_TAB)
     @Summary("Specifies how a hostname is verified during SSL authentication. COMMON allows any level of subdomain " +
         "for SSL certificates with wildcard domains. STRICT only allows one subdomain level for SSL certificates with " +
         "wildcard domains. ANY disables hostname verification and is not recommended for production usage.")
@@ -136,7 +149,7 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
             .withBasePath(basePath)
             .withDatabase(database)
             .withAuthType(authenticationType.name())
-            .withConnectionType(connectionType.getMarkLogicConnectionType())
+            .withConnectionType(DatabaseClient.ConnectionType.valueOf(connectionType.name()))
             .withUsername(username)
             .withPassword(password)
             .withCloudApiKey(cloudApiKey)
@@ -189,7 +202,18 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
         );
 
         if (hostnameVerifier != null) {
-            builder.withSSLHostnameVerifier(hostnameVerifier.getSslHostnameVerifier());
+            switch (hostnameVerifier) {
+                case COMMON:
+                    builder.withSSLHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.COMMON);
+                    break;
+                case STRICT:
+                    builder.withSSLHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.STRICT);
+                    break;
+                case ANY:
+                default:
+                    builder.withSSLHostnameVerifier(DatabaseClientFactory.SSLHostnameVerifier.ANY);
+                    break;
+            }
         }
     }
 
@@ -198,8 +222,8 @@ public class ConnectionProvider implements CachedConnectionProvider<DatabaseClie
      * Ideally the Java Client can make this public, as it is handling some tedious but well-known Java code
      * for constructing a trust manager based on a truststore.
      *
-     * @param config
-     * @return
+     * @param config contains the configuration necessary to build the X509 Trust Manager
+     * @return an X509TrustManager object
      */
     private X509TrustManager newTrustManager(TlsContextTrustStoreConfiguration config) {
         KeyStore trustStore = SSLUtil.getKeyStore(config.getPath(), config.getPassword().toCharArray(), config.getType());

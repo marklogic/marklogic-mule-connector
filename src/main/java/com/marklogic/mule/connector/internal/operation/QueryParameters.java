@@ -1,4 +1,21 @@
-package com.marklogic.mule.extension;
+/**
+ * MarkLogic Mule Connector
+ *
+ * Copyright © 2024 MarkLogic Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.marklogic.mule.connector.internal.operation;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.document.DocumentManager;
@@ -6,8 +23,10 @@ import com.marklogic.client.io.Format;
 import com.marklogic.client.io.StringHandle;
 import com.marklogic.client.query.QueryDefinition;
 import com.marklogic.client.query.QueryManager;
-import com.marklogic.mule.extension.api.QueryFormat;
-import com.marklogic.mule.extension.api.QueryType;
+import com.marklogic.mule.connector.internal.Utilities;
+import com.marklogic.mule.connector.api.types.QueryFormat;
+import com.marklogic.mule.connector.api.types.QueryType;
+import org.mule.runtime.extension.api.annotation.param.NullSafe;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
@@ -26,6 +45,7 @@ public class QueryParameters {
     @Parameter
     @DisplayName("Document URIs")
     @Optional
+    @NullSafe
     @Summary("Specify one or more document URIs to read. If specified, all other parameters for querying will be ignored.")
     List<String> uris;
 

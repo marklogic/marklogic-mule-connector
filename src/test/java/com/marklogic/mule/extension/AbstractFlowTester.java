@@ -1,6 +1,23 @@
+/**
+ * MarkLogic Mule Connector
+ *
+ * Copyright © 2024 MarkLogic Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.marklogic.mule.extension;
 
-import com.marklogic.mule.extension.api.DocumentAttributes;
+import com.marklogic.mule.connector.api.types.DocumentAttributes;
 import org.junit.Before;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.runtime.api.message.Message;
@@ -63,17 +80,14 @@ public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase 
 
     private DocumentData toDocumentData(Message message) {
         String content;
-        DocumentAttributes attributes;
         try {
             content = getPayloadAsString(message);
-            String attributesJson = new String(FileCopyUtils.copyToByteArray((InputStream) message.getAttributes().getValue()));
-            attributes = new DocumentAttributes(attributesJson);
         } catch (Exception e) {
             throw new RuntimeException("Unable to get payload as string", e);
         }
         return new DocumentData(
             content,
-            attributes,
+            (DocumentAttributes) message.getAttributes().getValue(),
             message.getPayload().getDataType().getMediaType().toRfcString()
         );
 

@@ -1,22 +1,46 @@
-package com.marklogic.mule.extension;
+/**
+ * MarkLogic Mule Connector
+ *
+ * Copyright © 2024 MarkLogic Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.marklogic.mule.connector.internal.operation;
 
 import com.marklogic.client.DatabaseClient;
+import com.marklogic.client.FailedRequestException;
 import com.marklogic.client.document.DocumentWriteSet;
 import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.Format;
 import com.marklogic.client.io.InputStreamHandle;
-import com.marklogic.mule.extension.api.DocumentFormat;
+import com.marklogic.mule.connector.internal.Utilities;
+import com.marklogic.mule.connector.api.types.DocumentFormat;
+import com.marklogic.mule.connector.internal.error.ErrorType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.runtime.extension.api.exception.ModuleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.UUID;
 
 public class WriteParameters {
+    private static final Logger logger = LoggerFactory.getLogger(WriteParameters.class);
 
     @Parameter
     @Summary("Format of documents to write to MarkLogic. Selecting 'UNKNOWN' will result in MarkLogic determining the format based on the URI extension.")
@@ -93,21 +117,28 @@ public class WriteParameters {
         for (InputStream inputStream : contents) {
             writeSet.add(makeUri(), metadata,
                 new InputStreamHandle(inputStream)
-                    .withFormat(documentFormat != null ? documentFormat.getFormat() : Format.UNKNOWN));
+                    .withFormat(documentFormat != null ? Format.valueOf(documentFormat.name()) : Format.UNKNOWN));
         }
 
         final ServerTransform serverTransform = Utilities.hasText(transform) ?
             Utilities.makeServerTransform(transform, transformParameters, transformParametersDelimiter) :
             null;
 
-        if (Utilities.hasText(temporalCollection)) {
-            if (documentFormat != null && Format.XML.equals(documentFormat.getFormat())) {
-                databaseClient.newXMLDocumentManager().write(writeSet, serverTransform, null, temporalCollection);
+        try {
+            if (Utilities.hasText(temporalCollection)) {
+                if (documentFormat != null && Format.XML.equals(Format.valueOf(documentFormat.name()))) {
+                    databaseClient.newXMLDocumentManager().write(writeSet, serverTransform, null, temporalCollection);
+                } else {
+                    databaseClient.newJSONDocumentManager().write(writeSet, serverTransform, null, temporalCollection);
+                }
             } else {
-                databaseClient.newJSONDocumentManager().write(writeSet, serverTransform, null, temporalCollection);
+                databaseClient.newDocumentManager().write(writeSet, serverTransform);
             }
-        } else {
-            databaseClient.newDocumentManager().write(writeSet, serverTransform);
+            logger.debug("Wrote {} documents to the database.", contents.length);
+        } catch (FailedRequestException e) {
+            throw new ModuleException("Failed request detected:", ErrorType.FAILED_REQUEST_ERROR, e);
+        } catch (Exception e) {
+            throw new ModuleException("Connect exception detected:", ErrorType.CONNECTION_ERROR, e);
         }
     }
 

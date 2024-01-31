@@ -11,7 +11,7 @@ efficiently write large quantities of any kind of data to MarkLogic's schema-agn
 
 The connector has the following system requirements:
 
-* Mule 4.1 or higher.
+* Mule 4.3 or higher.
 * Anypoint Studio 7.x or higher.
 * MarkLogic 9 or higher.
 
